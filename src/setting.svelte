@@ -10,7 +10,7 @@
         type: "checkbox",
         title: "随机浏览",
         description:
-          "在界面右上角生成一个图标，点击可跳转指定 id 条目；由于跳转通过 SQL 配置，你也可以配置固定跳转到某个块或文档。",
+          "在界面右上角生成一个随机图标，点击可跳转指定 id 条目；由于跳转通过 SQL 配置，你也可以配置固定跳转到某个块或文档。",
         key: "randomNote",
         value: settings.getFlag("randomNote"),
         hasSetting: true,
@@ -35,7 +35,7 @@
         type: "checkbox",
         title: "中文排版",
         description:
-          "右上角增加图标/块菜单打开事件增加格式化文档的功能；注意有损坏数据风险。",
+          "右上角增加机器人图标/块菜单打开事件增加格式化文档的功能；注意有损坏数据风险。",
         key: "typography",
         value: settings.getFlag("typography"),
       },

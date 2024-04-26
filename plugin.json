@@ -2,7 +2,7 @@
   "name": "siyuan-hqweay-go",
   "author": "养恐龙",
   "url": "https://github.com/hqweay/siyuan-hqweay-go",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "minAppVersion": "3.0.0",
   "backends": [
     "windows",
@@ -20,12 +20,12 @@
     "browser-mobile"
   ],
   "displayName": {
-    "en_US": "恐龙工具包",
-    "zh_CN": "恐龙工具包"
+    "en_US": "恐龙工具箱",
+    "zh_CN": "恐龙工具箱"
   },
   "description": {
-    "en_US": "恐龙工具包",
-    "zh_CN": "恐龙工具包"
+    "en_US": "这使你充满了决心。",
+    "zh_CN": "这使你充满了决心。"
   },
   "readme": {
     "en_US": "README.md",
