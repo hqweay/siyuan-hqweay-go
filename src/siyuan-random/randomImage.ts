@@ -4,31 +4,29 @@ const fs = require("fs");
 const path = require("path");
 
 export default class RandomImage {
-
   changeImageBindThis = this.changeImage.bind(this);
   onunload() {
-    document
-      .querySelector(
-        '.protyle-icon.b3-tooltips.b3-tooltips__sw[data-type="show-random"]'
-      )
-      .removeEventListener("contextmenu", this.changeImageBindThis);
+    document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
   onload() {
-    document
-      .querySelector(
-        '.protyle-icon.b3-tooltips.b3-tooltips__sw[data-type="show-random"]'
-      )
-      .addEventListener("contextmenu", this.changeImageBindThis);
+    document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
   async changeImage(event, ele) {
+    console.log("try to change Image");
     let targetEle = event.target;
     if (ele) {
       targetEle = ele;
     }
     if (targetEle.tagName == "svg" || targetEle.tagName == "use") {
       this.changeImage(event, targetEle.parentElement);
+      return;
+    }
+
+    if (
+      targetEle.classList.value !== "protyle-icon b3-tooltips b3-tooltips__sw"
+    ) {
       return;
     }
 
