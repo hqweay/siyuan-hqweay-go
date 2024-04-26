@@ -28,10 +28,10 @@ const DEFAULT_CONFIG = {
     separator: "",
   },
   randomHeaderImageConfig: {
-    folderPaths: "",
+    folderPaths: "/Users/hqweay/SiYuan/data/assets/images",
   },
   randomNoteConfig: {
-    rangeSQL: "",
+    rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
   },
 };
 
@@ -53,6 +53,11 @@ class Settings {
       await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     }
     // await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    await this.load();
+  }
+
+  async resetData() {
+    await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     await this.load();
   }
 

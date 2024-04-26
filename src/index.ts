@@ -85,7 +85,7 @@ export default class PluginGo extends Plugin {
 
   openGlobalSetting(): void {
     let dialog = new Dialog({
-      title: "SettingPannel",
+      title: "配置",
       content: `<div id="hqweay-setting-pannel" style="height: 100%;"></div>`,
       width: "600px",
       destroyCallback: (options) => {

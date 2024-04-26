@@ -14,7 +14,6 @@ export default class RandomImage {
   }
 
   async changeImage(event, ele) {
-    console.log("try to change Image");
     let targetEle = event.target;
     if (ele) {
       targetEle = ele;
@@ -31,6 +30,9 @@ export default class RandomImage {
     }
 
     let randomLink = await this.getRandomFileFromFolder();
+    if (!randomLink) {
+      return;
+    }
     targetEle.parentElement.parentElement
       .querySelector("img")
       .setAttribute("style", "");

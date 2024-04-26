@@ -17,7 +17,7 @@
     const dispatch = createEventDispatcher();
 
     function onClick( {detail}) {
-        dispatch("click", { key: detail.key });
+        dispatch("click", {group: group, ...detail});
     }
     function onChanged( {detail}) {
         dispatch("changed", {group: group, ...detail});

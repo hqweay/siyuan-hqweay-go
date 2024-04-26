@@ -18,7 +18,7 @@
   const dispatch = createEventDispatcher();
 
   function clicked() {
-    dispatch("clicked");
+    dispatch("click", { key: settingKey, value: settingValue });
   }
 
   function changed() {
