@@ -47,6 +47,7 @@
           description: "块菜单/文档菜单打开事件增加行内元素转换的功能",
           key: "convert",
           value: settings.getFlag("convert"),
+          hasSetting: true,
         },
         {
           type: "checkbox",
@@ -111,6 +112,16 @@
           description: "若某些功能无法正常使用，尝试使用此选项。",
           key: "resetData",
           value: "确认",
+        },
+      ],
+      行内元素转换: [
+        {
+          type: "checkbox",
+          title: "样式嵌套仍转换？",
+          description:
+            "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
+          key: "styleNesting",
+          value: settings.getBySpace("convertConfig", "styleNesting"),
         },
       ],
     };

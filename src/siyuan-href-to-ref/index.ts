@@ -129,30 +129,21 @@ export default class HrefToRef {
           iconHTML: "",
           label: "下列所有行内元素👉文本",
           click: () => {
-            const doOperations: IOperation[] = [];
-
-            this.pageToText(
-              detail,
-              '[data-type="a"][data-href^="siyuan://"], [data-type="block-ref"]'
-            );
-            this.pageToText(detail, '[data-type="a"], [data-type="block-ref"]');
-
-            this.pageToText(detail, '[data-type="strong"]');
-            this.pageToText(detail, '[data-type="mark"]');
-            this.pageToText(detail, '[data-type="tag"]');
-            this.pageToText(detail, '[data-type="em"]');
+            this.pageToText(detail, '[data-type~="a"]');
+            this.pageToText(detail, '[data-type~="block-ref"]');
+            this.pageToText(detail, '[data-type~="strong"]');
+            this.pageToText(detail, '[data-type~="mark"]');
+            this.pageToText(detail, '[data-type~="tag"]');
+            this.pageToText(detail, '[data-type~="em"]');
           },
         },
         {
           iconHTML: "",
           label: plugin.i18n.hrefToText,
           click: () => {
-            const doOperations: IOperation[] = [];
             // 获取引用和笔记内块超链接
-            this.pageToText(
-              detail,
-              '[data-type="a"][data-href^="siyuan://"], [data-type="block-ref"]'
-            );
+            this.pageToText(detail, '[data-type~="a"][data-href^="siyuan://"]');
+            this.pageToText(detail, '[data-type~="block-ref"]');
           },
         },
         {
@@ -161,7 +152,8 @@ export default class HrefToRef {
           click: () => {
             // 获取引用和笔记内链接
             // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type="a"], [data-type="block-ref"]');
+            this.pageToText(detail, '[data-type~="a"]');
+            this.pageToText(detail, '[data-type~="block-ref"]');
           },
         },
         {
@@ -170,7 +162,7 @@ export default class HrefToRef {
           click: () => {
             // 获取粗体
             // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type="strong"]');
+            this.pageToText(detail, '[data-type~="strong"]');
           },
         },
         {
@@ -179,21 +171,21 @@ export default class HrefToRef {
           click: () => {
             // 获取高亮
             // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type="mark"]');
+            this.pageToText(detail, '[data-type~="mark"]');
           },
         },
         {
           iconHTML: "",
           label: plugin.i18n.tagToText,
           click: () => {
-            this.pageToText(detail, '[data-type="tag"]');
+            this.pageToText(detail, '[data-type~="tag"]');
           },
         },
         {
           iconHTML: "",
           label: "斜体👉文本",
           click: () => {
-            this.pageToText(detail, '[data-type="em"]');
+            this.pageToText(detail, '[data-type~="em"]');
           },
         },
       ],
@@ -293,14 +285,26 @@ export default class HrefToRef {
         },
         {
           iconHTML: "",
+          label: "下列所有行内元素👉文本",
+          click: () => {
+            this.blockToText(detail, '[data-type~="a"]');
+            this.blockToText(detail, '[data-type~="block-ref"]');
+            this.blockToText(detail, '[data-type~="strong"]');
+            this.blockToText(detail, '[data-type~="mark"]');
+            this.blockToText(detail, '[data-type~="tag"]');
+            this.blockToText(detail, '[data-type~="em"]');
+          },
+        },
+        {
+          iconHTML: "",
           label: plugin.i18n.hrefToText,
           click: () => {
-            const doOperations: IOperation[] = [];
             // 获取引用和笔记内块超链接
             this.blockToText(
               detail,
-              '[data-type="a"][data-href^="siyuan://"], [data-type="block-ref"]'
+              '[data-type~="a"][data-href^="siyuan://"]'
             );
+            this.blockToText(detail, '[data-type~="block-ref"]');
           },
         },
         {
@@ -309,10 +313,8 @@ export default class HrefToRef {
           click: () => {
             // 获取引用和笔记内链接
             // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.blockToText(
-              detail,
-              '[data-type="a"], [data-type="block-ref"]'
-            );
+            this.blockToText(detail, '[data-type~="a"]');
+            this.blockToText(detail, '[data-type~="block-ref"]');
           },
         },
         {
@@ -320,7 +322,7 @@ export default class HrefToRef {
           label: plugin.i18n.strongToText,
           click: () => {
             // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.blockToText(detail, '[data-type="strong"]');
+            this.blockToText(detail, '[data-type~="strong"]');
           },
         },
         {
@@ -328,21 +330,21 @@ export default class HrefToRef {
           label: plugin.i18n.markToText,
           click: () => {
             // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
-            this.blockToText(detail, '[data-type="mark"]');
+            this.blockToText(detail, '[data-type~="mark"]');
           },
         },
         {
           iconHTML: "",
           label: plugin.i18n.tagToText,
           click: () => {
-            this.blockToText(detail, '[data-type="tag"]');
+            this.blockToText(detail, '[data-type~="tag"]');
           },
         },
         {
           iconHTML: "",
           label: "斜体👉文本",
           click: () => {
-            this.pageToText(detail, '[data-type="em"]');
+            this.pageToText(detail, '[data-type~="em"]');
           },
         },
         {
@@ -392,6 +394,19 @@ export default class HrefToRef {
   private blockToText(detail, querySelectorAllStr) {
     const doOperations: IOperation[] = [];
 
+    const styleNesting = settings.getBySpace("convertConfig", "styleNesting");
+
+    // 现在这样写理论上数组只会有一个元素
+    const extractedElements = [];
+    if (styleNesting) {
+      const pattern = /\[data-type~="([^"]+)"\]/g;
+
+      let match;
+      while ((match = pattern.exec(querySelectorAllStr)) !== null) {
+        extractedElements.push(match[1]);
+      }
+    }
+
     detail.blockElements.forEach((item: HTMLElement) => {
       const editElements = item.querySelectorAll(
         this.availableBlocks
@@ -403,8 +418,26 @@ export default class HrefToRef {
 
       editElements.forEach((editElement: HTMLElement) => {
         editElement.querySelectorAll(querySelectorAllStr).forEach((ele) => {
-          const textNode = document.createTextNode(ele.textContent);
-          ele.parentNode.replaceChild(textNode, ele);
+          const currentType = ele.getAttribute("data-type");
+          //非嵌套样式，直接取消
+          if (currentType.trim().split(" ").length === 1) {
+            const textNode = document.createTextNode(ele.textContent);
+            ele.parentNode.replaceChild(textNode, ele);
+          } else {
+            if (styleNesting) {
+              console.log(currentType);
+              console.log(extractedElements);
+              const updatedType = currentType.replace(extractedElements[0], "");
+              if (updatedType.trim() === "") {
+                ele.removeAttribute("data-type");
+              } else {
+                ele.setAttribute("data-type", updatedType);
+              }
+              //非嵌套样式，直接取消
+            } else {
+              return;
+            }
+          }
         });
       });
       doOperations.push({
@@ -427,13 +460,10 @@ export default class HrefToRef {
         .join(",")
     );
     editElements.forEach((item: HTMLElement) => {
-      item
-        // 只获取笔记内部的引用
-        .querySelectorAll(querySelectorAllStr)
-        .forEach((ele) => {
-          const textNode = document.createTextNode(ele.textContent);
-          ele.parentNode.replaceChild(textNode, ele);
-        });
+      item.querySelectorAll(querySelectorAllStr).forEach((ele) => {
+        const textNode = document.createTextNode(ele.textContent);
+        ele.parentNode.replaceChild(textNode, ele);
+      });
 
       doOperations.push({
         id: item.dataset.nodeId,

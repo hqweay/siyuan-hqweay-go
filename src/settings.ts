@@ -33,6 +33,9 @@ const DEFAULT_CONFIG = {
   randomNoteConfig: {
     rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
   },
+  convertConfig:{
+    styleNesting: false
+  }
 };
 
 /**
