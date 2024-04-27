@@ -8,7 +8,14 @@ export default class DockLeft extends AddIconThenClick {
   type = "dockLeft";
 
   async exec() {
-    window.open("siyuan://blocks/" + this.id);
+    if (this.id === "") {
+      return;
+    } else if (this.id.startsWith("siyuan://") || this.id.startsWith("http")) {
+      window.open(this.id);
+      return;
+    } else {
+      window.open("siyuan://blocks/" + this.id);
+    }
   }
 
   addIcon = () => {
