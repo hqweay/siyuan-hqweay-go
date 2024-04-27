@@ -65,6 +65,14 @@
           value: settings.getFlag("memo"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "左上边栏扩充",
+          description: "在左上边栏新增图标固定打开某文档",
+          key: "dockLeft",
+          value: settings.getFlag("dockLeft"),
+          hasSetting: true,
+        },
       ],
       发送到: [
         {
@@ -144,7 +152,19 @@
               - [[memo]]<br/>
               - - hello`,
           key: "id",
+          placeholder: `20240406015842-137jie3`,
           value: settings.getBySpace("memoConfig", "id"),
+        },
+      ],
+      左上边栏扩充: [
+        {
+          type: "textarea",
+          title: "在左上边栏新增图标固定打开某文档",
+          description: `换行配置多条；<br/>格式：图标====文档id`,
+          key: "ids",
+          placeholder: `🥹====20240330144736-irg5pfz
+😁====20240416195915-sod1ftd`,
+          value: settings.getBySpace("dockLeftConfig", "ids"),
         },
       ],
     };

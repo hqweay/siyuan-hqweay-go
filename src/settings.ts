@@ -20,6 +20,7 @@ const DEFAULT_CONFIG = {
     randomNote: true,
     randomHeaderImage: true,
     memo: true,
+    dockLeft: true,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -39,6 +40,10 @@ const DEFAULT_CONFIG = {
   },
   memoConfig: {
     id: "20240406015842-137jie3",
+  },
+  dockLeftConfig: {
+    ids: `🥹====20240330144736-irg5pfz
+😁====20240416195915-sod1ftd`,
   },
 };
 

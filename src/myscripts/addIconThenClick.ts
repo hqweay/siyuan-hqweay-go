@@ -4,14 +4,18 @@ export default class AddIconThenClick {
   id: string = "";
   label: string = "";
   icon: string = "";
+  type: string = "barMode";
+
+  thisElement;
 
   onunload() {
-    document.getElementById(this.id) &&
-      document.getElementById(this.id).remove();
+    // document.getElementById(this.id) &&
+    //   document.getElementById(this.id).remove();
+    this.thisElement && this.thisElement.remove();
   }
 
   onload() {
-    if (document.getElementById(this.id)) {
+    if (document.getElementById(this.id) || this.thisElement) {
       return;
     }
     this.addIconThenClick();
@@ -23,13 +27,31 @@ export default class AddIconThenClick {
     if (document.getElementById(this.id)) {
       return;
     }
-    // 添加一个按钮
+
+    if ("barMode" === this.type) {
+      // 添加一个按钮
+      this.addBarMode();
+    }
+    // else if ("dockLeft" === this.type) {
+    //   this.addDockLeft();
+    // }
+    else {
+      this.addIcon();
+    }
+  }
+
+  addIcon;
+
+  private addDockLeft() {}
+
+  private addBarMode() {
     const barMode = document.getElementById("barMode");
     barMode.insertAdjacentHTML(
       "beforebegin",
       `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" ></div>`
     );
     const btn = document.getElementById(`${this.id}`);
+    this.thisElement = btn;
     btn.style.width = "auto";
     btn.innerHTML = this.icon;
     btn.addEventListener(
