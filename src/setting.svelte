@@ -57,6 +57,14 @@
           value: settings.getFlag("sendTo"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "碎碎念",
+          description: "配置 ID，该 ID 引用下的子节点将在右上角展示创建时间",
+          key: "memo",
+          value: settings.getFlag("memo"),
+          hasSetting: true,
+        },
       ],
       发送到: [
         {
@@ -89,7 +97,11 @@
           type: "textarea",
           title: "图片文件夹路径",
           description:
-            "1️⃣可配置多个路径，以换行分隔；2️⃣路径需配置为绝对路径；3️⃣路径需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；4️⃣路径可使用软链接引用 Siyuan 工作目录外的文件夹。5️⃣使用方式见 https://ld246.com/article/1694612740828 03 开始用吧",
+            `1️⃣可配置多个路径，以换行分隔；<br/>
+            2️⃣路径需配置为绝对路径；<br/>
+            3️⃣路径需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；<br/>
+            4️⃣路径可使用软链接引用 Siyuan 工作目录外的文件夹。<br/>
+            5️⃣使用方式见 https://ld246.com/article/1694612740828 03 开始用吧`,
           key: "folderPaths",
           value: settings.getBySpace("randomHeaderImageConfig", "folderPaths"),
           placeholder: "/Users/hqweay/SiYuan/data/assets/images",
@@ -122,6 +134,17 @@
             "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
           key: "styleNesting",
           value: settings.getBySpace("convertConfig", "styleNesting"),
+        },
+      ],
+      碎碎念: [
+        {
+          type: "textarea",
+          title: "配置块/文档 ID",
+          description: `多个 ID 换行分隔<br/>如下配置 memo 的 ID 后，hello 的右上角将展示（由块 ID 截取生成的）创建时间【若展示有误烦请反馈】<br/>
+              - [[memo]]<br/>
+              - - hello`,
+          key: "id",
+          value: settings.getBySpace("memoConfig", "id"),
         },
       ],
     };

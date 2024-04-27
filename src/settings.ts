@@ -19,6 +19,7 @@ const DEFAULT_CONFIG = {
     title: true,
     randomNote: true,
     randomHeaderImage: true,
+    memo: true,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -33,9 +34,12 @@ const DEFAULT_CONFIG = {
   randomNoteConfig: {
     rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
   },
-  convertConfig:{
-    styleNesting: false
-  }
+  convertConfig: {
+    styleNesting: false,
+  },
+  memoConfig: {
+    id: "20240406015842-137jie3",
+  },
 };
 
 /**
