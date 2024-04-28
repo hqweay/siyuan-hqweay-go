@@ -20,8 +20,7 @@
         {
           type: "checkbox",
           title: "随机头图",
-          description:
-            "支持配置本地文件夹/自定义 URL",
+          description: "支持配置本地文件夹/自定义 URL",
           key: "randomHeaderImage",
           value: settings.getFlag("randomHeaderImage"),
           hasSetting: true,
@@ -73,6 +72,14 @@
           value: settings.getFlag("dockLeft"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "提取标注至新文档",
+          description: "文档菜单打开事件新增提取当前文档标注至新文档。",
+          key: "read",
+          value: settings.getFlag("read"),
+          hasSetting: true,
+        },
       ],
       发送到: [
         {
@@ -104,15 +111,15 @@
         {
           type: "checkbox",
           title: "本地图片进入缓存？",
-          description: "如果打开，会减少从文件夹遍历获取图片，但新添加到文件夹的图片不会及时生效。",
+          description:
+            "如果打开，会减少从文件夹遍历获取图片，但新添加到文件夹的图片不会及时生效。",
           key: "isCached",
           value: settings.getBySpace("randomHeaderImageConfig", "isCached"),
         },
         {
           type: "textarea",
           title: "本地文件夹/自定义 URL",
-          description:
-            `0️⃣可配置本地文件夹或能返回图片地址的 URL（返回值包含图片地址即可）<br/>
+          description: `0️⃣可配置本地文件夹或能返回图片地址的 URL（返回值包含图片地址即可）<br/>
             1️⃣可配置多个路径，以换行分隔；<br/>
             2️⃣本地文件夹路径需配置为绝对路径；<br/>
             3️⃣本地文件夹需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；<br/>
@@ -176,6 +183,32 @@ https://shibe.online/api/shibes?count=1`,
 😉====20240416195915-sod1ftd
 🌁====siyuan://plugins/sy-docs-flow/open-rule?ruleType=SQL&ruleInput=select+B.*+from+blocks+as+B+join+attributes+as+A%0Aon+B.id+%3D+A.block_id%0Awhere+A.name+like+%27custom-dailynote%25%27%0Aorder+by+A.value+desc%3B&ruleTitle=%F0%9F%98%80%F0%9F%98%80+Daily+Notes&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A15%2C%22shift%22%3A10%7D%7D`,
           value: settings.getBySpace("dockLeftConfig", "ids"),
+        },
+      ],
+      提取标注至新文档: [
+        // {
+        //   type: "textinput",
+        //   title: "提取标注到新文档：",
+        //   description: "",
+        //   key: "noteBookID",
+        //   value: settings.getBySpace("readConfig", "noteBookID"),
+        //   placeholder: "",
+        // },
+        // {
+        //   type: "checkbox",
+        //   title: "保留上下文？",
+        //   description: "`今天==天气==很好？`：若取消勾选，则只提取「天气」。",
+        //   key: "keepContext",
+        //   value: settings.getBySpace("readConfig", "keepContext"),
+        // },
+        {
+          type: "textinput",
+          title: "新文档保存路径",
+          description:
+            "文档菜单打开事件新增提取当前文档标注至新文档。<br/>若为空，则新文档建立于当前文档下；若配置，则新文档建立在配置路径下。",
+          key: "extractPath",
+          value: settings.getBySpace("readConfig", "extractPath"),
+          placeholder: "/我的笔记本/",
         },
       ],
     };

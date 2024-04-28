@@ -21,6 +21,7 @@ const DEFAULT_CONFIG = {
     randomHeaderImage: true,
     memo: true,
     dockLeft: true,
+    read: true,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -47,6 +48,11 @@ https://shibe.online/api/shibes?count=1`,
   dockLeftConfig: {
     ids: `🥹====20240330144736-irg5pfz
 😁====20240416195915-sod1ftd`,
+  },
+  readConfig: {
+    extractPath: "",
+    noteBookID: "",
+    keepContext: true,
   },
 };
 
