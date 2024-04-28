@@ -10,7 +10,7 @@ if [ "$type" = "a" ]; then
 	echo "comment: $comment"
   git add .
 	git commit -m "$comment"
-	git push
+	git push origin dev
 else
   new_version="$1"
 	comment="$2"

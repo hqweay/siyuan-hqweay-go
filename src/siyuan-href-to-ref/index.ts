@@ -28,7 +28,7 @@ export default class HrefToRef {
             // 只获取笔记内部的引用
             .querySelectorAll('[data-type="block-ref"]')
             .forEach((ele) => {
-              console.log(ele);
+              // console.log(ele);
               if (ele.getAttribute("data-id") === docID) {
                 ele.remove();
               }
@@ -372,7 +372,7 @@ export default class HrefToRef {
                   // 只获取笔记内部的引用
                   .querySelectorAll('[data-type="block-ref"]')
                   .forEach((ele) => {
-                    console.log(ele);
+                    // console.log(ele);
                     if (ele.getAttribute("data-id") === docID) {
                       ele.remove();
                     }
@@ -425,8 +425,8 @@ export default class HrefToRef {
             ele.parentNode.replaceChild(textNode, ele);
           } else {
             if (styleNesting) {
-              console.log(currentType);
-              console.log(extractedElements);
+              // console.log(currentType);
+              // console.log(extractedElements);
               const updatedType = currentType.replace(extractedElements[0], "");
               if (updatedType.trim() === "") {
                 ele.removeAttribute("data-type");

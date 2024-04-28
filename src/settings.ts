@@ -110,7 +110,7 @@ class Settings {
   }
 
   async save(config = CONFIG) {
-    console.log("save", plugin.data[config]);
+    // console.log("save", plugin.data[config]);
     await plugin.saveData(config, plugin.data[config]);
     await this.load();
   }

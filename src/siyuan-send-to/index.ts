@@ -99,7 +99,7 @@ export default class SendTo {
         if (item.length !== 2) {
           showMessage(`配置有误，请检查`);
         }
-        console.log(item);
+        // console.log(item);
         return {
           iconHTML: "",
           label: item[0],
@@ -124,7 +124,7 @@ export default class SendTo {
 
     var cardPanel = dialog.element.querySelector("#cardPanel");
     cardPanel.style.margin = "0 auto";
-    console.log(resultText);
+    // console.log(resultText);
     let pannel = new CardView({
       props: {
         content: resultText,
