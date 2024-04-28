@@ -50,7 +50,7 @@ export default class RandomImage {
     });
   }
 
-  getRandomFileFromFolder() {
+  async getRandomFileFromFolder() {
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"]; // 图片文件的扩展名
 
     const imageFolders = settings
@@ -65,6 +65,20 @@ export default class RandomImage {
     }
     const folderIndex = Math.floor(Math.random() * imageFolders.length);
     const folderPath = imageFolders[folderIndex].trim();
+
+    if (folderPath.startsWith("http")) {
+      // const regex = /(http[s]?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|bmp))\b/g;
+      const regex =
+        /((?:http[s]?:\/\/|\/\/)[^\s]+\.(?:jpg|jpeg|png|gif|bmp))\b/g;
+
+      const result = await this.request(folderPath);
+
+      const matches = result.match(regex);
+
+      console.log("matches");
+      console.log(matches);
+      return matches[0];
+    }
 
     if (!fs.existsSync(folderPath)) {
       showMessage("请检查随机图片文件夹的路径配置～");
@@ -84,5 +98,41 @@ export default class RandomImage {
 
     const items = folderPath.split("data");
     return path.join(items[items.length - 1], randomFile);
+  }
+
+  isJSON(str) {
+    try {
+      JSON.parse(str);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // 请求函数
+  request(url, method = "GET") {
+    return new Promise((resolve, reject) => {
+      if (method.toUpperCase() == "GET") {
+        fetch(url, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        })
+          .then(
+            (response) => {
+              if (this.isJSON(response)) {
+                resolve(response.json());
+              } else {
+                resolve(response.text());
+              }
+            },
+            (error) => {
+              reject(error);
+            }
+          )
+          .catch((err) => {
+            console.error("请求失败:", err);
+          });
+      }
+    });
   }
 }

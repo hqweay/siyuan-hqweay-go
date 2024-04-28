@@ -21,7 +21,7 @@
           type: "checkbox",
           title: "随机头图",
           description:
-            "给头图增加随机本地某文件夹下图片的功能：1️⃣配置文件夹；2️⃣在文档点击「随机题头图」；3️⃣右键点击「随机」",
+            "支持配置本地文件夹/自定义 URL",
           key: "randomHeaderImage",
           value: settings.getFlag("randomHeaderImage"),
           hasSetting: true,
@@ -103,16 +103,19 @@
       随机头图: [
         {
           type: "textarea",
-          title: "图片文件夹路径",
+          title: "本地文件夹/自定义 URL",
           description:
-            `1️⃣可配置多个路径，以换行分隔；<br/>
-            2️⃣路径需配置为绝对路径；<br/>
-            3️⃣路径需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；<br/>
-            4️⃣路径可使用软链接引用 Siyuan 工作目录外的文件夹。<br/>
-            5️⃣使用方式见 https://ld246.com/article/1694612740828 03 开始用吧`,
+            `0️⃣可配置本地文件夹或能返回图片地址的 URL（返回值包含图片地址即可）<br/>
+            1️⃣可配置多个路径，以换行分隔；<br/>
+            2️⃣本地文件夹路径需配置为绝对路径；<br/>
+            3️⃣本地文件夹需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；<br/>
+            4️⃣本地文件夹可使用软链接引用 Siyuan 工作目录外的文件夹。<br/>
+            5️⃣使用：1）配置；2️）在文档点击「随机题头图」；3️）右键点击「随机」。（详情见 https://ld246.com/article/1694612740828 03 开始用吧）`,
           key: "folderPaths",
           value: settings.getBySpace("randomHeaderImageConfig", "folderPaths"),
-          placeholder: "/Users/hqweay/SiYuan/data/assets/images",
+          placeholder: `/Users/hqweay/SiYuan/data/assets/images
+https://img.xjh.me/random_img.php
+https://shibe.online/api/shibes?count=1`,
         },
       ],
       随机浏览: [
