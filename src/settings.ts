@@ -36,7 +36,7 @@ const DEFAULT_CONFIG = {
     rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
   },
   convertConfig: {
-    styleNesting: false,
+    styleNesting: true,
   },
   memoConfig: {
     id: "20240406015842-137jie3",

@@ -34,7 +34,18 @@ overflow: hidden;
   font-size: 10px;
   color: #333;
   border-bottom-left-radius: 2px;
-}`;
+}
+
+.protyle-background__img img::before {
+  /* 图片加载失败时默认展示 content: url(img link) */
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-image: inherit;
+}
+
+`;
     document.head.appendChild(styleElement);
   }
 }
