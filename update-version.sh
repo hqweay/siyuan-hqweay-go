@@ -1,17 +1,29 @@
 #!/bin/bash
 
 # 从终端获取的参数值
-new_version="$1"
 
-comment="$2"
+type="$1"
 
-jq --arg new_version "$new_version" '.version = $new_version' package.json > tmpfile && mv tmpfile package.json
-jq --arg new_version "$new_version" '.version = $new_version' plugin.json > tmpfile && mv tmpfile plugin.json
+# 检查变量是否等于特定值
+if [ "$variable" = "a" ]; then
+	comment="$2"
+  git add .
+	git commit -m "$comment"
+	git push origin dev
+else
+  new_version="$1"
+	comment="$2"
+	jq --arg new_version "$new_version" '.version = $new_version' package.json > tmpfile && mv tmpfile package.json
+	jq --arg new_version "$new_version" '.version = $new_version' plugin.json > tmpfile && mv tmpfile plugin.json
 
-# git add package.json
-# git add plugin.json
-git add .
-git commit -m "upgrade#$new_version $comment"
-git push
-git tag $new_version
-git push origin $new_version
+	# git add package.json
+	# git add plugin.json
+	git add .
+	git commit -m "upgrade#$new_version $comment"
+	git push
+	git tag $new_version
+	git push origin $new_version
+fi
+
+
+
