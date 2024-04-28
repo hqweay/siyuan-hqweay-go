@@ -102,6 +102,13 @@
       ],
       随机头图: [
         {
+          type: "checkbox",
+          title: "本地图片进入缓存？",
+          description: "如果打开，会减少从文件夹遍历获取图片，但新添加到文件夹的图片不会及时生效。",
+          key: "isCached",
+          value: settings.getBySpace("randomHeaderImageConfig", "isCached"),
+        },
+        {
           type: "textarea",
           title: "本地文件夹/自定义 URL",
           description:

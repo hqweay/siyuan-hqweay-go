@@ -5,6 +5,7 @@ const path = require("path");
 
 export default class RandomImage {
   changeImageBindThis = this.changeImage.bind(this);
+  cachedImages = {};
   onunload() {
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
@@ -57,8 +58,6 @@ export default class RandomImage {
       .getBySpace("randomHeaderImageConfig", "folderPaths")
       .split("\n");
 
-    console.log(imageFolders);
-
     if (imageFolders.length <= 0) {
       showMessage("请检查随机图片文件夹的路径配置～");
       return;
@@ -75,8 +74,7 @@ export default class RandomImage {
 
       const matches = result.match(regex);
 
-      console.log("matches");
-      console.log(matches);
+      //todo 如果 matches 有多个，考虑再随机一下
       return matches[0];
     }
 
@@ -85,13 +83,27 @@ export default class RandomImage {
       return;
     }
 
-    const files = fs.readdirSync(folderPath);
+    if (
+      settings.getBySpace("randomHeaderImageConfig", "isCached") &&
+      this.cachedImages[folderPath]
+    ) {
+      const randomIndex = Math.floor(
+        Math.random() * this.cachedImages[folderPath].length
+      );
+      const randomFile = this.cachedImages[folderPath][randomIndex];
+      const items = folderPath.split("data");
+      return path.join(items[items.length - 1], randomFile);
+    }
 
+    const files = fs.readdirSync(folderPath);
     const fileNames = files.filter((file) => {
       const extension = file.slice(file.lastIndexOf(".")).toLowerCase();
-
       return imageExtensions.includes(extension);
     });
+
+    if (settings.getBySpace("randomHeaderImageConfig", "isCached")) {
+      this.cachedImages[folderPath] = fileNames;
+    }
 
     const randomIndex = Math.floor(Math.random() * fileNames.length);
     const randomFile = fileNames[randomIndex];

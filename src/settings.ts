@@ -33,6 +33,7 @@ const DEFAULT_CONFIG = {
     folderPaths: `/Users/hqweay/SiYuan/data/assets/images
 https://img.xjh.me/random_img.php
 https://shibe.online/api/shibes?count=1`,
+    isCached: true,
   },
   randomNoteConfig: {
     rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
