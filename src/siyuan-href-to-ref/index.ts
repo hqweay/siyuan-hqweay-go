@@ -408,6 +408,41 @@ export default class HrefToRef {
             detail.protyle.getInstance().transaction(doOperations);
           },
         },
+        {
+          iconHTML: "",
+          label: "清理 * 引用",
+          click: () => {
+            const doOperations: IOperation[] = [];
+
+            detail.blockElements.forEach((item: HTMLElement) => {
+              const editElements = item.querySelectorAll(
+                this.availableBlocks
+                  .map((item) => {
+                    return `[data-type=${item}] [contenteditable="true"]`;
+                  })
+                  .join(",")
+              );
+
+              editElements.forEach((editElement: HTMLElement) => {
+                editElement
+                  // 只获取笔记内部的引用
+                  .querySelectorAll('[data-type="block-ref"]')
+                  .forEach((ele) => {
+                    // console.log(ele);
+                    if (ele.textContent == "*") {
+                      ele.remove();
+                    }
+                  });
+              });
+              doOperations.push({
+                id: item.dataset.nodeId,
+                data: item.outerHTML,
+                action: "update",
+              });
+            });
+            detail.protyle.getInstance().transaction(doOperations);
+          },
+        },
       ],
     });
   }
