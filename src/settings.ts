@@ -22,6 +22,7 @@ const DEFAULT_CONFIG = {
     memo: true,
     dockLeft: true,
     read: true,
+    bookmark: true,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -55,6 +56,10 @@ https://shibe.online/api/shibes?count=1`,
     noteBookID: "",
     keepContext: true,
   },
+  bookmarkConfig: {
+    items: "读到这里啦",
+  },
+  mergedFlag: true,
 };
 
 /**
@@ -74,11 +79,44 @@ class Settings {
     ) {
       await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     }
-    // await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
-    await this.load();
+
+    if (!plugin.data[CONFIG]["mergedFlag"]) {
+      // console.log("mergeData", plugin.data[CONFIG]);
+      await this.mergeData();
+    } else {
+      // console.log("loadData", plugin.data[CONFIG]);
+      await this.load();
+    }
   }
 
   async resetData() {
+    await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    await this.load();
+  }
+
+  deepMerge(target, source) {
+    for (let key in source) {
+      if (source.hasOwnProperty(key)) {
+        if (
+          typeof source[key] === "object" &&
+          source[key] !== null &&
+          !Array.isArray(source[key])
+        ) {
+          if (!target[key]) {
+            target[key] = {};
+          }
+          this.deepMerge(target[key], source[key]);
+        } else {
+          target[key] = source[key];
+        }
+      }
+    }
+  }
+  async mergeData() {
+    // console.log("mergeData", plugin.data[CONFIG]);
+    // console.log("mergeData", DEFAULT_CONFIG);
+    this.deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);
+    // console.log("mergeData", DEFAULT_CONFIG);
     await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     await this.load();
   }

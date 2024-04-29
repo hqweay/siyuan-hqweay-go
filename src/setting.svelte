@@ -80,6 +80,14 @@
           value: settings.getFlag("read"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "快捷添加书签",
+          description: "块菜单新增添加到书签",
+          key: "bookmark",
+          value: settings.getFlag("bookmark"),
+          hasSetting: true,
+        },
       ],
       发送到: [
         {
@@ -145,8 +153,15 @@ https://shibe.online/api/shibes?count=1`,
       设置: [
         {
           type: "button",
-          title: "恢复/清理数据",
+          title: "合并数据",
           description: "若某些功能无法正常使用，尝试使用此选项。",
+          key: "mergeData",
+          value: "确认",
+        },
+        {
+          type: "button",
+          title: "恢复/清理数据",
+          description: "若合并数据后仍有问题，尝试使用此选项。",
           key: "resetData",
           value: "确认",
         },
@@ -211,6 +226,16 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: "/我的笔记本/",
         },
       ],
+      快捷添加书签: [
+        {
+          type: "textarea",
+          title: "书签",
+          description: "快捷添加的书签名<br/>多个书签以换行分隔",
+          key: "items",
+          value: settings.getBySpace("bookmarkConfig", "items"),
+          placeholder: "读到这里啦",
+        },
+      ],
     };
   };
 
@@ -234,10 +259,16 @@ https://shibe.online/api/shibes?count=1`,
   }
 
   const onClick = async ({ detail }: CustomEvent<ChangeEvent>) => {
-    if ("设置" === detail.group && "resetData" === detail.key) {
-      await settings.resetData();
-      SettingItems = initData();
-      showMessage("配置恢复为默认值");
+    if ("设置" === detail.group) {
+      if ("resetData" === detail.key) {
+        await settings.resetData();
+        SettingItems = initData();
+        showMessage("配置恢复为默认值");
+      } else if ("mergeData" === detail.key) {
+        await settings.mergeData();
+        SettingItems = initData();
+        showMessage("合并配置为最新配置");
+      }
     }
   };
 
