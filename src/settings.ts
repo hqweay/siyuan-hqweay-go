@@ -55,6 +55,7 @@ https://shibe.online/api/shibes?count=1`,
     extractPath: "",
     noteBookID: "",
     keepContext: true,
+    addRef: false
   },
   bookmarkConfig: {
     items: "读到这里啦",

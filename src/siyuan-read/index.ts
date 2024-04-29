@@ -7,7 +7,7 @@ import { showMessage } from "siyuan";
 export default class Read extends AddIconThenClick {
   regexOfHighLight = /==([^=]+)==/;
 
-  private async extractHighLight({ detail, keepContext, extractPath }) {
+  private async extractHighLight({ detail, keepContext, extractPath, addRef }) {
     const docID = document
       .querySelector(
         ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
@@ -32,14 +32,14 @@ export default class Read extends AddIconThenClick {
     let result = ``;
     if (res) {
       res.data.forEach((element) => {
-        // console.log(element.markdown);
+        console.log(element);
 
         if (keepContext) {
           result += `* ${element.markdown}\n`;
         } else {
           const match = element.markdown.match(this.regexOfHighLight);
           if (match) {
-            result += `* ${match[1]}\n`;
+            result += `* ${match[1]}${addRef ? `((${element.id} "*"))` : ""}\n`;
           }
         }
       });
@@ -64,7 +64,13 @@ export default class Read extends AddIconThenClick {
       label: "提取标注（无上下文）至子文档",
       click: async () => {
         const extractPath = settings.getBySpace("readConfig", "extractPath");
-        this.extractHighLight({ detail, keepContext: false, extractPath });
+				const addRef = settings.getBySpace("readConfig", "addRef");
+        this.extractHighLight({
+          detail,
+          keepContext: false,
+          extractPath,
+          addRef,
+        });
       },
     });
     // const keepContext = settings.getBySpace("readConfig", "keepContext");
@@ -74,7 +80,13 @@ export default class Read extends AddIconThenClick {
       label: "提取标注（含上下文）至子文档",
       click: async () => {
         const extractPath = settings.getBySpace("readConfig", "extractPath");
-        this.extractHighLight({ detail, keepContext: true, extractPath });
+        const addRef = settings.getBySpace("readConfig", "addRef");
+        this.extractHighLight({
+          detail,
+          keepContext: true,
+          extractPath,
+          addRef : false,
+        });
       },
     });
     // }

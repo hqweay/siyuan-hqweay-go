@@ -3,45 +3,66 @@ import { plugin } from "@/utils";
 export default class HrefToRef {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
+  cleanRef({ detail, exec }) {
+    const doOperations: IOperation[] = [];
+
+    const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
+      this.availableBlocks
+        .map((item) => {
+          return `[data-type=${item}] [contenteditable="true"]`;
+        })
+        .join(",")
+    );
+    editElements.forEach((item: HTMLElement) => {
+      item
+        // 只获取笔记内部的引用
+        .querySelectorAll('[data-type="block-ref"]')
+        .forEach((ele) => {
+          // console.log(ele);
+          if (exec(ele)) {
+            ele.remove();
+          }
+        });
+
+      doOperations.push({
+        id: item.dataset.nodeId,
+        data: item.outerHTML,
+        action: "update",
+      });
+    });
+
+    detail.protyle.getInstance().transaction(doOperations);
+  }
+
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
       label: plugin.i18n.cleanRefSelf,
       click: () => {
-        const doOperations: IOperation[] = [];
-
         const docID = document
           .querySelector(
             ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
           )
           ?.getAttribute("data-node-id");
-
-        const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
-          this.availableBlocks
-            .map((item) => {
-              return `[data-type=${item}] [contenteditable="true"]`;
-            })
-            .join(",")
-        );
-        editElements.forEach((item: HTMLElement) => {
-          item
-            // 只获取笔记内部的引用
-            .querySelectorAll('[data-type="block-ref"]')
-            .forEach((ele) => {
-              // console.log(ele);
-              if (ele.getAttribute("data-id") === docID) {
-                ele.remove();
-              }
-            });
-
-          doOperations.push({
-            id: item.dataset.nodeId,
-            data: item.outerHTML,
-            action: "update",
-          });
+        this.cleanRef({
+          detail,
+          exec: (ele) => {
+            return ele.getAttribute("data-id") === docID;
+          },
         });
+      },
+    });
 
-        detail.protyle.getInstance().transaction(doOperations);
+    detail.menu.addItem({
+      iconHTML: "",
+      label: "清理文档的 * 引用",
+      click: () => {
+        this.cleanRef({
+          detail,
+          exec: (ele) => {
+            return ele.textContent === "*";
+          },
+        });
       },
     });
 

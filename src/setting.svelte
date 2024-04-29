@@ -3,7 +3,7 @@
   import { showMessage } from "siyuan";
   import { onDestroy } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
-  // let groups: string[] = ["Default", "自动获取标题链接"];
+  // let groups: string[] = ["Default", "自动获取链接标题"];
 
   const initData = () => {
     return {
@@ -27,8 +27,8 @@
         },
         {
           type: "checkbox",
-          title: "自动获取标题链接",
-          description: "粘贴网站时自动获取标题并以 markdown 形式的链接粘贴",
+          title: "自动获取链接标题",
+          description: "粘贴链接时自动获取标题并以 markdown 形式的链接粘贴",
           key: "title",
           value: settings.getFlag("title"),
         },
@@ -224,6 +224,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "extractPath",
           value: settings.getBySpace("readConfig", "extractPath"),
           placeholder: "/我的笔记本/",
+        },
+        {
+          type: "checkbox",
+          title: "添加一个 * 引用",
+          description: "新文档内的标注会在末尾添加一个 * 引用指向原块",
+          key: "addRef",
+          value: settings.getBySpace("readConfig", "addRef"),
         },
       ],
       快捷添加书签: [
