@@ -13,16 +13,16 @@ const inpuAreas = {
 //配置文件内容
 const DEFAULT_CONFIG = {
   pluginFlag: {
-    sendTo: true,
-    convert: true,
-    typography: true,
-    title: true,
-    randomNote: true,
-    randomHeaderImage: true,
-    memo: true,
-    dockLeft: true,
-    read: true,
-    bookmark: true,
+    sendTo: false,
+    convert: false,
+    typography: false,
+    title: false,
+    randomNote: false,
+    randomHeaderImage: false,
+    memo: false,
+    dockLeft: false,
+    read: false,
+    bookmark: false,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
