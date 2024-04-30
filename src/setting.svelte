@@ -74,8 +74,8 @@
         },
         {
           type: "checkbox",
-          title: "提取标注至新文档",
-          description: "文档菜单打开事件新增提取当前文档标注至新文档。",
+          title: "提取元素至新文档",
+          description: "文档菜单打开事件新增提取当前文档行内元素至新文档。",
           key: "read",
           value: settings.getFlag("read"),
           hasSetting: true,
@@ -200,7 +200,7 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("dockLeftConfig", "ids"),
         },
       ],
-      提取标注至新文档: [
+      提取元素至新文档: [
         // {
         //   type: "textinput",
         //   title: "提取标注到新文档：",
@@ -220,7 +220,7 @@ https://shibe.online/api/shibes?count=1`,
           type: "textinput",
           title: "新文档保存路径",
           description:
-            "文档菜单打开事件新增提取当前文档标注至新文档。<br/>若为空，则新文档建立于当前文档下；若配置，则新文档建立在配置路径下。",
+            "文档菜单打开事件新增提取当前文档行内元素至新文档。<br/>若为空，则新文档建立于当前文档下；若配置，则新文档建立在配置路径下。",
           key: "extractPath",
           value: settings.getBySpace("readConfig", "extractPath"),
           placeholder: "/我的笔记本/",
@@ -228,7 +228,7 @@ https://shibe.online/api/shibes?count=1`,
         {
           type: "checkbox",
           title: "添加一个 * 引用",
-          description: "新文档内的标注会在末尾添加一个 * 引用指向原块",
+          description: "新文档内的行内元素会在末尾添加一个 * 引用指向原块",
           key: "addRef",
           value: settings.getBySpace("readConfig", "addRef"),
         },
