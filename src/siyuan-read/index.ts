@@ -43,7 +43,7 @@ export default class Read extends AddIconThenClick {
           while (
             (match = this.regexOfHighLight.exec(element.markdown)) !== null
           ) {
-            result += `${match[1]}${addRef ? `((${element.id} "*"))` : ""}\n\n`;
+            result += `${match[1]}${addRef ? ` ((${element.id} "*"))` : ""}\n\n`;
           }
         }
       });
@@ -94,7 +94,7 @@ export default class Read extends AddIconThenClick {
 
           while ((match = this.regexOfMemo.exec(element.markdown)) !== null) {
             result += `${match[1] ? match[1] : match[2]}${
-              addRef ? `((${element.id} "*"))` : ""
+              addRef ? ` ((${element.id} "*"))` : ""
             }\n\n`;
           }
         }

@@ -24,9 +24,7 @@ export default class RandomImage {
       return;
     }
 
-    if (
-      targetEle.classList.value !== "protyle-icon b3-tooltips b3-tooltips__sw"
-    ) {
+    if (targetEle.classList.value !== "protyle-icon ariaLabel") {
       return;
     }
 
