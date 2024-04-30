@@ -99,8 +99,6 @@ class FormatUtil {
 
     content = content.replace(/\!\[\]\(/g, "![img](");
 
-
-
     // todo 双链 (())
     // content = content.replace(/\s*\(\((.*?)\)\)\s*/g, "(($1))");
 
@@ -244,6 +242,15 @@ class FormatUtil {
       " ($1) "
     );
 
+    content = content.replace(
+      /([\u4e00-\u9fa5\u3040-\u30FF，。、《》？『』「」；∶【】｛｝—！＠￥％…（）])\s*\((.*?)\)/g,
+      "$1（$2）"
+    );
+    content = content.replace(
+      /\((.*?)\)\s*([\u4e00-\u9fa5\u3040-\u30FF，。、《》？『』「」；∶【】｛｝—！＠￥％…（）])/g,
+      "（$1）$2"
+    );
+
     // (my 我的)
     // (我的 milk)
     content = content.replace(
@@ -282,11 +289,11 @@ class FormatUtil {
       /(\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)\s*「\s*(\w)/g,
       "$1 “$2"
     );
-     content = content.replace(
-       /(\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)\s*『\s*(\w)/g,
-       "$1 ‘$2"
-     );
-     content = content.replace(/(\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)\s*』/g, "$1’");
+    content = content.replace(
+      /(\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)\s*『\s*(\w)/g,
+      "$1 ‘$2"
+    );
+    content = content.replace(/(\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)\s*』/g, "$1’");
 
     content = content.replace(/(\w[,.!?]?)\s*」\s*([「]?\w?)/g, "$1” $2");
     content = content.replace(/(\w)\s*『\s*(\w)/g, "$1‘f$2");
@@ -319,6 +326,16 @@ class FormatUtil {
     content = content.replace(/“(\w)」/g, "“$1”");
     content = content.replace(/「(\w)”/g, "“$1”");
 
+    //中英文混排使用全角引号和括号
+    content = content.replace(
+      /([\u4e00-\u9fa5\u3040-\u30FF，。、《》？『』「」；∶【】｛｝—！＠￥％…（）])\s*“(.*?)”/g,
+      "$1「$2」"
+    );
+    content = content.replace(
+      /“(.*?)”\s*([\u4e00-\u9fa5\u3040-\u30FF，。、《》？『』「」；∶【】｛｝—！＠￥％…（）])/g,
+      "「$1」$2"
+    );
+
     content = content.replace(/”\s*([,.!?]\1?)/g, "”$1");
 
     // 连续三个以上的 `。` 改成 `......`
@@ -348,7 +365,6 @@ class FormatUtil {
     content = content.replace(/\s+\*\*(.*?)\s*\*\*/g, " **$1**");
 
     // content = content.replace(/\*\*(.*?)\s*\*\*/g, "**$1**");
-
 
     //for me
     content = content.replaceAll("** **", " ");
