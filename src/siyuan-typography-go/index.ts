@@ -23,6 +23,7 @@ export default class TypographyGo extends AddIconThenClick {
       click: () => {
         const doOperations: IOperation[] = [];
 
+        console.log(detail.blockElements);
         detail.blockElements.forEach((item: HTMLElement) => {
           const editElements = item.querySelectorAll(
             this.availableBlocks
@@ -79,6 +80,8 @@ export default class TypographyGo extends AddIconThenClick {
             if (!item.innerText.trim()) {
               // item.remove();
             }
+
+            this.imageCenter(editElement);
           });
           doOperations.push({
             id: item.dataset.nodeId,
@@ -91,19 +94,17 @@ export default class TypographyGo extends AddIconThenClick {
     });
   }
 
-  async imageCenter() {
-    let imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
+  async imageCenter(editElement) {
+    const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
     if (!imageCenter || imageCenter < 10 || imageCenter > 100) {
       return;
     }
 
-    const body = document.querySelector(
-      ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
-    ).parentElement.nextSibling;
+    // const body = document.querySelector(
+    //   ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+    // ).parentElement.nextSibling;
 
-    const images = body.querySelectorAll("span[data-type='img']");
-
-    console.log(images);
+    const images = editElement.querySelectorAll("span[data-type='img']");
 
     images.forEach(async (item) => {
       item.setAttribute("style", `display: block; width: ${imageCenter}%;`);
@@ -113,6 +114,7 @@ export default class TypographyGo extends AddIconThenClick {
         data: item.parentElement.parentElement.outerHTML,
         id: item.parentElement.parentElement.getAttribute("data-node-id"),
       });
+      console.log(item);
     });
   }
 
@@ -126,14 +128,12 @@ export default class TypographyGo extends AddIconThenClick {
     const closeTip = settings.getBySpace("typographyConfig", "closeTip");
     if (closeTip) {
       await this.formatDoc(parentId);
-      await this.imageCenter();
     } else {
       confirm(
         "⚠️操作前强烈建议先对数据进行备份，若转换效果不理想可从历史页面恢复。",
         "确认格式化吗？",
         async () => {
           await this.formatDoc(parentId);
-          await this.imageCenter();
         },
         () => {
           return;
@@ -189,10 +189,14 @@ export default class TypographyGo extends AddIconThenClick {
       if (/\^[（(].*[）)]\^/.test(result.kramdown)) {
         continue;
       }
+
       //行内块包含背景色等情况，即便内容没有变动重新更新也会导致样式出问题，因此跳过
       let matches = /(\{:.*?\})/.exec(result.kramdown);
       if (matches) {
-        if (matches[1].search("style") > 0) {
+        if (
+          matches[1].search("style") > 0 &&
+          matches[1].search("parent-style") <= 0
+        ) {
           continue;
         }
       }
@@ -218,6 +222,7 @@ export default class TypographyGo extends AddIconThenClick {
         id: parentId,
       });
     }
+
     showMessage(`格式化完成！`);
   }
 }

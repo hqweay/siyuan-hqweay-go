@@ -2,7 +2,7 @@
   "name": "siyuan-hqweay-go",
   "author": "养恐龙",
   "url": "https://github.com/hqweay/siyuan-hqweay-go",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "minAppVersion": "3.0.0",
   "backends": [
     "windows",

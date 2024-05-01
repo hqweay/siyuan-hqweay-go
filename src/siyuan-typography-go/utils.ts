@@ -6,6 +6,7 @@ interface IgnoreBlock {
 }
 
 import { standardNames } from "./standardName";
+import { settings } from "@/settings";
 
 class FormatUtil {
   //获取当前文档id
@@ -396,6 +397,23 @@ class FormatUtil {
     // 删除多余的内容（回车）
     content = this.condenseContent(content);
 
+    const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
+    const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
+
+    const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
+    if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
+      // console.log(content);
+      // console.log(formatImage.test(content));
+      content = content.replace(
+        formatImage,
+        `$1{: parent-style=\"display: block; width: ${imageCenter}%;\"}`
+      );
+      content = content.replace(updateFormatImage, (match, p1, p2, p3) => {
+        return `${p1}${imageCenter}%${p3}`;
+      });
+      // console.log(content);
+    }
+
     // 每行操作
     const lines = content.split("\n");
     const ignoreBlocks: IgnoreBlock[] = this.getIgnoreBlocks(lines);
@@ -410,12 +428,14 @@ class FormatUtil {
   {: updated="20240331182021" id="20240331182021-ux1ltc4"}
      */
     const filterPattern = /^(\*\s*)?(-\s*)?(>\s*)?(\s*)?\{:.*\}$/;
-    const formatPattern = /(\{:.*?\})/;
+    // const formatPattern1 = /(?!\{:.*?\})/g;
+    const formatPattern = /(.*?)(\{:.*?\})/g;
     const jumpPatterns = [
       /^(\s*)?(\*\s*)?(-\s*)?(>\s*)?(\s*)?\{:.*\}$/,
-      /\(\(.*\)\)/,
-      /\[\[.*\]\]/,
-      /\{\{.*\}\}/,
+      // /\(\(.*\)\)/,
+      // /\[\[.*\]\]/,
+      // /\{\{.*\}\}/,
+      /\(\(.*\)\)|\[\[.*\]\]|\{\{.*\}\}/,
     ];
 
     content = lines
@@ -433,28 +453,31 @@ class FormatUtil {
             return line;
           }
         }
-        // console.log("+++++++");
-        // console.log(line);
-        // console.log("+++++++");
-        const matches = formatPattern.exec(line);
-        if (matches) {
-          if (matches[1]) {
-            let splits = line.split(matches[1]);
-            if (splits.length == 2) {
-              //略过((这是))、[[还会]]
-              for (let index = 0; index < jumpPatterns.length; index++) {
-                if (jumpPatterns[index].test(splits[1])) {
-                  return line;
-                }
-              }
 
-              return (
-                splits[0] + matches[1] + this.replacePunctuations(splits[1])
-              );
-            }
-          }
-          return line;
+        if (formatPattern.exec(line)) {
+          return line.replace(formatPattern, (match, p1, p2) => {
+            return `${this.replacePunctuations(p1)}${p2}`;
+          });
         }
+
+        // if (matches) {
+        //   if (matches[1]) {
+        //     let splits = line.split(matches[1]);
+        //     if (splits.length == 2) {
+        //       //略过((这是))、[[还会]]
+        //       for (let index = 0; index < jumpPatterns.length; index++) {
+        //         if (jumpPatterns[index].test(splits[1])) {
+        //           return line;
+        //         }
+        //       }
+
+        //       return (
+        //         splits[0] + matches[1] + this.replacePunctuations(splits[1])
+        //       );
+        //     }
+        //   }
+        //   return line;
+        // }
         //中文文档内的英文标点替换为中文标点
         line = this.replacePunctuations(line);
         // 将无编号列表的“* ”改成 “- ”
