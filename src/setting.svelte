@@ -294,12 +294,23 @@ https://shibe.online/api/shibes?count=1`,
           key: "hideDock",
           value: settings.getBySpace("dockShowAndHideConfig", "hideDock"),
         },
-         {
+        {
           type: "checkbox",
           title: "分屏时不触发",
           description: "分屏时不触发",
           key: "returnIfSplit",
           value: settings.getBySpace("dockShowAndHideConfig", "returnIfSplit"),
+        },
+        {
+          type: "select",
+          title: "其它文档默认操作",
+          description: "打开其他文件时配置边栏状态",
+          key: "otherDocs",
+          value: settings.getBySpace("dockShowAndHideConfig", "otherDocs"),
+          options: {
+            "恢复上次使用配置": "恢复上次使用配置",
+            "保持当前配置": "保持当前配置",
+          },
         },
         {
           type: "textarea",

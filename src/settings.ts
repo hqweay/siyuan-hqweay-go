@@ -69,8 +69,10 @@ https://shibe.online/api/shibes?count=1`,
     items: `20240330144736-irg5pfz====show====left[200px],right[200px]====首页\n20240416195915-sod1ftd====hide====right====GTD\n20240501000821-w4e1kth====show====right[400px]`,
     leftWidth: `200px`,
     rightWidth: `200px`,
-    hideDock: true,
-    returnIfSplit: true
+    hideDock: false,
+    returnIfSplit: true,
+    // 0-恢复上次使用配置；1-保持当前配置；
+    otherDocs: "恢复上次使用配置",
   },
   mergedFlag: true,
 };

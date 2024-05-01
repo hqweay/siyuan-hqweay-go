@@ -73,6 +73,9 @@ export default class PluginGo extends Plugin {
     settings.getFlag("randomHeaderImage") && this.randomImagePlugin.onload();
     settings.getFlag("typography") && this.typographyPlugin.onload();
 
+    settings.getFlag("dockShowAndHide") &&
+      this.dockShowAndHidePlugin.onLayoutReady();
+
     this.dockLeftPlugins = settings
       .getBySpace("dockLeftConfig", "ids")
       .split("\n")
