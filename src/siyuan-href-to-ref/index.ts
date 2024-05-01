@@ -23,7 +23,6 @@ export default class HrefToRef {
             ele.remove();
           }
         });
-
       doOperations.push({
         id: item.dataset.nodeId,
         data: item.outerHTML,
@@ -31,7 +30,8 @@ export default class HrefToRef {
       });
     });
 
-    detail.protyle.getInstance().transaction(doOperations);
+    doOperations.length != 0 &&
+      detail.protyle.getInstance().transaction(doOperations);
   }
 
   public editortitleiconEvent({ detail }) {

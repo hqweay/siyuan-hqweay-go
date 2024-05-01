@@ -215,13 +215,13 @@ export default class TypographyGo extends AddIconThenClick {
       });
     }
 
-    // const autoSpace = settings.getBySpace("typographyConfig", "autoSpace");
+    const autoSpace = settings.getBySpace("typographyConfig", "autoSpace");
 
-    // if (autoSpace) {
-    //   await fetchSyncPost("/api/format/autoSpace", {
-    //     id: parentId,
-    //   });
-    // }
+    if (autoSpace) {
+      await fetchSyncPost("/api/format/autoSpace", {
+        id: parentId,
+      });
+    }
 
     showMessage(`格式化完成！`);
   }
