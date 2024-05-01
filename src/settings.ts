@@ -70,6 +70,7 @@ https://shibe.online/api/shibes?count=1`,
     leftWidth: `200px`,
     rightWidth: `200px`,
     hideDock: true,
+    returnIfSplit: true
   },
   mergedFlag: true,
 };

@@ -5,6 +5,18 @@ export default class DockShowAndHide {
   leftWidthRegex = /left\[(.*?)\]/;
   rightWidthRegex = /right\[(.*?)\]/;
   async switchProtyleEvent({ detail }) {
+    const returnIfSplit = settings.getBySpace(
+      "dockShowAndHideConfig",
+      "returnIfSplit"
+    );
+
+    if (
+      returnIfSplit &&
+      document.querySelectorAll("[data-type=wnd]").length > 7
+    ) {
+      //分屏默认不操作
+      return;
+    }
     const items = settings.getBySpace("dockShowAndHideConfig", "items");
 
     if (!items) return;
