@@ -19,7 +19,7 @@
         },
         {
           type: "checkbox",
-          title: "随机头图",
+          title: "随机题头图",
           description: "支持配置本地文件夹/自定义 URL",
           key: "randomHeaderImage",
           value: settings.getFlag("randomHeaderImage"),
@@ -124,7 +124,7 @@
             "以 名称====链接 配置；换行分隔。${content} 将会替换为选中的内容",
         },
       ],
-      随机头图: [
+      随机题头图: [
         {
           type: "checkbox",
           title: "本地图片进入缓存？",

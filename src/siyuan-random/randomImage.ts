@@ -62,7 +62,7 @@ export default class RandomImage {
     }
     const folderIndex =
       imageFolders.length === 1
-        ? 1
+        ? 0
         : Math.floor(Math.random() * imageFolders.length);
     const folderPath = imageFolders[folderIndex].trim();
 
