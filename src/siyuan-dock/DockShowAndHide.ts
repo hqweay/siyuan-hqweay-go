@@ -3,16 +3,16 @@ import { settings } from "@/settings";
 
 export default class DockShowAndHide {
   async switchProtyleEvent({ detail }) {
-    console.log(window.siyuan.layout.rightDock);
-
     const items = settings.getBySpace("dockShowAndHideConfig", "items");
+
+    if (!items) return;
+
     let rightWidth = settings.getBySpace("dockShowAndHideConfig", "rightWidth");
     let leftWidth = settings.getBySpace("dockShowAndHideConfig", "leftWidth");
+    let hideDock = settings.getBySpace("dockShowAndHideConfig", "hideDock");
 
     rightWidth = rightWidth ? rightWidth : "200px";
     leftWidth = leftWidth ? leftWidth : "200px";
-
-    if (!items) return;
 
     items.split("\n").forEach((line) => {
       const configs = line.split("====");
@@ -21,13 +21,16 @@ export default class DockShowAndHide {
       }
 
       if (configs[1] === "show") {
-        document
-          .querySelector("#barDock")
-          .firstElementChild.firstElementChild.setAttribute(
-            "xlink:href",
-            "#iconHideDock"
-          );
-        window.siyuan.config.uiLayout.hideDock = true;
+        if (hideDock) {
+          document
+            .querySelector("#barDock")
+            .firstElementChild.firstElementChild.setAttribute(
+              "xlink:href",
+              "#iconHideDock"
+            );
+          window.siyuan.config.uiLayout.hideDock = true;
+        }
+
         document.querySelectorAll(".dock").forEach((item) => {
           if (item.querySelectorAll(".dock__item").length > 1) {
             item.classList.remove("fn__none");
@@ -44,13 +47,15 @@ export default class DockShowAndHide {
         //   window.siyuan.layout.bottomDock.layout.element.style.width = "320px";
         // }
       } else {
-        document
-          .querySelector("#barDock")
-          .firstElementChild.firstElementChild.setAttribute(
-            "xlink:href",
-            "#iconDock"
-          );
-        window.siyuan.config.uiLayout.hideDock = true;
+        if (hideDock) {
+          document
+            .querySelector("#barDock")
+            .firstElementChild.firstElementChild.setAttribute(
+              "xlink:href",
+              "#iconDock"
+            );
+          window.siyuan.config.uiLayout.hideDock = true;
+        }
         document.querySelectorAll(".dock").forEach((item) => {
           item.classList.add("fn__none");
         });
