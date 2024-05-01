@@ -46,6 +46,7 @@ https://shibe.online/api/shibes?count=1`,
   },
   memoConfig: {
     id: "20240406015842-137jie3",
+    activeDoc: false,
   },
   dockLeftConfig: {
     ids: `🥹====20240330144736-irg5pfz

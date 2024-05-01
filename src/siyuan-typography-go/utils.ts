@@ -202,15 +202,13 @@ class FormatUtil {
   }
 
   replacePunctuations(content: any) {
+    console.log("start");
+    console.log(content);
     // `, \ . : ; ? !` 改成 `，、。：；？！`
 
     //... 替换为中文省略号  add
     content = content.replace(/[.]{3,}/g, "……");
-    // 必须在结尾或者有空格的点才被改成句号
-    content = content.replace(
-      /([\u4e00-\u9fa5\u3040-\u30FF])\.($|\s*)/g,
-      "$1。"
-    );
+
     content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]),/g, "$1，");
     content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]);/g, "$1；");
     content = content.replace(/([\u4e00-\u9fa5\u3040-\u30FF]):/g, "$1：");
@@ -234,6 +232,12 @@ class FormatUtil {
     content = content.replace(/’/g, "』");
     content = content.replace(/“/g, "「");
     content = content.replace(/”/g, "」");
+
+    // 必须在结尾或者有空格的点才被改成句号
+    content = content.replace(
+      /([\u4e00-\u9fa5\u3040-\u30FF」，。！？：])\.($|\s*)/g,
+      "$1。"
+    );
 
     // content = content.replace(/“(.*?[\u4e00-\u9fa5\u3040-\u30FF])”/g, "「$1」");
     // content = content.replace(/“([\u4e00-\u9fa5\u3040-\u30FF].*?)”/g, "「$1」");
@@ -314,6 +318,10 @@ class FormatUtil {
       /“(\w.*?\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)」/g,
       "“$1”"
     );
+    content = content.replace(
+      /“(\w.*?\w[:;,.!?\'\"’]?[:;,.!?\'\"’]?)。」/g,
+      "“$1.”"
+    );
     content = content.replace(/'(\w.*?\w)”/g, "“$1”");
     // 过滤一下 <div id = ""
 
@@ -336,6 +344,7 @@ class FormatUtil {
       /“(.*?)”\s*([\u4e00-\u9fa5\u3040-\u30FF，。、《》？『』「」；∶【】｛｝—！＠￥％…（）])/g,
       "「$1」$2"
     );
+    //  content = content.replace(/(「.*?」)./g, "$1。");
 
     content = content.replace(/”\s*([,.!?]\1?)/g, "”$1");
 
@@ -374,6 +383,10 @@ class FormatUtil {
     standardNames.forEach((ele: any) => {
       content = content.replace(ele.key, ele.value);
     });
+
+    console.log("end");
+    console.log(content);
+
     return content;
     // let lines = content.split("\n");
     // for (let index = 0; index < lines.length; index++) {
@@ -429,9 +442,10 @@ class FormatUtil {
      */
     const filterPattern = /^(\*\s*)?(-\s*)?(>\s*)?(\s*)?\{:.*\}$/;
     // const formatPattern1 = /(?!\{:.*?\})/g;
-    const formatPattern = /(.*?)(\{:.*?\})/g;
+    // const formatPattern = /(.*?)(\{:.*?\})(.*?)/g;
+    const formatPattern = /\{:.*?\}/g;
     const jumpPatterns = [
-      /^(\s*)?(\*\s*)?(-\s*)?(>\s*)?(\s*)?\{:.*\}$/,
+      // /^(\s*)?(\*\s*)?(-\s*)?(>\s*)?(\s*)?\{:.*\}$/,
       // /\(\(.*\)\)/,
       // /\[\[.*\]\]/,
       // /\{\{.*\}\}/,
@@ -454,11 +468,40 @@ class FormatUtil {
           }
         }
 
-        if (formatPattern.exec(line)) {
-          return line.replace(formatPattern, (match, p1, p2) => {
-            return `${this.replacePunctuations(p1)}${p2}`;
+        console.log("111");
+        console.log(line);
+
+        // if (formatPattern.exec(line)) {
+        //   line = line.replace(formatPattern, (match, p1, p2) => {
+        //     // console.log(p1);
+        //     // console.log(p2);
+        //     return `${this.replacePunctuations(p1)}${p2}`;
+        //   });
+        //   console.log("2222");
+        //   console.log(line);
+        //   return line;
+        // }
+
+        const matches = line.match(formatPattern);
+        const nonMatches = line.split(formatPattern);
+
+        if (matches) {
+          const uppercasedNonMatches = nonMatches.map((match) => {
+            return `${this.replacePunctuations(match)}`;
           });
+
+          console.log("matches");
+          console.log(matches.length);
+          console.log(nonMatches.length);
+          let result = uppercasedNonMatches[0];
+          for (let i = 0; i < matches.length; i++) {
+            result += matches[i] + uppercasedNonMatches[i + 1];
+          }
+          line = result;
+          return line;
         }
+        console.log("333");
+        console.log(line);
 
         // if (matches) {
         //   if (matches[1]) {
@@ -479,12 +522,33 @@ class FormatUtil {
         //   return line;
         // }
         //中文文档内的英文标点替换为中文标点
-        line = this.replacePunctuations(line);
+        // const spaceMatched = line.match(/^(\s*?)(\S.*?\S)(\s*)$/);
+        const spaceMatched = line.match(/^(\s*?)(\S.*?\S?)(\s*)$/);
+
+        if (spaceMatched) {
+          console.log("spaceMatched");
+          console.log(spaceMatched);
+          line =
+            spaceMatched[1] +
+            this.deleteSpaces(this.replacePunctuations(spaceMatched[2]));
+          //最后的空格可以不要吧
+          // +spaceMatched[3];
+        } else if (line.match(/^\s*$/)) {
+          console.log("空数据" + line);
+          return line;
+        } else {
+          line = this.replacePunctuations(line);
+          line = this.deleteSpaces(line);
+        }
+
+        console.log("最终结果");
+        console.log(line);
+
         // 将无编号列表的“* ”改成 “- ”
         // 将无编号列表的“- ”改成 “- ”
         // line = line.replace(/^(\s*)[-\*]\s+(\S)/, "$1- $2");
         // 删除多余的空格
-        line = this.deleteSpaces(line);
+
         // 插入必要的空格
         // line = this.insertSpace(line);
         // 将有编号列表的“1.  ”改成 “1. ”
@@ -493,6 +557,8 @@ class FormatUtil {
         // console.log("更新后的");
         // console.log(line);
         // console.log("更新后的");
+        console.log("删除空格最终结果");
+        console.log(line);
         return line;
       })
       .join("\n");
