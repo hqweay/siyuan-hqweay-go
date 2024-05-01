@@ -55,10 +55,14 @@ https://shibe.online/api/shibes?count=1`,
     extractPath: "",
     noteBookID: "",
     keepContext: true,
-    addRef: false
+    addRef: false,
   },
   bookmarkConfig: {
     items: "读到这里啦",
+  },
+  typographyConfig: {
+    autoSpace: false,
+    closeTip: true,
   },
   mergedFlag: true,
 };

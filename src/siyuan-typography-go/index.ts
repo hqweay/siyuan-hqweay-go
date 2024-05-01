@@ -91,86 +91,107 @@ export default class TypographyGo extends AddIconThenClick {
     });
   }
 
-  exec() {
+  async exec() {
     //寻找当前编辑的文档的id
     let parentId = formatUtil.getDocid();
     if (parentId == null) {
       showMessage("error");
       return;
     }
-    confirm(
-      "⚠️操作前强烈建议先对数据进行备份，若转换效果不理想可从历史页面恢复。",
-      "确认格式化吗？",
-      async () => {
-        let childrenResult = await fetchSyncPost("/api/block/getChildBlocks", {
-          id: parentId,
-        });
-        let childrenBlocks = childrenResult.data;
+    const closeTip = settings.getBySpace("typographyConfig", "closeTip");
+    if (closeTip) {
+      await this.formatDoc(parentId);
+    } else {
+      confirm(
+        "⚠️操作前强烈建议先对数据进行备份，若转换效果不理想可从历史页面恢复。",
+        "确认格式化吗？",
+        async () => {
+          await this.formatDoc(parentId);
+        },
+        () => {
+          return;
+        }
+      );
+    }
+  }
 
-        // const currentDoc = formatUtil.getCurrentDocument();
+  async formatDoc(parentId) {
+    let childrenResult = await fetchSyncPost("/api/block/getChildBlocks", {
+      id: parentId,
+    });
+    let childrenBlocks = childrenResult.data;
 
-        // const allEmements =
-        //   currentDoc.querySelectorAll("[data-node-index]");
+    // const currentDoc = formatUtil.getCurrentDocument();
 
-        // //如果界面已经加载了文档所有内容，通过元素操作来更新
-        // if (allEmements && allEmements.length === childrenBlocks.length) {
+    // const allEmements =
+    //   currentDoc.querySelectorAll("[data-node-index]");
 
-        for (let i = 0; i < childrenBlocks.length; i++) {
-          if (i === 0 || i % 50 === 0) {
-            showMessage(
-              `正在格式化第${i + 1}至第${i + 50}个内容块，请勿进行其它操作。`
-            );
-          }
-          let type = childrenBlocks[i].type;
-          let id = childrenBlocks[i].id;
-          if (type != "p" && type != "b" && type != "l" && type != "h") {
-            continue;
-          }
-          let response = await fetchSyncPost("/api/block/getBlockKramdown", {
-            id: id,
-          });
-          let result = response.data;
+    // //如果界面已经加载了文档所有内容，通过元素操作来更新
+    // if (allEmements && allEmements.length === childrenBlocks.length) {
 
-          //空内容块
-          if (/^\{:.*\}$/.test(result.kramdown)) {
-            const deleteEmptyClock = true;
-            if (deleteEmptyClock) {
-              await fetchSyncPost("/api/block/deleteBlock", {
-                id: id,
-              });
-            }
-            continue;
-          }
-          //为备注时，即便内容没有变动重新更新也会导致样式出问题，因此跳过
-          if (/\^[（(].*[）)]\^/.test(result.kramdown)) {
-            continue;
-          }
-          //行内块包含背景色等情况，即便内容没有变动重新更新也会导致样式出问题，因此跳过
-          let matches = /(\{:.*?\})/.exec(result.kramdown);
-          if (matches) {
-            if (matches[1].search("style") > 0) {
-              continue;
-            }
-          }
+    const formatCount = 100;
+    for (let i = 0; i < childrenBlocks.length; i++) {
+      if (i === 0 || i % formatCount === 0) {
+        showMessage(
+          `正在格式化第${i + 1}至第${
+            i + formatCount
+          }个内容块，请勿进行其它操作。`
+        );
+      }
+      let type = childrenBlocks[i].type;
+      let id = childrenBlocks[i].id;
+      if (type != "p" && type != "b" && type != "l" && type != "h") {
+        continue;
+      }
+      let response = await fetchSyncPost("/api/block/getBlockKramdown", {
+        id: id,
+      });
+      let result = response.data;
 
-          let formatResult = formatUtil.formatContent(result.kramdown);
-          //如果内容无变动就不更新了
-          if (formatResult == result.kramdown) {
-            continue;
-          }
-
-          await fetchSyncPost("/api/block/updateBlock", {
-            dataType: "markdown",
-            data: formatResult,
+      //空内容块
+      if (/^\{:.*\}$/.test(result.kramdown)) {
+        const deleteEmptyClock = true;
+        if (deleteEmptyClock) {
+          await fetchSyncPost("/api/block/deleteBlock", {
             id: id,
           });
         }
-
-        showMessage(`格式化完成！`);
-      },
-      () => {
-        return;
+        continue;
       }
-    );
+      //为备注时，即便内容没有变动重新更新也会导致样式出问题，因此跳过
+      if (/\^[（(].*[）)]\^/.test(result.kramdown)) {
+        continue;
+      }
+      //行内块包含背景色等情况，即便内容没有变动重新更新也会导致样式出问题，因此跳过
+      let matches = /(\{:.*?\})/.exec(result.kramdown);
+      if (matches) {
+        if (matches[1].search("style") > 0) {
+          continue;
+        }
+      }
+
+      let formatResult = formatUtil.formatContent(result.kramdown);
+
+      //如果内容无变动就不更新了
+      if (formatResult == result.kramdown) {
+        continue;
+      }
+
+      await fetchSyncPost("/api/block/updateBlock", {
+        dataType: "markdown",
+        data: formatResult,
+        id: id,
+      });
+    }
+
+    const autoSpace = settings.getBySpace("typographyConfig", "autoSpace");
+
+    console.log(autoSpace);
+    if (autoSpace) {
+      await fetchSyncPost("/api/format/autoSpace", {
+        id: parentId,
+      });
+    }
+    showMessage(`格式化完成！`);
   }
 }

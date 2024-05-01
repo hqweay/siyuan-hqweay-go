@@ -39,6 +39,7 @@
             "右上角增加机器人图标/块菜单打开事件增加格式化文档的功能；注意有损坏数据风险。",
           key: "typography",
           value: settings.getFlag("typography"),
+          hasSetting: true,
         },
         {
           type: "checkbox",
@@ -241,6 +242,24 @@ https://shibe.online/api/shibes?count=1`,
           key: "items",
           value: settings.getBySpace("bookmarkConfig", "items"),
           placeholder: "读到这里啦",
+        },
+      ],
+      中文排版: [
+        {
+          type: "checkbox",
+          title: "文档格式化时插入空格？",
+          description:
+            "点击右上角机器人对文档格式化时调用思源的排版优化来自动插入空格",
+          key: "autoSpace",
+          value: settings.getBySpace("typographyConfig", "autoSpace"),
+        },
+        {
+          type: "checkbox",
+          title: "关闭提示？",
+          description:
+            "点击右上角机器人对文档格式化时会有损坏数据的风险，如果你接受可以打开开关，关闭每次操作前的提示。",
+          key: "closeTip",
+          value: settings.getBySpace("typographyConfig", "closeTip"),
         },
       ],
     };
