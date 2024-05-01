@@ -186,7 +186,6 @@ export default class TypographyGo extends AddIconThenClick {
 
     const autoSpace = settings.getBySpace("typographyConfig", "autoSpace");
 
-    console.log(autoSpace);
     if (autoSpace) {
       await fetchSyncPost("/api/format/autoSpace", {
         id: parentId,

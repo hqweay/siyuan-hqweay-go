@@ -89,6 +89,14 @@
           value: settings.getFlag("bookmark"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "边栏自动打开、关闭",
+          description: "配置打开文档时边栏自动展开/隐藏",
+          key: "dockShowAndHide",
+          value: settings.getFlag("dockShowAndHide"),
+          hasSetting: true,
+        },
       ],
       发送到: [
         {
@@ -257,9 +265,43 @@ https://shibe.online/api/shibes?count=1`,
           type: "checkbox",
           title: "关闭提示？",
           description:
-            "点击右上角机器人对文档格式化时会有损坏数据的风险，如果你接受可以打开开关，关闭每次操作前的提示。",
+            "点击右上角机器人对文档格式化时会有损坏数据的风险，如果你确认风险可以打开开关，关闭每次操作前的提示。",
           key: "closeTip",
           value: settings.getBySpace("typographyConfig", "closeTip"),
+        },
+      ],
+      "边栏自动打开、关闭": [
+        {
+          type: "textinput",
+          title: "左边栏宽度",
+          description: "配置自动打开边栏时左边栏宽度",
+          key: "leftWidth",
+          value: settings.getBySpace("dockShowAndHideConfig", "leftWidth"),
+          placeholder: "200px",
+        },
+        {
+          type: "textinput",
+          title: "右边栏宽度",
+          description: "配置自动打开边栏时右边栏宽度",
+          key: "rightWidth",
+          value: settings.getBySpace("dockShowAndHideConfig", "rightWidth"),
+          placeholder: "200px",
+        },
+        {
+          type: "checkbox",
+          title: "同时打开/关闭停靠栏",
+          description: "打开/关闭边栏时同时操作停靠栏",
+          key: "hideDock",
+          value: settings.getBySpace("dockShowAndHideConfig", "hideDock"),
+        },
+        {
+          type: "textarea",
+          title: "配置",
+          description:
+            "格式：文档id====【展示/隐藏（show/hide）】====【左边栏、右边栏、底栏（left/right/bottom）】====备注（可选）<br/>多个文档以换行分隔",
+          key: "items",
+          value: settings.getBySpace("dockShowAndHideConfig", "items"),
+          placeholder: "20240501000821-w4e1kth====show====left,right,bottom",
         },
       ],
     };

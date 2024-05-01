@@ -23,6 +23,7 @@ const DEFAULT_CONFIG = {
     dockLeft: false,
     read: false,
     bookmark: false,
+    dockShowAndHide: false,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -63,6 +64,13 @@ https://shibe.online/api/shibes?count=1`,
   typographyConfig: {
     autoSpace: false,
     closeTip: true,
+  },
+  dockShowAndHideConfig: {
+    items:
+      `20240501000821-w4e1kth====show====left,right====首页\n20240416195915-sod1ftd====hide====left,right====GTD`,
+      leftWidth: `200px`,
+      rightWidth: `200px`,
+      hideDock: true
   },
   mergedFlag: true,
 };

@@ -8,7 +8,7 @@ export default class Bookmark extends AddIconThenClick {
     const doOperations: IOperation[] = [];
 
     detail.blockElements.forEach((item: HTMLElement) => {
-      console.log(item);
+      // console.log(item);
       item.setAttribute("bookmark", bookmarkName);
 
       doOperations.push({

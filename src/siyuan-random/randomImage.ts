@@ -60,7 +60,10 @@ export default class RandomImage {
       showMessage("请检查随机图片文件夹的路径配置～");
       return;
     }
-    const folderIndex = Math.floor(Math.random() * imageFolders.length);
+    const folderIndex =
+      imageFolders.length === 1
+        ? 1
+        : Math.floor(Math.random() * imageFolders.length);
     const folderPath = imageFolders[folderIndex].trim();
 
     if (folderPath.startsWith("http")) {
