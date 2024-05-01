@@ -301,7 +301,7 @@ https://shibe.online/api/shibes?count=1`,
             "格式：文档id====【展示/隐藏（show/hide）】====【左边栏、右边栏（left/right）】====备注（可选）<br/>多个文档以换行分隔",
           key: "items",
           value: settings.getBySpace("dockShowAndHideConfig", "items"),
-          placeholder: "20240501000821-w4e1kth====show====left,right,bottom",
+          placeholder: `20240501000821-w4e1kth====show====left,right====首页\n20240416195915-sod1ftd====hide====left====GTD`,
         },
       ],
     };
