@@ -64,6 +64,7 @@ https://shibe.online/api/shibes?count=1`,
   typographyConfig: {
     autoSpace: false,
     closeTip: true,
+    imageCenter: 0,
   },
   dockShowAndHideConfig: {
     items: `20240330144736-irg5pfz====show====left[200px],right[200px]====首页\n20240416195915-sod1ftd====hide====right====GTD\n20240501000821-w4e1kth====show====right[400px]`,

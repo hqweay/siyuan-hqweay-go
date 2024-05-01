@@ -269,6 +269,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "closeTip",
           value: settings.getBySpace("typographyConfig", "closeTip"),
         },
+        {
+          type: "number",
+          title: "图片居中？",
+          description: "为 10-100 的值则居中并按百分比数值缩放；其它值则不居中。",
+          key: "imageCenter",
+          value: settings.getBySpace("typographyConfig", "imageCenter"),
+        },
       ],
       "边栏自动打开、关闭": [
         {
@@ -308,8 +315,8 @@ https://shibe.online/api/shibes?count=1`,
           key: "otherDocs",
           value: settings.getBySpace("dockShowAndHideConfig", "otherDocs"),
           options: {
-            "恢复上次使用配置": "恢复上次使用配置",
-            "保持当前配置": "保持当前配置",
+            恢复上次使用配置: "恢复上次使用配置",
+            保持当前配置: "保持当前配置",
           },
         },
         {

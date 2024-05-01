@@ -1,4 +1,4 @@
-import { Plugin, showMessage, confirm, fetchSyncPost } from "siyuan";
+import { Plugin, showMessage, confirm, fetchSyncPost, fetchPost } from "siyuan";
 
 import { formatUtil } from "./utils";
 
@@ -91,6 +91,31 @@ export default class TypographyGo extends AddIconThenClick {
     });
   }
 
+  async imageCenter() {
+    let imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
+    if (!imageCenter || imageCenter < 10 || imageCenter > 100) {
+      return;
+    }
+
+    const body = document.querySelector(
+      ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+    ).parentElement.nextSibling;
+
+    const images = body.querySelectorAll("span[data-type='img']");
+
+    console.log(images);
+
+    images.forEach(async (item) => {
+      item.setAttribute("style", `display: block; width: ${imageCenter}%;`);
+
+      await fetchSyncPost("/api/block/updateBlock", {
+        dataType: "dom",
+        data: item.parentElement.parentElement.outerHTML,
+        id: item.parentElement.parentElement.getAttribute("data-node-id"),
+      });
+    });
+  }
+
   async exec() {
     //寻找当前编辑的文档的id
     let parentId = formatUtil.getDocid();
@@ -101,12 +126,14 @@ export default class TypographyGo extends AddIconThenClick {
     const closeTip = settings.getBySpace("typographyConfig", "closeTip");
     if (closeTip) {
       await this.formatDoc(parentId);
+      await this.imageCenter();
     } else {
       confirm(
         "⚠️操作前强烈建议先对数据进行备份，若转换效果不理想可从历史页面恢复。",
         "确认格式化吗？",
         async () => {
           await this.formatDoc(parentId);
+          await this.imageCenter();
         },
         () => {
           return;
