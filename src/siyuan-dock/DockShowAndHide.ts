@@ -65,10 +65,10 @@ export default class DockShowAndHide {
               "#iconDock"
             );
           window.siyuan.config.uiLayout.hideDock = true;
+          document.querySelectorAll(".dock").forEach((item) => {
+            item.classList.add("fn__none");
+          });
         }
-        document.querySelectorAll(".dock").forEach((item) => {
-          item.classList.add("fn__none");
-        });
 
         if (configs[2].includes("left")) {
           window.siyuan.layout.leftDock.layout.element.style.width = "0px";
