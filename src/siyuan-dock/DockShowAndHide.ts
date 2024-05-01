@@ -2,6 +2,8 @@ import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 
 export default class DockShowAndHide {
+  leftWidthRegex = /left\[(.*?)\]/;
+  rightWidthRegex = /right\[(.*?)\]/;
   async switchProtyleEvent({ detail }) {
     const items = settings.getBySpace("dockShowAndHideConfig", "items");
 
@@ -37,9 +39,17 @@ export default class DockShowAndHide {
           }
         });
         if (configs[2].includes("left")) {
+          const match = configs[2].match(this.leftWidthRegex);
+          if (match) {
+            leftWidth = match[1];
+          }
           window.siyuan.layout.leftDock.layout.element.style.width = leftWidth;
         }
         if (configs[2].includes("right")) {
+          const match = configs[2].match(this.rightWidthRegex);
+          if (match) {
+            rightWidth = match[1];
+          }
           window.siyuan.layout.rightDock.layout.element.style.width =
             rightWidth;
         }
