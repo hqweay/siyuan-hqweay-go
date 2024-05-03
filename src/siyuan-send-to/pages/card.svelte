@@ -106,6 +106,9 @@
       handleClickOfFold(event, targetEle.parentElement);
       return;
     }
+    if (!targetEle.classList.contains("protyle-action")) {
+      return;
+    }
 
     const foldValue = targetEle.parentElement.getAttribute("fold");
 
@@ -400,7 +403,7 @@
 
     <div class="hqweay-go-card-body">
       <!-- <p>{content.trim()}</p> -->
-      <div class="protyle-wysiwyg protyle-wysiwyg--attr">
+      <div class="protyle-wysiwyg">
         {@html cardHtmls}
       </div>
 
