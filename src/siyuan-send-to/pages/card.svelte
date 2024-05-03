@@ -153,6 +153,13 @@
       key: "hideLi",
       value: settings.getBySpace("cardConfig", "hideLi"),
     },
+    pLineHeight: {
+      type: "checkbox",
+      title: "去除段落块间距",
+      description: "",
+      key: "pLineHeight",
+      value: settings.getBySpace("cardConfig", "pLineHeight"),
+    },
     author: {
       type: "textinput",
       title: "添加一个作者名",
@@ -199,6 +206,7 @@
       key: "hfColor",
       value: settings.getBySpace("cardConfig", "hfColor"),
     },
+
     saveTemplate: {
       type: "button",
       title: "保存为模板",
@@ -401,7 +409,10 @@
       {/if}
     </div>
 
-    <div class="hqweay-go-card-body">
+    <div
+      class="hqweay-go-card-body"
+      class:p-hide-blank-hine={settingConfig.pLineHeight.value}
+    >
       <!-- <p>{content.trim()}</p> -->
       <div class="protyle-wysiwyg">
         {@html cardHtmls}
@@ -431,7 +442,16 @@
     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #72c396;
   }
-  :global(.hqweay-go-card-body .protyle-wysiwyg .protyle-action:hover) {
+  :global(.hqweay-go-card-body .protyle-wysiwyg > .p) {
+    margin: 0px;
+    padding: 0px;
+    line-height: normal;
+    min-width: 0px;
+  }
+  :global(.p-hide-blank-hine .protyle-wysiwyg > .p div[spellcheck]) {
+    min-height: 0px;
+  }
+  :global(.p-hide-blank-hine .protyle-wysiwyg .protyle-action:hover) {
     cursor: pointer;
   }
 
