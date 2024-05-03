@@ -154,11 +154,23 @@
       value: settings.getBySpace("cardConfig", "hideLi"),
     },
     pLineHeight: {
-      type: "checkbox",
-      title: "去除段落块间距",
-      description: "",
+      type: "number",
+      title: "调整段落间距",
+      description: "大于等于 0 则清除段落默认间距并以新的数字调整间距",
       key: "pLineHeight",
       value: settings.getBySpace("cardConfig", "pLineHeight"),
+    },
+    addDOCTitle: {
+      type: "select",
+      title: "添加文档标题",
+      description: "",
+      key: "addDOCTitle",
+      value: settings.getBySpace("cardConfig", "addDOCTitle"),
+      options: {
+        none: "无",
+        center: "居中",
+        left: "居左",
+      },
     },
     author: {
       type: "textinput",
@@ -375,6 +387,17 @@
         .forEach((ele) => {
           ele.style.color = settingConfig.hfColor.value;
         });
+
+    document.querySelector(
+      ".p-hide-blank-hine-size .protyle-wysiwyg > div:not(.list) div[spellcheck]"
+    ) &&
+      document
+        .querySelectorAll(
+          ".p-hide-blank-hine-size .protyle-wysiwyg > div:not(.list) div[spellcheck]"
+        )
+        .forEach((ele) => {
+          ele.style.minHeight = settingConfig.pLineHeight.value + "px";
+        });
   }
 </script>
 
@@ -387,7 +410,7 @@
 </div>
 
 {#if showSetting}
-  <div class="setting">
+  <div class="setting" style="height: 200px; overflow-y: scroll;">
     <SettingPanel
       group="设置"
       settingItems={SettingItems}
@@ -402,7 +425,7 @@
       <h2 class="card-title">Card Title</h2>
     </div> -->
     <div class="header">
-      {#if SettingItems[2].value !== "none"}
+      {#if settingConfig.addTime.value !== "none"}
         <div contenteditable="true" class="addTime">
           {fotterTime}
         </div>
@@ -411,10 +434,25 @@
 
     <div
       class="hqweay-go-card-body"
-      class:p-hide-blank-hine={settingConfig.pLineHeight.value}
+      class:p-hide-blank-hine={settingConfig.pLineHeight.value >= 0}
+      class:p-hide-blank-hine-size={settingConfig.pLineHeight.value >= 0}
     >
       <!-- <p>{content.trim()}</p> -->
       <div class="protyle-wysiwyg">
+        {#if settingConfig.addDOCTitle.value !== "none"}
+          <div
+            contenteditable="true"
+            class="title h2"
+            class:title-center={settingConfig.addDOCTitle.value === "center"}
+            style="margin-bottom: 10px;"
+          >
+            {document
+              .querySelector(
+                ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-title"
+              )
+              .textContent.trim()}
+          </div>
+        {/if}
         {@html cardHtmls}
       </div>
 
@@ -442,19 +480,24 @@
     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #72c396;
   }
-  :global(.hqweay-go-card-body .protyle-wysiwyg > .p) {
+  :global(.p-hide-blank-hine .protyle-wysiwyg > div:not(.list)) {
     margin: 0px;
     padding: 0px;
     line-height: normal;
-    min-width: 0px;
   }
-  :global(.p-hide-blank-hine .protyle-wysiwyg > .p div[spellcheck]) {
+  :global(
+      .p-hide-blank-hine-size .protyle-wysiwyg > div:not(.list) div[spellcheck]
+    ) {
     min-height: 0px;
   }
+
   :global(.p-hide-blank-hine .protyle-wysiwyg .protyle-action:hover) {
     cursor: pointer;
   }
 
+  .title-center {
+    text-align: center;
+  }
   // #cardPanel {
   //   max-height: 400px;
   //   overflow-y: scroll;
