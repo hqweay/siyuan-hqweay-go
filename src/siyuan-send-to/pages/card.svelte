@@ -395,7 +395,7 @@
     </div> -->
     <div class="header">
       {#if SettingItems[2].value !== "none"}
-        <div class="addTime">
+        <div contenteditable="true" class="addTime">
           {fotterTime}
         </div>
       {/if}
@@ -411,7 +411,7 @@
     </div>
     <div class="footer">
       {#if settings.getBySpace("cardConfig", "author")}
-        <div class="author">
+        <div contenteditable="true" class="author">
           @{settings.getBySpace("cardConfig", "author")}
         </div>
       {/if}
