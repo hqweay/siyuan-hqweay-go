@@ -1,5 +1,5 @@
 import { fetchSyncPost } from "siyuan";
-import { plugin } from "./utils";
+import { deepMerge, plugin } from "./utils";
 
 //配置文件名称
 export const CONFIG = "hqweay-go-config";
@@ -83,10 +83,40 @@ https://shibe.online/api/shibes?count=1`,
     cardBackgroundColor: "beige",
     innerBackgroundColor: "beige",
     fontColor: "black",
+    hfColor: "brown",
+    templates: {
+      "卡片、内容都绿色；字体红色；": {
+        hideLi: false,
+        author: "养恐龙",
+        addTime: "byCreated",
+        cardBackgroundColor: "#72c396",
+        innerBackgroundColor: "#72c396",
+        fontColor: "red",
+        hfColor: "brown",
+      },
+      "卡片、内容都绿色；字体黑色；": {
+        hideLi: false,
+        author: "养恐龙",
+        addTime: "byCreated",
+        cardBackgroundColor: "#72c396",
+        innerBackgroundColor: "#72c396",
+        fontColor: "black",
+        hfColor: "brown",
+      },
+      "卡片绿色；内容块：beige；字体黑色；": {
+        hideLi: false,
+        author: "养恐龙",
+        addTime: "byCreated",
+        cardBackgroundColor: "#72c396",
+        innerBackgroundColor: "beige",
+        fontColor: "black",
+        hfColor: "brown",
+      },
+    },
   },
-  mergedFlag: true,
 };
 
+let mergedFlag = false;
 /**
  * 配置类
  */
@@ -105,9 +135,11 @@ class Settings {
       await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     }
 
-    if (!plugin.data[CONFIG]["mergedFlag"]) {
-      // console.log("mergeData", plugin.data[CONFIG]);
+    //插件加载时 merge
+    if (!mergedFlag) {
+      console.log("mergeData", plugin.data[CONFIG]);
       await this.mergeData();
+      mergedFlag = true;
     } else {
       // console.log("loadData", plugin.data[CONFIG]);
       await this.load();
@@ -119,28 +151,10 @@ class Settings {
     await this.load();
   }
 
-  deepMerge(target, source) {
-    for (let key in source) {
-      if (source.hasOwnProperty(key)) {
-        if (
-          typeof source[key] === "object" &&
-          source[key] !== null &&
-          !Array.isArray(source[key])
-        ) {
-          if (!target[key]) {
-            target[key] = {};
-          }
-          this.deepMerge(target[key], source[key]);
-        } else {
-          target[key] = source[key];
-        }
-      }
-    }
-  }
   async mergeData() {
     // console.log("mergeData", plugin.data[CONFIG]);
     // console.log("mergeData", DEFAULT_CONFIG);
-    this.deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);
+    deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);
     // console.log("mergeData", DEFAULT_CONFIG);
     await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     await this.load();

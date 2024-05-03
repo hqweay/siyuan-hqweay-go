@@ -23,7 +23,7 @@ export default class TypographyGo extends AddIconThenClick {
       click: () => {
         const doOperations: IOperation[] = [];
 
-        console.log(detail.blockElements);
+        // console.log(detail.blockElements);
         detail.blockElements.forEach((item: HTMLElement) => {
           const editElements = item.querySelectorAll(
             this.availableBlocks

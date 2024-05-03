@@ -2,7 +2,9 @@
   import SettingItem from "@/libs/setting-item.svelte";
   import SettingPanel from "@/libs/setting-panel.svelte";
   import { settings } from "@/settings";
+  import { deepMerge } from "@/utils";
   import html2canvas from "html2canvas-pro";
+  import { showMessage } from "siyuan";
   import { afterUpdate, createEventDispatcher, onMount } from "svelte";
   function downloadCard() {
     const card = document.querySelector(".hqweay-go-card");
@@ -110,24 +112,25 @@
 
       return copyEle.outerHTML;
     })
-    .join("</br>");
+    // .join("</br>");
+    .join("");
 
-  let SettingItems = [
-    {
+  let settingConfig = {
+    hideLi: {
       type: "checkbox",
       title: "隐藏大纲元素前面的小点",
       description: "",
       key: "hideLi",
       value: settings.getBySpace("cardConfig", "hideLi"),
     },
-    {
+    author: {
       type: "textinput",
       title: "添加一个作者名",
       description: "",
       key: "author",
       value: settings.getBySpace("cardConfig", "author"),
     },
-    {
+    addTime: {
       type: "select",
       title: "添加一个时间",
       description: "",
@@ -138,60 +141,81 @@
         none: "无",
       },
     },
-    {
+    cardBackgroundColor: {
       type: "textinput",
       title: "卡片颜色",
       description: "",
       key: "cardBackgroundColor",
       value: settings.getBySpace("cardConfig", "cardBackgroundColor"),
     },
-    {
+    innerBackgroundColor: {
       type: "textinput",
       title: "内容块颜色",
       description: "",
       key: "innerBackgroundColor",
       value: settings.getBySpace("cardConfig", "innerBackgroundColor"),
     },
-    {
+    fontColor: {
       type: "textinput",
-      title: "字体颜色",
+      title: "内容字体颜色",
       description: "",
       key: "fontColor",
       value: settings.getBySpace("cardConfig", "fontColor"),
     },
-  ];
-  const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
-    settings.setBySpace("cardConfig", detail.key, detail.value);
-
-    for (let index = 0; index < SettingItems.length; index++) {
-      if (SettingItems[index].key === detail.key) {
-        SettingItems[index].value = detail.value;
-        break;
-      }
-    }
-    settings.save();
-    console.log(detail);
-    console.log(SettingItems);
+    hfColor: {
+      type: "textinput",
+      title: "头尾字体颜色",
+      description: "",
+      key: "hfColor",
+      value: settings.getBySpace("cardConfig", "hfColor"),
+    },
+    saveTemplate: {
+      type: "button",
+      title: "保存为模板",
+      description: "",
+      key: "saveTemplate",
+      value: "确认",
+      ignore: true,
+    },
+    templateName: {
+      type: "textinput",
+      title: "模板名",
+      description: "",
+      key: "templateName",
+      placeholder: "输入保存的模板名",
+      value: "",
+      ignore: true,
+    },
+    templates: {
+      type: "select",
+      title: "切换模板",
+      description: "",
+      key: "templates",
+      value: "",
+      ignore: true,
+      options: Object.entries(
+        settings.getBySpace("cardConfig", "templates")
+      ).reduce((acc, [key, value]) => {
+        // console.log(acc);
+        acc[key] = key;
+        return acc;
+      }, {}),
+    },
+    deleteTemplate: {
+      type: "button",
+      title: "删除当前模板",
+      description: "",
+      key: "deleteTemplate",
+      value: "确认",
+      ignore: true,
+    },
   };
 
-  let fotterTime = "";
-
-  function initStyle() {
-    document.querySelector(".hqweay-go-card") &&
-      (document.querySelector(".hqweay-go-card").style.backgroundColor =
-        SettingItems[3].value);
-    document.querySelector(".hqweay-go-card-body .protyle-wysiwyg") &&
-      (() => {
-        document.querySelector(
-          ".hqweay-go-card-body .protyle-wysiwyg"
-        ).style.backgroundColor = SettingItems[4].value;
-
-        document.querySelector(".hqweay-go-card").style.color =
-          SettingItems[5].value;
-      })();
-  }
   $: {
-    if (SettingItems[2].value === "byCreated") {
+    SettingItems = Object.values(settingConfig);
+    console.log("settingConfig");
+    console.log(settingConfig);
+    if (settingConfig.addTime.value === "byCreated") {
       const now = new Date();
 
       const year = now.getFullYear(); // 获取当前年份
@@ -203,6 +227,116 @@
     }
 
     initStyle();
+  }
+  let SettingItems = [];
+  const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
+    // console.log(settings.getBySpace("cardConfig", "templates"));
+    if (detail.key === "templates") {
+      settingConfig.templateName.value = detail.value;
+      SettingItems.forEach((oldEle) => {
+        if (
+          settings.getBySpace("cardConfig", "templates")[detail.value] &&
+          settings.getBySpace("cardConfig", "templates")[detail.value][
+            oldEle.key
+          ] !== undefined
+        ) {
+          oldEle.value = settings.getBySpace("cardConfig", "templates")[
+            detail.value
+          ][oldEle.key];
+        }
+      });
+    }
+
+    settingConfig[detail.key].value = detail.value;
+
+    // for (let index = 0; index < SettingItems.length; index++) {
+    //   if (SettingItems[index].key === detail.key) {
+    //     SettingItems[index].value = detail.value;
+    //     break;
+    //   }
+    // }
+
+    if (
+      detail.key === "templateName" ||
+      detail.key === "templates" ||
+      detail.key === "deleteTemplate"
+    ) {
+    } else {
+      settings.setBySpace("cardConfig", detail.key, detail.value);
+
+      settings.save();
+    }
+  };
+
+  const onClick = async ({ detail }: CustomEvent<ChangeEvent>) => {
+    if ("saveTemplate" === detail.key) {
+      if (!settingConfig.templateName.value) {
+        showMessage("请输入模板名");
+        return;
+      }
+      const templateKey = settingConfig.templateName.value;
+
+      settingConfig.templates.value = templateKey;
+
+      settings.getBySpace("cardConfig", "templates")[`${templateKey}`] =
+        SettingItems.filter((ele) => {
+          return !ele.ignore;
+        }).reduce((acc, obj) => {
+          acc[`${obj.key}`] = obj.value;
+          return acc;
+        }, {});
+
+      settings.save();
+
+      settingConfig.templates.options = Object.entries(
+        settings.getBySpace("cardConfig", "templates")
+      ).reduce((acc, [key, value]) => {
+        acc[key] = key;
+        return acc;
+      }, {});
+    } else if ("deleteTemplate" === detail.key) {
+      if (!settingConfig.templates.value) {
+        showMessage("尚未选择模板");
+        return;
+      }
+
+      delete settings.getBySpace("cardConfig", "templates")[
+        settingConfig.templates.value
+      ];
+      settings.save();
+      settingConfig.templates.options = Object.entries(
+        settings.getBySpace("cardConfig", "templates")
+      ).reduce((acc, [key, value]) => {
+        acc[key] = key;
+        return acc;
+      }, {});
+    }
+  };
+
+  let fotterTime = "";
+
+  function initStyle() {
+    console.log("initStyle");
+    document.querySelector(".hqweay-go-card") &&
+      (document.querySelector(".hqweay-go-card").style.backgroundColor =
+        settingConfig.cardBackgroundColor.value);
+
+    document.querySelector(".hqweay-go-card-body .protyle-wysiwyg") &&
+      (() => {
+        document.querySelector(
+          ".hqweay-go-card-body .protyle-wysiwyg"
+        ).style.backgroundColor = settingConfig.innerBackgroundColor.value;
+
+        document.querySelector(".hqweay-go-card").style.color =
+          settingConfig.fontColor.value;
+      })();
+
+    document.querySelector(".hqweay-go-card .header div, .footer div") &&
+      document
+        .querySelectorAll(".hqweay-go-card .header div, .footer div")
+        .forEach((ele) => {
+          ele.style.color = settingConfig.hfColor.value;
+        });
   }
 </script>
 
@@ -220,6 +354,7 @@
       group="设置"
       settingItems={SettingItems}
       on:changed={onChanged}
+      on:click={onClick}
     ></SettingPanel>
   </div>
 {/if}
