@@ -20,7 +20,7 @@ export default class SendTo {
     detail.menu.addItem({
       iconHTML: "",
       label: plugin.i18n.menuByScript,
-      submenu: this.initMenuByScript(resultText),
+      submenu: this.initMenuByScript(resultText, detail),
     });
   }
 
@@ -37,14 +37,14 @@ export default class SendTo {
   }
 
   //@todo 可以自定义内容处理逻辑
-  private initMenuByScript(resultText) {
+  private initMenuByScript(resultText, detail) {
     return [
       {
         iconHTML: "",
         label: "卡片分享",
         click: () => {
           // showMessage("尚未实现");
-          this.showDialog(resultText);
+          this.showDialog(resultText, detail);
         },
       },
       {
@@ -111,12 +111,13 @@ export default class SendTo {
       });
   }
 
-  private showDialog(resultText) {
+  private showDialog(resultText, detail) {
     let dialog = new Dialog({
       title: `卡片分享`,
       content: `<div id="cardPanel" class="b3-dialog__content"></div>`,
       // width: plugin.isMobile ? "92vw" : "720px",
       width: "720px",
+      height: "600px",
       destroyCallback(options) {
         pannel.$destroy();
       },
@@ -128,6 +129,8 @@ export default class SendTo {
     let pannel = new CardView({
       props: {
         content: resultText,
+        // originBlockElements: detail.blockElements,
+        originDetail: detail,
       },
       target: dialog.element.querySelector("#cardPanel"),
     });

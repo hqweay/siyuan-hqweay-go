@@ -202,8 +202,8 @@ class FormatUtil {
   }
 
   replacePunctuations(content: any) {
-    console.log("start");
-    console.log(content);
+    //console.log("start");
+    //console.log(content);
     // `, \ . : ; ? !` 改成 `，、。：；？！`
 
     //... 替换为中文省略号  add
@@ -369,6 +369,10 @@ class FormatUtil {
     // content = content.replace(/(updated=".*")\s*\}/g, "$1}");
     // content = content.replace(/(id=".*")\s*\}/g, "$1}");
 
+    content = content.replace(/「(.*?)「(.*?)」(.*?)」/g, "「$1『$2』$3」");
+
+
+
     content = content.replace(/\*\*(.*?)\s*\*\*/g, "**$1**");
     //20240414 bug：思源getKarmadowm 获取的内容「**」后会多带一个空格
     content = content.replace(/\*\*(.*?)\s*\*\*\s+/g, "**$1** ");
@@ -384,8 +388,8 @@ class FormatUtil {
       content = content.replace(ele.key, ele.value);
     });
 
-    console.log("end");
-    console.log(content);
+    //console.log("end");
+    //console.log(content);
 
     return content;
     // let lines = content.split("\n");
@@ -410,21 +414,23 @@ class FormatUtil {
     // 删除多余的内容（回车）
     content = this.condenseContent(content);
 
-    const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
+    const updateFormatImage =
+      /(!\[.*?\]\(.*?\)\{:.*?)(parent-style=".*?")(.*?\})/g;
+    // const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
     const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
 
     const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
     if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
-      // console.log(content);
-      // console.log(formatImage.test(content));
+      // //console.log(content);
+      // //console.log(formatImage.test(content));
       content = content.replace(
         formatImage,
         `$1{: parent-style=\"display: block; width: ${imageCenter}%;\"}`
       );
       content = content.replace(updateFormatImage, (match, p1, p2, p3) => {
-        return `${p1}${imageCenter}%${p3}`;
+        return `${p1}parent-style=\"display: block; width: ${imageCenter}%;\"${p3}`;
       });
-      // console.log(content);
+      // //console.log(content);
     }
 
     // 每行操作
@@ -468,17 +474,17 @@ class FormatUtil {
           }
         }
 
-        console.log("111");
-        console.log(line);
+        //console.log("111");
+        //console.log(line);
 
         // if (formatPattern.exec(line)) {
         //   line = line.replace(formatPattern, (match, p1, p2) => {
-        //     // console.log(p1);
-        //     // console.log(p2);
+        //     // //console.log(p1);
+        //     // //console.log(p2);
         //     return `${this.replacePunctuations(p1)}${p2}`;
         //   });
-        //   console.log("2222");
-        //   console.log(line);
+        //   //console.log("2222");
+        //   //console.log(line);
         //   return line;
         // }
 
@@ -490,9 +496,9 @@ class FormatUtil {
             return `${this.replacePunctuations(match)}`;
           });
 
-          console.log("matches");
-          console.log(matches.length);
-          console.log(nonMatches.length);
+          //console.log("matches");
+          //console.log(matches.length);
+          //console.log(nonMatches.length);
           let result = uppercasedNonMatches[0];
           for (let i = 0; i < matches.length; i++) {
             result += matches[i] + uppercasedNonMatches[i + 1];
@@ -500,8 +506,8 @@ class FormatUtil {
           line = result;
           return line;
         }
-        console.log("333");
-        console.log(line);
+        //console.log("333");
+        //console.log(line);
 
         // if (matches) {
         //   if (matches[1]) {
@@ -526,23 +532,23 @@ class FormatUtil {
         const spaceMatched = line.match(/^(\s*?)(\S.*?\S?)(\s*)$/);
 
         if (spaceMatched) {
-          console.log("spaceMatched");
-          console.log(spaceMatched);
+          //console.log("spaceMatched");
+          //console.log(spaceMatched);
           line =
             spaceMatched[1] +
             this.deleteSpaces(this.replacePunctuations(spaceMatched[2]));
           //最后的空格可以不要吧
           // +spaceMatched[3];
         } else if (line.match(/^\s*$/)) {
-          console.log("空数据" + line);
+          //console.log("空数据" + line);
           return line;
         } else {
           line = this.replacePunctuations(line);
           line = this.deleteSpaces(line);
         }
 
-        console.log("最终结果");
-        console.log(line);
+        //console.log("最终结果");
+        //console.log(line);
 
         // 将无编号列表的“* ”改成 “- ”
         // 将无编号列表的“- ”改成 “- ”
@@ -554,11 +560,11 @@ class FormatUtil {
         // 将有编号列表的“1.  ”改成 “1. ”
         // line = line.replace(/^(\s*)(\d\.)\s+(\S)/, "$1$2 $3");
 
-        // console.log("更新后的");
-        // console.log(line);
-        // console.log("更新后的");
-        console.log("删除空格最终结果");
-        console.log(line);
+        // //console.log("更新后的");
+        // //console.log(line);
+        // //console.log("更新后的");
+        //console.log("删除空格最终结果");
+        //console.log(line);
         return line;
       })
       .join("\n");

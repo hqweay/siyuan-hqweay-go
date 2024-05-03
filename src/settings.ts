@@ -76,6 +76,14 @@ https://shibe.online/api/shibes?count=1`,
     // 0-恢复上次使用配置；1-保持当前配置；
     otherDocs: "恢复上次使用配置",
   },
+  cardConfig: {
+    author: "养恐龙",
+    addTime: "byCreated",
+    hideLi: true,
+    cardBackgroundColor: "beige",
+    innerBackgroundColor: "beige",
+    fontColor: "black",
+  },
   mergedFlag: true,
 };
 
