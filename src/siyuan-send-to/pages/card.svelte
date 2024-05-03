@@ -22,11 +22,11 @@
     const random = Math.floor(Math.random() * 10000); // 生成 0 到 9999 之间的随机数
 
     const year = now.getFullYear(); // 获取当前年份
-    const month = now.getMonth() + 1; // 获取当前年份
-    const day = now.getDate(); // 获取当前日期（几号）
-    const hour = now.getHours(); // 获取当前小时数
-    const minute = now.getMinutes(); // 获取当前分钟数
-    const second = now.getSeconds(); // 获取当前分钟数
+    const month = String(now.getMonth() + 1).padStart(2, "0"); // 获取当前年份
+    const day = String(now.getDate()).padStart(2, "0"); // 获取当前日期（几号）
+    const hour = String(now.getHours()).padStart(2, "0"); // 获取当前小时数
+    const minute = String(now.getMinutes()).padStart(2, "0"); // 获取当前分钟数
+    const second = String(now.getSeconds()).padStart(2, "0"); // 获取当前分钟数
 
     // 使用字符串拼接生成最终的时间戳加随机数字符串
     const timestampWithRandom = `${year}${month}${day}${hour}${minute}${second}${random.toString().padStart(4, "0")}`;
@@ -115,7 +115,7 @@
   let SettingItems = [
     {
       type: "checkbox",
-      title: "隐藏到大纲元素前面的小点",
+      title: "隐藏大纲元素前面的小点",
       description: "",
       key: "hideLi",
       value: settings.getBySpace("cardConfig", "hideLi"),
@@ -195,10 +195,10 @@
       const now = new Date();
 
       const year = now.getFullYear(); // 获取当前年份
-      const month = now.getMonth() + 1; // 获取当前年份
-      const day = now.getDate(); // 获取当前日期（几号）
-      const hour = now.getHours(); // 获取当前小时数
-      const minute = now.getMinutes(); // 获取当前分钟数
+      const month = String(now.getMonth() + 1).padStart(2, "0"); // 获取当前年份
+      const day = String(now.getDate()).padStart(2, "0"); // 获取当前日期（几号）
+      const hour = String(now.getHours()).padStart(2, "0"); // 获取当前小时数
+      const minute = String(now.getMinutes()).padStart(2, "0"); // 获取当前分钟数
       fotterTime = `${year}/${month}/${day}/ ${hour}:${minute}`;
     }
 
