@@ -89,7 +89,32 @@
 
   onMount(() => {
     initStyle();
+
+    document
+      .querySelector(".hqweay-go-card")
+      .addEventListener("click", handleClickOfFoldBindThis);
   });
+
+  const handleClickOfFoldBindThis = handleClickOfFold.bind(this);
+
+  function handleClickOfFold(event, ele) {
+    let targetEle = event.target;
+    if (ele) {
+      targetEle = ele;
+    }
+    if (targetEle.tagName == "svg" || targetEle.tagName == "use") {
+      handleClickOfFold(event, targetEle.parentElement);
+      return;
+    }
+
+    const foldValue = targetEle.parentElement.getAttribute("fold");
+
+    if (foldValue === "1") {
+      targetEle.parentElement.removeAttribute("fold");
+    } else {
+      targetEle.parentElement.setAttribute("fold", "1");
+    }
+  }
 
   $: cardHtmls = originDetail.blockElements
     .map((ele) => {
@@ -101,6 +126,7 @@
       copyEle.querySelectorAll('[*|href="#iconDot"]').forEach((element) => {
         element.innerHTML = iconDot;
       });
+
       if (SettingItems[0].value) {
         copyEle
           .querySelectorAll('div[class="protyle-action"]')
@@ -108,6 +134,7 @@
             removeEle.remove();
           });
       }
+
       // copyEle.classList.add("card-inner-style");
 
       return copyEle.outerHTML;
@@ -373,7 +400,7 @@
 
     <div class="hqweay-go-card-body">
       <!-- <p>{content.trim()}</p> -->
-      <div class="protyle-wysiwyg">
+      <div class="protyle-wysiwyg protyle-wysiwyg--attr">
         {@html cardHtmls}
       </div>
 
@@ -400,6 +427,9 @@
     border-radius: 8px;
     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #72c396;
+  }
+  :global(.hqweay-go-card-body .protyle-wysiwyg .protyle-action:hover) {
+    cursor: pointer;
   }
 
   // #cardPanel {

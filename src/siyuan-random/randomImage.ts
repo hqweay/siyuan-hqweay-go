@@ -7,10 +7,12 @@ export default class RandomImage {
   changeImageBindThis = this.changeImage.bind(this);
   cachedImages = {};
   onunload() {
+
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
   onload() {
+        console.log();
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
