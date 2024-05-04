@@ -371,8 +371,6 @@ class FormatUtil {
 
     content = content.replace(/「(.*?)「(.*?)」(.*?)」/g, "「$1『$2』$3」");
 
-
-
     content = content.replace(/\*\*(.*?)\s*\*\*/g, "**$1**");
     //20240414 bug：思源getKarmadowm 获取的内容「**」后会多带一个空格
     content = content.replace(/\*\*(.*?)\s*\*\*\s+/g, "**$1** ");
@@ -414,21 +412,29 @@ class FormatUtil {
     // 删除多余的内容（回车）
     content = this.condenseContent(content);
 
-    const updateFormatImage =
-      /(!\[.*?\]\(.*?\)\{:.*?)(parent-style=".*?")(.*?\})/g;
+    // const updateFormatImage =
+    /(!\[.*?\]\(.*?\)\{:.*?)(parent-style=".*?")(.*?\})/g;
     // const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
-    const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
+    // const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
+
+    const formatImageV12 = /(!\[[^\]]+\]\([^\]]+\))((?:\{:[^}]+\})?)/gs;
 
     const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
     if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
       // //console.log(content);
       // //console.log(formatImage.test(content));
-      content = content.replace(
-        formatImage,
-        `$1{: parent-style=\"display: block; width: ${imageCenter}%;\"}`
-      );
-      content = content.replace(updateFormatImage, (match, p1, p2, p3) => {
-        return `${p1}parent-style=\"display: block; width: ${imageCenter}%;\"${p3}`;
+      //图片样式新增
+      // content = content.replace(
+      //   formatImage,
+      //   `$1{: parent-style=\"display: block; width: ${imageCenter}%;\"}`
+      // );
+      // //图片样式更新
+      // content = content.replace(updateFormatImage, (match, p1, p2, p3) => {
+      //   return `${p1}parent-style=\"display: block; width: ${imageCenter}%;\"${p3}`;
+      // });
+      //新增与更新一起处理了，先不单独处理内连样式里的 width，可能会影响插件吧；暂时没发现啥问题。
+      content = content.replace(formatImageV12, (match, p1, p2, p3) => {
+        return `${p1}{: parent-style=\"display: block; width: ${imageCenter}%;\"}`;
       });
       // //console.log(content);
     }
