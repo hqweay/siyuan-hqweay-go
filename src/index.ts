@@ -2,7 +2,7 @@ import { Dialog, Plugin, getFrontend } from "siyuan";
 
 import SettingPannel from "@/setting.svelte";
 import { settings } from "./settings";
-import AutoLinkTitle from "./siyuan-auto-link-title";
+import doOnPaste from "./siyuan-auto-link-title";
 import HrefToRef from "./siyuan-href-to-ref";
 import RandomImage from "./siyuan-random/randomImage";
 import RandomNote from "./siyuan-random/randomNote";
@@ -24,7 +24,7 @@ export default class PluginGo extends Plugin {
 
   private sendToPlugin = new SendTo();
   private hrefToRefPlugin = new HrefToRef();
-  private autoLinkTitlePlugin = new AutoLinkTitle();
+  private doOnPastePlugin = new doOnPaste();
   private typographyPlugin = new TypographyGo();
   private randomNotePlugin = new RandomNote();
   private randomImagePlugin = new RandomImage();
@@ -110,7 +110,7 @@ export default class PluginGo extends Plugin {
       this.editortitleiconEventBindThis
     );
 
-    settings.getFlag("title") && this.autoLinkTitlePlugin.onload();
+    settings.getFlag("doOnPaste") && this.doOnPastePlugin.onload();
 
     settings.getFlag("memo") && this.memoPlugin.onload();
   }
@@ -118,7 +118,7 @@ export default class PluginGo extends Plugin {
   //卸载逻辑
   onunload() {
     this.typographyPlugin.onunload();
-    this.autoLinkTitlePlugin.onunload();
+    this.doOnPastePlugin.onunload();
     this.randomNotePlugin.onunload();
     this.randomImagePlugin.onunload();
     this.memoPlugin.onunload();

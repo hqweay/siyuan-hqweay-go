@@ -1,5 +1,6 @@
 import { fetchSyncPost } from "siyuan";
 import { deepMerge, plugin } from "./utils";
+import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
 
 //配置文件名称
 export const CONFIG = "hqweay-go-config";
@@ -16,7 +17,7 @@ const DEFAULT_CONFIG = {
     sendTo: false,
     convert: false,
     typography: false,
-    title: false,
+
     randomNote: false,
     randomHeaderImage: false,
     memo: false,
@@ -24,6 +25,11 @@ const DEFAULT_CONFIG = {
     read: false,
     bookmark: false,
     dockShowAndHide: false,
+    doOnPaste: false,
+  },
+  doOnPasteConfig: {
+    title: true,
+    // emptyLine: true,
   },
   sendToConfig: {
     inputArea: Object.entries(inpuAreas)
@@ -86,6 +92,7 @@ https://shibe.online/api/shibes?count=1`,
     innerBackgroundColor: "beige",
     fontColor: "black",
     hfColor: "brown",
+    template: "",
     templates: {
       "卡片、内容都绿色；字体红色；": {
         hideLi: false,

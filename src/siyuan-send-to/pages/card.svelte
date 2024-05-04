@@ -130,7 +130,7 @@
         element.innerHTML = iconDot;
       });
 
-      if (SettingItems[0].value) {
+      if (settingConfig.hideLi.value) {
         copyEle
           .querySelectorAll('div[class="protyle-action"]')
           .forEach((removeEle) => {
@@ -146,6 +146,21 @@
     .join("");
 
   let settingConfig = {
+    template: {
+      type: "select",
+      title: "切换模板",
+      description: "",
+      key: "template",
+      value: settings.getBySpace("cardConfig", "template"),
+      ignore: true,
+      options: Object.entries(
+        settings.getBySpace("cardConfig", "templates")
+      ).reduce((acc, [key, value]) => {
+        // console.log(acc);
+        acc[key] = key;
+        return acc;
+      }, {}),
+    },
     hideLi: {
       type: "checkbox",
       title: "隐藏大纲元素前面的小点",
@@ -236,21 +251,7 @@
       value: "",
       ignore: true,
     },
-    templates: {
-      type: "select",
-      title: "切换模板",
-      description: "",
-      key: "templates",
-      value: "",
-      ignore: true,
-      options: Object.entries(
-        settings.getBySpace("cardConfig", "templates")
-      ).reduce((acc, [key, value]) => {
-        // console.log(acc);
-        acc[key] = key;
-        return acc;
-      }, {}),
-    },
+
     deleteTemplate: {
       type: "button",
       title: "删除当前模板",
@@ -281,20 +282,38 @@
   let SettingItems = [];
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
     // console.log(settings.getBySpace("cardConfig", "templates"));
-    if (detail.key === "templates") {
+    if (detail.key === "template") {
       settingConfig.templateName.value = detail.value;
-      SettingItems.forEach((oldEle) => {
+
+      for (let key in settingConfig) {
         if (
           settings.getBySpace("cardConfig", "templates")[detail.value] &&
           settings.getBySpace("cardConfig", "templates")[detail.value][
-            oldEle.key
+            settingConfig[key].key
           ] !== undefined
         ) {
-          oldEle.value = settings.getBySpace("cardConfig", "templates")[
-            detail.value
-          ][oldEle.key];
+          settingConfig[key].value = settings.getBySpace(
+            "cardConfig",
+            "templates"
+          )[detail.value][settingConfig[key].key];
+
+          settings.setBySpace("cardConfig", settingConfig[key].key, settingConfig[key].value);
         }
-      });
+      }
+
+      //@todo
+      // SettingItems.forEach((oldEle) => {
+      //   if (
+      //     settings.getBySpace("cardConfig", "templates")[detail.value] &&
+      //     settings.getBySpace("cardConfig", "templates")[detail.value][
+      //       oldEle.key
+      //     ] !== undefined
+      //   ) {
+      //     oldEle.value = settings.getBySpace("cardConfig", "templates")[
+      //       detail.value
+      //     ][oldEle.key];
+      //   }
+      // });
     }
 
     settingConfig[detail.key].value = detail.value;
@@ -306,12 +325,9 @@
     //   }
     // }
 
-    if (
-      detail.key === "templateName" ||
-      detail.key === "templates" ||
-      detail.key === "deleteTemplate"
-    ) {
+    if (detail.key === "templateName") {
     } else {
+      console.log("save");
       settings.setBySpace("cardConfig", detail.key, detail.value);
 
       settings.save();
@@ -326,7 +342,7 @@
       }
       const templateKey = settingConfig.templateName.value;
 
-      settingConfig.templates.value = templateKey;
+      settingConfig.template.value = templateKey;
 
       settings.getBySpace("cardConfig", "templates")[`${templateKey}`] =
         SettingItems.filter((ele) => {
@@ -338,23 +354,23 @@
 
       settings.save();
 
-      settingConfig.templates.options = Object.entries(
+      settingConfig.template.options = Object.entries(
         settings.getBySpace("cardConfig", "templates")
       ).reduce((acc, [key, value]) => {
         acc[key] = key;
         return acc;
       }, {});
     } else if ("deleteTemplate" === detail.key) {
-      if (!settingConfig.templates.value) {
+      if (!settingConfig.template.value) {
         showMessage("尚未选择模板");
         return;
       }
 
       delete settings.getBySpace("cardConfig", "templates")[
-        settingConfig.templates.value
+        settingConfig.template.value
       ];
       settings.save();
-      settingConfig.templates.options = Object.entries(
+      settingConfig.template.options = Object.entries(
         settings.getBySpace("cardConfig", "templates")
       ).reduce((acc, [key, value]) => {
         acc[key] = key;
@@ -434,8 +450,10 @@
 
     <div
       class="hqweay-go-card-body"
-      class:p-hide-blank-hine={settingConfig.pLineHeight.value >= 0}
-      class:p-hide-blank-hine-size={settingConfig.pLineHeight.value >= 0}
+      class:p-hide-blank-hine={settingConfig.pLineHeight.value &&
+        settingConfig.pLineHeight.value >= 0}
+      class:p-hide-blank-hine-size={settingConfig.pLineHeight.value &&
+        settingConfig.pLineHeight.value >= 0}
     >
       <!-- <p>{content.trim()}</p> -->
       <div class="protyle-wysiwyg">

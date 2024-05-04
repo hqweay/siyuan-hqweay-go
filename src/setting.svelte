@@ -27,10 +27,12 @@
         },
         {
           type: "checkbox",
-          title: "自动获取链接标题",
-          description: "粘贴链接时自动获取标题并以 markdown 形式的链接粘贴",
-          key: "title",
-          value: settings.getFlag("title"),
+          title: "粘贴时对数据预处理",
+          description:
+            "现在支持 粘贴链接时自动获取标题并以 markdown 形式的链接粘贴；",
+          key: "doOnPaste",
+          value: settings.getFlag("doOnPaste"),
+          hasSetting: true,
         },
         {
           type: "checkbox",
@@ -52,7 +54,8 @@
         {
           type: "checkbox",
           title: "发送到",
-          description: "块菜单事件提供将选中内容发送到配置链接的功能",
+          description:
+            "块菜单事件提供将选中内容进行分享（现在支持生成卡片分享、发送到配置链接）",
           key: "sendTo",
           value: settings.getFlag("sendTo"),
           hasSetting: true,
@@ -97,6 +100,22 @@
           value: settings.getFlag("dockShowAndHide"),
           hasSetting: true,
         },
+      ],
+      粘贴时对数据预处理: [
+        {
+          type: "checkbox",
+          title: "自动获取标题链接",
+          description: "",
+          key: "title",
+          value: settings.getBySpace("doOnPasteConfig", "title"),
+        },
+        //  {
+        //   type: "checkbox",
+        //   title: "清理空行",
+        //   description: "",
+        //   key: "emptyLine",
+        //   value: settings.getBySpace("doOnPasteConfig", "emptyLine"),
+        // },
       ],
       发送到: [
         {
@@ -186,7 +205,7 @@ https://shibe.online/api/shibes?count=1`,
         },
       ],
       碎碎念: [
-         {
+        {
           type: "checkbox",
           title: "该文档下的元素也展示创建时间？",
           description:
@@ -280,7 +299,8 @@ https://shibe.online/api/shibes?count=1`,
         {
           type: "number",
           title: "图片居中？",
-          description: "为 10-100 的值则居中并按百分比数值缩放；其它值则不居中。",
+          description:
+            "为 10-100 的值则居中并按百分比数值缩放；其它值则不居中。",
           key: "imageCenter",
           value: settings.getBySpace("typographyConfig", "imageCenter"),
         },
