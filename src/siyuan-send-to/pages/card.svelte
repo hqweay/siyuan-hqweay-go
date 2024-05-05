@@ -134,6 +134,7 @@
         copyEle
           .querySelectorAll('div[class="protyle-action"]')
           .forEach((removeEle) => {
+            removeEle.parentElement.removeAttribute("class");
             removeEle.remove();
           });
       }
@@ -297,7 +298,11 @@
             "templates"
           )[detail.value][settingConfig[key].key];
 
-          settings.setBySpace("cardConfig", settingConfig[key].key, settingConfig[key].value);
+          settings.setBySpace(
+            "cardConfig",
+            settingConfig[key].key,
+            settingConfig[key].value
+          );
         }
       }
 
