@@ -215,6 +215,17 @@ export default class TypographyGo extends AddIconThenClick {
       });
     }
 
+    const netImg2LocalAssets = settings.getBySpace(
+      "typographyConfig",
+      "netImg2LocalAssets"
+    );
+    if (netImg2LocalAssets) {
+      // await sleep(6000);
+      await fetchSyncPost("/api/format/netImg2LocalAssets", {
+        id: parentId,
+      });
+    }
+
     const autoSpace = settings.getBySpace("typographyConfig", "autoSpace");
 
     if (autoSpace) {
@@ -225,4 +236,8 @@ export default class TypographyGo extends AddIconThenClick {
 
     showMessage(`格式化完成！`);
   }
+}
+// 使用 Promise 封装 setTimeout 函数
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

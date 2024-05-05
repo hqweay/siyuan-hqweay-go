@@ -284,9 +284,17 @@ https://shibe.online/api/shibes?count=1`,
           type: "checkbox",
           title: "文档格式化时插入空格？",
           description:
-            "点击右上角机器人对文档格式化时调用思源的排版优化来自动插入空格",
+            "点击右上角机器人对文档格式化时调用思源的「排版优化」来自动插入空格",
           key: "autoSpace",
           value: settings.getBySpace("typographyConfig", "autoSpace"),
+        },
+        {
+          type: "checkbox",
+          title: "文档格式化时网络资源文件转换本地？",
+          description:
+            "点击右上角机器人对文档格式化时调用思源的「网络资源文件转换本地」",
+          key: "netImg2LocalAssets",
+          value: settings.getBySpace("typographyConfig", "netImg2LocalAssets"),
         },
         {
           type: "checkbox",

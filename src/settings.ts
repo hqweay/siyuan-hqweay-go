@@ -70,6 +70,7 @@ https://shibe.online/api/shibes?count=1`,
   },
   typographyConfig: {
     autoSpace: false,
+    netImg2LocalAssets: false,
     closeTip: true,
     imageCenter: 0,
   },
