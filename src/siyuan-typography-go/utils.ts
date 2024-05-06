@@ -433,6 +433,8 @@ class FormatUtil {
       //   return `${p1}parent-style=\"display: block; width: ${imageCenter}%;\"${p3}`;
       // });
       //新增与更新一起处理了，先不单独处理内连样式里的 width，可能会影响插件吧；暂时没发现啥问题。
+      //@todo 可以给图片加一个 formated 属性，这样如果 format 后，用户手动调整了图片样式，可以控制再 format 时
+      //不去覆盖
       content = content.replace(formatImageV12, (match, p1, p2, p3) => {
         return `${p1}{: parent-style=\"display: block; width: ${imageCenter}%;\"}`;
       });
