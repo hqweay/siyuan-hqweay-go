@@ -24,8 +24,8 @@ export default class HrefToRef {
           }
         });
       doOperations.push({
-        id: item.dataset.nodeId,
-        data: item.outerHTML,
+        id: item.parentElement.dataset.nodeId,
+        data: item.parentElement.outerHTML,
         action: "update",
       });
     });
@@ -98,8 +98,8 @@ export default class HrefToRef {
                 ele.removeAttribute("data-id");
               });
               doOperations.push({
-                id: item.dataset.nodeId,
-                data: item.outerHTML,
+                id: item.parentElement.dataset.nodeId,
+                data: item.parentElement.outerHTML,
                 action: "update",
               });
             });
@@ -137,8 +137,8 @@ export default class HrefToRef {
                 ele.removeAttribute("data-href");
               });
               doOperations.push({
-                id: item.dataset.nodeId,
-                data: item.outerHTML,
+                id: item.parentElement.dataset.nodeId,
+                data: item.parentElement.outerHTML,
                 action: "update",
               });
             });
@@ -519,12 +519,11 @@ export default class HrefToRef {
       item.querySelectorAll(querySelectorAllStr).forEach((ele) => {
         const textNode = document.createTextNode(ele.textContent);
         ele.parentNode.replaceChild(textNode, ele);
-      });
-
-      doOperations.push({
-        id: item.dataset.nodeId,
-        data: item.outerHTML,
-        action: "update",
+        doOperations.push({
+          id: item.parentElement.dataset.nodeId,
+          data: item.parentElement.outerHTML,
+          action: "update",
+        });
       });
     });
 

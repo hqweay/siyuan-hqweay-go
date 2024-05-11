@@ -234,6 +234,7 @@ class FormatUtil {
     }
 
     // 簡體中文使用直角引號
+    // 这里处理后，后面会根据引号是否在英文上下文中替换回英文引号
     content = content.replace(/‘/g, "『");
     content = content.replace(/’/g, "』");
     content = content.replace(/“/g, "「");
@@ -376,7 +377,10 @@ class FormatUtil {
     // content = content.replace(/(updated=".*")\s*\}/g, "$1}");
     // content = content.replace(/(id=".*")\s*\}/g, "$1}");
 
-    content = content.replace(/「(.*?)「(.*?)」(.*?)」/g, "「$1『$2』$3」");
+    content = content.replace(
+      /「([^「」]*?)「([^「」]*?)」([^「」]*?)」/g,
+      "「$1『$2』$3」"
+    );
 
     content = content.replace(/\*\*(.*?)\s*\*\*/g, "**$1**");
     //20240414 bug：思源getKarmadowm 获取的内容「**」后会多带一个空格
