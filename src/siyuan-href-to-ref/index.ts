@@ -14,6 +14,7 @@ export default class HrefToRef {
         .join(",")
     );
     editElements.forEach((item: HTMLElement) => {
+      let count = 0;
       item
         // 只获取笔记内部的引用
         .querySelectorAll('[data-type="block-ref"]')
@@ -21,13 +22,15 @@ export default class HrefToRef {
           // console.log(ele);
           if (exec(ele)) {
             ele.remove();
+            count++;
           }
         });
-      doOperations.push({
-        id: item.parentElement.dataset.nodeId,
-        data: item.parentElement.outerHTML,
-        action: "update",
-      });
+      count > 0 &&
+        doOperations.push({
+          id: item.parentElement.dataset.nodeId,
+          data: item.parentElement.outerHTML,
+          action: "update",
+        });
     });
 
     doOperations.length != 0 &&
@@ -86,6 +89,7 @@ export default class HrefToRef {
               );
 
             editElements.forEach((item: HTMLElement) => {
+              let count = 0;
               // data-type~="block-ref" 模糊匹配
               item.querySelectorAll("[data-type=block-ref]").forEach((ele) => {
                 ele.setAttribute("data-type", "a");
@@ -96,12 +100,14 @@ export default class HrefToRef {
                   `siyuan://blocks/${ele.getAttribute("data-id")}`
                 );
                 ele.removeAttribute("data-id");
+                count++;
               });
-              doOperations.push({
-                id: item.parentElement.dataset.nodeId,
-                data: item.parentElement.outerHTML,
-                action: "update",
-              });
+              count > 0 &&
+                doOperations.push({
+                  id: item.parentElement.dataset.nodeId,
+                  data: item.parentElement.outerHTML,
+                  action: "update",
+                });
             });
 
             detail.protyle.getInstance().transaction(doOperations);
@@ -124,23 +130,29 @@ export default class HrefToRef {
 
             editElements.forEach((item: HTMLElement) => {
               // data-type~="block-ref" 模糊匹配
-              item.querySelectorAll("[data-type=block-ref]").forEach((ele) => {
-                ele.setAttribute("data-type", "block-ref");
-                // 增加 subtype 属性是因为官方的 链接转引用 会这么添加一个属性：s
-                ele.setAttribute("data-subtype", `s`);
-                ele.setAttribute(
-                  "data-id",
-                  `${ele
-                    .getAttribute("data-href")
-                    .replace("siyuan://blocks/", "")}`
-                );
-                ele.removeAttribute("data-href");
-              });
-              doOperations.push({
-                id: item.parentElement.dataset.nodeId,
-                data: item.parentElement.outerHTML,
-                action: "update",
-              });
+
+              let count = 0;
+              item
+                .querySelectorAll('[data-type=a][data-href^="siyuan://"]')
+                .forEach((ele) => {
+                  ele.setAttribute("data-type", "block-ref");
+                  // 增加 subtype 属性是因为官方的 链接转引用 会这么添加一个属性：s
+                  ele.setAttribute("data-subtype", `s`);
+                  ele.setAttribute(
+                    "data-id",
+                    `${ele
+                      .getAttribute("data-href")
+                      .replace("siyuan://blocks/", "")}`
+                  );
+                  ele.removeAttribute("data-href");
+                  count++;
+                });
+              count > 0 &&
+                doOperations.push({
+                  id: item.parentElement.dataset.nodeId,
+                  data: item.parentElement.outerHTML,
+                  action: "update",
+                });
             });
 
             detail.protyle.getInstance().transaction(doOperations);
@@ -516,15 +528,18 @@ export default class HrefToRef {
         .join(",")
     );
     editElements.forEach((item: HTMLElement) => {
+      let count = 0;
       item.querySelectorAll(querySelectorAllStr).forEach((ele) => {
         const textNode = document.createTextNode(ele.textContent);
         ele.parentNode.replaceChild(textNode, ele);
+        count++;
+      });
+      count > 0 &&
         doOperations.push({
           id: item.parentElement.dataset.nodeId,
           data: item.parentElement.outerHTML,
           action: "update",
         });
-      });
     });
 
     detail.protyle.getInstance().transaction(doOperations);
