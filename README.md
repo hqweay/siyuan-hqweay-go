@@ -6,6 +6,7 @@
   - 块菜单事件提供将选中内容分享到配置链接的功能
     - 通过 Google 搜索
     - 自定义链接
+    - chatGPT 支持查询参数了，可以这样配置下：`ChatGPT 总结====https://chat.openai.com/chat?q=请帮我总结：${content}`
   - 通过卡片分享
     - 支持样式配置
     - 分享时可编辑修改
