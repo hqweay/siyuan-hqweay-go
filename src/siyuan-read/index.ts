@@ -6,7 +6,8 @@ import { showMessage } from "siyuan";
 
 export default class Read extends AddIconThenClick {
   regexOfHighLight = /==([^=]+?)==/g;
-  regexOfMemo = /\^\((.*?)\)\^|\^（(.*?)）\^/g;
+  // regexOfMemo = /\^\((.*?)\)\^|\^（(.*?)）\^/g;
+  regexOfMemo = /(.*?)<sup>[(（](.*?)[)）]<\/sup>/g;
 
   private async extractHighLight({ detail, keepContext, extractPath, addRef }) {
     const docID = document
@@ -43,7 +44,9 @@ export default class Read extends AddIconThenClick {
           while (
             (match = this.regexOfHighLight.exec(element.markdown)) !== null
           ) {
-            result += `${match[1]}${addRef ? ` ((${element.id} "*"))` : ""}\n\n`;
+            result += `${match[1]}${
+              addRef ? ` ((${element.id} "*"))` : ""
+            }\n\n`;
           }
         }
       });
@@ -70,9 +73,9 @@ export default class Read extends AddIconThenClick {
       )
       ?.getAttribute("data-node-id");
 
-    const sql = `select * from blocks where root_id = '${docID}' and id in
-(select block_id from spans where type='textmark inline-memo') ORDER BY created`;
+    // const sql = `select * from blocks where root_id = '${docID}' and id in (select block_id from spans where type='textmark inline-memo') ORDER BY created`;
 
+    const sql = `select * from blocks join spans on blocks.id = spans.block_id where blocks.root_id = '${docID}' and spans.type='textmark inline-memo'`;
     let res = await this.request("/api/query/sql", {
       stmt: sql,
     });
@@ -85,15 +88,20 @@ export default class Read extends AddIconThenClick {
     let result = ``;
     if (res) {
       res.data.forEach((element) => {
-        // console.log(element);
-
         if (keepContext) {
-          result += `${element.markdown}\n\n`;
+          // result += `${element.markdown}\n\n`;
+          let match;
+
+          while ((match = this.regexOfMemo.exec(element.markdown)) !== null) {
+            result += `${match[1].trim()}\n> ${match[2]}${
+              addRef ? ` ((${element.id} "*"))` : ""
+            }\n\n`;
+          }
         } else {
           let match;
 
           while ((match = this.regexOfMemo.exec(element.markdown)) !== null) {
-            result += `${match[1] ? match[1] : match[2]}${
+            result += `${match[2]}${
               addRef ? ` ((${element.id} "*"))` : ""
             }\n\n`;
           }

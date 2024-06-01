@@ -76,16 +76,18 @@ export default class PluginGo extends Plugin {
     settings.getFlag("dockShowAndHide") &&
       this.dockShowAndHidePlugin.onLayoutReady();
 
-    this.dockLeftPlugins = settings
-      .getBySpace("dockLeftConfig", "ids")
-      .split("\n")
-      .map((ele) => {
-        const items = ele.split("====");
-        let dockLeft = new DockLeft();
-        dockLeft.icon = items[0];
-        dockLeft.id = items[1];
-        return dockLeft;
-      });
+    this.dockLeftPlugins =
+      settings.getFlag("dockLeft") &&
+      settings
+        .getBySpace("dockLeftConfig", "ids")
+        .split("\n")
+        .map((ele) => {
+          const items = ele.split("====");
+          let dockLeft = new DockLeft();
+          dockLeft.icon = items[0];
+          dockLeft.id = items[1];
+          return dockLeft;
+        });
 
     settings.getFlag("dockLeft") &&
       this.dockLeftPlugins &&

@@ -115,9 +115,16 @@ export default class DockShowAndHide {
         if (configs[2].includes("right")) {
           window.siyuan.layout.rightDock.layout.element.style.width = "0px";
         }
+        // document
+        //   .querySelector(".layout__dockl > .fn__flex-1 .fn__flex")
+        //   .setAttribute("class", "fn__flex-1 fn__flex fn__none");
         // if (configs[2].includes("bottom")) {
         //   window.siyuan.layout.bottomDock.layout.element.style.width = "0px";
         // }
+
+      //  window.siyuan.layout.leftDock.hideDock(true);
+  
+  
       }
     });
 
