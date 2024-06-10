@@ -31,7 +31,7 @@ const standardNameList = [
   "JSON",
   "API",
   "AJAX",
-  "HTML",
+  "HTML ",
   "JSP",
   "springboot:Spring Boot",
 ];
