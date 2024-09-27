@@ -68,6 +68,7 @@ https://shibe.online/api/shibes?count=1`,
     noteBookID: "",
     keepContext: true,
     addRef: false,
+    addOutline: false,
   },
   bookmarkConfig: {
     items: "读到这里啦",

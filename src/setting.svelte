@@ -311,6 +311,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "addRef",
           value: settings.getBySpace("readConfig", "addRef"),
         },
+        {
+          type: "checkbox",
+          title: "提取元素为大纲块",
+          description: "开启则新文档内的行内元素提取为大纲块，否则为文档块",
+          key: "addOutline",
+          value: settings.getBySpace("readConfig", "addOutline"),
+        },
       ],
       快捷添加书签: [
         {
