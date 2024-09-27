@@ -75,15 +75,18 @@ export default class RandomImage {
 
       const result = await this.request(folderPath);
 
-      console.log(result);
       const matches = result.match(regex);
 
-      //todo 如果 matches 有多个，考虑再随机一下
-      return matches[0];
+      if (matches) {
+        //todo 如果 matches 有多个，考虑再随机一下
+        return matches[0];
+      } else {
+        return result;
+      }
     }
 
     if (!fs.existsSync(folderPath)) {
-      showMessage("请检查随机图片文件夹的路径配置～");
+      showMessage("请检查随机图片的配置～");
       return;
     }
 
@@ -138,7 +141,11 @@ export default class RandomImage {
               if (this.isJSON(response)) {
                 resolve(response.json());
               } else {
-                resolve(response.text());
+                if (response.url) {
+                  resolve(response.url);
+                } else {
+                  resolve(response.text());
+                }
               }
             },
             (error) => {

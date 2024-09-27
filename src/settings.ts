@@ -44,7 +44,8 @@ const DEFAULT_CONFIG = {
   randomHeaderImageConfig: {
     folderPaths: `/Users/hqweay/SiYuan/data/assets/images
 https://img.xjh.me/random_img.php
-https://shibe.online/api/shibes?count=1`,
+https://shibe.online/api/shibes?count=1
+https://bing.img.run/rand.php`,
     isCached: true,
   },
   randomNoteConfig: {
