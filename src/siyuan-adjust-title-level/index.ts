@@ -3,31 +3,61 @@ import { plugin } from "@/utils";
 export default class AdjustTitleLevel {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
+  maxTitleLevel = 6;
+
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
       label: "调整标题",
-      submenu: Array.from({ length: 8 }, (v, i) => i + 1).map((originNum) => {
-        return {
+      submenu: [
+        {
           iconHTML: "",
-          label: `调整 H${originNum} 为`,
-          submenu: Array.from({ length: 8 }, (v, i) => i + 1)
-            .filter((toNum) => toNum !== originNum)
-            .map((toNum) => {
-              return {
-                iconHTML: "",
-                label: `H${toNum}`,
-                click: () => {
-                  this.adjustOriginTitleTo(
-                    detail,
-                    `h${originNum}`,
-                    `h${toNum}`
-                  );
-                },
-              };
-            }),
-        };
-      }),
+          label: `调整所有标题为`,
+          submenu: Array.from(
+            { length: this.maxTitleLevel },
+            (v, i) => i + 1
+          ).map((num) => {
+            return {
+              iconHTML: "",
+              label: `H${num}`,
+              click: () => {
+                Array.from(
+                  { length: this.maxTitleLevel },
+                  (v, i) => i + 1
+                ).forEach((index) => {
+                  this.adjustOriginTitleTo(detail, `h${index}`, `h${num}`);
+                });
+              },
+            };
+          }),
+        },
+        ...Array.from({ length: this.maxTitleLevel }, (v, i) => i + 1).map(
+          (originNum) => {
+            return {
+              iconHTML: "",
+              label: `调整 H${originNum} 为`,
+              submenu: Array.from(
+                { length: this.maxTitleLevel },
+                (v, i) => i + 1
+              )
+                .filter((toNum) => toNum !== originNum)
+                .map((toNum) => {
+                  return {
+                    iconHTML: "",
+                    label: `H${toNum}`,
+                    click: () => {
+                      this.adjustOriginTitleTo(
+                        detail,
+                        `h${originNum}`,
+                        `h${toNum}`
+                      );
+                    },
+                  };
+                }),
+            };
+          }
+        ),
+      ],
     });
   }
 
@@ -35,15 +65,17 @@ export default class AdjustTitleLevel {
     detail.menu.addItem({
       iconHTML: "",
       label: "调整标题",
-      submenu: Array.from({ length: 8 }, (v, i) => i + 1).map((num) => {
-        return {
-          iconHTML: "",
-          label: `调整为 H${num}`,
-          click: () => {
-            this.adjustTitle(detail, `h${num}`);
-          },
-        };
-      }),
+      submenu: Array.from({ length: this.maxTitleLevel }, (v, i) => i + 1).map(
+        (num) => {
+          return {
+            iconHTML: "",
+            label: `调整为 H${num}`,
+            click: () => {
+              this.adjustTitle(detail, `h${num}`);
+            },
+          };
+        }
+      ),
     });
   }
 
