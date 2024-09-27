@@ -4,10 +4,20 @@
   import { onDestroy } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
   // let groups: string[] = ["Default", "自动获取链接标题"];
+  import { plugin } from "./utils";
 
   const initData = () => {
     return {
       开关: [
+        {
+          type: "checkbox",
+          title: "代码片段合集",
+          description:
+            "一些收集的代码片段；见 https://github.com/hqweay/siyuan-hqweay-go/issues/4。目标是支持托管与本地管理。目前只支持启用在 issue 里评论的代码片段。",
+          key: "codeSnippets",
+          value: settings.getFlag("codeSnippets"),
+          hasSetting: true,
+        },
         {
           type: "checkbox",
           title: "调整标题",
@@ -109,6 +119,16 @@
           hasSetting: true,
         },
       ],
+      代码片段合集: plugin.codeSnippets.map((ele) => {
+        return {
+          type: "checkbox",
+          title: `${ele.title} - ${ele.author && ele.link ? `@<a href= '${ele.link}'>${ele.author}</a>` : ""}`,
+          description: `${ele.description}`,
+          key: `${ele.id}`,
+          value: settings.getBySpace("codeSnippetsConfig", `${ele.id}`),
+          hasSetting: true,
+        };
+      }),
       粘贴时对数据预处理: [
         {
           type: "checkbox",
@@ -412,6 +432,13 @@ https://shibe.online/api/shibes?count=1`,
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
     if (detail.group === "开关") {
       settings.setFlag(detail.key, detail.value);
+    } else if (detail.group === "代码片段合集") {
+      settings.setBySpace("codeSnippetsConfig", detail.key, detail.value);
+      if (detail.value) {
+        plugin.insertCss.insertSingleCSSByID(detail.key);
+      } else {
+        plugin.insertCss.onunloadCSSByID(detail.key);
+      }
     } else {
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;

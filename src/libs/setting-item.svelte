@@ -47,7 +47,7 @@
 {#if type !== "textarea"}
   <label class="fn__flex b3-label">
     <div class="fn__flex-1">
-      {title}
+      {@html title}
       <div class="b3-label__text">
         {@html description}
       </div>

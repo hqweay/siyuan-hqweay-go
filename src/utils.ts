@@ -54,3 +54,53 @@ export const deepMerge = (target, source) => {
     }
   }
 };
+
+
+export function request(url, method = "GET") {
+  return new Promise((resolve, reject) => {
+    if (method.toUpperCase() == "GET") {
+      fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      })
+        .then(
+          (response) => {
+            if (this.isJSON(response)) {
+              resolve(response.json());
+            } else {
+              resolve(response.text());
+            }
+          },
+          (error) => {
+            reject(error);
+          }
+        )
+        .catch((err) => {
+          console.error("请求失败:", err);
+        });
+    }
+  });
+}
+
+export function getFileContent(path) {
+  return fetch("/api/file/getFile", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      path,
+    }),
+  })
+    .then((response) => {
+      if (response.ok) {
+        return response.text();
+      } else {
+        throw new Error("Failed to get file content");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+}
+

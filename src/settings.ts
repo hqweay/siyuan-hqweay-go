@@ -27,7 +27,9 @@ const DEFAULT_CONFIG = {
     dockShowAndHide: false,
     doOnPaste: false,
     adjustTitleLevel: false,
+    codeSnippets: false,
   },
+  codeSnippetsConfig: {},
   doOnPasteConfig: {
     title: true,
     // emptyLine: true,
