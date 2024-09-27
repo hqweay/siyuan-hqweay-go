@@ -1,3 +1,4 @@
+import { AddIconThenClick } from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 const fs = require("fs");
@@ -7,12 +8,11 @@ export default class RandomImage {
   changeImageBindThis = this.changeImage.bind(this);
   cachedImages = {};
   onunload() {
-
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
   onload() {
-        console.log();
+    console.log();
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
@@ -75,6 +75,7 @@ export default class RandomImage {
 
       const result = await this.request(folderPath);
 
+      console.log(result);
       const matches = result.match(regex);
 
       //todo 如果 matches 有多个，考虑再随机一下
