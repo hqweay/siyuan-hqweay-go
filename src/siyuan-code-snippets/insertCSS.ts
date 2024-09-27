@@ -21,28 +21,33 @@ export default class InsertCSS {
 
   //App 准备好时加载
   async onLayoutReady() {
-    snippets.forEach((ele) => {
-      settings.getFlag(`${ele.author}-${ele.title}`) &&
-        this.insertSingleCSS(ele);
+    // snippets.forEach((ele) => {
+    //   settings.getFlag(`${ele.author}-${ele.title}`) &&
+    //     this.insertSingleCSS(ele);
+    // });
+
+    plugin.codeSnippets.forEach((ele) => {
+      settings.getBySpace("codeSnippetsConfig", `${ele.id}`) &&
+        this.insertSingleCSSByID(`${ele.id}`);
     });
   }
 
-  async insertSingleCSSByKey(key) {
-    let configs = key.split("-");
-    let cssConfig = snippets.find((ele) => {
-      return ele.author === configs[0] && ele.title === configs[1];
-    });
+  // async insertSingleCSSByKey(key) {
+  //   let configs = key.split("-");
+  //   let cssConfig = snippets.find((ele) => {
+  //     return ele.author === configs[0] && ele.title === configs[1];
+  //   });
 
-    let styleElement = document.createElement("style");
-    styleElement.id = `code-snippets-${cssConfig.author}-${cssConfig.title}`;
-    let cssSnippetContent = await getFileContent(
-      `/data/plugins/siyuan-code-snippets/${cssConfig.path}`
-    );
-    if (cssSnippetContent) {
-      styleElement.textContent += cssSnippetContent;
-      document.head.appendChild(styleElement);
-    }
-  }
+  //   let styleElement = document.createElement("style");
+  //   styleElement.id = `code-snippets-${cssConfig.author}-${cssConfig.title}`;
+  //   let cssSnippetContent = await getFileContent(
+  //     `/data/plugins/siyuan-code-snippets/${cssConfig.path}`
+  //   );
+  //   if (cssSnippetContent) {
+  //     styleElement.textContent += cssSnippetContent;
+  //     document.head.appendChild(styleElement);
+  //   }
+  // }
   async insertSingleCSSByID(id) {
     let cssConfig = plugin.codeSnippets.find((ele) => {
       return ele.id === id;
@@ -57,7 +62,7 @@ export default class InsertCSS {
     document.head.appendChild(styleElement);
   }
   async onunloadCSSByID(id) {
-    console.log('onunload');
+    console.log("onunload");
     console.log(id);
     const styleElement = document.getElementById(`code-snippets-${id}`);
 
