@@ -54,9 +54,21 @@ export default class RandomImage {
   async getRandomFileFromFolder() {
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp"]; // 图片文件的扩展名
 
-    const imageFolders = settings
+    let imageFolders = [];
+
+    settings.getBySpace("randomHeaderImageConfig", "bing") &&
+      imageFolders.push("https://bing.img.run/rand.php");
+
+    settings.getBySpace("randomHeaderImageConfig", "xjh") &&
+      imageFolders.push("https://img.xjh.me/random_img.php");
+
+    const folderPaths = settings
       .getBySpace("randomHeaderImageConfig", "folderPaths")
-      .split("\n");
+      .replace(/^\s+|\s+$/g, "");
+
+    if (folderPaths !== "") {
+      imageFolders.push(folderPaths.split("\n"));
+    }
 
     if (imageFolders.length <= 0) {
       showMessage("请检查随机图片文件夹的路径配置～");
@@ -141,7 +153,9 @@ export default class RandomImage {
               if (this.isJSON(response)) {
                 resolve(response.json());
               } else {
-                if (response.url) {
+                if (response.url.startsWith("https://img.xjh.me")) {
+                  resolve(response.text());
+                } else if (response.url.startsWith("https://cn.bing.com")) {
                   resolve(response.url);
                 } else {
                   resolve(response.text());

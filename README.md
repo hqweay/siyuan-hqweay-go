@@ -5,6 +5,7 @@
 - 标题转换
   - 块菜单/文档菜单打开事件增加标题转换
 - 增加代码片段合集 Demo，[可以通过 GitHub 托管代码片段](https://github.com/hqweay/siyuan-hqweay-go/issues/4)。目标是支持托管与本地管理。目前只支持启用在 issue 里评论的代码片段。
+- 随机题头图支持直接启用必应、岁月小筑
 
 ## 支持：
 

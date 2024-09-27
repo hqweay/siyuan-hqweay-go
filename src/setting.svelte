@@ -181,6 +181,22 @@
           value: settings.getBySpace("randomHeaderImageConfig", "isCached"),
         },
         {
+          type: "checkbox",
+          title: "必应",
+          description:
+            "使用 https://bing.img.run/api.html 的 API 获取历史随机壁纸",
+          key: "bing",
+          value: settings.getBySpace("randomHeaderImageConfig", "bing"),
+        },
+        {
+          type: "checkbox",
+          title: "岁月小筑",
+          description:
+            "使用 https://img.xjh.me/random_img.php 的 API 获取随机图片",
+          key: "xjh",
+          value: settings.getBySpace("randomHeaderImageConfig", "xjh"),
+        },
+        {
           type: "textarea",
           title: "本地文件夹/自定义 URL",
           description: `0️⃣可配置本地文件夹或能返回图片地址的 URL（返回值包含图片地址即可）<br/>
@@ -192,9 +208,7 @@
           key: "folderPaths",
           value: settings.getBySpace("randomHeaderImageConfig", "folderPaths"),
           placeholder: `/Users/hqweay/SiYuan/data/assets/images
-https://img.xjh.me/random_img.php
-https://shibe.online/api/shibes?count=1
-https://bing.img.run/rand.php`,
+https://shibe.online/api/shibes?count=1`,
         },
       ],
       随机浏览: [

@@ -43,10 +43,10 @@ const DEFAULT_CONFIG = {
   },
   randomHeaderImageConfig: {
     folderPaths: `/Users/hqweay/SiYuan/data/assets/images
-https://img.xjh.me/random_img.php
-https://shibe.online/api/shibes?count=1
-https://bing.img.run/rand.php`,
+https://shibe.online/api/shibes?count=1`,
     isCached: true,
+    bing: false,
+    xjh: false,
   },
   randomNoteConfig: {
     rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
