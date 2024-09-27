@@ -9,6 +9,7 @@ const inpuAreas = {
   "Gemini 总结": "shortcuts://run-shortcut?name=Gemini 总结剪贴板",
   "ChatGPT 总结": "https://chat.openai.com/chat?q=请帮我总结：${content}",
   提醒事项: "shortcuts://run-shortcut?name=从剪贴板添加提醒事项",
+  添加块链接到提醒事项: "shortcuts://run-shortcut?name=从剪贴板添加提醒事项",
   "Google 搜索": "https://www.google.com/search?q=${content}",
 };
 //配置文件内容

@@ -12,10 +12,18 @@ export default class SendTo {
     }
     let resultText = this.getContent(detail);
 
+    const blockURL = detail.blockElements
+      .map((editElement: HTMLElement) => {
+        return `siyuan://blocks/${editElement.getAttribute(
+          "data-node-id"
+        )} ${editElement.textContent.substring(0, 20).concat("...")}`;
+      })
+      .join("\n");
+
     detail.menu.addItem({
       iconHTML: "",
       label: plugin.i18n.menuByURL,
-      submenu: this.initMenuByURL(resultText),
+      submenu: this.initMenuByURL(resultText, blockURL),
     });
     detail.menu.addItem({
       iconHTML: "",
@@ -90,7 +98,7 @@ export default class SendTo {
 
     window.open(url);
   }
-  private initMenuByURL(resultText) {
+  private initMenuByURL(resultText, blockURL) {
     return settings
       .get("sendToConfig")
       ["inputArea"].split("\n")
@@ -99,15 +107,35 @@ export default class SendTo {
         if (item.length !== 2) {
           showMessage(`配置有误，请检查`);
         }
-        // console.log(item);
-        return {
-          iconHTML: "",
-          label: item[0],
-          click: () => {
-            this.writeToClipboard(resultText);
-            this.jumpTo(resultText, item[1]);
-          },
-        };
+
+        if (item[1].includes("${content}")) {
+          return {
+            iconHTML: "",
+            label: item[0],
+            click: () => {
+              this.writeToClipboard(resultText);
+              this.jumpTo(resultText, item[1]);
+            },
+          };
+        } else if (item[0].includes("添加块链接到提醒事项")) {
+          return {
+            iconHTML: "",
+            label: item[0],
+            click: () => {
+              this.writeToClipboard(blockURL);
+              this.jumpTo(resultText, item[1]);
+            },
+          };
+        } else {
+          return {
+            iconHTML: "",
+            label: item[0],
+            click: () => {
+              this.writeToClipboard(resultText);
+              this.jumpTo(resultText, item[1]);
+            },
+          };
+        }
       });
   }
 
