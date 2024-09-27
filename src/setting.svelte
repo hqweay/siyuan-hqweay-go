@@ -11,7 +11,7 @@
         {
           type: "checkbox",
           title: "调整标题",
-          description: "块菜单/文档菜单打开事件增加标题转换",
+          description: "块菜单/文档菜单打开事件增加标题层级转换",
           key: "adjustTitleLevel",
           value: settings.getFlag("adjustTitleLevel"),
           hasSetting: false,
