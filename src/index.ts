@@ -67,8 +67,8 @@ export default class PluginGo extends Plugin {
     settings.getFlag("convert") &&
       this.hrefToRefPlugin.blockIconEvent({ detail });
 
-    settings.getFlag("adjustTitleLevel") &&
-      this.adjustTitleLevelPlugin.blockIconEvent({ detail });
+    // settings.getFlag("adjustTitleLevel") &&
+    //   this.adjustTitleLevelPlugin.blockIconEvent({ detail });
 
     settings.getFlag("sendTo") && this.sendToPlugin.blockIconEvent({ detail });
     settings.getFlag("typography") &&
