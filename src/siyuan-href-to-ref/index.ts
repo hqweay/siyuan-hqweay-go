@@ -226,10 +226,6 @@ export default class HrefToRef {
   }
 
   public blockIconEvent({ detail }) {
-    if (!settings.getFlag("convert")) {
-      return;
-    }
-
     detail.menu.addItem({
       iconHTML: "",
       label: plugin.i18n.convertMenu,

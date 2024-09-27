@@ -10,6 +10,14 @@
       开关: [
         {
           type: "checkbox",
+          title: "调整标题",
+          description: "块菜单/文档菜单打开事件增加标题转换",
+          key: "adjustTitleLevel",
+          value: settings.getFlag("adjustTitleLevel"),
+          hasSetting: false,
+        },
+        {
+          type: "checkbox",
           title: "随机浏览",
           description:
             "在界面右上角生成一个随机图标，点击可跳转指定 id 条目；由于跳转通过 SQL 配置，你也可以配置固定跳转到某个块或文档。",

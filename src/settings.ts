@@ -26,6 +26,7 @@ const DEFAULT_CONFIG = {
     bookmark: false,
     dockShowAndHide: false,
     doOnPaste: false,
+    adjustTitleLevel: false,
   },
   doOnPasteConfig: {
     title: true,
