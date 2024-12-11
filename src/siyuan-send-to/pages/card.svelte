@@ -1,15 +1,13 @@
 <script lang="ts">
-  import SettingItem from "@/libs/setting-item.svelte";
   import SettingPanel from "@/libs/setting-panel.svelte";
   import { settings } from "@/settings";
-  import { deepMerge } from "@/utils";
   import html2canvas from "html2canvas-pro";
   import { showMessage } from "siyuan";
-  import { afterUpdate, createEventDispatcher, onMount } from "svelte";
+  import { onMount } from "svelte";
   function downloadCard() {
     const card = document.querySelector(".hqweay-go-card");
 
-    html2canvas(card, { useCORS: true, backgroundColor: null }).then(
+    html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null }).then(
       (canvas) => {
         const link = document.createElement("a");
         link.href = canvas.toDataURL("image/png");
@@ -503,6 +501,14 @@
     // box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     background-color: #72c396;
   }
+
+  :global(.hqweay-go-card-body .protyle-wysiwyg span[data-type~="mark"]) {
+    background-color: unset;
+    text-decoration: underline;
+    // text-decoration-color: #72c396;
+    text-decoration-skip-ink: auto;
+  }
+
   :global(.p-hide-blank-hine .protyle-wysiwyg > div:not(.list)) {
     margin: 0px;
     padding: 0px;

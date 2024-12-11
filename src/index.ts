@@ -81,6 +81,10 @@ export default class PluginGo extends Plugin {
   async onLayoutReady() {
     settings.getFlag("randomNote") && this.randomNotePlugin.onload();
     settings.getFlag("randomHeaderImage") && this.randomImagePlugin.onload();
+    settings.getFlag("randomHeaderImage") &&
+      this.eventBus.on("loaded-protyle-static", (event) => {
+        this.randomImagePlugin.setEvent(event);
+      });
     settings.getFlag("typography") && this.typographyPlugin.onload();
 
     settings.getFlag("dockShowAndHide") &&

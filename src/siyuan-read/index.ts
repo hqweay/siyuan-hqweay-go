@@ -126,7 +126,7 @@ export default class Read extends AddIconThenClick {
   }
 
   private async extractHighLight({ detail, keepContext, extractPath, addRef }) {
-    const result = await this.getMemo({
+    const result = await this.getHighLight({
       detail,
       keepContext,
       extractPath,
@@ -253,7 +253,7 @@ export default class Read extends AddIconThenClick {
               "readConfig",
               "extractPath"
             );
-            const addRef = settings.getBySpace("readConfig", "addRef");
+            // const addRef = settings.getBySpace("readConfig", "addRef");
             this.extractHighLight({
               detail,
               keepContext: true,

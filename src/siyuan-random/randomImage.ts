@@ -1,4 +1,3 @@
-import { AddIconThenClick } from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 const fs = require("fs");
@@ -6,6 +5,8 @@ const path = require("path");
 
 export default class RandomImage {
   changeImageBindThis = this.changeImage.bind(this);
+
+  customEvent;
   cachedImages = {};
   onunload() {
     document.removeEventListener("contextmenu", this.changeImageBindThis);
@@ -14,6 +15,9 @@ export default class RandomImage {
   onload() {
     console.log();
     document.addEventListener("contextmenu", this.changeImageBindThis);
+  }
+  setEvent(event) {
+    this.customEvent = event;
   }
 
   async changeImage(event, ele) {
@@ -34,21 +38,23 @@ export default class RandomImage {
     if (!randomLink) {
       return;
     }
-    targetEle.parentElement.parentElement
-      .querySelector("img")
-      .setAttribute("style", "");
-    targetEle.parentElement.parentElement
-      .querySelector("img")
-      .setAttribute("src", randomLink);
+
+    const protyle = this.customEvent.detail.protyle;
+    const background = this.customEvent.detail.protyle.background;
+
     fetch("/api/attr/setBlockAttrs", {
       method: "post",
       body: JSON.stringify({
         id: targetEle.parentElement.parentElement.parentElement.getAttribute(
           "data-node-id"
         ),
-        attrs: { "title-img": `background-image:url(${randomLink})` },
+        attrs: { "title-img": `background-image:url(\"${randomLink}\");` },
       }),
     });
+
+    // 更新封面
+    background.ial["title-img"] = `background-image:url("${randomLink}")`;
+    background.render(background.ial, protyle.block.rootID);
   }
 
   async getRandomFileFromFolder() {
