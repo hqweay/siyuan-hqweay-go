@@ -7,7 +7,7 @@ export default class HrefToRef {
     const doOperations: IOperation[] = [];
 
     const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
-      this.availableBlocks
+      menuItem.availableBlocks
         .map((item) => {
           return `[data-type=${item}] [contenteditable="true"]`;
         })
@@ -36,6 +36,21 @@ export default class HrefToRef {
     doOperations.length != 0 &&
       detail.protyle.getInstance().transaction(doOperations);
   }
+
+  covertSubMenu = [
+    {
+      key: "标题块中",
+      availableBlocks: ["NodeHeading"],
+    },
+    {
+      key: "段落块中",
+      availableBlocks: ["NodeParagraph"],
+    },
+    {
+      key: "以上所有块中",
+      availableBlocks: ["NodeParagraph", "NodeHeading"],
+    },
+  ];
 
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
@@ -72,156 +87,168 @@ export default class HrefToRef {
     detail.menu.addItem({
       iconHTML: "",
       label: plugin.i18n.convertMenu,
-      submenu: [
-        {
+      submenu: this.covertSubMenu.map((menuItem) => {
+        return {
           iconHTML: "",
-          label: plugin.i18n.wikiToLink,
-          click: () => {
-            const doOperations: IOperation[] = [];
-
-            const editElements =
-              detail.protyle.wysiwyg.element.querySelectorAll(
-                this.availableBlocks
-                  .map((item) => {
-                    return `[data-type=${item}] [contenteditable="true"]`;
-                  })
-                  .join(",")
-              );
-
-            editElements.forEach((item: HTMLElement) => {
-              let count = 0;
-              // data-type~="block-ref" 模糊匹配
-              item.querySelectorAll("[data-type=block-ref]").forEach((ele) => {
-                ele.setAttribute("data-type", "a");
-                // 去除 subtype 属性是因为官方的 转换为链接 会这么做
-                ele.removeAttribute("data-subtype");
-                ele.setAttribute(
-                  "data-href",
-                  `siyuan://blocks/${ele.getAttribute("data-id")}`
-                );
-                ele.removeAttribute("data-id");
-                count++;
-              });
-              count > 0 &&
-                doOperations.push({
-                  id: item.parentElement.dataset.nodeId,
-                  data: item.parentElement.outerHTML,
-                  action: "update",
-                });
-            });
-
-            detail.protyle.getInstance().transaction(doOperations);
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.linkToWiki,
-          click: () => {
-            const doOperations: IOperation[] = [];
-
-            const editElements =
-              detail.protyle.wysiwyg.element.querySelectorAll(
-                this.availableBlocks
-                  .map((item) => {
-                    return `[data-type=${item}] [contenteditable="true"]`;
-                  })
-                  .join(",")
-              );
-
-            editElements.forEach((item: HTMLElement) => {
-              // data-type~="block-ref" 模糊匹配
-
-              let count = 0;
-              item
-                .querySelectorAll('[data-type=a][data-href^="siyuan://"]')
-                .forEach((ele) => {
-                  ele.setAttribute("data-type", "block-ref");
-                  // 增加 subtype 属性是因为官方的 链接转引用 会这么添加一个属性：s
-                  ele.setAttribute("data-subtype", `s`);
-                  ele.setAttribute(
-                    "data-id",
-                    `${ele
-                      .getAttribute("data-href")
-                      .replace("siyuan://blocks/", "")}`
+          label: `${menuItem.key}`,
+          submenu: [
+            {
+              iconHTML: "",
+              label: plugin.i18n.wikiToLink,
+              click: () => {
+                console.log(menuItem);
+                // console.log(this);
+                const doOperations: IOperation[] = [];
+                const editElements =
+                  detail.protyle.wysiwyg.element.querySelectorAll(
+                    menuItem.availableBlocks
+                      .map((item) => {
+                        return `[data-type=${item}] [contenteditable="true"]`;
+                      })
+                      .join(",")
                   );
-                  ele.removeAttribute("data-href");
-                  count++;
-                });
-              count > 0 &&
-                doOperations.push({
-                  id: item.parentElement.dataset.nodeId,
-                  data: item.parentElement.outerHTML,
-                  action: "update",
-                });
-            });
 
-            detail.protyle.getInstance().transaction(doOperations);
-          },
-        },
-        {
-          iconHTML: "",
-          label: "下列所有行内元素👉文本",
-          click: () => {
-            this.pageToText(detail, '[data-type~="a"]');
-            this.pageToText(detail, '[data-type~="block-ref"]');
-            this.pageToText(detail, '[data-type~="strong"]');
-            this.pageToText(detail, '[data-type~="mark"]');
-            this.pageToText(detail, '[data-type~="tag"]');
-            this.pageToText(detail, '[data-type~="em"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.hrefToText,
-          click: () => {
-            // 获取引用和笔记内块超链接
-            this.pageToText(detail, '[data-type~="a"][data-href^="siyuan://"]');
-            this.pageToText(detail, '[data-type~="block-ref"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.hrefToTextIncludeA,
-          click: () => {
-            // 获取引用和笔记内链接
-            // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type~="a"]');
-            this.pageToText(detail, '[data-type~="block-ref"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.strongToText,
-          click: () => {
-            // 获取粗体
-            // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type~="strong"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.markToText,
-          click: () => {
-            // 获取高亮
-            // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
-            this.pageToText(detail, '[data-type~="mark"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: plugin.i18n.tagToText,
-          click: () => {
-            this.pageToText(detail, '[data-type~="tag"]');
-          },
-        },
-        {
-          iconHTML: "",
-          label: "斜体👉文本",
-          click: () => {
-            this.pageToText(detail, '[data-type~="em"]');
-          },
-        },
-      ],
+                editElements.forEach((item: HTMLElement) => {
+                  let count = 0;
+                  // data-type~="block-ref" 模糊匹配
+                  item
+                    .querySelectorAll("[data-type=block-ref]")
+                    .forEach((ele) => {
+                      ele.setAttribute("data-type", "a");
+                      // 去除 subtype 属性是因为官方的 转换为链接 会这么做
+                      ele.removeAttribute("data-subtype");
+                      ele.setAttribute(
+                        "data-href",
+                        `siyuan://blocks/${ele.getAttribute("data-id")}`
+                      );
+                      ele.removeAttribute("data-id");
+                      count++;
+                    });
+                  count > 0 &&
+                    doOperations.push({
+                      id: item.parentElement.dataset.nodeId,
+                      data: item.parentElement.outerHTML,
+                      action: "update",
+                    });
+                });
+
+                detail.protyle.getInstance().transaction(doOperations);
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.linkToWiki,
+              click: () => {
+                const doOperations: IOperation[] = [];
+
+                const editElements =
+                  detail.protyle.wysiwyg.element.querySelectorAll(
+                    menuItem.availableBlocks
+                      .map((item) => {
+                        return `[data-type=${item}] [contenteditable="true"]`;
+                      })
+                      .join(",")
+                  );
+
+                editElements.forEach((item: HTMLElement) => {
+                  // data-type~="block-ref" 模糊匹配
+
+                  let count = 0;
+                  item
+                    .querySelectorAll('[data-type=a][data-href^="siyuan://"]')
+                    .forEach((ele) => {
+                      ele.setAttribute("data-type", "block-ref");
+                      // 增加 subtype 属性是因为官方的 链接转引用 会这么添加一个属性：s
+                      ele.setAttribute("data-subtype", `s`);
+                      ele.setAttribute(
+                        "data-id",
+                        `${ele
+                          .getAttribute("data-href")
+                          .replace("siyuan://blocks/", "")}`
+                      );
+                      ele.removeAttribute("data-href");
+                      count++;
+                    });
+                  count > 0 &&
+                    doOperations.push({
+                      id: item.parentElement.dataset.nodeId,
+                      data: item.parentElement.outerHTML,
+                      action: "update",
+                    });
+                });
+
+                detail.protyle.getInstance().transaction(doOperations);
+              },
+            },
+            {
+              iconHTML: "",
+              label: "下列所有行内元素👉文本",
+              click: () => {
+                this.pageToText(menuItem, detail, '[data-type~="a"]');
+                this.pageToText(menuItem, detail, '[data-type~="block-ref"]');
+                this.pageToText(menuItem, detail, '[data-type~="strong"]');
+                this.pageToText(menuItem, detail, '[data-type~="mark"]');
+                this.pageToText(menuItem, detail, '[data-type~="tag"]');
+                this.pageToText(menuItem, detail, '[data-type~="em"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.hrefToText,
+              click: () => {
+                // 获取引用和笔记内块超链接
+                this.pageToText(
+                  detail,
+                  '[data-type~="a"][data-href^="siyuan://"]'
+                );
+                this.pageToText(detail, '[data-type~="block-ref"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.hrefToTextIncludeA,
+              click: () => {
+                // 获取引用和笔记内链接
+                // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
+                this.pageToText(detail, '[data-type~="a"]');
+                this.pageToText(detail, '[data-type~="block-ref"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.strongToText,
+              click: () => {
+                // 获取粗体
+                // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
+                this.pageToText(detail, '[data-type~="strong"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.markToText,
+              click: () => {
+                // 获取高亮
+                // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
+                this.pageToText(detail, '[data-type~="mark"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: plugin.i18n.tagToText,
+              click: () => {
+                this.pageToText(detail, '[data-type~="tag"]');
+              },
+            },
+            {
+              iconHTML: "",
+              label: "斜体👉文本",
+              click: () => {
+                this.pageToText(detail, '[data-type~="em"]');
+              },
+            },
+          ],
+        };
+      }),
     });
   }
 
@@ -238,7 +265,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                this.availableBlocks
+                menuItem.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -278,7 +305,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                this.availableBlocks
+                menuItem.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -389,7 +416,7 @@ export default class HrefToRef {
               ?.getAttribute("data-node-id");
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                this.availableBlocks
+                menuItem.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -424,7 +451,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                this.availableBlocks
+                menuItem.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -473,7 +500,7 @@ export default class HrefToRef {
 
     detail.blockElements.forEach((item: HTMLElement) => {
       const editElements = item.querySelectorAll(
-        this.availableBlocks
+        menuItem.availableBlocks
           .map((item) => {
             return `[data-type=${item}] [contenteditable="true"]`;
           })
@@ -513,11 +540,11 @@ export default class HrefToRef {
     detail.protyle.getInstance().transaction(doOperations);
   }
 
-  private pageToText(detail, querySelectorAllStr) {
+  private pageToText(menuItem, detail, querySelectorAllStr) {
     const doOperations: IOperation[] = [];
 
     const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
-      this.availableBlocks
+      menuItem.availableBlocks
         .map((item) => {
           return `[data-type=${item}] [contenteditable="true"]`;
         })
