@@ -107,14 +107,16 @@ export default class TypographyGo extends AddIconThenClick {
     const images = editElement.querySelectorAll("span[data-type='img']");
 
     images.forEach(async (item) => {
-      item.setAttribute("style", `display: block; width: ${imageCenter}%;`);
+      item.setAttribute(
+        "style",
+        `width: ${imageCenter}%;min-width: calc(100% - 0.1em);`
+      );
 
       await fetchSyncPost("/api/block/updateBlock", {
         dataType: "dom",
         data: item.parentElement.parentElement.outerHTML,
         id: item.parentElement.parentElement.getAttribute("data-node-id"),
       });
-      console.log(item);
     });
   }
 
