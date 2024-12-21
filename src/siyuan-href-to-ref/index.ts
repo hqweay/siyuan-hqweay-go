@@ -1,5 +1,7 @@
 import { settings } from "@/settings";
 import { plugin } from "@/utils";
+import { IOperation } from "siyuan";
+
 export default class HrefToRef {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
@@ -7,7 +9,7 @@ export default class HrefToRef {
     const doOperations: IOperation[] = [];
 
     const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
-      menuItem.availableBlocks
+      this.availableBlocks
         .map((item) => {
           return `[data-type=${item}] [contenteditable="true"]`;
         })
@@ -198,10 +200,11 @@ export default class HrefToRef {
               click: () => {
                 // 获取引用和笔记内块超链接
                 this.pageToText(
+                  menuItem,
                   detail,
                   '[data-type~="a"][data-href^="siyuan://"]'
                 );
-                this.pageToText(detail, '[data-type~="block-ref"]');
+                this.pageToText(menuItem, detail, '[data-type~="block-ref"]');
               },
             },
             {
@@ -210,8 +213,8 @@ export default class HrefToRef {
               click: () => {
                 // 获取引用和笔记内链接
                 // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-                this.pageToText(detail, '[data-type~="a"]');
-                this.pageToText(detail, '[data-type~="block-ref"]');
+                this.pageToText(menuItem, detail, '[data-type~="a"]');
+                this.pageToText(menuItem, detail, '[data-type~="block-ref"]');
               },
             },
             {
@@ -220,7 +223,7 @@ export default class HrefToRef {
               click: () => {
                 // 获取粗体
                 // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
-                this.pageToText(detail, '[data-type~="strong"]');
+                this.pageToText(menuItem, detail, '[data-type~="strong"]');
               },
             },
             {
@@ -229,21 +232,21 @@ export default class HrefToRef {
               click: () => {
                 // 获取高亮
                 // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
-                this.pageToText(detail, '[data-type~="mark"]');
+                this.pageToText(menuItem, detail, '[data-type~="mark"]');
               },
             },
             {
               iconHTML: "",
               label: plugin.i18n.tagToText,
               click: () => {
-                this.pageToText(detail, '[data-type~="tag"]');
+                this.pageToText(menuItem, detail, '[data-type~="tag"]');
               },
             },
             {
               iconHTML: "",
               label: "斜体👉文本",
               click: () => {
-                this.pageToText(detail, '[data-type~="em"]');
+                this.pageToText(menuItem, detail, '[data-type~="em"]');
               },
             },
           ],
@@ -265,7 +268,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                menuItem.availableBlocks
+                this.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -305,7 +308,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                menuItem.availableBlocks
+                this.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -400,7 +403,7 @@ export default class HrefToRef {
           iconHTML: "",
           label: "斜体👉文本",
           click: () => {
-            this.pageToText(detail, '[data-type~="em"]');
+            this.blockToText(detail, '[data-type~="em"]');
           },
         },
         {
@@ -416,7 +419,7 @@ export default class HrefToRef {
               ?.getAttribute("data-node-id");
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                menuItem.availableBlocks
+                this.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -451,7 +454,7 @@ export default class HrefToRef {
 
             detail.blockElements.forEach((item: HTMLElement) => {
               const editElements = item.querySelectorAll(
-                menuItem.availableBlocks
+                this.availableBlocks
                   .map((item) => {
                     return `[data-type=${item}] [contenteditable="true"]`;
                   })
@@ -500,7 +503,7 @@ export default class HrefToRef {
 
     detail.blockElements.forEach((item: HTMLElement) => {
       const editElements = item.querySelectorAll(
-        menuItem.availableBlocks
+        this.availableBlocks
           .map((item) => {
             return `[data-type=${item}] [contenteditable="true"]`;
           })
