@@ -236,12 +236,17 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       const formattedTags =
         recording.tags && recording.tags.length > 0
-          ? "tags: [" +
-            recording.tags
-              .map((tag) => `${tag.name.replace(/\s+/g, "-")}`)
-              .join(",") +
-            "]"
+          ? recording.tags
+              .map((tag) => `#${tag.name.replace(/\s+/g, "-")}#`)
+              .join(" ")
           : null;
+      // recording.tags && recording.tags.length > 0
+      // ? "tags: [" +
+      //   recording.tags
+      //     .map((tag) => `${tag.name.replace(/\s+/g, "-")}`)
+      //     .join(",") +
+      //   "]"
+      // : null;
 
       const context = {
         recording_id: recording.recording_id,
