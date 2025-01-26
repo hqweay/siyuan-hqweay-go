@@ -154,7 +154,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       }
 
       showMessage(`正在获取 ${recording.title}`);
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 检查是否包含排除的标签
       if (
