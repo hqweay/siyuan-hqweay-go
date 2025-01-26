@@ -149,6 +149,7 @@ https://shibe.online/api/shibes?count=1`,
   },
   voiceNotesConfig: {
     token: "",
+    formatContent: false,
     syncedRecordingIds: "",
     syncDirectory: "voicenotes",
     dateFormat: "YYYY-MM-DD HH:mm:ss",

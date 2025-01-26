@@ -456,6 +456,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "fullSyncVoiceNotes",
           value: "确认",
         },
+        {
+          type: "checkbox",
+          title: "同步时使用中英文排版优化格式化",
+          description: "同步时使用中英文排版优化格式化",
+          key: "formatContent",
+          value: settings.getBySpace("voiceNotesConfig", "formatContent"),
+        },
         // {
         //   type: "textinput",
         //   title: "时间格式",

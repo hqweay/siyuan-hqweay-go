@@ -11,6 +11,7 @@ import { settings } from "@/settings";
 import * as jinja from "jinja-js";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { showMessage } from "siyuan";
+import { formatUtil } from "@/siyuan-typography-go/utils";
 
 export default class VoiceNotesPlugin extends AddIconThenClick {
   id = "hqweay-voicenotes";
@@ -126,7 +127,14 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       //
       // const title = recording.title + recording.created_at;
-      const title = recording.title;
+      let title = recording.title;
+      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+        title = formatUtil.formatContent(title);
+        // 删除多余的空格
+        title = formatUtil.deleteSpaces(title);
+        // 插入必要的空格
+        title = formatUtil.insertSpace(title);
+      }
       const recordingPath = `${voiceNotesDir}/${title}`;
 
       // // 处理子笔记
@@ -304,6 +312,14 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         )
         .replace(/\n{3,}/g, "\n\n");
       note = convertHtmlToMarkdown(note);
+
+      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+        note = formatUtil.formatContent(note);
+        // 删除多余的空格
+        note = formatUtil.deleteSpaces(note);
+        // 插入必要的空格
+        note = formatUtil.insertSpace(note);
+      }
 
       //非文本笔记 会很快过期，还是别同步了，用处也不大
       // if (recording.recording_type != "3") {
