@@ -82,9 +82,10 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
           if (recording.subnotes && recording.subnotes.length > 0) {
             for (const subnote of recording.subnotes) {
+              subnote.title = `${recording.title}/${subnote.title}`;
               await this.processNote(
                 subnote,
-                `${voiceNotesDir}/${recording.title}`,
+                `${voiceNotesDir}`,
                 subnote.title,
                 unsyncedCount
               );
