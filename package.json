@@ -1,6 +1,6 @@
 {
   "name": "siyuan-hqweay-go",
-  "version": "0.5.10",
+  "version": "0.6.0",
   "type": "module",
   "description": "恐龙工具箱",
   "repository": "",
@@ -32,6 +32,8 @@
   },
   "dependencies": {
     "@siyuan-community/siyuan-sdk": "^0.3.7",
-    "html2canvas-pro": "^1.4.3"
+    "html2canvas-pro": "^1.4.3",
+    "jinja-js": "^0.1.8",
+    "moment": "^2.30.1"
   }
 }

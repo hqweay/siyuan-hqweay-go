@@ -147,6 +147,77 @@ https://shibe.online/api/shibes?count=1`,
       },
     },
   },
+  voiceNotesConfig: {
+    token: "",
+    syncedRecordingIds: "",
+    syncDirectory: "voicenotes",
+    dateFormat: "YYYY-MM-DD",
+    excludeTags: "",
+    notebook: "",
+    frontmatterTemplate: `duration: {{duration}}
+created_at: {{created_at}}
+updated_at: {{updated_at}}
+{{tags}}`,
+    noteTemplate: `{% if summary %}
+## Summary
+
+{{ summary }}
+{% endif %}
+
+{% if points %}
+## Main points
+
+{{ points }}
+{% endif %}
+
+{% if attachments %}
+## Attachments
+
+{{ attachments }}
+{% endif %}
+
+{% if tidy %}
+## Tidy Transcript
+
+{{ tidy }}
+
+{% else %}
+## Transcript
+
+{{ transcript }}
+{% endif %}
+
+{% if todo %}
+## Todos
+
+{{ todo }}
+{% endif %}
+
+{% if email %}
+## Email
+
+{{ email }}
+{% endif %}
+
+{% if blog %}
+## Blog
+
+{{ blog }}
+{% endif %}
+
+{% if tweet %}
+## Tweet
+
+{{ tweet }}
+{% endif %}
+
+{% if custom %}
+## Others
+
+{{ custom }}
+{% endif %}
+`,
+  },
 };
 
 let mergedFlag = false;

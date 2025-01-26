@@ -5,6 +5,7 @@
   import SettingPanel from "./libs/setting-panel.svelte";
   // let groups: string[] = ["Default", "自动获取链接标题"];
   import { plugin } from "./utils";
+  import VoiceNotesPlugin from "./siyuan-voicenotes-sync";
 
   const initData = () => {
     return {
@@ -16,6 +17,14 @@
             "一些收集的代码片段；见 https://github.com/hqweay/siyuan-hqweay-go/issues/4。目标是支持托管与本地管理。目前只支持启用在 issue 里评论的代码片段。",
           key: "codeSnippets",
           value: settings.getFlag("codeSnippets"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
+          title: "VoiceNotes 同步",
+          description: "同步 VoiceNotes 的笔记：https://voicenotes.com",
+          key: "voiceNotes",
+          value: settings.getFlag("voiceNotes"),
           hasSetting: true,
         },
         {
@@ -415,6 +424,71 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: `20240330144736-irg5pfz====show====left[200px],right[200px]====首页\n20240416195915-sod1ftd====hide====right====GTD\n20240501000821-w4e1kth====show====right[400px]`,
         },
       ],
+      "VoiceNotes 同步": [
+        {
+          type: "textinput",
+          title: "Token",
+          description: "token",
+          key: "token",
+          value: settings.getBySpace("voiceNotesConfig", "token"),
+          placeholder: "12345|abcdefgh",
+        },
+        {
+          type: "textinput",
+          title: "思源笔记笔记本id",
+          description: "思源笔记笔记本id",
+          key: "notebook",
+          value: settings.getBySpace("voiceNotesConfig", "notebook"),
+          placeholder: "20240330144726-gs2xey6",
+        },
+        {
+          type: "textinput",
+          title: "同步的目录",
+          description: "同步的目录",
+          key: "syncDirectory",
+          value: settings.getBySpace("voiceNotesConfig", "syncDirectory"),
+          placeholder: "voicenotes",
+        },
+        {
+          type: "button",
+          title: "全量同步一次",
+          description: "点击会尝试全量同步一次笔记",
+          key: "fullSyncVoiceNotes",
+          value: "确认",
+        },
+        {
+          type: "textarea",
+          title: "排除标签",
+          description: "同步时排除该标签下的笔记",
+          key: "excludeTags",
+          value: settings.getBySpace("voiceNotesConfig", "excludeTags"),
+          placeholder: "done,no",
+        },
+        {
+          type: "textarea",
+          title: "frontmatterTemplate",
+          description: "",
+          key: "frontmatterTemplate",
+          value: settings.getBySpace("voiceNotesConfig", "frontmatterTemplate"),
+          placeholder: "",
+        },
+        {
+          type: "textarea",
+          title: "noteTemplate",
+          description: "",
+          key: "noteTemplate",
+          value: settings.getBySpace("voiceNotesConfig", "noteTemplate"),
+          placeholder: "",
+        },
+        {
+          type: "textarea",
+          title: "同步过的笔记id，一般别修改",
+          description: "",
+          key: "syncedRecordingIds",
+          value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
+          placeholder: "",
+        },
+      ],
     };
   };
 
@@ -447,6 +521,10 @@ https://shibe.online/api/shibes?count=1`,
         await settings.mergeData();
         SettingItems = initData();
         showMessage("合并配置为最新配置");
+      }
+    } else if ("VoiceNotes 同步" === detail.group) {
+      if ("fullSyncVoiceNotes" === detail.key) {
+        await new VoiceNotesPlugin().exec(true);
       }
     }
   };
