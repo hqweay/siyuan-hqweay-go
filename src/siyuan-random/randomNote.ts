@@ -19,3 +19,5 @@ export default class RandomNote extends AddIconThenClick {
     }
   }
 }
+
+

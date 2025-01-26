@@ -301,11 +301,11 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         .replace(/\n{3,}/g, "\n\n");
       note = convertHtmlToMarkdown(note);
 
-      //非文本笔记
-      if (recording.recording_type != "3") {
-        const signedUrl = await this.vnApi.getSignedUrl(recording.recording_id);
-        note += `\n<audio controls src="${signedUrl.url}" title="${recording.recording_id}.mp3"></audio>`;
-      }
+      //非文本笔记 会很快过期，还是别同步了，用处也不大
+      // if (recording.recording_type != "3") {
+      //   const signedUrl = await this.vnApi.getSignedUrl(recording.recording_id);
+      //   note += `\n<audio controls src="${signedUrl.url}" title="${recording.recording_id}.mp3"></audio>`;
+      // }
 
       // 添加前置元数据
       let recordingIdTemplate = `recording_id: {{recording_id}}\n`;
