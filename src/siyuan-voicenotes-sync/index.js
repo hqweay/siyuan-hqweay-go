@@ -314,12 +314,15 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       note = convertHtmlToMarkdown(note);
 
       if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+        // console.log("0" + note);
         note = formatUtil.formatContent(note);
-        // 删除多余的空格
-        note = formatUtil.deleteSpaces(note);
-        // 插入必要的空格
+        // console.log("1" + note);
+        // note = formatUtil.deleteSpaces(note);
+        // console.log("2" + note);
         note = formatUtil.insertSpace(note);
       }
+
+      // console.log("3" + note);
 
       //非文本笔记 会很快过期，还是别同步了，用处也不大
       // if (recording.recording_type != "3") {
