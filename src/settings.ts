@@ -151,7 +151,7 @@ https://shibe.online/api/shibes?count=1`,
     token: "",
     syncedRecordingIds: "",
     syncDirectory: "voicenotes",
-    dateFormat: "YYYY-MM-DD",
+    dateFormat: "YYYY-MM-DD HH:mm:ss",
     excludeTags: "",
     notebook: "",
     frontmatterTemplate: `duration: {{duration}}
