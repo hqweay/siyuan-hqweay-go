@@ -21,7 +21,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   // 打开随机文档，编辑sql选定范围
   async exec(fullSync = false) {
-    console.log(settings.getBySpace("voiceNotesConfig", "excludeTags"));
     showMessage(`开始同步`);
     await this.sync(fullSync);
     showMessage(`同步完成，此次同步 ${this.syncedNoteCount} 条笔记`);
@@ -234,12 +233,12 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             .join("\n")
         : null;
 
-      const formattedTags =
-        recording.tags && recording.tags.length > 0
-          ? recording.tags
-              .map((tag) => `#${tag.name.replace(/\s+/g, "-")}#`)
-              .join(" ")
-          : null;
+      // const formattedTags =
+      //   recording.tags && recording.tags.length > 0
+      //     ? recording.tags
+      //         .map((tag) => `#${tag.name.replace(/\s+/g, "-")}#`)
+      //         .join(" ")
+      //     : null;
       // recording.tags && recording.tags.length > 0
       // ? "tags: [" +
       //   recording.tags
@@ -255,15 +254,15 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
           recording.created_at,
           settings.getBySpace("voiceNotesConfig", "dateFormat")
         ),
-        duration: formatDuration(recording.duration),
-        created_at: formatDate(
-          recording.created_at,
-          settings.getBySpace("voiceNotesConfig", "dateFormat")
-        ),
-        updated_at: formatDate(
-          recording.updated_at,
-          settings.getBySpace("voiceNotesConfig", "dateFormat")
-        ),
+        // duration: formatDuration(recording.duration),
+        // created_at: formatDate(
+        //   recording.created_at,
+        //   settings.getBySpace("voiceNotesConfig", "dateFormat")
+        // ),
+        // updated_at: formatDate(
+        //   recording.updated_at,
+        //   settings.getBySpace("voiceNotesConfig", "dateFormat")
+        // ),
         transcript: transcript,
         // audio_filename: audioFilenameMD,
         summary: summary ? summary.markdown_content : null,
@@ -274,7 +273,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         blog: blog ? blog.markdown_content : null,
         email: email ? email.markdown_content : null,
         custom: custom ? custom.markdown_content : null,
-        tags: formattedTags,
+        // tags: formattedTags,
         // related_notes:
         //   recording.related_notes && recording.related_notes.length > 0
         //     ? recording.related_notes
@@ -313,17 +312,17 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       // }
 
       // 添加前置元数据
-      let recordingIdTemplate = `recording_id: {{recording_id}}\n`;
-      let renderedFrontmatter = jinja
-        .render(
-          recordingIdTemplate +
-            settings.getBySpace("voiceNotesConfig", "frontmatterTemplate"),
-          context
-        )
-        .replace(/\n{3,}/g, "\n\n");
+      // let recordingIdTemplate = `recording_id: {{recording_id}}\n`;
+      // let renderedFrontmatter = jinja
+      //   .render(
+      //     recordingIdTemplate +
+      //       settings.getBySpace("voiceNotesConfig", "frontmatterTemplate"),
+      //     context
+      //   )
+      //   .replace(/\n{3,}/g, "\n\n");
 
-      const metadata = `---\n${renderedFrontmatter}\n---\n`;
-      note = metadata + note;
+      // const metadata = `---\n${renderedFrontmatter}\n---\n`;
+      // note = metadata + note;
       // 创建文档
       const response = await fetch("/api/filetree/createDocWithMd", {
         method: "POST",
@@ -348,6 +347,36 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             this.syncedRecordingIds.join(",")
           );
         }
+
+        const tagsStr =
+          recording.tags && recording.tags.length > 0
+            ? recording.tags
+                // .map((tag) => `${tag.name.replace(/\s+/g, "-")}`)
+                .map((tag) => `${tag.name}`)
+                .join(",")
+            : "";
+        await fetch("/api/attr/setBlockAttrs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: responseData.data,
+            attrs: {
+              tags: tagsStr,
+              "custom-duration": formatDuration(recording.duration),
+              "custom-createdAt": formatDate(
+                recording.created_at,
+                settings.getBySpace("voiceNotesConfig", "dateFormat")
+              ),
+              "custom-updatedAt": formatDate(
+                recording.updated_at,
+                settings.getBySpace("voiceNotesConfig", "dateFormat")
+              ),
+              "custom-recordingId": recording.recording_id,
+            },
+          }),
+        });
 
         // if (this.settings.deleteSynced && this.settings.reallyDeleteSynced) {
         //   await this.vnApi.deleteRecording(recording.recording_id);
