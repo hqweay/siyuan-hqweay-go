@@ -16,26 +16,33 @@ export default class ShowCustomPropertiesUnderTitle extends InsertCSS {
       return;
     }
 
-    let css = "";
+    let css = ``;
     let content = "";
+    let initContent = "";
     properties.forEach((property) => {
       const [key, value] = property.split("|");
 
       const label = key.replace("custom-", "").toLowerCase();
       css += `
             .protyle-wysiwyg.protyle-wysiwyg--attr[${key}] {
-                --custom-properties-under-title-${label}: " ${
+                --properties-under-title-${label}: " ${
         value ? value : ""
       } " attr(${key});
             }
         `;
-      content += ` var(--custom-properties-under-title-${label})`;
+      content += ` var(--properties-under-title-${label})`;
+      initContent += `--properties-under-title-${label}: var(--empty);\n`;
     });
 
+    css =
+      `.protyle-wysiwyg.protyle-wysiwyg--attr {
+      --empty: "";
+    ${initContent}
+  }` + css;
     // 生成合并内容的 ::before 规则
     css += `
         .protyle-wysiwyg.protyle-wysiwyg--attr::before {
-            content: ${content};
+            content: ${content}; 
             font-size: small;
             color: brown;
         }
