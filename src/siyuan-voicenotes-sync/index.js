@@ -10,7 +10,7 @@ import {
 import { settings } from "@/settings";
 import * as jinja from "jinja-js";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
-import { showMessage } from "siyuan";
+import { fetchSyncPost, showMessage } from "siyuan";
 import { formatUtil } from "@/siyuan-typography-go/utils";
 
 export default class VoiceNotesPlugin extends AddIconThenClick {
@@ -400,6 +400,13 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             },
           }),
         });
+
+        //如果有附件，下载下来
+        if (recording.attachments && recording.attachments.length > 0) {
+          await fetchSyncPost("/api/format/netImg2LocalAssets", {
+            id: responseData.data,
+          });
+        }
 
         // if (this.settings.deleteSynced && this.settings.reallyDeleteSynced) {
         //   await this.vnApi.deleteRecording(recording.recording_id);
