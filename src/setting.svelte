@@ -471,6 +471,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "formatContent",
           value: settings.getBySpace("voiceNotesConfig", "formatContent"),
         },
+        {
+          type: "checkbox",
+          title: "换行是否新建块",
+          description: "否则当作行内换行处理",
+          key: "newLineNewBlock",
+          value: settings.getBySpace("voiceNotesConfig", "newLineNewBlock"),
+        },
         // {
         //   type: "textinput",
         //   title: "时间格式",

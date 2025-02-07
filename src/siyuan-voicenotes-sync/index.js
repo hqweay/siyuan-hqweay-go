@@ -306,13 +306,16 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       };
 
       // 渲染模板
-      let note = jinja
-        .render(
-          settings.getBySpace("voiceNotesConfig", "noteTemplate"),
-          context
-        )
-        .replace(/\n{3,}/g, "\n\n");
-      note = convertHtmlToMarkdown(note);
+      let note = jinja.render(
+        settings.getBySpace("voiceNotesConfig", "noteTemplate"),
+        context
+      );
+
+      if (settings.getBySpace("voiceNotesConfig", "newLineNewBlock")) {
+        note = convertHtmlToMarkdown(note).replace(/\n+/g, "\n\n");
+      } else {
+        note = convertHtmlToMarkdown(note).replace(/\n{3,}/g, "\n\n");
+      }
 
       if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
         // console.log("0" + note);

@@ -159,6 +159,7 @@ https://shibe.online/api/shibes?count=1`,
     //     frontmatterTemplate: `duration: {{duration}}
     // created_at: {{created_at}}
     // updated_at: {{updated_at}}`,
+    newLineNewBlock: true,
     noteTemplate: `{% if summary %}
 ## Summary
 
