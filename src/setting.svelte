@@ -29,8 +29,8 @@
         },
         {
           type: "checkbox",
-          title: "标题下展示自定义属性的值",
-          description: "标题下展示自定义属性的值",
+          title: "标题下展示文档自定义属性的值",
+          description: "标题下展示文档自定义属性的值",
           key: "showCustomPropertiesUnderTitle",
           value: settings.getFlag("showCustomPropertiesUnderTitle"),
           hasSetting: true,
@@ -518,7 +518,7 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: "",
         },
       ],
-      标题下展示自定义属性的值: [
+      标题下展示文档自定义属性的值: [
         {
           type: "textarea",
           title: "属性名配置",
