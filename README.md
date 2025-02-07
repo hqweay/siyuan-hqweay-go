@@ -2,6 +2,7 @@
 
 ## update
 
+- 新增在标题下展示自定义属性的值
 - 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。感谢 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
 
 ## 支持：

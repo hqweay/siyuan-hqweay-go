@@ -29,6 +29,14 @@
         },
         {
           type: "checkbox",
+          title: "标题下展示自定义属性的值",
+          description: "标题下展示自定义属性的值",
+          key: "showCustomPropertiesUnderTitle",
+          value: settings.getFlag("showCustomPropertiesUnderTitle"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "调整标题",
           description: "块菜单/文档菜单打开事件增加标题层级转换",
           key: "adjustTitleLevel",
@@ -501,6 +509,19 @@ https://shibe.online/api/shibes?count=1`,
           key: "syncedRecordingIds",
           value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
           placeholder: "",
+        },
+      ],
+      标题下展示自定义属性的值: [
+        {
+          type: "textarea",
+          title: "属性名配置",
+          description: "",
+          key: "customProperties",
+          value: settings.getBySpace(
+            "showCustomPropertiesUnderTitleConfig",
+            "customProperties"
+          ),
+          placeholder: `custom-createdAt|创建时间\ncustom-updatedAt`,
         },
       ],
     };

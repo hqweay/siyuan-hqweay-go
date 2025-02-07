@@ -29,6 +29,7 @@ const DEFAULT_CONFIG = {
     doOnPaste: false,
     adjustTitleLevel: false,
     codeSnippets: false,
+    showCustomPropertiesUnderTitle: false,
   },
   codeSnippetsConfig: {},
   doOnPasteConfig: {
@@ -217,6 +218,9 @@ https://shibe.online/api/shibes?count=1`,
 {{ custom }}
 {% endif %}
 `,
+  },
+  showCustomPropertiesUnderTitleConfig: {
+    customProperties: "custom-createdAt|创建时间",
   },
 };
 
