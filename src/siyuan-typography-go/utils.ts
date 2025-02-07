@@ -447,7 +447,8 @@ class FormatUtil {
       //@todo 可以给图片加一个 formated 属性，这样如果 format 后，用户手动调整了图片样式，可以控制再 format 时
       //不去覆盖
       content = content.replace(formatImageV12, (match, p1, p2, p3) => {
-        return `${p1}{: parent-style=\"width: ${imageCenter}%;min-width: calc(100% - 0.1em);\"}`;
+        // return `${p1}{: parent-style=\"width: ${imageCenter}%;min-width: calc(100% - 0.1em);\"}`;
+        return `${p1}{: style=\"width: calc(${imageCenter}% - 8px);\" parent-style=\"min-width: calc(100% - 0.1em);\"}`;
       });
       // //console.log(content);
     }
