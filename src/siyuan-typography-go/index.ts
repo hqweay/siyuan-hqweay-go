@@ -183,6 +183,8 @@ export default class TypographyGo extends AddIconThenClick {
   }
 
   async formatDoc(parentId) {
+    const doOperations: IOperation[] = [];
+
     let childrenResult = await fetchSyncPost("/api/block/getChildBlocks", {
       id: parentId,
     });
@@ -219,8 +221,12 @@ export default class TypographyGo extends AddIconThenClick {
       if (/^\{:.*\}$/.test(result.kramdown)) {
         const deleteEmptyClock = true;
         if (deleteEmptyClock) {
-          await fetchSyncPost("/api/block/deleteBlock", {
+          // await fetchSyncPost("/api/block/deleteBlock", {
+          //   id: id,
+          // });
+          doOperations.push({
             id: id,
+            action: "delete",
           });
         }
         continue;
@@ -253,7 +259,16 @@ export default class TypographyGo extends AddIconThenClick {
         data: formatResult,
         id: id,
       });
+      //doOperations 不支持 updateBlock dataType: "markdown" 呀
+      // doOperations.push({
+      //   dataType: "markdown",
+      //   data: formatResult,
+      //   id: id,
+      //   action: "update",
+      // });
     }
+
+    this.customEvent.detail.protyle.getInstance().transaction(doOperations);
 
     const netImg2LocalAssets = settings.getBySpace(
       "typographyConfig",
