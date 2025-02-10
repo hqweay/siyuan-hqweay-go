@@ -86,7 +86,7 @@ export default class TypographyGo extends AddIconThenClick {
               // item.remove();
             }
 
-            this.imageCenter(editElement);
+            this.imageCenter(editElement, doOperations);
           });
           doOperations.push({
             id: item.dataset.nodeId,
@@ -99,7 +99,7 @@ export default class TypographyGo extends AddIconThenClick {
     });
   }
 
-  async imageCenter(editElement) {
+  async imageCenter(editElement, doOperations) {
     const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
     if (!imageCenter || imageCenter < 10 || imageCenter > 100) {
       return;
@@ -119,10 +119,16 @@ export default class TypographyGo extends AddIconThenClick {
         .querySelectorAll("span")[1]
         .setAttribute("style", `width: calc(${imageCenter}% - 8px);`);
 
-      await fetchSyncPost("/api/block/updateBlock", {
-        dataType: "dom",
-        data: item.parentElement.parentElement.outerHTML,
+      // await fetchSyncPost("/api/block/updateBlock", {
+      //   dataType: "dom",
+      //   data: item.parentElement.parentElement.outerHTML,
+      //   id: item.parentElement.parentElement.getAttribute("data-node-id"),
+      // });
+
+      doOperations.push({
         id: item.parentElement.parentElement.getAttribute("data-node-id"),
+        data: item.parentElement.parentElement.outerHTML,
+        action: "update",
       });
     });
   }

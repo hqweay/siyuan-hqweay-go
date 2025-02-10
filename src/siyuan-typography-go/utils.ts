@@ -424,7 +424,7 @@ class FormatUtil {
     content = this.condenseContent(content);
 
     // const updateFormatImage =
-    /(!\[.*?\]\(.*?\)\{:.*?)(parent-style=".*?")(.*?\})/g;
+    // /(!\[.*?\]\(.*?\)\{:.*?)(parent-style=".*?")(.*?\})/g;
     // const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
     // const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
 
