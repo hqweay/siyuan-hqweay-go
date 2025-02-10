@@ -91,6 +91,10 @@ export default class PluginGo extends Plugin {
         this.randomImagePlugin.setEvent(event);
       });
     settings.getFlag("typography") && this.typographyPlugin.onload();
+    settings.getFlag("typography") &&
+      this.eventBus.on("loaded-protyle-static", (event) => {
+        this.typographyPlugin.setEvent(event);
+      });
 
     settings.getFlag("dockShowAndHide") &&
       this.dockShowAndHidePlugin.onLayoutReady();
