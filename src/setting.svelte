@@ -509,14 +509,14 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("voiceNotesConfig", "noteTemplate"),
           placeholder: "",
         },
-        {
-          type: "textarea",
-          title: "同步过的笔记id，一般别修改",
-          description: "",
-          key: "syncedRecordingIds",
-          value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
-          placeholder: "",
-        },
+        // {
+        //   type: "textarea",
+        //   title: "同步过的笔记id，一般别修改",
+        //   description: "",
+        //   key: "syncedRecordingIds",
+        //   value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
+        //   placeholder: "",
+        // },
       ],
       标题下展示文档自定义属性的值: [
         {

@@ -12,6 +12,7 @@ import * as jinja from "jinja-js";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { fetchSyncPost, showMessage } from "siyuan";
 import { formatUtil } from "@/siyuan-typography-go/utils";
+import { sql } from "@/api";
 
 export default class VoiceNotesPlugin extends AddIconThenClick {
   id = "hqweay-voicenotes";
@@ -20,8 +21,11 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   syncedNoteCount = 0;
 
+  syncedRecordingIds = [];
+
   // 打开随机文档，编辑sql选定范围
   async exec(fullSync = false) {
+    this.syncedNoteCount = 0;
     showMessage(`开始同步`);
     await this.sync(fullSync);
     showMessage(`同步完成，此次同步 ${this.syncedNoteCount} 条笔记`);
@@ -31,15 +35,26 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     try {
       console.log(`Sync running full? ${fullSync}`);
 
+      let res = await sql(
+        `SELECT * FROM blocks WHERE ial like '%custom-recordingId%'`
+      );
+
+      this.syncedRecordingIds = res.map((item) => {
+        let ial = item.ial.match(/custom-recordingId="([^"]+)"/);
+        return ial && ial[1];
+      });
+
+      // console.log(this.syncedRecordingIds);
+
       // this.syncedRecordingIds = await this.getSyncedRecordingIds();
-      this.syncedRecordingIds = settings.getBySpace(
-        "voiceNotesConfig",
-        "syncedRecordingIds"
-      )
-        ? settings
-            .getBySpace("voiceNotesConfig", "syncedRecordingIds")
-            .split(",")
-        : [];
+      // this.syncedRecordingIds = settings.getBySpace(
+      //   "voiceNotesConfig",
+      //   "syncedRecordingIds"
+      // )
+      //   ? settings
+      //       .getBySpace("voiceNotesConfig", "syncedRecordingIds")
+      //       .split(",")
+      //   : [];
 
       this.vnApi = new VoiceNotesApi({});
       this.vnApi.token = settings.getBySpace("voiceNotesConfig", "token");
@@ -98,11 +113,11 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         `同步完成。由于排除标签，${unsyncedCount.count}条记录未被同步。`
       );
 
-      settings.setBySpace(
-        "voiceNotesConfig",
-        "syncedRecordingIds",
-        this.syncedRecordingIds.join(",")
-      );
+      // settings.setBySpace(
+      //   "voiceNotesConfig",
+      //   "syncedRecordingIds",
+      //   this.syncedRecordingIds.join(",")
+      // );
     } catch (error) {
       console.error(error);
       if (error.hasOwnProperty("status") !== "undefined") {
@@ -363,12 +378,12 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       if (responseData.code === 0) {
         if (!this.syncedRecordingIds.includes(recording.recording_id)) {
           this.syncedNoteCount++;
-          this.syncedRecordingIds.push(recording.recording_id);
-          settings.setBySpace(
-            "voiceNotesConfig",
-            "syncedRecordingIds",
-            this.syncedRecordingIds.join(",")
-          );
+          // this.syncedRecordingIds.push(recording.recording_id);
+          // settings.setBySpace(
+          //   "voiceNotesConfig",
+          //   "syncedRecordingIds",
+          //   this.syncedRecordingIds.join(",")
+          // );
         }
 
         const tagsStr =
