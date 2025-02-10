@@ -1,4 +1,5 @@
 import { request, sql } from "@/api";
+import { showMessage } from "siyuan";
 export default class AdjustTitleLevel {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
@@ -167,6 +168,7 @@ export default class AdjustTitleLevel {
     toTitleLevel,
     includeSub = true
   ) {
+    showMessage(`调整标题中……`);
     let res = await sql(
       `select id from blocks where root_id = '${detail.data.rootID}' and subtype = 'h${originTitleLevel}'`
     );
@@ -179,17 +181,25 @@ export default class AdjustTitleLevel {
         level: Number(toTitleLevel),
       });
 
-      response.doOperations.forEach((operation: IOperation, index: number) => {
-        detail.protyle.wysiwyg.element
-          .querySelectorAll(`[data-node-id="${operation.id}"]`)
-          .forEach((itemElement: HTMLElement) => {
-            itemElement.outerHTML = operation.data;
-          });
-      });
       if (includeSub) {
+        response.doOperations.forEach(
+          (operation: IOperation, index: number) => {
+            detail.protyle.wysiwyg.element
+              .querySelectorAll(`[data-node-id="${operation.id}"]`)
+              .forEach((itemElement: HTMLElement) => {
+                itemElement.outerHTML = operation.data;
+              });
+          }
+        );
         doOperations.push(...response.doOperations);
         undoOperations.push(...response.undoOperations);
       } else {
+        detail.protyle.wysiwyg.element
+          .querySelectorAll(`[data-node-id="${response.doOperations[0].id}"]`)
+          .forEach((itemElement: HTMLElement) => {
+            itemElement.outerHTML = response.doOperations[0].data;
+          });
+
         doOperations.push(response.doOperations[0]);
         undoOperations.push(response.undoOperations[0]);
       }
@@ -198,10 +208,12 @@ export default class AdjustTitleLevel {
     doOperations.length > 0 &&
       detail.protyle.getInstance().transaction(doOperations, undoOperations);
 
-    await request("/api/outline/getDocOutline", {
-      id: detail.data.rootID,
-      preview: false,
-    });
+    doOperations.length > 0 &&
+      (await request("/api/outline/getDocOutline", {
+        id: detail.data.rootID,
+        preview: false,
+      }));
+    showMessage(`调整标题完成！`);
   }
 
   private adjustOriginTitleToByDom(detail, originTitleLevel, toTitleLevel) {
