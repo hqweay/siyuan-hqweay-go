@@ -66,22 +66,21 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       }
       const unsyncedCount = { count: 0 };
 
-      if (fullSync && recordings.links.next) {
+      if (recordings.links.next) {
         let nextPage = recordings.links.next;
+        let pageCounter = 1; // 已经获取了一页数据，所以从1开始计数
+        let syncPageCount = fullSync ? settings.getBySpace("voiceNotesConfig", "latestDataCountOfPage") : settings.getBySpace("voiceNotesConfig", "manualSyncPageCount");
 
-        do {
-          showMessage(`正在进行全量同步 ${nextPage}`);
-          const moreRecordings = await this.vnApi.getRecordingsFromLink(
-            nextPage
-          );
+        while (
+          nextPage &&
+          (syncPageCount < 0 || pageCounter < syncPageCount) // 调整条件以包括当前页
+        ) {
+          showMessage(`正在进行同步 ${nextPage}`);
+          const moreRecordings = await this.vnApi.getRecordingsFromLink(nextPage);
           recordings.data.push(...moreRecordings.data);
           nextPage = moreRecordings.links.next;
-        } while (nextPage);
-        //默认获取最近20条
-      } else if (recordings.links.next) {
-        let nextPage = recordings.links.next;
-        const moreRecordings = await this.vnApi.getRecordingsFromLink(nextPage);
-        recordings.data.push(...moreRecordings.data);
+          pageCounter++;
+        }
       }
 
       const syncDirectory = settings.getBySpace(
@@ -299,7 +298,16 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         tweet: tweet ? tweet.markdown_content : null,
         blog: blog ? blog.markdown_content : null,
         email: email ? email.markdown_content : null,
-        custom: custom ? (Array.isArray(custom) ? custom.map((item, index) => `### Others ${index + 1}\n${item.markdown_content}`).join("\n") : custom.markdown_content) : null,
+        custom: custom
+          ? Array.isArray(custom)
+            ? custom
+                .map(
+                  (item, index) =>
+                    `### Others ${index + 1}\n${item.markdown_content}`
+                )
+                .join("\n")
+            : custom.markdown_content
+          : null,
         // tags: formattedTags,
         // related_notes:
         //   recording.related_notes && recording.related_notes.length > 0

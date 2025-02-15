@@ -458,6 +458,25 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: "voicenotes",
         },
         {
+          type: "textinput",
+          title: "手动同步时获取最新多少页数据（1页10条）",
+          description: "小于 0 时同步全量，大于 0 时会同步配置的前多少页【建议合理配置】",
+          key: "manualSyncPageCount",
+          value: settings.getBySpace("voiceNotesConfig", "manualSyncPageCount"),
+          placeholder: "2",
+        },
+        {
+          type: "textinput",
+          title: "全量同步最新多少页数据（1页10条）",
+          description: "小于 0 时同步全量，大于 0 时会同步配置的前多少页",
+          key: "latestDataCountOfPage",
+          value: settings.getBySpace(
+            "voiceNotesConfig",
+            "latestDataCountOfPage"
+          ),
+          placeholder: "-1",
+        },
+        {
           type: "button",
           title: "全量同步一次",
           description: "点击会尝试全量同步一次笔记",

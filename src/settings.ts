@@ -154,6 +154,8 @@ https://shibe.online/api/shibes?count=1`,
     syncedRecordingIds: "",
     syncDirectory: "voicenotes",
     dateFormat: "YYYY-MM-DD HH:mm:ss",
+    latestDataCountOfPage: "-1",
+    manualSyncPageCount: "2",
     excludeTags: "",
     notebook: "",
     //     frontmatterTemplate: `duration: {{duration}}
