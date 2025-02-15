@@ -208,12 +208,15 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         "custom",
       ];
 
-      const creations = Object.fromEntries(
-        creationTypes.map((type) => [
-          type,
-          recording.creations.find((creation) => creation.type === type),
-        ])
-      );
+      const creations = {};
+      for (const type of creationTypes) {
+        const creation = recording.creations.filter((c) => c.type === type);
+        if (creation.length > 0) {
+          creations[type] = creation;
+        }
+      }
+
+      console.log(creations);
 
       const { transcript } = recording;
       const { summary, points, tidy, todo, tweet, blog, email, custom } =
@@ -296,7 +299,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         tweet: tweet ? tweet.markdown_content : null,
         blog: blog ? blog.markdown_content : null,
         email: email ? email.markdown_content : null,
-        custom: custom ? custom.markdown_content : null,
+        custom: custom ? (Array.isArray(custom) ? custom.map((item, index) => `### Others ${index + 1}\n${item.markdown_content}`).join("\n") : custom.markdown_content) : null,
         // tags: formattedTags,
         // related_notes:
         //   recording.related_notes && recording.related_notes.length > 0
