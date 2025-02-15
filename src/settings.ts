@@ -220,6 +220,12 @@ https://shibe.online/api/shibes?count=1`,
 
 {{ custom }}
 {% endif %}
+
+{% if related_notes %}
+## Related Notes
+
+{{ related_notes }}
+{% endif %}
 `,
   },
   showCustomPropertiesUnderTitleConfig: {

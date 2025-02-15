@@ -69,14 +69,18 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       if (recordings.links.next) {
         let nextPage = recordings.links.next;
         let pageCounter = 1; // 已经获取了一页数据，所以从1开始计数
-        let syncPageCount = fullSync ? settings.getBySpace("voiceNotesConfig", "latestDataCountOfPage") : settings.getBySpace("voiceNotesConfig", "manualSyncPageCount");
+        let syncPageCount = fullSync
+          ? settings.getBySpace("voiceNotesConfig", "latestDataCountOfPage")
+          : settings.getBySpace("voiceNotesConfig", "manualSyncPageCount");
 
         while (
           nextPage &&
           (syncPageCount < 0 || pageCounter < syncPageCount) // 调整条件以包括当前页
         ) {
           showMessage(`正在进行同步 ${nextPage}`);
-          const moreRecordings = await this.vnApi.getRecordingsFromLink(nextPage);
+          const moreRecordings = await this.vnApi.getRecordingsFromLink(
+            nextPage
+          );
           recordings.data.push(...moreRecordings.data);
           nextPage = moreRecordings.links.next;
           pageCounter++;
@@ -309,18 +313,16 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             : custom.markdown_content
           : null,
         // tags: formattedTags,
-        // related_notes:
-        //   recording.related_notes && recording.related_notes.length > 0
-        //     ? recording.related_notes
-        //         .map(
-        //           (relatedNote: { title: string, created_at: string }) =>
-        //             `- [[${this.sanitizedTitle(
-        //               relatedNote.title,
-        //               relatedNote.created_at
-        //             )}]]`
-        //         )
-        //         .join("\n")
-        //     : null,
+        related_notes:
+          recording.related_notes && recording.related_notes.length > 0
+            ? (
+                await Promise.all(
+                  recording.related_notes.map(async (relatedNote) =>
+                    this.searchRelatedNotes(relatedNote.id)
+                  )
+                )
+              ).join("\n")
+            : null,
         subnotes:
           recording.subnotes && recording.subnotes.length > 0
             ? recording.subnotes
@@ -459,6 +461,17 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       } else {
         showMessage(`同步笔记时发生错误`);
       }
+    }
+  }
+
+  async searchRelatedNotes(id) {
+    let res = await sql(
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingId="${id}"%'`
+    );
+    if (res.length > 0) {
+      return `- ((${res[0].id} "${res[0].content}"))`;
+    } else {
+      return null;
     }
   }
 }
