@@ -318,10 +318,10 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             ? (
                 await Promise.all(
                   recording.related_notes.map(async (relatedNote) =>
-                    this.searchRelatedNotes(relatedNote.id)
+                    this.searchRelatedNotes(relatedNote)
                   )
                 )
-              ).join("\n")
+              ).join("\n") || null
             : null,
         subnotes:
           recording.subnotes && recording.subnotes.length > 0
@@ -464,13 +464,40 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     }
   }
 
-  async searchRelatedNotes(id) {
+  async searchRelatedNotes(relatedNote) {
     let res = await sql(
-      `SELECT * FROM blocks WHERE ial like '%custom-recordingId="${id}"%'`
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingId="${relatedNote.id}"%'`
     );
     if (res.length > 0) {
       return `- ((${res[0].id} "${res[0].content}"))`;
     } else {
+      //全量同步时才会有查询不到的情况呢
+      return null;
+    }
+  }
+
+  async checkHPathExistence(path, notebook) {
+    try {
+      const response = await fetch(`/api/filetree/getIDsByHPath`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ path, notebook }),
+      });
+      const data = await response.json();
+      if (data.code === 0) {
+        if (data.data.exists) {
+          return data.data.id;
+        } else {
+          return null;
+        }
+      } else {
+        console.error(`检查 HPath 是否存在失败: ${data.msg}`);
+        return null;
+      }
+    } catch (error) {
+      console.error(`检查 HPath 是否存在失败: ${error}`);
       return null;
     }
   }
