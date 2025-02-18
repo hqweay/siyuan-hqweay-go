@@ -24,6 +24,7 @@ const DEFAULT_CONFIG = {
     memo: false,
     dockLeft: false,
     read: false,
+    readHelper: false,
     bookmark: false,
     dockShowAndHide: false,
     doOnPaste: false,
@@ -71,6 +72,10 @@ https://shibe.online/api/shibes?count=1`,
     keepContext: true,
     addRef: false,
     addOutline: false,
+  },
+  readHelperConfig: {
+    markAndCopyRef: false,
+    markAndCopyTextRef: false
   },
   bookmarkConfig: {
     items: "读到这里啦",
@@ -281,7 +286,7 @@ class Settings {
     plugin.data[config]["pluginFlag"][key] = value;
   }
   getFlag(key: any, config = CONFIG) {
-    return plugin.data[config] && plugin.data[config]["pluginFlag"]?.[key];
+    return plugin && plugin.data[config] && plugin.data[config]["pluginFlag"]?.[key];
   }
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {

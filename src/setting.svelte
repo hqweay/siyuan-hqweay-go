@@ -121,6 +121,14 @@
         },
         {
           type: "checkbox",
+          title: "阅读帮助",
+          description: "toolbar 新增 标注并复制块引",
+          key: "readHelper",
+          value: settings.getFlag("readHelper"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "快捷添加书签",
           description: "块菜单新增添加到书签",
           key: "bookmark",
@@ -296,6 +304,22 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("dockLeftConfig", "ids"),
         },
       ],
+      阅读帮助: [
+        {
+          type: "checkbox",
+          title: "toolbar 新增标注并复制块引",
+          description: "toolbar 新增标注并复制块引",
+          key: "markAndCopyRef",
+          value: settings.getBySpace("readHelperConfig", "markAndCopyRef"),
+        },
+        {
+          type: "checkbox",
+          title: "toolbar 新增标注并复制 Text* 格式块引",
+          description: "toolbar 新增标注并复制块引",
+          key: "markAndCopyTextRef",
+          value: settings.getBySpace("readHelperConfig", "markAndCopyTextRef"),
+        },
+      ],
       提取元素至新文档: [
         // {
         //   type: "textinput",
@@ -460,7 +484,8 @@ https://shibe.online/api/shibes?count=1`,
         {
           type: "textinput",
           title: "手动同步时获取最新多少页数据（1页10条）",
-          description: "小于 0 时同步全量，大于 0 时会同步配置的前多少页【建议合理配置】",
+          description:
+            "小于 0 时同步全量，大于 0 时会同步配置的前多少页【建议合理配置】",
           key: "manualSyncPageCount",
           value: settings.getBySpace("voiceNotesConfig", "manualSyncPageCount"),
           placeholder: "2",
