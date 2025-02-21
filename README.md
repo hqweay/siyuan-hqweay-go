@@ -4,7 +4,7 @@
 
 - 新增在文档标题下展示自定义属性的值
 - 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。感谢 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
-- 新增 toolbar 支持标注并复制块引
+- 新增 阅读帮助：toolbar 支持标注并复制块引
 
 ## 支持：
 
