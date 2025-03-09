@@ -519,8 +519,6 @@ export default class HrefToRef {
             ele.parentNode.replaceChild(textNode, ele);
           } else {
             if (styleNesting) {
-              // console.log(currentType);
-              // console.log(extractedElements);
               const updatedType = currentType.replace(extractedElements[0], "");
               if (updatedType.trim() === "") {
                 ele.removeAttribute("data-type");
@@ -546,6 +544,19 @@ export default class HrefToRef {
   private pageToText(menuItem, detail, querySelectorAllStr) {
     const doOperations: IOperation[] = [];
 
+    const styleNesting = settings.getBySpace("convertConfig", "styleNesting");
+
+    // 现在这样写理论上数组只会有一个元素：需要清理的元素
+    const extractedElements = [];
+    if (styleNesting) {
+      const pattern = /\[data-type~="([^"]+)"\]/g;
+
+      let match;
+      while ((match = pattern.exec(querySelectorAllStr)) !== null) {
+        extractedElements.push(match[1]);
+      }
+    }
+
     const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
       menuItem.availableBlocks
         .map((item) => {
@@ -556,8 +567,27 @@ export default class HrefToRef {
     editElements.forEach((item: HTMLElement) => {
       let count = 0;
       item.querySelectorAll(querySelectorAllStr).forEach((ele) => {
-        const textNode = document.createTextNode(ele.textContent);
-        ele.parentNode.replaceChild(textNode, ele);
+        //获取当前文本的元素
+        const currentType = ele.getAttribute("data-type");
+
+        //若只有一种元素 直接清理
+        if (currentType.trim().split(" ").length === 1) {
+          const textNode = document.createTextNode(ele.textContent);
+          ele.parentNode.replaceChild(textNode, ele);
+        } else {
+          //若有多种元素且开启嵌套元素清理，则清理该元素
+          if (styleNesting) {
+            const updatedType = currentType.replace(extractedElements[0], "");
+            if (updatedType.trim() === "") {
+              ele.removeAttribute("data-type");
+            } else {
+              ele.setAttribute("data-type", updatedType);
+            }
+            //否则，不对该文本进行处理
+          } else {
+            return;
+          }
+        }
         count++;
       });
       count > 0 &&
