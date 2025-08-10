@@ -21,7 +21,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   syncedNoteCount = 0;
 
-  syncedRecordingIds = [];
+  existingSyncedNotes = [];
 
   // 打开随机文档，编辑sql选定范围
   async exec(fullSync = false) {
@@ -31,18 +31,30 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     showMessage(`同步完成，此次同步 ${this.syncedNoteCount} 条笔记`);
   }
 
+  async getExistingSyncedNotes() {
+    const existingRecordings = await sql(
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingId%'`
+    );
+
+    return existingRecordings.map((item) => {
+      const recordingId = item.ial.match(/custom-recordingId="([^"]+)"/);
+      const updateAt = item.ial.match(/custom-updatedAt="([^"]+)"/);
+      const creationsCount = item.ial.match(/custom-creationsCount="([^"]+)"/);
+      return {
+        recordingId: recordingId && recordingId[1],
+        updateAt: updateAt && updateAt[1],
+        id: item.id,
+        path: item.path,
+        creationsCount: creationsCount && creationsCount[1],
+      };
+    });
+  }
+
   async sync(fullSync = false) {
     try {
       console.log(`Sync running full? ${fullSync}`);
 
-      let res = await sql(
-        `SELECT * FROM blocks WHERE ial like '%custom-recordingId%'`
-      );
-
-      this.syncedRecordingIds = res.map((item) => {
-        let ial = item.ial.match(/custom-recordingId="([^"]+)"/);
-        return ial && ial[1];
-      });
+      this.existingSyncedNotes = await this.getExistingSyncedNotes();
 
       // console.log(this.syncedRecordingIds);
 
@@ -87,6 +99,12 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         }
       }
 
+      //按时间顺序
+      recordings.data.sort(
+        (a, b) =>
+          new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+      );
+
       const syncDirectory = settings.getBySpace(
         "voiceNotesConfig",
         "syncDirectory"
@@ -96,7 +114,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
           const dateStr = formatDate(recording.created_at, "YYYY-MM-DD");
           const [year, month, day] = dateStr.split("-");
           const voiceNotesDir = `${syncDirectory}/${year}/${month}/${day}`;
-          await this.processNote(recording, voiceNotesDir, "", unsyncedCount);
+          await this.processNote(recording, voiceNotesDir, unsyncedCount);
 
           if (recording.subnotes && recording.subnotes.length > 0) {
             for (const subnote of recording.subnotes) {
@@ -104,7 +122,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
               await this.processNote(
                 subnote,
                 `${voiceNotesDir}`,
-                subnote.title,
                 unsyncedCount
               );
             }
@@ -131,30 +148,37 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     }
   }
 
-  async processNote(
-    recording,
-    voiceNotesDir,
+  isNoteNeedUpdate(existingNote, newNote) {
+    // 检查更新时间
+    const existingUpdateTime = new Date(existingNote.updateAt).getTime();
+    const newUpdateTime = new Date(newNote.updated_at).getTime();
 
-    parentTitle = "",
-    unsyncedCount
-  ) {
+    // 检查是否需要更新：时间更新 或 数量不同
+    const needUpdateByTime = newUpdateTime > existingUpdateTime;
+    // 存量数据也处理下
+    const needUpdateByCount =
+      existingNote.creationsCount != newNote.creations.length;
+
+    if (needUpdateByTime) {
+      console.log(`需要更新：发现更新时间较新`);
+      return true;
+    }
+
+    if (needUpdateByCount) {
+      console.log(`需要更新：creations 数量不同`);
+      return true;
+    }
+
+    console.log(`无需更新：时间和数量都未发生变化`);
+    return false;
+  }
+
+  async processNote(recording, voiceNotesDir, unsyncedCount) {
     try {
       if (!recording.title) {
         console.log(`无法获取语音记录，ID: ${recording.id}`);
         return;
       }
-
-      //
-      // const title = recording.title + recording.created_at;
-      let title = recording.title;
-      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
-        title = formatUtil.formatContent(title);
-        // 删除多余的空格
-        title = formatUtil.deleteSpaces(title);
-        // 插入必要的空格
-        title = formatUtil.insertSpace(title);
-      }
-      const recordingPath = `${voiceNotesDir}/${title}`;
 
       // // 处理子笔记
       // if (recording.subnotes && recording.subnotes.length > 0) {
@@ -170,15 +194,42 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       // }
 
       // Check if the note already exists
-      const noteExists = this.syncedRecordingIds.includes(
-        recording.recording_id
+      const noteExists = this.existingSyncedNotes.find(
+        (note) => note.recordingId === recording.recording_id
       );
 
-      // 如果笔记不存在，或者它是一个子笔记，它将被处理如下
+      console.log(`${recording.recording_id}, exists: ${!!noteExists}`);
+
       if (noteExists) {
-        console.log(`${recording.recording_id} 已同步`);
-        return;
+        if (!this.isNoteNeedUpdate(noteExists, recording)) {
+          return;
+        }
+
+        // 若笔记存在，且判断需要更新，首先删除文档
+        await fetch("/api/filetree/removeDoc", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            notebook: settings.getBySpace("voiceNotesConfig", "notebook"),
+            path: noteExists.path,
+          }),
+        });
+        this.existingSyncedNotes = await this.getExistingSyncedNotes();
       }
+
+      //
+      // const title = recording.title + recording.created_at;
+      let title = recording.title;
+      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+        title = formatUtil.formatContent(title);
+        // 删除多余的空格
+        title = formatUtil.deleteSpaces(title);
+        // 插入必要的空格
+        title = formatUtil.insertSpace(title);
+      }
+      const recordingPath = `${voiceNotesDir}/${title}`;
 
       showMessage(`正在获取 ${recording.title}`);
       // await new Promise((resolve) => setTimeout(resolve, 500));
@@ -209,21 +260,31 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         "blog",
         "email",
         "custom",
+        "team-summary",
       ];
 
       const creations = {};
       for (const type of creationTypes) {
         const creation = recording.creations.filter((c) => c.type === type);
         if (creation.length > 0) {
-          creations[type] = creation;
+          creations[type.replace("-", "_")] = creation;
         }
       }
 
-      console.log(creations);
-
       const { transcript } = recording;
-      const { summary, points, tidy, todo, tweet, blog, email, custom } =
-        creations;
+      const {
+        summary,
+        points,
+        tidy,
+        todo,
+        tweet,
+        blog,
+        email,
+        custom,
+        team_summary,
+      } = creations;
+
+      // console.log(team_summary.markdown_content);
 
       // 处理附件
       let attachments = "";
@@ -233,6 +294,8 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             recording.attachments.map(async (data) => {
               if (data.type === 1) {
                 return `- ${data.description}`;
+              } else if (data.type === 3) {
+                return `### Added note\n${data.description}`;
               } else if (data.type === 2) {
                 const filename = getFilenameFromUrl(data.url);
                 // TODO: 下载附件到思源
@@ -246,22 +309,30 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         ).join("\n");
       }
 
-      // 准备模板上下文
-      const formattedPoints = points
-        ? points.content.data.map((data) => `- ${data}`).join("\n")
-        : null;
+      const formattedPoints =
+        points && points.length > 0
+          ? points.map((point) => `- ${point.content.data}`).join("\n")
+          : null;
 
-      const formattedTodos = todo
-        ? todo.content.data
-            .map(
-              (data) => `- [ ] ${data}`
-              // (data) =>
-              // `- [ ] ${data}${
-              //   this.settings.todoTag ? " #" + this.settings.todoTag : ""
-              // }`
-            )
-            .join("\n")
-        : null;
+      const formattedTodos =
+        todo && todo.length > 0
+          ? todo
+              .map((todoItem, index) => {
+                return (
+                  `### Todo ${index + 1}\n` +
+                  todoItem.content.data
+                    .map(
+                      (data) => `- [ ] ${data}`
+                      // (data) =>
+                      // `- [ ] ${data}${
+                      //   this.settings.todoTag ? " #" + this.settings.todoTag : ""
+                      // }`
+                    )
+                    .join("\n")
+                );
+              })
+              .join("\n")
+          : null;
 
       // const formattedTags =
       //   recording.tags && recording.tags.length > 0
@@ -293,36 +364,28 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         //   recording.updated_at,
         //   settings.getBySpace("voiceNotesConfig", "dateFormat")
         // ),
-        transcript: transcript,
+        transcript: this.cleanSpacesBetweenChineseCharacters(transcript),
         // audio_filename: audioFilenameMD,
-        summary: summary ? summary.markdown_content : null,
-        tidy: tidy ? tidy.markdown_content : null,
+        summary: this.getMarkdownContent(summary, "Summary"),
+        tidy: this.getMarkdownContent(tidy, "Tidy Transcript"),
         points: formattedPoints,
         todo: formattedTodos,
-        tweet: tweet ? tweet.markdown_content : null,
-        blog: blog ? blog.markdown_content : null,
-        email: email ? email.markdown_content : null,
-        custom: custom
-          ? Array.isArray(custom)
-            ? custom
-                .map(
-                  (item, index) =>
-                    `### Others ${index + 1}\n${item.markdown_content}`
-                )
-                .join("\n")
-            : custom.markdown_content
-          : null,
+        tweet: this.getMarkdownContent(tweet, "Tweet"),
+        blog: this.getMarkdownContent(blog, "Blog"),
+        email: this.getMarkdownContent(email, "Email"),
+        teamSummary: this.getMarkdownContent(team_summary, "Team Summary"),
+        custom: this.getMarkdownContent(custom, "Others"),
         // tags: formattedTags,
-        related_notes:
-          recording.related_notes && recording.related_notes.length > 0
-            ? (
-                await Promise.all(
-                  recording.related_notes.map(async (relatedNote) =>
-                    this.searchRelatedNotes(relatedNote)
-                  )
-                )
-              ).join("\n") || null
-            : null,
+        // related_notes:
+        //   recording.related_notes && recording.related_notes.length > 0
+        //     ? (
+        //         await Promise.all(
+        //           recording.related_notes.map(async (relatedNote) =>
+        //             this.searchRelatedNotes(relatedNote)
+        //           )
+        //         )
+        //       ).join("\n") || null
+        //     : null,
         subnotes:
           recording.subnotes && recording.subnotes.length > 0
             ? recording.subnotes
@@ -340,7 +403,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       );
 
       if (settings.getBySpace("voiceNotesConfig", "newLineNewBlock")) {
-        note = convertHtmlToMarkdown(note).replace(/\n+/g, "\n\n");
+        note = convertHtmlToMarkdown(note).replace(/\n+\s+/g, "\n\n");
       } else {
         note = convertHtmlToMarkdown(note).replace(/\n{3,}/g, "\n\n");
       }
@@ -352,6 +415,9 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         // note = formatUtil.deleteSpaces(note);
         // console.log("2" + note);
         note = formatUtil.insertSpace(note);
+
+        //多个空格保留一个
+        // note = note.replace(/\s+/g, " ");
       }
 
       // console.log("3" + note);
@@ -374,7 +440,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       // const metadata = `---\n${renderedFrontmatter}\n---\n`;
       // note = metadata + note;
-      // 创建文档
+      // 然后创建文档
       const response = await fetch("/api/filetree/createDocWithMd", {
         method: "POST",
         headers: {
@@ -389,7 +455,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       const responseData = await response.json();
       if (responseData.code === 0) {
-        if (!this.syncedRecordingIds.includes(recording.recording_id)) {
+        if (!this.existingSyncedNotes.includes(recording.recording_id)) {
           this.syncedNoteCount++;
           // this.syncedRecordingIds.push(recording.recording_id);
           // settings.setBySpace(
@@ -406,6 +472,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
                 .map((tag) => `${tag.name}`)
                 .join(",")
             : "";
+        console.log("creations.length:" + recording.creations.length);
         await fetch("/api/attr/setBlockAttrs", {
           method: "POST",
           headers: {
@@ -415,7 +482,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             id: responseData.data,
             attrs: {
               tags: tagsStr,
-              "custom-duration": formatDuration(recording.duration),
+              "custom-duration": `${recording.duration}`,
               "custom-createdAt": formatDate(
                 recording.created_at,
                 settings.getBySpace("voiceNotesConfig", "dateFormat")
@@ -425,6 +492,8 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
                 settings.getBySpace("voiceNotesConfig", "dateFormat")
               ),
               "custom-recordingId": recording.recording_id,
+              //通过 creations length 判断是否需要更新
+              "custom-creationsCount": `${recording.creations.length}`,
             },
           }),
         });
@@ -462,6 +531,28 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         showMessage(`同步笔记时发生错误`);
       }
     }
+  }
+
+  getMarkdownContent(custom, h3Title) {
+    if (!custom) return null;
+    if (Array.isArray(custom) && custom.length > 0) {
+      return custom
+        .map(
+          (item, index) =>
+            `### ${h3Title} ${index + 1}\n${item.markdown_content}`
+        )
+        .join("\n");
+    } else if (!Array.isArray(custom)) {
+      return custom.markdown_content;
+    } else {
+      return null; // 如果是空数组，返回null
+    }
+  }
+
+  cleanSpacesBetweenChineseCharacters(text) {
+    return text
+      .replace(/(?<=[\u4e00-\u9fa5])\s(?=[\u4e00-\u9fa5])/g, "")
+      .replace(/\s+/g, " ");
   }
 
   async searchRelatedNotes(relatedNote) {

@@ -75,7 +75,7 @@ https://shibe.online/api/shibes?count=1`,
   },
   readHelperConfig: {
     markAndCopyRef: false,
-    markAndCopyTextRef: false
+    markAndCopyTextRef: false,
   },
   bookmarkConfig: {
     items: "读到这里啦",
@@ -226,6 +226,12 @@ https://shibe.online/api/shibes?count=1`,
 {{ custom }}
 {% endif %}
 
+{% if teamSummary %}
+## Team Summary
+
+{{ teamSummary }}
+{% endif %}
+
 {% if related_notes %}
 ## Related Notes
 
@@ -286,7 +292,9 @@ class Settings {
     plugin.data[config]["pluginFlag"][key] = value;
   }
   getFlag(key: any, config = CONFIG) {
-    return plugin && plugin.data[config] && plugin.data[config]["pluginFlag"]?.[key];
+    return (
+      plugin && plugin.data[config] && plugin.data[config]["pluginFlag"]?.[key]
+    );
   }
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {

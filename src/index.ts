@@ -45,7 +45,6 @@ export default class PluginGo extends Plugin {
   private readHelper = new ReadHelper();
   private dockLeftPlugins;
 
-
   codeSnippets = [];
   //获取插件类实例
   init() {
@@ -130,7 +129,6 @@ export default class PluginGo extends Plugin {
 
   //App 启动时加载
   async onload() {
-
     this.init();
     await settings.initData();
 
