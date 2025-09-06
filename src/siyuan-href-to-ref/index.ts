@@ -56,20 +56,95 @@ export default class HrefToRef {
 
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
-      iconHTML: "",
+      iconHTML: "🧹",
       label: plugin.i18n.cleanRefSelf,
       click: () => {
+        const doOperations: IOperation[] = [];
+
         const docID = document
           .querySelector(
             ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
           )
           ?.getAttribute("data-node-id");
-        this.cleanRef({
-          detail,
-          exec: (ele) => {
-            return ele.getAttribute("data-id") === docID;
-          },
+
+        const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
+          this.availableBlocks
+            .map((item) => {
+              return `[data-type=${item}] [contenteditable="true"]`;
+            })
+            .join(",")
+        );
+
+        editElements.forEach((editElement: HTMLElement) => {
+          let count = 0;
+          editElement
+            // 只获取笔记内部的引用
+            .querySelectorAll('[data-type="block-ref"]')
+            .forEach((ele) => {
+              // console.log(ele);
+              if (ele.getAttribute("data-id") === docID) {
+                // 往父级遍历，找到第一个 data-type="NodeList" 的元素
+                let parentElement = ele.parentElement;
+                ele.remove();
+
+                if (parentElement && parentElement.textContent.trim() !== "") {
+                  return;
+                }
+
+                let maxDepth = 9;
+                let currentDepth = 0;
+
+                while (
+                  parentElement &&
+                  parentElement !== document.body &&
+                  currentDepth < maxDepth
+                ) {
+                  const dataType = parentElement.getAttribute("data-type");
+
+                  if (dataType === "NodeList") {
+                    // 找到所有 NodeListItem 子元素
+                    const nodeListItems = Array.from(
+                      parentElement.children
+                    ).filter(
+                      (child) =>
+                        child.getAttribute("data-type") === "NodeListItem"
+                    );
+
+                    // 处理每个 NodeListItem
+                    nodeListItems.forEach((nodeListItem) => {
+                      // 找到 NodeListItem 下的所有 NodeList 子元素
+                      const nestedNodeLists = Array.from(
+                        nodeListItem.children
+                      ).filter(
+                        (child) =>
+                          child.getAttribute("data-type") === "NodeList"
+                      );
+
+                      // 将每个嵌套子列表 的 NodeList 的内容移出来
+                      nestedNodeLists.forEach((nestedNodeList) => {
+                        parentElement.parentElement.appendChild(nestedNodeList);
+                      });
+                    });
+
+                    parentElement.remove();
+                    break;
+                  }
+                  parentElement = parentElement.parentElement;
+                  currentDepth++;
+                }
+                count++;
+              }
+            });
+          count > 0 &&
+            doOperations.push({
+              id: editElement.parentElement.dataset.nodeId,
+              data: editElement.parentElement.outerHTML,
+              action: "update",
+            });
         });
+
+        doOperations.length != 0 &&
+          detail.protyle.getInstance().transaction(doOperations);
       },
     });
 
@@ -433,7 +508,59 @@ export default class HrefToRef {
                   .forEach((ele) => {
                     // console.log(ele);
                     if (ele.getAttribute("data-id") === docID) {
+                      let parentElement = ele.parentElement;
                       ele.remove();
+
+                      if (
+                        parentElement &&
+                        parentElement.textContent.trim() !== ""
+                      ) {
+                        return;
+                      }
+                      let maxDepth = 9;
+                      let currentDepth = 0;
+
+                      while (
+                        parentElement &&
+                        parentElement !== document.body &&
+                        currentDepth < maxDepth
+                      ) {
+                        const dataType =
+                          parentElement.getAttribute("data-type");
+
+                        if (dataType === "NodeList") {
+                          // 找到所有 NodeListItem 子元素
+                          const nodeListItems = Array.from(
+                            parentElement.children
+                          ).filter(
+                            (child) =>
+                              child.getAttribute("data-type") === "NodeListItem"
+                          );
+
+                          // 处理每个 NodeListItem
+                          nodeListItems.forEach((nodeListItem) => {
+                            // 找到 NodeListItem 下的所有 NodeList 子元素
+                            const nestedNodeLists = Array.from(
+                              nodeListItem.children
+                            ).filter(
+                              (child) =>
+                                child.getAttribute("data-type") === "NodeList"
+                            );
+
+                            // 将每个嵌套子列表 的 NodeList 的内容移出来
+                            nestedNodeLists.forEach((nestedNodeList) => {
+                              parentElement.parentElement.appendChild(
+                                nestedNodeList
+                              );
+                            });
+                          });
+
+                          parentElement.remove();
+                          break;
+                        }
+                        parentElement = parentElement.parentElement;
+                        currentDepth++;
+                      }
                     }
                   });
               });
