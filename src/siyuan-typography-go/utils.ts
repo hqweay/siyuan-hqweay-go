@@ -428,7 +428,7 @@ class FormatUtil {
     // const updateFormatImage = /(!\[.*?\]\(.*?\)\{:.*?)(\d+%)(.*?\})/g;
     // const formatImage = /(!\[.*?\]\(.*?\))(?!\s*\{)/gs;
 
-    const formatImageV12 = /(!\[[^\]]+\]\([^\]]+\))((?:\{:[^}]+\})?)/gs;
+    const formatImageV12 = /(!\[[^\]]*\]\([^\]]+?\))((?:\{:[^}]+\})?)/gs;
 
     const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
     if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
