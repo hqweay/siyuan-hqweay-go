@@ -319,6 +319,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "markAndCopyTextRef",
           value: settings.getBySpace("readHelperConfig", "markAndCopyTextRef"),
         },
+        {
+          type: "checkbox",
+          title: "toolbar 新增标注并复制 * 格式块引",
+          description: "toolbar 新增标注并复制块引",
+          key: "markAndCopyTextRefNoHighlight",
+          value: settings.getBySpace("readHelperConfig", "markAndCopyTextRefNoHighlight"),
+        },
       ],
       提取元素至新文档: [
         // {

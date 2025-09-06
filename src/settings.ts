@@ -76,6 +76,7 @@ https://shibe.online/api/shibes?count=1`,
   readHelperConfig: {
     markAndCopyRef: false,
     markAndCopyTextRef: false,
+    markAndCopyTextRefNoHighlight: false,
   },
   bookmarkConfig: {
     items: "读到这里啦",

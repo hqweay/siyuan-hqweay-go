@@ -2,32 +2,51 @@ import { settings } from "@/settings";
 
 export default class ReadHelper {
   updateProtyleToolbar(toolbar) {
-    settings.getBySpace("readHelperConfig", "markAndCopyRef") && toolbar.push({
-      name: "markAndCopyRef",
-      icon: "iconStar",
-      tipPosition: "n",
-      tip: "标注并复制块引",
-      click: (protyle) => {
-        this.markAndCopyRef(protyle.protyle);
-      },
-    });
+    settings.getBySpace("readHelperConfig", "markAndCopyRef") &&
+      toolbar.push({
+        name: "markAndCopyRef",
+        icon: "iconStar",
+        tipPosition: "n",
+        tip: "标注并复制块引",
+        click: (protyle) => {
+          this.markAndCopyRef(protyle.protyle);
+        },
+      });
 
-    settings.getBySpace("readHelperConfig", "markAndCopyTextRef") && toolbar.push({
-      name: "markAndCopyTextRef",
-      icon: "iconUp",
-      tipPosition: "n",
-      tip: "标注并复制 Text*",
-      click: (protyle) => {
-        this.markAndCopyTextRef(protyle.protyle);
-      },
-    });
+    settings.getBySpace("readHelperConfig", "markAndCopyTextRef") &&
+      toolbar.push({
+        name: "markAndCopyTextRef",
+        icon: "iconUp",
+        tipPosition: "n",
+        tip: "标注并复制 Text*",
+        click: (protyle) => {
+          this.markAndCopyTextRef(protyle.protyle);
+        },
+      });
+    settings.getBySpace("readHelperConfig", "markAndCopyTextRefNoHighlight") &&
+      toolbar.push({
+        name: "markAndCopyTextRefNoHighlight",
+        icon: "iconDown",
+        tipPosition: "n",
+        tip: "标注并复制 *",
+        click: (protyle) => {
+          this.markAndCopyTextRefNoHighlight(protyle.protyle);
+        },
+      });
 
     return toolbar;
   }
 
+  private markAndCopyTextRefNoHighlight(protyle) {
+    protyle.toolbar.setInlineMark(protyle, "mark", "range");
+    const text = `((${this.getSelectedParentNodeId()} "*"))`;
+    navigator.clipboard.writeText(text);
+  }
   private markAndCopyRef(protyle) {
     protyle.toolbar.setInlineMark(protyle, "mark", "range");
-    const text = `((${this.getSelectedParentNodeId()} "${protyle.toolbar.range}"))`;
+    const text = `((${this.getSelectedParentNodeId()} "${
+      protyle.toolbar.range
+    }"))`;
     navigator.clipboard.writeText(text);
   }
 
