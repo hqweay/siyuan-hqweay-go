@@ -32,6 +32,7 @@ export function isToday(date: string): boolean {
 
 export async function generateChecksum(filePath: string, algorithm: string = 'sha256'): Promise<string> {
   const hash = crypto.createHash(algorithm);
+  //@ts-ignore
   const fileHandle = await fs.open(filePath, 'r');
   const buffer = Buffer.alloc(8192);
 

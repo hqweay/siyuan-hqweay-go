@@ -239,7 +239,7 @@ export default class MobileHelper {
     const customLinks = config.customLinks || "";
     const links = customLinks.split("\n").filter((line) => line.trim());
 
-    links.forEach(async (link) => {
+    links.forEach((link) => {
       const parts = link.split("====");
       if (parts.length >= 2) {
         const name = parts[0].trim();
@@ -247,6 +247,7 @@ export default class MobileHelper {
 
         const linkItem = document.createElement("a");
         linkItem.textContent = name;
+        linkItem.href = `${url}`;
         linkItem.style.cssText = `
           display: block;
           padding: 8px 16px;
@@ -256,45 +257,6 @@ export default class MobileHelper {
           text-align: center;
         `;
 
-        if (!url.toLowerCase().startsWith("select ")) {
-          linkItem.href = `${url}`;
-        } else {
-          const exeSQL = `select id from (${url}) ORDER BY RANDOM() limit 1`;
-          linkItem.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            try {
-              // 使用思源笔记的API执行SQL查询
-              const response = await fetch("/api/query/sql", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  stmt: exeSQL,
-                }),
-              });
-
-              if (response.ok) {
-                const data = await response.json();
-                if (data.data && data.data.length > 0) {
-                  const randomDocId = data.data[0].id;
-                  this.openDocById(randomDocId);
-                } else {
-                  console.error("随机查询未返回结果");
-                  showMessage(
-                    "随机查询未返回结果，请检查SQL语句",
-                    3000,
-                    "error"
-                  );
-                }
-              }
-            } catch (error) {
-              console.error("随机查询执行失败:", error);
-              showMessage("随机查询执行失败: " + error.message, 3000, "error");
-            }
-            // dropdown.style.display = "none";
-          });
-        }
         // linkItem.addEventListener("click", (e) => {
         //   e.stopPropagation();
         //   // window.open(url, "_blank");
@@ -443,9 +405,8 @@ export default class MobileHelper {
       const config = settings.get("mobileHelperConfig");
       const randomSql =
         config.randomSql ||
-        "SELECT id FROM blocks WHERE type = 'd'";
+        "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1";
 
-      const exeSQL = `select id from (${randomSql}) ORDER BY RANDOM() limit 1`;
       // 使用思源笔记的API执行SQL查询
       const response = await fetch("/api/query/sql", {
         method: "POST",
@@ -453,7 +414,7 @@ export default class MobileHelper {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          stmt: exeSQL,
+          stmt: randomSql,
         }),
       });
 

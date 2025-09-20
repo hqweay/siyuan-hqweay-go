@@ -2,12 +2,13 @@
 
 ## update
 
-- 新增在文档标题下展示自定义属性的值
-- 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。感谢 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
-- 新增 阅读帮助：toolbar 支持标注并复制块引
+- 新增移动端导航，方便移动端浏览：支持前进后退、随机跳转
 
 ## 支持：
 
+- 新增在文档标题下展示自定义属性的值
+- 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。感谢 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
+- 新增 阅读帮助：toolbar 支持标注并复制块引
 - 标题转换
   - 文档菜单打开事件增加标题转换
 - 增加代码片段合集 Demo。
