@@ -113,6 +113,7 @@ type doOperation = {
 
 interface Window {
   siyuan: {
+    mobile: any;
     config: any;
     layout: any;
     backStack: {

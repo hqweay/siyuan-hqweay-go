@@ -455,3 +455,8 @@ export async function version(): Promise<string> {
 export async function currentTime(): Promise<number> {
     return request('/api/system/currentTime', {});
 }
+export async function listDocsByPath(notebook: NotebookId, path: string) {
+    let url = '/api/filetree/listDocsByPath'
+    let payload = { notebook: notebook, path: path };
+    return request(url, payload);
+}

@@ -623,6 +623,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "showRandomButton",
           value: settings.getBySpace("mobileHelperConfig", "showRandomButton"),
         },
+         {
+          type: "checkbox",
+          title: "显示上下文按钮",
+          description: "在导航栏中显示上下文按钮",
+          key: "showContextButton",
+          value: settings.getBySpace("mobileHelperConfig", "showContextButton"),
+        },
 
         // {
         //   type: "textinput",

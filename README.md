@@ -2,7 +2,11 @@
 
 ## update
 
-- 新增移动端导航，方便移动端浏览：支持前进后退、随机跳转
+- 新增移动端导航，方便移动端浏览：
+  - 支持前进后退
+  - 随机跳转
+  - 配置跳转
+  - 上下文档切换（感谢[frostime/sy-f-misc](https://github.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)）
 
 ## 支持：
 
