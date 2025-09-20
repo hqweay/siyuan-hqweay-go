@@ -19,7 +19,11 @@ export default class DockLeft extends AddIconThenClick {
   }
 
   addIcon = () => {
-    const dockLeft = document.getElementById(`dockLeft`).firstChild;
+    const dockLeftEle = document.getElementById(`dockLeft`);
+    if (!dockLeftEle) {
+      return;
+    }
+    const dockLeft = dockLeftEle.firstChild;
 
     // 创建要插入的子元素
     let childElement = document.createElement("span");

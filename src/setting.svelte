@@ -143,6 +143,14 @@
           value: settings.getFlag("dockShowAndHide"),
           hasSetting: true,
         },
+        {
+          type: "checkbox",
+          title: "移动端助手",
+          description: "在移动端页面底部添加导航栏，支持前进、后退、随机跳转功能",
+          key: "mobileHelper",
+          value: settings.getFlag("mobileHelper"),
+          hasSetting: true,
+        },
       ],
       代码片段合集: plugin.codeSnippets.map((ele) => {
         return {
@@ -324,7 +332,10 @@ https://shibe.online/api/shibes?count=1`,
           title: "toolbar 新增标注并复制 * 格式块引",
           description: "toolbar 新增标注并复制块引",
           key: "markAndCopyTextRefNoHighlight",
-          value: settings.getBySpace("readHelperConfig", "markAndCopyTextRefNoHighlight"),
+          value: settings.getBySpace(
+            "readHelperConfig",
+            "markAndCopyTextRefNoHighlight"
+          ),
         },
       ],
       提取元素至新文档: [
@@ -582,6 +593,76 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: `custom-createdAt|创建时间\ncustom-updatedAt`,
         },
       ],
+      移动端助手: [
+        {
+          type: "checkbox",
+          title: "启用底部导航栏",
+          description: "在移动端页面底部显示导航栏",
+          key: "enableBottomNav",
+          value: settings.getBySpace("mobileHelperConfig", "enableBottomNav"),
+        },
+        {
+          type: "checkbox",
+          title: "显示后退按钮",
+          description: "在导航栏中显示后退按钮",
+          key: "showBackButton",
+          value: settings.getBySpace("mobileHelperConfig", "showBackButton"),
+        },
+        {
+          type: "checkbox",
+          title: "显示前进按钮",
+          description: "在导航栏中显示前进按钮",
+          key: "showForwardButton",
+          value: settings.getBySpace("mobileHelperConfig", "showForwardButton"),
+        },
+        {
+          type: "checkbox",
+          title: "显示随机按钮",
+          description: "在导航栏中显示随机跳转按钮",
+          key: "showRandomButton",
+          value: settings.getBySpace("mobileHelperConfig", "showRandomButton"),
+        },
+        {
+          type: "textinput",
+          title: "导航栏高度",
+          description: "设置导航栏的高度",
+          key: "navBarHeight",
+          value: settings.getBySpace("mobileHelperConfig", "navBarHeight"),
+          placeholder: "60px",
+        },
+        {
+          type: "textinput",
+          title: "背景颜色",
+          description: "设置导航栏的背景颜色",
+          key: "backgroundColor",
+          value: settings.getBySpace("mobileHelperConfig", "backgroundColor"),
+          placeholder: "#ffffff",
+        },
+        {
+          type: "textinput",
+          title: "按钮颜色",
+          description: "设置按钮的文字颜色",
+          key: "buttonColor",
+          value: settings.getBySpace("mobileHelperConfig", "buttonColor"),
+          placeholder: "#333333",
+        },
+        {
+          type: "textinput",
+          title: "激活按钮颜色",
+          description: "设置按钮激活时的颜色",
+          key: "activeButtonColor",
+          value: settings.getBySpace("mobileHelperConfig", "activeButtonColor"),
+          placeholder: "#007aff",
+        },
+        {
+          type: "textarea",
+          title: "随机SQL查询",
+          description: "设置随机按钮使用的SQL查询语句",
+          key: "randomSql",
+          value: settings.getBySpace("mobileHelperConfig", "randomSql"),
+          placeholder: "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
+        },
+      ],
     };
   };
 
@@ -590,6 +671,7 @@ https://shibe.online/api/shibes?count=1`,
   $: groups = [
     "开关",
     "设置",
+    // "移动端助手",
     ...SettingItems["开关"]
       .filter((item) => item.value === true && item.hasSetting)
       .map((item) => item.title),

@@ -1,5 +1,7 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
+import { plugin } from "@/utils";
+import { openTab } from "siyuan";
 
 export default class RandomNote extends AddIconThenClick {
   id = "hqweay-random-note";
@@ -15,9 +17,12 @@ export default class RandomNote extends AddIconThenClick {
     let res = await this.request("/api/query/sql", { stmt: sql });
 
     if (res) {
-      window.open("siyuan://blocks/" + res.data[0].root_id);
+      openTab({
+        app: plugin.app,
+        doc: {
+          id: (res as { data: { root_id: string }[] }).data[0].root_id,
+        },
+      });
     }
   }
 }
-
-

@@ -46,6 +46,9 @@ export default class AddIconThenClick {
 
   private addBarMode() {
     const barMode = document.getElementById("barMode");
+    if (!barMode) {
+      return;
+    }
     barMode.insertAdjacentHTML(
       "beforebegin",
       `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" ></div>`

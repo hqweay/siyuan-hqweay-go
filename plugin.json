@@ -4,21 +4,9 @@
   "url": "https://github.com/hqweay/siyuan-hqweay-go",
   "version": "0.9.3",
   "minAppVersion": "3.0.0",
-  "backends": [
-    "windows",
-    "linux",
-    "darwin",
-    "docker",
-    "android",
-    "ios"
-  ],
-  "frontends": [
-    "desktop",
-    "desktop-window",
-    "mobile",
-    "browser-desktop",
-    "browser-mobile"
-  ],
+  "disabledInPublish": false,
+  "backends": ["all"],
+  "frontends": ["all"],
   "displayName": {
     "en_US": "恐龙工具箱",
     "zh_CN": "恐龙工具箱"
@@ -34,7 +22,5 @@
   "funding": {
     "custom": []
   },
-  "keywords": [
-    "plugin"
-  ]
+  "keywords": ["plugin"]
 }

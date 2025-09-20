@@ -1,6 +1,6 @@
 import { fetchSyncPost } from "siyuan";
 import { deepMerge, plugin } from "./utils";
-import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
+// import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
 
 //配置文件名称
 export const CONFIG = "hqweay-go-config";
@@ -31,6 +31,7 @@ const DEFAULT_CONFIG = {
     adjustTitleLevel: false,
     codeSnippets: false,
     showCustomPropertiesUnderTitle: false,
+    mobileHelper: false,
   },
   codeSnippetsConfig: {},
   doOnPasteConfig: {
@@ -243,6 +244,17 @@ https://shibe.online/api/shibes?count=1`,
   showCustomPropertiesUnderTitleConfig: {
     customProperties: "custom-createdAt|创建时间",
   },
+  mobileHelperConfig:{
+    enableBottomNav: true,
+    showBackButton: true,
+    showForwardButton: true,
+    showRandomButton: true,
+    navBarHeight: "60px",
+    backgroundColor: "#ffffff",
+    buttonColor: "#333333",
+    activeButtonColor: "#007aff",
+    randomSql: "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1"
+  }
 };
 
 let mergedFlag = false;
@@ -304,6 +316,8 @@ class Settings {
   getBySpace(space: any, key: any, config = CONFIG) {
     return plugin.data[config] && plugin.data[config][space]?.[key];
   }
+
+  
 
   set(key: any, value: any, config = CONFIG) {
     plugin.data[config][key] = value;
