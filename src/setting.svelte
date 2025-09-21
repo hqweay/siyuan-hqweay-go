@@ -604,6 +604,13 @@ https://shibe.online/api/shibes?count=1`,
         },
         {
           type: "checkbox",
+          title: "导航栏只在首页展示",
+          description: "导航栏只在首页展示",
+          key: "navJustInMain",
+          value: settings.getBySpace("mobileHelperConfig", "navJustInMain"),
+        },
+        {
+          type: "checkbox",
           title: "显示后退按钮",
           description: "在导航栏中显示后退按钮",
           key: "showBackButton",
@@ -623,7 +630,7 @@ https://shibe.online/api/shibes?count=1`,
           key: "showRandomButton",
           value: settings.getBySpace("mobileHelperConfig", "showRandomButton"),
         },
-         {
+        {
           type: "checkbox",
           title: "显示上下文按钮",
           description: "在导航栏中显示上下文按钮",

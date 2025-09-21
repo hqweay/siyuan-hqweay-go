@@ -168,7 +168,7 @@
 
 {#if isMobile && enableBottomNav}
   <div
-    class="nav-bar"
+    class={`nav-bar ${!config.navJustInMain ? "not-just-main" : ""}`}
     style="--nav-height: {navBarHeight}; --bg-color: {backgroundColor}; --btn-color: {buttonColor}"
   >
     {#if showBackButton}
@@ -286,6 +286,9 @@
 {/if}
 
 <style>
+  .not-just-main {
+    z-index: 9999;
+  }
   .nav-bar {
     position: fixed;
     bottom: 0;
@@ -301,7 +304,6 @@
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
     box-sizing: border-box;
-    z-index: 9999;
   }
 
   .nav-button {
