@@ -31,10 +31,12 @@ export default class Read extends AddIconThenClick {
     const basicInfoResponse = await this.request("/api/query/sql", {
       stmt: `select * from blocks where id = '${detail.data.id}'`,
     });
+    //@ts-ignore
     const basicInfo = basicInfoResponse.data[0];
 
     let result = ``;
     if (res) {
+      //@ts-ignore
       res.data.forEach((element) => {
         // console.log(element);
 
@@ -85,10 +87,12 @@ export default class Read extends AddIconThenClick {
     const basicInfoResponse = await this.request("/api/query/sql", {
       stmt: `select * from blocks where id = '${detail.data.id}'`,
     });
+    //@ts-ignore
     const basicInfo = basicInfoResponse.data[0];
 
     let result = ``;
     if (res) {
+      //@ts-ignore
       res.data.forEach(async (element) => {
         // if (keepContext) {
         // result += `${element.markdown}\n\n`;

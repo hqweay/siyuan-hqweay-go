@@ -30,9 +30,9 @@
   let dropdownVisibleLinks = false;
   let dropdownVisibleContext = false;
 
-  function detectMobile() {
-    return isMobile;
-  }
+  // function detectMobile() {
+  //   return isMobile;
+  // }
 
   function openDocById(id) {
     openMobileFileById(plugin.app, id);
