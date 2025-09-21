@@ -69,7 +69,6 @@ export default class PluginGo extends Plugin {
     settings.getFlag("dockShowAndHide") &&
       this.dockShowAndHidePlugin.switchProtyleEvent({ detail });
 
-      console.log(settings.getFlag("mobileHelper"));
     // settings.getFlag("mobileHelper") &&
     //   this.mobileHelperPlugin.switchProtyleEvent({ detail });
   }
@@ -127,9 +126,7 @@ export default class PluginGo extends Plugin {
         ele.onload();
       });
 
-    if (settings.getFlag("mobileHelper")) {
-      this.mobileHelperPlugin.onload();
-    }
+    settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
 
     //这里注入CSS和JS
     settings.getFlag("codeSnippets") &&
@@ -155,6 +152,8 @@ export default class PluginGo extends Plugin {
     settings.getFlag("memo") && this.memoPlugin.onload();
     settings.getFlag("showCustomPropertiesUnderTitle") &&
       this.showCustomPropertiesUnderTitle.onload();
+
+    settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
   }
 
   //卸载逻辑
