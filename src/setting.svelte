@@ -686,7 +686,7 @@ https://shibe.online/api/shibes?count=1`,
           type: "textarea",
           title: "自定义链接菜单",
           description:
-            "格式：项目名1====链接1<br/>项目名2====链接2<br/>多个项目以换行分隔<br/>当项目名以「💾」开头时，链接配置为数据库id，支持一键添加到数据库",
+            "格式：项目名1====链接1<br/>项目名2====链接2<br/>多个项目以换行分隔<br/>当项目名以「💾」开头时，链接配置为【数据库块id】，支持一键添加到数据库",
           key: "customLinks",
           value: settings.getBySpace("mobileHelperConfig", "customLinks"),
           placeholder:
