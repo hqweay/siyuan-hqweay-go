@@ -113,6 +113,7 @@ type doOperation = {
 
 interface Window {
   siyuan: {
+    isPublish: any;
     mobile: any;
     config: any;
     layout: any;

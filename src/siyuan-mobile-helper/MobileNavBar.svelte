@@ -1,12 +1,18 @@
 <script lang="ts">
   import { onMount, onDestroy } from "svelte";
   import { openMobileFileById, showMessage } from "siyuan";
-  import { plugin } from "@/utils";
-  import { goToSibling } from "@/myscripts/navUtil";
+  import { plugin, isMobile } from "@/utils";
+  import {
+    getMobileCurrentDocId,
+    goToChild,
+    goToParent,
+    goToSibling,
+  } from "@/myscripts/navUtil";
+  import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 
   export let config;
 
-  let isMobile = false;
+  // let isMobile = false;
   let forwardStack = [];
   let navBarHeight = config.navBarHeight || "60px";
   let backgroundColor = config.backgroundColor || "#ffffff";
@@ -24,13 +30,7 @@
   let dropdownVisibleContext = false;
 
   function detectMobile() {
-    return (
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      ) ||
-      window.innerWidth <= 768 ||
-      document.documentElement.clientWidth <= 768
-    );
+    return isMobile;
   }
 
   function openDocById(id) {
@@ -74,7 +74,7 @@
       // 取当前主活动标签Ò
 
       forwardStack.push({
-        id: window.siyuan.mobile.editor.protyle.block.id,
+        id: getMobileCurrentDocId(),
       });
 
       // const prevDoc = window.siyuan.backStack.pop();
@@ -134,11 +134,26 @@
     } else {
       window.open(url, "_blank");
     }
-    closeDropdownLinks();
+    // closeDropdownLinks();
+  }
+
+  async function handleAddToDatabase(url: any) {
+    // const dbHelper = new SiyuanDatabaseHelper(url);
+    // const success = await dbHelper.bindBlocks([getMobileCurrentDocId()]);
+    // console.log("绑定块结果:", success ? "成功" : "失败");
+
+    // const avHelper = await new SiyuanAVHelper(url);
+    // await avHelper.addBlocks([getMobileCurrentDocId()]);
+    try {
+      const avHelper = await createSiyuanAVHelper(url);
+      await avHelper.addBlocks([getMobileCurrentDocId()]);
+    } catch (error) {
+      console.error("初始化或操作失败:", error);
+    }
   }
 
   onMount(() => {
-    isMobile = detectMobile();
+    // isMobile = detectMobile();
     document.addEventListener("click", closeDropdownLinks);
     document.addEventListener("click", closeDropdownContext);
     document.body.style.paddingBottom = `${parseInt(navBarHeight) + 10}px`;
@@ -186,6 +201,12 @@
           <a
             href="javascript:void(0)"
             class="dropdown-item"
+            on:click|stopPropagation={async () => await goToParent()}>父文档</a
+          >
+          <!-- svelte-ignore a11y-invalid-attribute -->
+          <a
+            href="javascript:void(0)"
+            class="dropdown-item"
             on:click|stopPropagation={async () => await goToSibling(-1)}
             >上一篇文档</a
           >
@@ -195,6 +216,12 @@
             class="dropdown-item"
             on:click|stopPropagation={async () => await goToSibling(1)}
             >下一篇文档</a
+          >
+          <!-- svelte-ignore a11y-invalid-attribute -->
+          <a
+            href="javascript:void(0)"
+            class="dropdown-item"
+            on:click|stopPropagation={async () => await goToChild()}>子文档</a
           >
         </div>
       {/if}
@@ -230,11 +257,19 @@
                   {@const name = parts[0].trim()}
                   {@const url = parts[1].trim()}
                   <a
-                    href={url.toLowerCase().startsWith("select ")
+                    href={url.toLowerCase().startsWith("select ") ||
+                    name.startsWith("💾")
                       ? "javascript:void(0)"
                       : url}
                     class="dropdown-item"
-                    on:click|stopPropagation={() => handleCustomLinkClick(url)}
+                    on:click|stopPropagation={() => {
+                      if (name.startsWith("💾")) {
+                        // 触发添加到数据库的方法
+                        handleAddToDatabase(url);
+                      } else {
+                        handleCustomLinkClick(url);
+                      }
+                    }}
                   >
                     {name}
                   </a>
@@ -316,7 +351,7 @@
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 8px 0;
-    min-width: 150px;
+    min-width: 100px;
     z-index: 1000;
     max-height: 300px;
     overflow-y: auto;

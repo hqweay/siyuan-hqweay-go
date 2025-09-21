@@ -2,24 +2,24 @@ import { getBlockByID, listDocsByPath } from "@/api";
 import { plugin } from "@/utils";
 
 import { openMobileFileById, showMessage } from "siyuan";
-export function getActiveDoc() {
-  let tab = document.querySelector(
-    "div.layout__wnd--active ul.layout-tab-bar>li.item--focus"
-  );
-  let dataId: string = tab?.getAttribute("data-id");
-  if (!dataId) {
-    return null;
-  }
-  const activeTab: HTMLDivElement = document.querySelector(
-    `.layout-tab-container.fn__flex-1>div.protyle[data-id="${dataId}"]`
-  ) as HTMLDivElement;
-  if (!activeTab) {
-    return;
-  }
-  const eleTitle = activeTab.querySelector(".protyle-title");
-  let docId = eleTitle?.getAttribute("data-node-id");
-  return docId;
-}
+// export function getActiveDoc() {
+//   let tab = document.querySelector(
+//     "div.layout__wnd--active ul.layout-tab-bar>li.item--focus"
+//   );
+//   let dataId: string = tab?.getAttribute("data-id");
+//   if (!dataId) {
+//     return null;
+//   }
+//   const activeTab: HTMLDivElement = document.querySelector(
+//     `.layout-tab-container.fn__flex-1>div.protyle[data-id="${dataId}"]`
+//   ) as HTMLDivElement;
+//   if (!activeTab) {
+//     return;
+//   }
+//   const eleTitle = activeTab.querySelector(".protyle-title");
+//   let docId = eleTitle?.getAttribute("data-node-id");
+//   return docId;
+// }
 export const listChildDocs = async (doc: any) => {
   let data = await listDocsByPath(doc.box, doc.path);
   // console.log(data);
@@ -66,10 +66,65 @@ export const goToSibling = async (delta: -1 | 1) => {
   openMobileFileById(plugin.app, siblings[newIndex].id);
   // postAction();
 };
+async function getParentDocument(path: string) {
+  let pathArr = path.split("/").filter((item) => item != "");
+  pathArr.pop();
+  if (pathArr.length == 0) {
+    return null;
+  } else {
+    let id = pathArr[pathArr.length - 1];
+    return getBlockByID(id);
+  }
+}
+export const goToParent = async () => {
+  let docId = getMobileCurrentDocId();
+  if (!docId) return;
+  let doc = await getBlockByID(docId);
+  let parent = await getParentDocument(doc.path);
+  if (!parent) {
+    showMessage("无父文档");
+    return;
+  }
+
+  // let postAction = speedControl();
+
+  openMobileFileById(plugin.app, parent.id);
+
+  // openTab({
+  //   app: plugin.app,
+  //   doc: {
+  //     id: parent.id,
+  //   },
+  // });
+  // postAction();
+};
+
+export const goToChild = async () => {
+  let docId = getMobileCurrentDocId();
+  if (!docId) return;
+
+  let doc = await getBlockByID(docId);
+  let children = await listChildDocs(doc);
+  if (children.length === 0) {
+    showMessage("无子文裆");
+    return;
+  }
+
+  // let postAction = speedControl();
+  openMobileFileById(plugin.app, children[0].id);
+  // openTab({
+  //   app: plugin.app,
+  //   doc: {
+  //     id: children[0].id,
+  //   },
+  // });
+  // postAction();
+};
 
 export function getMobileCurrentDocId() {
-  const editor = document.querySelector("#editor");
-  if (!editor) return;
-  const eleTitle = editor.querySelector(".protyle-content .protyle-title");
-  return eleTitle?.getAttribute("data-node-id");
+  // const editor = document.querySelector("#editor");
+  // if (!editor) return;
+  // const eleTitle = editor.querySelector(".protyle-content .protyle-title");
+  // return eleTitle?.getAttribute("data-node-id");
+  return window.siyuan.mobile.editor.protyle.block.id;
 }

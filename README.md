@@ -7,6 +7,7 @@
   - 随机跳转
   - 配置跳转
   - 上下文档切换（感谢[frostime/sy-f-misc](https://github.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)）
+  - 可配置快捷添加到数据库（感谢[wilsons](https://ld246.com/article/1746153210116)）
 
 ## 支持：
 
