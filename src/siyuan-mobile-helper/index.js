@@ -22,6 +22,19 @@ export default class MobileHelper {
     }
   }
 
+  // @ts-ignore
+  mobilekeyboardshowEvent({ detail }) {
+    if (this.navComponent) {
+      this.navComponent.$set({ visible: false });
+    }
+  }
+  // @ts-ignore
+  mobilekeyboardhideEvent({ detail }) {
+    if (this.navComponent) {
+      this.navComponent.$set({ visible: true });
+    }
+  }
+
   detectMobile() {
     return (
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -49,6 +62,7 @@ export default class MobileHelper {
     this.navComponent = new MobileNavBar({
       target,
       props: {
+        visible: true,
         config: {
           ...config,
           // Add any additional props if needed

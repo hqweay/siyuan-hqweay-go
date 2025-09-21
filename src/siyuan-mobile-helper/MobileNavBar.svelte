@@ -10,6 +10,7 @@
   } from "@/myscripts/navUtil";
   import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 
+  export let visible = true;
   export let config;
 
   // let isMobile = false;
@@ -166,7 +167,7 @@
   });
 </script>
 
-{#if isMobile && enableBottomNav}
+{#if isMobile && enableBottomNav && visible}
   <div
     class={`nav-bar ${!config.navJustInMain ? "not-just-main" : ""}`}
     style="--nav-height: {navBarHeight}; --bg-color: {backgroundColor}; --btn-color: {buttonColor}"

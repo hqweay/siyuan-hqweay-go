@@ -28,6 +28,10 @@ export default class PluginGo extends Plugin {
   private blockIconEventBindThis = this.blockIconEvent.bind(this);
   private switchProtyleEventBindThis = this.switchProtyleEvent.bind(this);
   private editortitleiconEventBindThis = this.editortitleiconEvent.bind(this);
+  private mobilekeyboardshowEventBindThis =
+    this.mobilekeyboardshowEvent.bind(this);
+  private mobilekeyboardhideEventBindThis =
+    this.mobilekeyboardhideEvent.bind(this);
 
   private sendToPlugin = new SendTo();
   private hrefToRefPlugin = new HrefToRef();
@@ -62,6 +66,16 @@ export default class PluginGo extends Plugin {
 
     settings.getFlag("read") &&
       this.readPlugin.editortitleiconEvent({ detail });
+  }
+
+  mobilekeyboardshowEvent({ detail }: any) {
+    settings.getFlag("mobileHelper") &&
+      this.mobileHelperPlugin.mobilekeyboardshowEvent({ detail });
+  }
+
+  mobilekeyboardhideEvent({ detail }: any) {
+    settings.getFlag("mobileHelper") &&
+      this.mobileHelperPlugin.mobilekeyboardhideEvent({ detail });
   }
 
   //编辑器切换事件
@@ -145,6 +159,15 @@ export default class PluginGo extends Plugin {
     this.eventBus.on(
       "click-editortitleicon",
       this.editortitleiconEventBindThis
+    );
+
+    this.eventBus.on(
+      "mobile-keyboard-show",
+      this.mobilekeyboardshowEventBindThis
+    );
+    this.eventBus.on(
+      "mobile-keyboard-hide",
+      this.mobilekeyboardhideEventBindThis
     );
 
     settings.getFlag("doOnPaste") && this.doOnPastePlugin.onload();
