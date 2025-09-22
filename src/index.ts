@@ -104,23 +104,31 @@ export default class PluginGo extends Plugin {
 
   //App 准备好时加载
   async onLayoutReady() {
-    settings.getFlag("randomNote") && this.randomNotePlugin.onload();
     settings.getFlag("randomHeaderImage") && this.randomImagePlugin.onload();
     settings.getFlag("randomHeaderImage") &&
       this.eventBus.on("loaded-protyle-static", (event) => {
         this.randomImagePlugin.setEvent(event);
       });
-    settings.getFlag("typography") && this.typographyPlugin.onload();
     settings.getFlag("typography") &&
       this.eventBus.on("loaded-protyle-static", (event) => {
         this.typographyPlugin.setEvent(event);
       });
-
     settings.getFlag("dockShowAndHide") &&
       this.dockShowAndHidePlugin.onLayoutReady();
 
-    settings.getFlag("voiceNotes") && this.voiceNotesPlugin.onload();
+    //这里注入CSS和JS
+    settings.getFlag("codeSnippets") &&
+      (await this.getCodeSnippets()) &&
+      this.insertCss.onLayoutReady();
 
+    this.showMoreIconsOnBar();
+  }
+
+  // 在边栏上注入的图标在onLayoutReady执行；为了避免同步插件配置改变后会执行 unload 逻辑，因此 load 需要再执行一下。
+  showMoreIconsOnBar() {
+    settings.getFlag("randomNote") && this.randomNotePlugin.onload();
+    settings.getFlag("typography") && this.typographyPlugin.onload();
+    settings.getFlag("voiceNotes") && this.voiceNotesPlugin.onload();
     this.dockLeftPlugins =
       settings.getFlag("dockLeft") &&
       settings
@@ -139,13 +147,7 @@ export default class PluginGo extends Plugin {
       this.dockLeftPlugins.forEach((ele) => {
         ele.onload();
       });
-
     settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
-
-    //这里注入CSS和JS
-    settings.getFlag("codeSnippets") &&
-      (await this.getCodeSnippets()) &&
-      this.insertCss.onLayoutReady();
   }
 
   //App 启动时加载
@@ -176,7 +178,7 @@ export default class PluginGo extends Plugin {
     settings.getFlag("showCustomPropertiesUnderTitle") &&
       this.showCustomPropertiesUnderTitle.onload();
 
-    settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
+    this.showMoreIconsOnBar();
   }
 
   //卸载逻辑
