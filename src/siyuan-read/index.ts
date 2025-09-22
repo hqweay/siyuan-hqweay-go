@@ -1,7 +1,5 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
-import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
-import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 
 export default class Read extends AddIconThenClick {

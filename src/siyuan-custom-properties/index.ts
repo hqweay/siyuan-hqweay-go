@@ -2,7 +2,7 @@ import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
 
 export default class ShowCustomPropertiesUnderTitle extends InsertCSS {
-  id = "show-custom-properties-under-title-hqweay";
+  id = "snippetCSS-hqweay-show-custom-properties-under-title";
 
   onload() {
     const customProperties = settings.getBySpace(

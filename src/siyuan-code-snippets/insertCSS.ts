@@ -11,8 +11,8 @@ export default class InsertCSS {
 
     // 遍历所有 style 元素
     styles.forEach((style) => {
-      // 检查 id 是否以 'code-snippets-' 开头
-      if (style.id && style.id.startsWith("code-snippets-")) {
+      // 检查 id 是否以 'snippetCSS-hqweay-' 开头
+      if (style.id && style.id.startsWith("snippetCSS-hqweay-")) {
         // 如果是，则从 DOM 中移除该元素
         style.remove();
       }
@@ -39,7 +39,7 @@ export default class InsertCSS {
   //   });
 
   //   let styleElement = document.createElement("style");
-  //   styleElement.id = `code-snippets-${cssConfig.author}-${cssConfig.title}`;
+  //   styleElement.id = `snippetCSS-hqweay-${cssConfig.author}-${cssConfig.title}`;
   //   let cssSnippetContent = await getFileContent(
   //     `/data/plugins/siyuan-code-snippets/${cssConfig.path}`
   //   );
@@ -56,7 +56,7 @@ export default class InsertCSS {
     console.log(cssConfig);
 
     let styleElement = document.createElement("style");
-    styleElement.id = `code-snippets-${cssConfig.id}`;
+    styleElement.id = `snippetCSS-hqweay-${cssConfig.id}`;
 
     styleElement.textContent += cssConfig.code;
     document.head.appendChild(styleElement);
@@ -64,7 +64,7 @@ export default class InsertCSS {
   async onunloadCSSByID(id) {
     console.log("onunload");
     console.log(id);
-    const styleElement = document.getElementById(`code-snippets-${id}`);
+    const styleElement = document.getElementById(`snippetCSS-hqweay-${id}`);
 
     if (styleElement) {
       styleElement.remove();
@@ -79,7 +79,7 @@ export default class InsertCSS {
     });
 
     const styleElement = document.getElementById(
-      `code-snippets-${cssConfig.author}-${cssConfig.title}`
+      `snippetCSS-hqweay-${cssConfig.author}-${cssConfig.title}`
     );
 
     if (styleElement) {
@@ -90,7 +90,7 @@ export default class InsertCSS {
 
   async insertSingleCSS(cssConfig) {
     let styleElement = document.createElement("style");
-    styleElement.id = `code-snippets-${cssConfig.author}-${cssConfig.title}`;
+    styleElement.id = `snippetCSS-hqweay-${cssConfig.author}-${cssConfig.title}`;
     let cssSnippetContent = await getFileContent(
       `/data/plugins/siyuan-code-snippets/${cssConfig.path}`
     );
@@ -108,7 +108,7 @@ export default class InsertCSS {
     cssSnippets.data.forEach(async (cssSnippet) => {
       if (cssSnippet.name.endsWith(".css")) {
         let styleElement = document.createElement("style");
-        styleElement.id = `code-snippets-${cssSnippet.name}`;
+        styleElement.id = `snippetCSS-hqweay-${cssSnippet.name}`;
         let cssSnippetContent = await getFileContent(
           `/data/plugins/siyuan-code-snippets/cssSnippets/${cssSnippet.name}`
         );

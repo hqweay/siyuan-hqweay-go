@@ -2,7 +2,7 @@ import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
 
 export default class Memo extends InsertCSS {
-  id = "myStyles-hqweay";
+  id = "snippetCSS-hqweay-memo";
 
   onload() {
     const dataID = settings.getBySpace("memoConfig", "id");
