@@ -21,6 +21,15 @@
         },
         {
           type: "checkbox",
+          title: "创建指定日期日记",
+          description:
+            "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；目前不支持使用日记模板",
+          key: "createDailyNote",
+          value: settings.getFlag("createDailyNote"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "VoiceNotes 同步",
           description: "同步 VoiceNotes 的笔记：https://voicenotes.com",
           key: "voiceNotes",
@@ -172,6 +181,16 @@
           hasSetting: true,
         };
       }),
+      创建指定日期日记: [
+        {
+          type: "textinput",
+          title: "创建日记的笔记本id",
+          description: "",
+          key: "notebook",
+          value: settings.getBySpace("createDailyNoteConfig", "noteBookID"),
+          placeholder: "20240330144726-gs2xey6",
+        },
+      ],
       粘贴时对数据预处理: [
         {
           type: "checkbox",

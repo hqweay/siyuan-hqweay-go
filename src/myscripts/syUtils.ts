@@ -17,30 +17,36 @@ async function renderSprigTemplate(template: string): Promise<string> {
 }
 
 /**
- * 主方法：传入笔记本ID，返回渲染后的日记路径
+ * 主方法：传入笔记本ID和日期字符串，返回渲染后的日记路径
+ * @param notebook 笔记本ID
+ * @param dateString 日期字符串（格式：YYYY-MM-DD）
  */
 export async function getRenderedDailyNotePath(
-  notebook: string
+  notebook: string,
+  dateString: string = new Date().toISOString().slice(0, 10) // 默认使用当天
 ): Promise<string> {
   try {
-    // 1. 获取模板路径
+    // 1. 获取日记存放模板路径
     const template = await getDailyNoteTemplate(notebook);
-    if (!template) throw new Error("未配置日记模板路径");
+    if (!template) throw new Error("未配置日记存放模板路径");
 
-    // 2. 渲染模板
-    const renderedPath = await renderSprigTemplate(template);
-    if (!renderedPath) throw new Error("模板渲染失败");
+    // 2. 将模板中的 now 替换为指定日期
+    const dateAwareTemplate = template.replace(
+      /now/g,
+      `"${dateString}" | toDate "2006-01-02"`
+    );
+
+    // 3. 渲染日记存放模板
+    const renderedPath = await renderSprigTemplate(dateAwareTemplate);
+    if (!renderedPath) throw new Error("日记存放模板渲染失败");
 
     return renderedPath;
   } catch (error) {
     console.error("获取日记路径失败:", error);
-    // 降级方案：返回默认渲染路径
-    const defaultPath = await renderSprigTemplate(
-      '/daily note/{{now | date "2006/01"}}/{{now | date "2006-01-02"}}'
-    );
-    return (
-      defaultPath || `/daily note/${new Date().toISOString().slice(0, 10)}`
-    );
+    // 降级方案：返回默认渲染路径（使用指定日期）
+    const defaultTemplate = `/daily note/{{ "${dateString}" | toDate "2006-01-02" | date "2006/01"}}/{{ "${dateString}" | toDate "2006-01-02" | date "2006-01-02"}}`;
+    const defaultPath = await renderSprigTemplate(defaultTemplate);
+    return defaultPath || `/daily note/${dateString}`;
   }
 }
 
