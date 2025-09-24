@@ -7,7 +7,6 @@ import {
 } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
 export const loadSlashOfCreateDailyNote = () => {
-  const config = settings.get("createDailyNoteConfig");
   addProtyleSlash({
     filter: ["cdn"],
     html: "创建日记引用",
@@ -16,6 +15,7 @@ export const loadSlashOfCreateDailyNote = () => {
       datePickerDialog({
         title: "选择日记",
         confirm: async (choosedDate) => {
+          const config = settings.get("createDailyNoteConfig");
           const choosedDatePure = choosedDate.replace(/-/g, "");
 
           let dailyNoteId = await isdailyNoteExists(

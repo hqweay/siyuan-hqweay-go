@@ -186,7 +186,7 @@
           type: "textinput",
           title: "创建日记的笔记本id",
           description: "",
-          key: "notebook",
+          key: "noteBookID",
           value: settings.getBySpace("createDailyNoteConfig", "noteBookID"),
           placeholder: "20240330144726-gs2xey6",
         },
