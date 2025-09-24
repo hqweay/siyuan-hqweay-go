@@ -27,7 +27,7 @@
 </script>
 
 {#if type === "textarea"}
-  <label class="fn__flex-column b3-label">
+  <label class="fn__flex-column b3-label" style="min-height: unset;">
     <div>
       {title}
       <div class="b3-label__text">
@@ -114,6 +114,10 @@
           bind:value={settingValue}
           on:change={changed}
         />
+      </div>
+    {:else if type == "detail"}
+      <div class="b3-tooltips b3-tooltips__n" aria-label={settingValue}>
+        <!-- {description} -->
       </div>
     {/if}
   </label>

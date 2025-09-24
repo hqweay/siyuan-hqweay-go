@@ -147,9 +147,18 @@
           type: "checkbox",
           title: "移动端助手",
           description:
-            "在移动端页面底部添加导航栏，支持前进、后退、随机跳转功能",
+            "在移动端页面底部添加导航栏，支持前进、后退、随机跳转等功能",
           key: "mobileHelper",
           value: settings.getFlag("mobileHelper"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
+          title: "其它",
+          description:
+            "一些自用项目，没有或者比较难拆分为配置，感兴趣的可以自己扒源码用……",
+          key: "other",
+          value: settings.getFlag("other"),
           hasSetting: true,
         },
       ],
@@ -698,6 +707,14 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("mobileHelperConfig", "customLinks"),
           placeholder:
             "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D\n养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n💾写作数据库====20250914152149-1emaqok",
+        },
+      ],
+
+      其它: [
+        {
+          type: "detail",
+          title: "一些 slash",
+          description: "格式化当前块；快捷创建某天日记并插入块引",
         },
       ],
     };

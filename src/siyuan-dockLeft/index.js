@@ -24,6 +24,7 @@ export default class DockLeft extends AddIconThenClick {
       return;
     }
     const dockLeft = dockLeftEle.firstChild;
+    if (!dockLeft) return;
 
     // 创建要插入的子元素
     let childElement = document.createElement("span");
