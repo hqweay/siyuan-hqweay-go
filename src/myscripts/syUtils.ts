@@ -50,17 +50,17 @@ export async function getRenderedDailyNotePath(
   }
 }
 
-export async function isdailyNoteExists(dateStr) {
+export async function isdailyNoteExists(dateStr, booknoteID) {
+  // 存在多个日记的情况下取一条
   const data = {
     stmt: `
       select distinct B.* from blocks as B join attributes as A
     on B.id = A.block_id
-    where A.name = 'custom-dailynote-${dateStr}'
+    where A.name = 'custom-dailynote-${dateStr}' and A.box = '${booknoteID}'
     limit 1
     `,
   };
-  const url = "/api/query/sql";
-  return request(url, data).then(function (data) {
+  return request("/api/query/sql", data).then(function (data) {
     return data && data.length >= 1 ? data[0].id : "";
   });
 }

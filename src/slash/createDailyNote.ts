@@ -18,7 +18,10 @@ export const loadSlashOfCreateDailyNote = () => {
         confirm: async (choosedDate) => {
           const choosedDatePure = choosedDate.replace(/-/g, "");
 
-          let dailyNoteId = await isdailyNoteExists(choosedDatePure);
+          let dailyNoteId = await isdailyNoteExists(
+            choosedDatePure,
+            config.noteBookID
+          );
           if (dailyNoteId) {
             event.insert(`((${dailyNoteId} "${choosedDate}"))`, false, false);
           } else {
