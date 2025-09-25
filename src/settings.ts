@@ -36,6 +36,7 @@ const DEFAULT_CONFIG = {
   codeSnippetsConfig: {},
   doOnPasteConfig: {
     title: true,
+    recAnno: false,
     // emptyLine: true,
   },
   sendToConfig: {

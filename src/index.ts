@@ -107,14 +107,13 @@ export default class PluginGo extends Plugin {
   //App 准备好时加载
   async onLayoutReady() {
     settings.getFlag("randomHeaderImage") && this.randomImagePlugin.onload();
-    settings.getFlag("randomHeaderImage") &&
-      this.eventBus.on("loaded-protyle-static", (event) => {
+
+    this.eventBus.on("loaded-protyle-static", (event) => {
+      settings.getFlag("randomHeaderImage") &&
         this.randomImagePlugin.setEvent(event);
-      });
-    settings.getFlag("typography") &&
-      this.eventBus.on("loaded-protyle-static", (event) => {
-        this.typographyPlugin.setEvent(event);
-      });
+      settings.getFlag("typography") && this.typographyPlugin.setEvent(event);
+    });
+
     settings.getFlag("dockShowAndHide") &&
       this.dockShowAndHidePlugin.onLayoutReady();
 

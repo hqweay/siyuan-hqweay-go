@@ -32,6 +32,7 @@
     "vite-plugin-zip-pack": "^1.0.5"
   },
   "dependencies": {
+    "@frostime/siyuan-plugin-kits": "^1.5.14",
     "@siyuan-community/siyuan-sdk": "^0.3.14",
     "html2canvas-pro": "^1.4.3",
     "jinja-js": "^0.1.8",

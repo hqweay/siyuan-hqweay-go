@@ -9,22 +9,28 @@ export default class doOnPaste {
   }
 
   public async onload() {
-    if (
-      !settings.getBySpace("doOnPasteConfig", "title")
-      // && !settings.getBySpace("doOnPasteConfig", "emptyLine")
-    ) {
+    if (!settings.getBySpace("pluginFlag", "doOnPaste")) {
       return;
     }
+
     plugin.eventBus.on("paste", async (event: any) => {
+      event.preventDefault();
+
       if (
         settings.getBySpace("doOnPasteConfig", "title") &&
-        (await this.getTitle(event)) === true
+        (await this.getTitle(event))
       ) {
-        // } else if (
-        //   settings.getBySpace("doOnPasteConfig", "emptyLine") &&
-        //   (await this.emptyLine(event)) === true
-        // ) {
+        return;
       }
+
+      settings.getBySpace("doOnPasteConfig", "recAnno") &&
+        this.execRecAnno(event);
+
+      event.detail.resolve({
+        textPlain: event.detail.textPlain,
+        textHTML: event.detail.textHTML,
+        siyuanHTML: event.detail.siyuanHTML,
+      });
     });
   }
 
@@ -35,14 +41,20 @@ export default class doOnPaste {
     if (clipboardText.match(pattern)) {
       //阻止冒泡
       event.stopPropagation();
-      console.log(clipboardText);
       clipboardText = clipboardText.replace(pattern, replacement);
-      console.log(clipboardText);
       // document.execCommand("insertText", false, clipboardText);
       showMessage("粘贴时清理空行");
       return true;
     }
     return false;
+  }
+  private async execRecAnno(event) {
+    const regex = /<<([^>]+)\s+"([^"]+)">>\n!\[\]\(([^)]+)\)/g;
+    const replaced = event.detail.textPlain
+      .trim()
+      .replace(regex, '![]($3)<<$1 "📌">>');
+    event.detail.textPlain = replaced;
+    return true;
   }
   private async getTitle(event) {
     if (!navigator.onLine) {
@@ -52,23 +64,17 @@ export default class doOnPaste {
     if (!CheckIf.isUrl(clipboardText) || CheckIf.isImage(clipboardText)) {
       return false;
     }
-    //阻止默认行为：如果是 URL 则不直接粘贴，而是尝试获取标题
-    event.preventDefault();
-
-    // 插入一个占位符
     document.execCommand("insertText", false, `[fetching...]`);
-    //阻止冒泡
-    //   event.stopPropagation();
+
+    // event.detail.resolve();
     let title = await new AutoLinkTitleUtil().convertUrlToTitledLink(
       clipboardText
     );
     //撤销占位符
     event.detail.protyle.undo.undo(event.detail.protyle);
-
     title = title ? title : clipboardText;
-    // event.detail.textPlain = `[${title}](${clipboardText})`;
     document.execCommand("insertText", false, `[${title}](${clipboardText})`);
+
     return true;
-    // return `[${title}](${clipboardText})`;
   }
 }

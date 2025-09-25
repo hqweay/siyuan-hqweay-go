@@ -72,8 +72,7 @@
         {
           type: "checkbox",
           title: "粘贴时对数据预处理",
-          description:
-            "现在支持 粘贴链接时自动获取标题并以 markdown 形式的链接粘贴；",
+          description: "获取链接标题；矩形标注粘贴优化；",
           key: "doOnPaste",
           value: settings.getFlag("doOnPaste"),
           hasSetting: true,
@@ -198,6 +197,13 @@
           description: "",
           key: "title",
           value: settings.getBySpace("doOnPasteConfig", "title"),
+        },
+        {
+          type: "checkbox",
+          title: "矩形标注粘贴时转为「图片📌」",
+          description: "",
+          key: "recAnno",
+          value: settings.getBySpace("doOnPasteConfig", "recAnno"),
         },
         //  {
         //   type: "checkbox",
