@@ -181,11 +181,13 @@ export default class PluginGo extends Plugin {
     settings.getFlag("showCustomPropertiesUnderTitle") &&
       this.showCustomPropertiesUnderTitle.onload();
 
-    settings.getFlag("createDailyNote") && loadSlashOfCreateDailyNote();
-
-    settings.getFlag("createDailyNote") && quickNoteOnload(this);
+    settings.getBySpace("createDailyNoteConfig", "slashDiaryNote") &&
+      loadSlashOfCreateDailyNote();
+    settings.getBySpace("createDailyNoteConfig", "quickInput") &&
+      quickNoteOnload(this);
 
     loadSlash();
+
     this.showMoreIconsOnBar();
   }
 
