@@ -267,6 +267,25 @@ https://shibe.online/api/shibes?count=1`,
     slashDiaryNote: true,
     quickInput: true,
   },
+  quickAttrConfig: {
+    attrs: `[
+  {
+    name: "转换为表格",
+    key: "f",
+    value: "bg",
+  },
+  {
+    name: "转换为导图",
+    key: "f",
+    value: "dt",
+  },
+  {
+    name: "转换为时间线",
+    key: "f",
+    value: "timeline",
+  },
+]`,
+  },
 };
 
 let mergedFlag = false;

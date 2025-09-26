@@ -29,6 +29,14 @@
         },
         {
           type: "checkbox",
+          title: "快捷添加属性",
+          description: `快捷添加属性；默认支持转换列表为表格等视图`,
+          key: "quickAttr",
+          value: settings.getFlag("quickAttr"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "VoiceNotes 同步",
           description: "同步 VoiceNotes 的笔记：https://voicenotes.com",
           key: "voiceNotes",
@@ -179,6 +187,16 @@
           hasSetting: true,
         };
       }),
+      快捷添加属性: [
+        {
+          type: "textarea",
+          title: "配置",
+          description: "",
+          key: "attrs",
+          value: settings.getBySpace("quickAttrConfig", "attrs"),
+          placeholder: "",
+        },
+      ],
       日记相关工具: [
         {
           type: "textinput",

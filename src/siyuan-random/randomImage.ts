@@ -12,8 +12,7 @@ export default class RandomImage {
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
-  onload() {
-    console.log();
+  onLayoutReady() {
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
   setEvent(event) {
