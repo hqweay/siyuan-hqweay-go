@@ -1,3 +1,5 @@
+import { Dialog } from "siyuan";
+
 //日期选择器
 export const datePickerDialog = (args: {
   title: string;

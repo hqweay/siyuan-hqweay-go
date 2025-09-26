@@ -22,8 +22,7 @@
         {
           type: "checkbox",
           title: "日记相关工具",
-          description:
-            "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；\n快捷小窗录入日记（默认快捷键F10）",
+          description: `slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；快捷小窗录入日记（默认快捷键F10）`,
           key: "createDailyNote",
           value: settings.getFlag("createDailyNote"),
           hasSetting: true,
@@ -180,7 +179,7 @@
           hasSetting: true,
         };
       }),
-      创建指定日期日记: [
+      日记相关工具: [
         {
           type: "textinput",
           title: "创建日记的笔记本id",
