@@ -156,10 +156,6 @@
     overflow: hidden;
   }
 
-  .editor-container.hidden {
-    display: none;
-  }
-
   .status-container {
     display: flex;
     flex-direction: column;
