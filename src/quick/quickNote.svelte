@@ -14,7 +14,7 @@
   onMount(async () => {
     try {
       // 使用较短的延迟，或者更好的方法是等待 Protyle 初始化完成
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
       protyle = await initProtyle();
 
@@ -93,10 +93,7 @@
     </div>
   {/if}
   <!-- 确保编辑器容器始终存在，但通过 display 控制 -->
-  <div
-    class="editor-container {isLoading ? 'hidden' : ''}"
-    bind:this={divProtyle}
-  />
+  <div class="editor-container" bind:this={divProtyle} />
 </div>
 
 <style>

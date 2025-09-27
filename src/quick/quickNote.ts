@@ -1,8 +1,7 @@
 // thanks for https://github.com/suka233/siyuan-knote
-import { showMessage } from "siyuan";
-import ProtyleComponent from "./quickNote.svelte";
-import { createDailynote, isMobile } from "@frostime/siyuan-plugin-kits";
 import { settings } from "@/settings";
+import { createDailynote, isMobile } from "@frostime/siyuan-plugin-kits";
+import ProtyleComponent from "./quickNote.svelte";
 
 let quickInputWin: any = null;
 
@@ -243,8 +242,6 @@ function hideQuickInputWindow() {
 // 切换快速输入窗口状态
 function toggleQuickInputWindow() {
   const isVisible = localStorage.getItem("quick-input-visible") === "true";
-
-  showMessage("1" + isVisible);
 
   if (isVisible) {
     hideQuickInputWindow();
