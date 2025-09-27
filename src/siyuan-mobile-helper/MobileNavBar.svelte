@@ -9,6 +9,7 @@
     goToSibling,
   } from "@/myscripts/navUtil";
   import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
+  import { createDailynote } from "@frostime/siyuan-plugin-kits";
 
   export let visible = true;
   export let config;
@@ -68,6 +69,11 @@
   }
   async function goRandom() {
     execSQLAndOpen(randomSql);
+  }
+
+  async function gotToToday() {
+    const dailyNoteId = await createDailynote(config.noteBookID);
+    openDocById(dailyNoteId);
   }
 
   function goBackNow() {
@@ -178,7 +184,12 @@
         <div class="nav-text">后退</div>
       </button>
     {/if}
-
+    {#if config.noteBookID.trim() != ""}
+      <button class="nav-button" on:click={gotToToday}>
+        <div class="nav-icon">➕</div>
+        <div class="nav-text">今日</div>
+      </button>
+    {/if}
     {#if showForwardButton}
       <button class="nav-button" on:click={goForward}>
         <div class="nav-icon">→</div>
