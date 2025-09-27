@@ -2,20 +2,20 @@
 
 ## update
 
-- 快捷添加属性及列表转为其它视图
-- 快捷小窗写日记
-- slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引
+- 快捷添加属性及列表转为其它视图：🙏[Achuan-2/siyuan-themes-tsundoku](https://github.com/Achuan-2/siyuan-themes-tsundoku)
+- 快捷小窗写日记：🙏[suka233/siyuan-knote](https://github.com/suka233/siyuan-knote)
+- slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引：🙏[frostime/siyuan-plugin-kits](https://github.com/frostime/siyuan-plugin-kits)（好用！）
 - 新增移动端导航，方便移动端浏览：
   - 支持前进后退
   - 随机跳转
   - 配置跳转
-  - 上下文档切换（感谢[frostime/sy-f-misc](https://github.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)）
-  - 可配置快捷添加到数据库（感谢[wilsons](https://ld246.com/article/1746153210116)）
+  - 上下文档切换：🙏[frostime/sy-f-misc](https://github.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)
+  - 可配置快捷添加到数据库：🙏[wilsons](https://ld246.com/article/1746153210116)
 
 ## 支持：
 
 - 新增在文档标题下展示自定义属性的值
-- 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。感谢 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
+- 新增 VoiceNotes 的同步。设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。🙏 [voicenotes-sync](https://github.com/mysticcoders/voicenotes-sync)
 - 新增 阅读帮助：toolbar 支持标注并复制块引
 - 标题转换
   - 文档菜单打开事件增加标题转换

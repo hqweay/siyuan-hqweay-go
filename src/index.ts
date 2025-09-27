@@ -128,6 +128,8 @@ export default class PluginGo extends Plugin {
       (await this.getCodeSnippets()) &&
       this.insertCss.onLayoutReady();
 
+    this.blockAttr.onLayoutReady();
+
     this.showMoreIconsOnBar();
   }
 

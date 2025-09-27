@@ -270,19 +270,40 @@ https://shibe.online/api/shibes?count=1`,
   quickAttrConfig: {
     attrs: `[
   {
+    name: "恢复转换效果",
+    key: "f",
+    value: "",
+    enabled: true,
+  },
+  {
     name: "转换为表格",
     key: "f",
     value: "bg",
+    enabled: true,
   },
   {
     name: "转换为导图",
     key: "f",
     value: "dt",
+    enabled: true,
   },
   {
     name: "转换为时间线",
     key: "f",
     value: "timeline",
+    enabled: true,
+  },
+  {
+    name: "转换为看板",
+    key: "f",
+    value: "kb",
+    enabled: true,
+  },
+  {
+    name: "转换为Tab",
+    key: "f",
+    value: "list2tab",
+    enabled: true,
   },
 ]`,
   },

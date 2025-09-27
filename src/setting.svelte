@@ -194,7 +194,44 @@
           description: "",
           key: "attrs",
           value: settings.getBySpace("quickAttrConfig", "attrs"),
-          placeholder: "",
+          placeholder: `[
+  {
+    name: "恢复转换效果",
+    key: "f",
+    value: "",
+    enabled: true,
+  },
+  {
+    name: "转换为表格",
+    key: "f",
+    value: "bg",
+    enabled: true,
+  },
+  {
+    name: "转换为导图",
+    key: "f",
+    value: "dt",
+    enabled: true,
+  },
+  {
+    name: "转换为时间线",
+    key: "f",
+    value: "timeline",
+    enabled: true,
+  },
+  {
+    name: "转换为看板",
+    key: "f",
+    value: "kb",
+    enabled: true,
+  },
+  {
+    name: "转换为Tab",
+    key: "f",
+    value: "list2tab",
+    enabled: true,
+  },
+]`,
         },
       ],
       日记相关工具: [
