@@ -892,6 +892,10 @@ https://shibe.online/api/shibes?count=1`,
     await settings.save();
     console.log("onDestroy");
   });
+
+  const lreload = () => {
+    location.reload();
+  };
 </script>
 
 <div class="fn__flex-1 fn__flex config__panel">
@@ -919,7 +923,16 @@ https://shibe.online/api/shibes?count=1`,
       on:changed={onChanged}
       on:click={onClick}
     >
-      <div class="fn__flex b3-label">💡 部分功能设置后需重启插件生效.</div>
+      <div class="fn__flex b3-label">
+        <div>💡 部分功能设置后需重启插件生效.</div>
+        <div>
+          <button
+            class="b3-button b3-button--outline fn__flex-center fn__size200"
+            style="margin-left: 20%;"
+            on:click={lreload}>现在重载</button
+          >
+        </div>
+      </div>
     </SettingPanel>
   </div>
 </div>

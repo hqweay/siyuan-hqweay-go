@@ -54,6 +54,16 @@ export default class HrefToRef {
     },
   ];
 
+  public onload() {
+    //太多了，添加好麻烦，算了
+    // 添加全局快捷键命令
+    // plugin.addCommand({
+    //   langKey: "openQuickInput",
+    //   hotkey: "F10", // 默认使用F10快捷键
+    //   editorCallback: (protyle: IProtyle) => {},
+    // });
+  }
+
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "🧹",
@@ -173,7 +183,7 @@ export default class HrefToRef {
               iconHTML: "",
               label: plugin.i18n.wikiToLink,
               click: () => {
-                console.log(menuItem);
+                // console.log(menuItem);
                 // console.log(this);
                 const doOperations: IOperation[] = [];
                 const editElements =
