@@ -69,7 +69,8 @@ export default class BlockAttr extends InsertCSS {
   }
 
   public onLayoutReady() {
-    // initList2Tab(); // 可以不保留，setupSimpleObserver 会自动调用 initList2Tab
+    //初始化还是执行一下，监听就只用处理变动过的数据了
+    initList2Tab();
     if (menus.find((menu) => menu.value === "list2tab" && menu.enabled)) {
       setupSimpleObserver();
     }
@@ -100,39 +101,38 @@ function setupSimpleObserver() {
       return; // 避免频繁调用
     }
 
-    let shouldInit = false;
+    const changedContainers: Element[] = [];
 
     for (const mutation of mutations) {
       if (mutation.type === "attributes") {
         const target = mutation.target as Element;
         if (target.matches?.('[data-type="NodeList"][custom-f~="list2tab"]')) {
-          shouldInit = true;
-          break;
+          changedContainers.push(target);
         }
       }
       for (let i = 0; i < mutation.addedNodes.length; i++) {
         const node = mutation.addedNodes[i];
         if (node.nodeType === 1) {
           const element = node as Element;
-          if (
-            element.matches?.('[data-type="NodeList"][custom-f~="list2tab"]') ||
-            element.querySelector?.(
-              '[data-type="NodeList"][custom-f~="list2tab"]'
-            )
-          ) {
-            shouldInit = true;
-            break;
-          }
+          const found = element.matches?.(
+            '[data-type="NodeList"][custom-f~="list2tab"]'
+          )
+            ? [element]
+            : Array.from(
+                element.querySelectorAll(
+                  '[data-type="NodeList"][custom-f~="list2tab"]'
+                )
+              );
+          changedContainers.push(...found);
         }
       }
-      if (shouldInit) break;
     }
 
-    if (shouldInit) {
+    if (changedContainers.length) {
       clearTimeout(initTimeout);
       initTimeout = window.setTimeout(() => {
         lastInitTime = Date.now();
-        initList2Tab();
+        initList2Tab(changedContainers);
       }, 300);
     }
   });
@@ -145,18 +145,25 @@ function setupSimpleObserver() {
   });
 }
 
-function initList2Tab() {
-  const tabContainers = document.querySelectorAll(
-    '[data-type="NodeList"][custom-f~=list2tab]'
-  );
+// 修改 initList2Tab 支持单个 container
+function initList2Tab(containers?: Element | Element[]) {
+  let containerList: Element[] = [];
+  if (!containers) {
+    containerList = Array.from(
+      document.querySelectorAll('[data-type="NodeList"][custom-f~=list2tab]')
+    );
+  } else if (Array.isArray(containers)) {
+    containerList = containers;
+  } else {
+    containerList = [containers];
+  }
 
-  console.log(tabContainers);
-  tabContainers.forEach((container) => {
+  if (!containerList) return;
+  containerList.forEach((container) => {
     if (container.querySelector(".tab-headers")) return;
 
+    //@ts-ignore
     const listId = container.dataset.nodeId;
-
-    console.log(listId);
 
     const activeTabIndex =
       parseInt(container.getAttribute("custom-activetab") || "1", 10) - 1;
