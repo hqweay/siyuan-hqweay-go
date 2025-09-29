@@ -38,6 +38,17 @@ let menus = [
     value: "list2tab",
     enabled: true,
   },
+  // { name: "格纹复古", value: "qsr", key: "f", enabled: true },
+  // { name: "浅色黄", value: "qsy", key: "f", enabled: true },
+  // { name: "浅色绿", value: "qsg", key: "f", enabled: true },
+  // { name: "浅色蓝", value: "qsb", key: "f", enabled: true },
+  // { name: "深色红", value: "ssr", key: "f", enabled: true },
+  // { name: "深色橙", value: "ssy", key: "f", enabled: true },
+  // { name: "深色绿", value: "ssg", key: "f", enabled: true },
+  // { name: "深色蓝", value: "ssb", key: "f", enabled: true },
+  // { name: "渐变黄", value: "jb", key: "f", enabled: true },
+  // { name: "棕顶栏", value: "ay", key: "f", enabled: true },
+  // { name: "金边", value: "ayx", key: "f", enabled: true },
 ];
 
 function parseArrayString(str) {

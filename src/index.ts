@@ -260,7 +260,7 @@ export default class PluginGo extends Plugin {
               this.codeSnippets = snippets.map((ele) => {
                 const body = ele.body;
                 if (body.startsWith("```")) {
-                  let metaInfos = body.split("\r\n")[0].split("#");
+                  let metaInfos = body.split(/\r?\n/)[0].split("#");
                   return {
                     id: ele.node_id,
                     type: metaInfos[1] ? metaInfos[1] : "未知",
@@ -269,7 +269,7 @@ export default class PluginGo extends Plugin {
                     author: metaInfos[4] ? metaInfos[4] : "未知",
                     description: metaInfos[5] ? metaInfos[5] : "未知",
                     link: metaInfos[6] ? metaInfos[6] : "未知",
-                    code: body.split("\r\n").slice(1, -1).join("\r\n"),
+                    code: body.split(/\r?\n/).slice(1, -1).join("\r\n"),
                   };
                 }
               });
