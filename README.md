@@ -123,7 +123,7 @@ toc: true
 
 在代码片段合集里启用「便利贴」，会为思源注入便利贴样式的 CSS，为块添加自定义属性 `custom-f` 可启用，支持值：
 
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929194427-jm2x4nb.png)
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929203041-gelqinn.png)
 
 ```css
 "qsr": "格纹复古",
@@ -342,12 +342,7 @@ toolbar 支持标注并复制块引
 
 插件会拉取[代码片段合集](https://GitHub.com/hqweay/siyuan-hqweay-go/issues/4)配置的代码片段，可直接启用。详见该 issue。
 
-目前配置了俩：
-
-- 隐藏按钮：启用后会隐藏一些按钮
-- 便利贴样式：搭配快捷添加属性使用，将块以便利贴样式展示
-
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929194427-jm2x4nb.png)
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929202949-z4yyvx9.png)
 
 ## 参考及致谢
 
