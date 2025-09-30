@@ -29,25 +29,31 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         //   .join("\n");
 
         detail.blockElements.forEach(async (item: HTMLElement) => {
-          const recordingId = item.getAttribute("custom-recordingId");
-          if (recordingId) {
-            showMessage(`该笔记已同步，录音ID: ${recordingId}，尝试修改文本`);
+          const recordingid = item.getAttribute("custom-recordingid");
+          if (recordingid) {
+            showMessage(`该笔记已同步，录音ID: ${recordingid}，尝试修改文本`);
 
-            const detail = await this.vnApi.load(recordingId);
+            const detail = await this.vnApi.load(recordingid);
             if (!detail) {
-              showMessage(`无法获取该笔记，ID: ${recordingId}`);
+              showMessage(`无法获取该笔记，ID: ${recordingid}`);
               return;
             }
 
-            const response = await this.vnApi.updateVoiceNote(recordingId, {
+            const response = await this.vnApi.updateVoiceNote(recordingid, {
               transcript: item.innerText.trim(),
               tags: detail.tags.map((tag) => tag.name),
             });
             await setBlockAttrs(item.dataset.nodeId, {
-              [`custom-updatedAt`]: formatDate(
+              [`custom-updatedat`]: formatDate(
                 response.updated_at,
                 settings.getBySpace("voiceNotesConfig", "dateFormat")
               ),
+              // 再更新一下，应对单独更新updatedAt时将createdAt的属性更新为createdat了，应该是bug
+              // [`custom-recordingid`]: response.id,
+              // [`custom-createdat`]: formatDate(
+              //   response.created_at,
+              //   settings.getBySpace("voiceNotesConfig", "dateFormat")
+              // ),
             });
             showMessage(`该笔记已修改`);
             return;
@@ -62,10 +68,8 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
               showMessage(`为笔记打标签: siyuan`);
               const id = item.dataset.nodeId;
               await setBlockAttrs(id, {
-                [`custom-recordingId`]: response.recording.id,
-              });
-              await setBlockAttrs(id, {
-                [`custom-createdAt`]: formatDate(
+                [`custom-recordingid`]: response.recording.id,
+                [`custom-createdat`]: formatDate(
                   response.recording.created_at,
                   settings.getBySpace("voiceNotesConfig", "dateFormat")
                 ),
@@ -89,19 +93,19 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   async getExistingSyncedNotes() {
     const existingRecordings = await sql(
-      `SELECT * FROM blocks WHERE ial like '%custom-recordingId%'`
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingid%'`
     );
 
     return existingRecordings.map((item) => {
-      const recordingId = item.ial.match(/custom-recordingId="([^"]+)"/);
-      const updateAt = item.ial.match(/custom-updatedAt="([^"]+)"/);
-      const creationsCount = item.ial.match(/custom-creationsCount="([^"]+)"/);
+      const recordingid = item.ial.match(/custom-recordingid="([^"]+)"/);
+      const updateAt = item.ial.match(/custom-updatedat="([^"]+)"/);
+      const creationscount = item.ial.match(/custom-creationscount="([^"]+)"/);
       return {
-        recordingId: recordingId && recordingId[1],
+        recordingid: recordingid && recordingid[1],
         updateAt: updateAt && updateAt[1],
         id: item.id,
         path: item.path,
-        creationsCount: creationsCount && creationsCount[1],
+        creationscount: creationscount && creationscount[1],
       };
     });
   }
@@ -201,7 +205,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     const needUpdateByTime = newUpdateTime > existingUpdateTime;
     // 存量数据也处理下
     const needUpdateByCount =
-      existingNote.creationsCount != newNote.creations.length;
+      existingNote.creationscount != newNote.creations.length;
 
     if (needUpdateByTime) {
       console.log(`需要更新：发现更新时间较新`);
@@ -239,17 +243,33 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       // Check if the note already exists
       const noteExists = this.existingSyncedNotes.find(
-        (note) => note.recordingId === recording.recording_id
+        (note) => note.recordingid === recording.recording_id
       );
 
       console.log(`${recording.recording_id}, exists: ${!!noteExists}`);
+
+      // 检查是否包含排除的标签
+      if (
+        recording.tags &&
+        recording.tags.some((tag) =>
+          settings.getBySpace("voiceNotesConfig", "excludeTags")
+            ? settings
+                .getBySpace("voiceNotesConfig", "excludeTags")
+                .split(",")
+                .includes(tag.name)
+            : false
+        )
+      ) {
+        unsyncedCount.count++;
+        return;
+      }
 
       if (noteExists) {
         if (!this.isNoteNeedUpdate(noteExists, recording)) {
           return;
         }
 
-        // 若笔记存在，且判断需要更新，首先删除文档
+        // 若笔记存在，且判断需要更新，首先删除文档；先不考虑deleteBlock的情况
         await fetch("/api/filetree/removeDoc", {
           method: "POST",
           headers: {
@@ -277,22 +297,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       showMessage(`正在获取 ${recording.title}`);
       // await new Promise((resolve) => setTimeout(resolve, 500));
-
-      // 检查是否包含排除的标签
-      if (
-        recording.tags &&
-        recording.tags.some((tag) =>
-          settings.getBySpace("voiceNotesConfig", "excludeTags")
-            ? settings
-                .getBySpace("voiceNotesConfig", "excludeTags")
-                .split(",")
-                .includes(tag.name)
-            : false
-        )
-      ) {
-        unsyncedCount.count++;
-        return;
-      }
 
       // 准备笔记内容
       const creationTypes = [
@@ -527,17 +531,17 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             attrs: {
               tags: tagsStr,
               "custom-duration": `${recording.duration}`,
-              "custom-createdAt": formatDate(
+              "custom-createdat": formatDate(
                 recording.created_at,
                 settings.getBySpace("voiceNotesConfig", "dateFormat")
               ),
-              "custom-updatedAt": formatDate(
+              "custom-updatedat": formatDate(
                 recording.updated_at,
                 settings.getBySpace("voiceNotesConfig", "dateFormat")
               ),
-              "custom-recordingId": recording.recording_id,
+              "custom-recordingid": recording.recording_id,
               //通过 creations length 判断是否需要更新
-              "custom-creationsCount": `${recording.creations.length}`,
+              "custom-creationscount": `${recording.creations.length}`,
             },
           }),
         });
@@ -601,7 +605,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   async searchRelatedNotes(relatedNote) {
     let res = await sql(
-      `SELECT * FROM blocks WHERE ial like '%custom-recordingId="${relatedNote.id}"%'`
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingid="${relatedNote.id}"%'`
     );
     if (res.length > 0) {
       return `- ((${res[0].id} "${res[0].content}"))`;
