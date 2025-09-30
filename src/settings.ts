@@ -18,7 +18,6 @@ const DEFAULT_CONFIG = {
     sendTo: false,
     convert: false,
     typography: false,
-
     randomNote: false,
     randomHeaderImage: false,
     memo: false,
@@ -32,6 +31,9 @@ const DEFAULT_CONFIG = {
     codeSnippets: false,
     showCustomPropertiesUnderTitle: false,
     mobileHelper: false,
+    voiceNotes: false,
+    createDailyNote: false,
+    quickAttr: false,
   },
   codeSnippetsConfig: {},
   doOnPasteConfig: {
@@ -164,7 +166,7 @@ https://shibe.online/api/shibes?count=1`,
     dateFormat: "YYYY-MM-DD HH:mm:ss",
     latestDataCountOfPage: "-1",
     manualSyncPageCount: "2",
-    excludeTags: "",
+    excludeTags: "siyuan",
     notebook: "",
     //     frontmatterTemplate: `duration: {{duration}}
     // created_at: {{created_at}}

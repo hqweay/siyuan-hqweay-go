@@ -20,7 +20,7 @@ export default class Bookmark extends AddIconThenClick {
 
     detail.protyle.getInstance().transaction(doOperations);
   }
-  public editortitleiconEvent({ detail }) {
+  public blockIconEvent({ detail }) {
     const items = settings.getBySpace("bookmarkConfig", "items");
 
     if (!items || items.length <= 0) {

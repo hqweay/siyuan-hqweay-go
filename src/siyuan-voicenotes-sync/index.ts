@@ -1,27 +1,83 @@
-import VoiceNotesApi from "./voicenotes-api";
-import {
-  getFilenameFromUrl,
-  isToday,
-  formatDuration,
-  formatDate,
-  formatTags,
-  convertHtmlToMarkdown,
-} from "./utils";
-import { settings } from "@/settings";
-import * as jinja from "jinja-js";
+import { setBlockAttrs, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
-import { fetchSyncPost, showMessage } from "siyuan";
+import { settings } from "@/settings";
 import { formatUtil } from "@/siyuan-typography-go/utils";
-import { sql } from "@/api";
+import * as jinja from "jinja-js";
+import { fetchSyncPost, showMessage } from "siyuan";
+import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
+import VoiceNotesApi from "./voicenotes-api";
 
 export default class VoiceNotesPlugin extends AddIconThenClick {
+  vnApi;
   id = "hqweay-voicenotes";
-  label = "同步 VoiceNotes";
+  label = "同步至 VoiceNotes";
   icon = `<svg t="1737813478703" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248" width="128" height="128"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
 
   syncedNoteCount = 0;
 
   existingSyncedNotes = [];
+
+  public async blockIconEvent({ detail }: any) {
+    detail.menu.addItem({
+      iconHTML: "",
+      label: "将数据同步到voicenotesai",
+      click: async () => {
+        this.vnApi = new VoiceNotesApi({});
+        this.vnApi.token = settings.getBySpace("voiceNotesConfig", "token");
+        // const blockTexts = detail.blockElements
+        //   .map((el) => el.innerText.trim())
+        //   .join("\n");
+
+        detail.blockElements.forEach(async (item: HTMLElement) => {
+          const recordingId = item.getAttribute("custom-recordingId");
+          if (recordingId) {
+            showMessage(`该笔记已同步，录音ID: ${recordingId}，尝试修改文本`);
+
+            const detail = await this.vnApi.load(recordingId);
+            if (!detail) {
+              showMessage(`无法获取该笔记，ID: ${recordingId}`);
+              return;
+            }
+
+            const response = await this.vnApi.updateVoiceNote(recordingId, {
+              transcript: item.innerText.trim(),
+              tags: detail.tags.map((tag) => tag.name),
+            });
+            await setBlockAttrs(item.dataset.nodeId, {
+              [`custom-updatedAt`]: formatDate(
+                response.updated_at,
+                settings.getBySpace("voiceNotesConfig", "dateFormat")
+              ),
+            });
+            showMessage(`该笔记已修改`);
+            return;
+          } else {
+            showMessage(`正在创建笔记...`);
+            const response = await this.vnApi.createVoiceNote(
+              item.innerText.trim()
+            );
+            if (response && response.recording.id) {
+              showMessage(`已创建笔记，ID: ${response.recording.id}`);
+              await this.vnApi.tagVoiceNote(response.recording.id, ["siyuan"]);
+              showMessage(`为笔记打标签: siyuan`);
+              const id = item.dataset.nodeId;
+              await setBlockAttrs(id, {
+                [`custom-recordingId`]: response.recording.id,
+              });
+              await setBlockAttrs(id, {
+                [`custom-createdAt`]: formatDate(
+                  response.recording.created_at,
+                  settings.getBySpace("voiceNotesConfig", "dateFormat")
+                ),
+              });
+            } else {
+              showMessage(`创建笔记失败`);
+            }
+          }
+        });
+      },
+    });
+  }
 
   // 打开随机文档，编辑sql选定范围
   async exec(fullSync = false) {
@@ -55,18 +111,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       console.log(`Sync running full? ${fullSync}`);
 
       this.existingSyncedNotes = await this.getExistingSyncedNotes();
-
-      // console.log(this.syncedRecordingIds);
-
-      // this.syncedRecordingIds = await this.getSyncedRecordingIds();
-      // this.syncedRecordingIds = settings.getBySpace(
-      //   "voiceNotesConfig",
-      //   "syncedRecordingIds"
-      // )
-      //   ? settings
-      //       .getBySpace("voiceNotesConfig", "syncedRecordingIds")
-      //       .split(",")
-      //   : [];
 
       this.vnApi = new VoiceNotesApi({});
       this.vnApi.token = settings.getBySpace("voiceNotesConfig", "token");

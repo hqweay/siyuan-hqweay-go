@@ -104,9 +104,12 @@ export default class PluginGo extends Plugin {
     settings.getFlag("sendTo") && this.sendToPlugin.blockIconEvent({ detail });
     settings.getFlag("typography") &&
       this.typographyPlugin.blockIconEvent({ detail });
-
-    this.bookmarkPlugin.editortitleiconEvent({ detail });
+    settings.getFlag("bookmark") &&
+      this.bookmarkPlugin.blockIconEvent({ detail });
     settings.getFlag("quickAttr") && this.blockAttr.blockIconEvent({ detail });
+
+    settings.getFlag("voiceNotes") &&
+      this.voiceNotesPlugin.blockIconEvent({ detail });
   }
 
   //App 准备好时加载
