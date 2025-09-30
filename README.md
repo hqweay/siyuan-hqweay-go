@@ -1,18 +1,6 @@
----
-title: 恐龙工具箱
-date: "2025-09-29 00:41:47"
-updated: "2025-09-29 01:49:55"
-tags:
-  - Project
-comments: true
-toc: true
----
-
 > 这是一只恐龙，路过的人必须夸它可爱。
 
-「恐龙工具箱」是[思源笔记](https://b3log.org/siyuan/download.html)的一款插件。
-
-## 简要总结（面向行动）：
+## 简要总结
 
 - 核心能力：
 
@@ -30,7 +18,7 @@ toc: true
   - 行内元素转换：链接 ↔ 引用、去格式（加粗/标注/标签/斜体 → 文本）、清理文档内与星标引用。
   - 创建时间展示：为指定 ID 文档（及其大纲）子元素右上角显示创建时间。
   - 左上边栏扩展：新增固定打开常用链接/文档的图标（如一键打开日记流）。
-  - 实验：内置代码片段合集 Demo（隐藏按钮、便利贴样式）。
+  - 实验：内置代码片段合集 Demo（隐藏按钮、便利贴样式、多行标签栏、图片居中……）。
 
 - 依赖与致谢：多处功能引用社区插件与主题资源（Achuan-2、frostime、suka233、wilsons、voicenotes-sync 等） 。
 
@@ -119,7 +107,7 @@ toc: true
 
   - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929005301-77i9sfb.png)
 
-### 可选（便利贴样式）
+### 可选（便利贴样式）🙏[GitHub - chenshinshi/sy-blt](https://github.com/chenshinshi/sy-blt)
 
 在代码片段合集里启用「便利贴」，会为思源注入便利贴样式的 CSS，为块添加自定义属性 `custom-f` 可启用，支持值：
 
@@ -351,3 +339,69 @@ toolbar 支持标注并复制块引
 - 其余涉及到的参考有在具体功能中提及，若插件有所帮助皆归功于他们。对插件中功能感兴趣的可参考源码实现
 
   - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929012737-7rcr39k.png)
+
+## ♥️
+
+<div>
+<div
+  style="
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+  "
+>
+  <div
+    style="
+      padding: 2em 2.5em;
+      background: linear-gradient(135deg, #d6dcf8 0%, #52e9da 100%);
+      border: none;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.18);
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      transition: box-shadow 0.2s;
+    "
+  >
+    <p
+      style="
+        font-size: 1.2em;
+        font-weight: 500;
+        color: #4f46e5;
+        margin: 0.5em 0;
+      "
+    >
+      如果有帮到您，欢迎点个 Star ⭐️ 鼓励一下！🦖感谢～
+    </p>
+    <p
+      style="
+        font-size: 1.2em;
+        font-weight: 500;
+        color: #4f46e5;
+        margin: 0.5em 0;
+      "
+    >
+      如果还愿意为🦕买包辣条，您将为守护地球和平做出重要贡献～
+    </p>
+    <div style="margin: 1.5em 0">
+      <div
+        style="
+          display: flex;
+          justify-content: center;
+          gap: 2em;
+          flex-wrap: wrap;
+        "
+      >
+        <div>
+          <img
+            src="https://image.baidu.com/search/down?url=https://wx3.sinaimg.cn/mw690/008pUut0gy1i5vzxned7yj31400u0tdh.jpg"
+            alt="QR Code"
+            style="width: 340px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
