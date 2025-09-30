@@ -72,6 +72,9 @@ export default class PluginGo extends Plugin {
 
     settings.getFlag("read") &&
       this.readPlugin.editortitleiconEvent({ detail });
+
+    settings.getFlag("voiceNotes") &&
+      this.voiceNotesPlugin.editortitleiconEvent({ detail });
   }
 
   mobilekeyboardshowEvent({ detail }: any) {
@@ -132,6 +135,8 @@ export default class PluginGo extends Plugin {
       this.insertCss.onLayoutReady();
 
     this.blockAttr.onLayoutReady();
+
+    settings.getFlag("voiceNotes") && this.voiceNotesPlugin.init();
 
     this.showMoreIconsOnBar();
   }

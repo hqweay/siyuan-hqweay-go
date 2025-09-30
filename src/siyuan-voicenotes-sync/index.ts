@@ -6,9 +6,44 @@ import * as jinja from "jinja-js";
 import { fetchSyncPost, showMessage } from "siyuan";
 import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
 import VoiceNotesApi from "./voicenotes-api";
+import { c } from "vite/dist/node/types.d-aGj9QkWt";
+
+function getContentFromTranscriptToNextHeading(element) {
+  let result = "";
+  const children = element.children;
+  let foundTranscript = false;
+  console.log(element);
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+
+    // 检查是否是标题元素
+    if (
+      child.dataset.type === "NodeHeading" &&
+      child.classList.contains("h2")
+    ) {
+      //零字符处理
+      if (
+        child.textContent.replace(/[\s\u00A0\u200B]+/g, "") === "Transcript"
+      ) {
+        foundTranscript = true;
+        continue; // 跳过Transcript标题本身
+      }
+
+      // 如果已经找到Transcript且遇到下一个标题，则停止
+      if (foundTranscript) {
+        break;
+      }
+    }
+
+    // 只有在找到Transcript后才开始收集内容
+    if (foundTranscript) {
+      result += child.textContent + "\n";
+    }
+  }
+  return result.trim();
+}
 
 export default class VoiceNotesPlugin extends AddIconThenClick {
-  vnApi;
   id = "hqweay-voicenotes";
   label = "同步至 VoiceNotes";
   icon = `<svg t="1737813478703" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248" width="128" height="128"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
@@ -17,70 +52,118 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   existingSyncedNotes = [];
 
+  vnApi;
+
+  init() {
+    this.vnApi = new VoiceNotesApi({
+      token: settings.getBySpace("voiceNotesConfig", "token"),
+    });
+  }
+
+  public async editortitleiconEvent({ detail }: any) {
+    detail.menu.addItem({
+      iconHTML: "🧹",
+      label: "将数据同步到voicenotesai",
+      click: async () => {
+        const docId = detail.protyle.block.id;
+
+        const items = await sql(`SELECT * FROM blocks WHERE id = '${docId}'`);
+        const tags = items[0].tag
+          ? items[0].tag
+              .split(" ")
+              .map((tag) => tag.trim().replace(/^#|#$/g, ""))
+          : [];
+
+        const recordingid =
+          detail.protyle.wysiwyg.element.getAttribute("custom-recordingid");
+
+        let text;
+        //修改同步过来的数据
+        if (recordingid) {
+          console.log(`已有录音ID: ${recordingid}，尝试修改文本`);
+          text = getContentFromTranscriptToNextHeading(
+            detail.protyle.wysiwyg.element
+          );
+        }
+        //修改同步过去的数据
+        if (!text) {
+          text = detail.protyle.wysiwyg.element.innerText.trim();
+        }
+
+        if (!text || text.length <= 0) {
+          showMessage(`无法获取文本内容，请检查`);
+          return;
+        }
+
+        text = text.replace(/[\u00A0\u200B]+/g, "").replace(/\n{3,}/g, "\n\n");
+        //思源主动push到voicenotes的数据都不允许被更新回来覆盖
+        await this.addOrUpdate(recordingid, detail.protyle.block.id, text, [
+          ...tags,
+          "siyuan",
+        ]);
+      },
+    });
+  }
+
   public async blockIconEvent({ detail }: any) {
     detail.menu.addItem({
       iconHTML: "",
       label: "将数据同步到voicenotesai",
       click: async () => {
-        this.vnApi = new VoiceNotesApi({});
-        this.vnApi.token = settings.getBySpace("voiceNotesConfig", "token");
-        // const blockTexts = detail.blockElements
-        //   .map((el) => el.innerText.trim())
-        //   .join("\n");
-
         detail.blockElements.forEach(async (item: HTMLElement) => {
-          const recordingid = item.getAttribute("custom-recordingid");
-          if (recordingid) {
-            showMessage(`该笔记已同步，录音ID: ${recordingid}，尝试修改文本`);
-
-            const detail = await this.vnApi.load(recordingid);
-            if (!detail) {
-              showMessage(`无法获取该笔记，ID: ${recordingid}`);
-              return;
-            }
-
-            const response = await this.vnApi.updateVoiceNote(recordingid, {
-              transcript: item.innerText.trim(),
-              tags: detail.tags.map((tag) => tag.name),
-            });
-            await setBlockAttrs(item.dataset.nodeId, {
-              [`custom-updatedat`]: formatDate(
-                response.updated_at,
-                settings.getBySpace("voiceNotesConfig", "dateFormat")
-              ),
-              // 再更新一下，应对单独更新updatedAt时将createdAt的属性更新为createdat了，应该是bug
-              // [`custom-recordingid`]: response.id,
-              // [`custom-createdat`]: formatDate(
-              //   response.created_at,
-              //   settings.getBySpace("voiceNotesConfig", "dateFormat")
-              // ),
-            });
-            showMessage(`该笔记已修改`);
-            return;
-          } else {
-            showMessage(`正在创建笔记...`);
-            const response = await this.vnApi.createVoiceNote(
-              item.innerText.trim()
-            );
-            if (response && response.recording.id) {
-              showMessage(`已创建笔记，ID: ${response.recording.id}`);
-              await this.vnApi.tagVoiceNote(response.recording.id, ["siyuan"]);
-              showMessage(`为笔记打标签: siyuan`);
-              const id = item.dataset.nodeId;
-              await setBlockAttrs(id, {
-                [`custom-recordingid`]: response.recording.id,
-                [`custom-createdat`]: formatDate(
-                  response.recording.created_at,
-                  settings.getBySpace("voiceNotesConfig", "dateFormat")
-                ),
-              });
-            } else {
-              showMessage(`创建笔记失败`);
-            }
-          }
+          await this.addOrUpdate(
+            item.getAttribute("custom-recordingid"),
+            item.dataset.nodeId,
+            item.innerText.trim(),
+            []
+          );
         });
       },
     });
+  }
+
+  private async addOrUpdate(recordingid, nodeId, text, tags = []) {
+    if (recordingid) {
+      showMessage(`该笔记已同步，录音ID: ${recordingid}，尝试修改文本`);
+
+      if (tags.length <= 0) {
+        const noteDetail = await this.vnApi.load(recordingid);
+        if (!noteDetail) {
+          showMessage(`无法获取该笔记，ID: ${recordingid}`);
+          return;
+        }
+        tags = noteDetail.tags.map((tag) => tag.name);
+      }
+      const response = await this.vnApi.updateVoiceNote(recordingid, {
+        transcript: text,
+        tags: tags,
+      });
+      await setBlockAttrs(nodeId, {
+        [`custom-updatedat`]: formatDate(
+          response.updated_at,
+          settings.getBySpace("voiceNotesConfig", "dateFormat")
+        ),
+      });
+      showMessage(`该笔记已修改`);
+      return;
+    } else {
+      showMessage(`正在创建笔记...`);
+      const response = await this.vnApi.createVoiceNote(text);
+      if (response && response.recording.id) {
+        showMessage(`已创建笔记，ID: ${response.recording.id}`);
+        await this.vnApi.tagVoiceNote(response.recording.id, ["siyuan"]);
+        showMessage(`为笔记打标签: siyuan`);
+        await setBlockAttrs(nodeId, {
+          [`custom-recordingid`]: response.recording.id,
+          [`custom-createdat`]: formatDate(
+            response.recording.created_at,
+            settings.getBySpace("voiceNotesConfig", "dateFormat")
+          ),
+        });
+      } else {
+        showMessage(`创建笔记失败`);
+      }
+    }
   }
 
   // 打开随机文档，编辑sql选定范围
@@ -115,9 +198,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       console.log(`Sync running full? ${fullSync}`);
 
       this.existingSyncedNotes = await this.getExistingSyncedNotes();
-
-      this.vnApi = new VoiceNotesApi({});
-      this.vnApi.token = settings.getBySpace("voiceNotesConfig", "token");
 
       const recordings = await this.vnApi.getRecordings();
       // This only happens if we aren't actually logged in, fail immediately.
