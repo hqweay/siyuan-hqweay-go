@@ -668,11 +668,13 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       return custom
         .map(
           (item, index) =>
-            `### ${h3Title} ${index + 1}\n${item.markdown_content}`
+            `### ${item.title ? item.title : `${h3Title} ${index + 1}`}\n${
+              item.markdown_content
+            }`
         )
         .join("\n");
     } else if (!Array.isArray(custom)) {
-      return custom.markdown_content;
+      return `### ${custom.title}\n${custom.markdown_content}`;
     } else {
       return null; // 如果是空数组，返回null
     }

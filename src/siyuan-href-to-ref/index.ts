@@ -96,6 +96,7 @@ export default class HrefToRef {
                 // 往父级遍历，找到第一个 data-type="NodeList" 的元素
                 let parentElement = ele.parentElement;
                 ele.remove();
+                count++;
 
                 if (parentElement && parentElement.textContent.trim() !== "") {
                   return;
@@ -142,7 +143,6 @@ export default class HrefToRef {
                   parentElement = parentElement.parentElement;
                   currentDepth++;
                 }
-                count++;
               }
             });
           count > 0 &&
