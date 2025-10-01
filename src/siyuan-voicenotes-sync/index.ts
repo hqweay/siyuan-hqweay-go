@@ -6,7 +6,6 @@ import * as jinja from "jinja-js";
 import { fetchSyncPost, showMessage } from "siyuan";
 import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
 import VoiceNotesApi from "./voicenotes-api";
-import { c } from "vite/dist/node/types.d-aGj9QkWt";
 
 function getContentFromTranscriptToNextHeading(element) {
   let result = "";
@@ -55,6 +54,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
   vnApi;
 
   init() {
+    if (this.vnApi) return;
     this.vnApi = new VoiceNotesApi({
       token: settings.getBySpace("voiceNotesConfig", "token"),
     });
@@ -87,6 +87,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         }
         //修改同步过去的数据
         if (!text) {
+          //取的页面元素，如果文档太长，可能取不全
           text = detail.protyle.wysiwyg.element.innerText.trim();
         }
 
@@ -96,7 +97,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         }
 
         text = text.replace(/[\u00A0\u200B]+/g, "").replace(/\n{3,}/g, "\n\n");
-        //思源主动push到voicenotes的数据都不允许被更新回来覆盖
+        //思源主动push到voicenotes的数据都不允许被更新回来覆盖【以思源数据为主】
         await this.addOrUpdate(recordingid, detail.protyle.block.id, text, [
           ...tags,
           "siyuan",

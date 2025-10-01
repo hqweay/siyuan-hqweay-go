@@ -1,3 +1,4 @@
+import { showMessage } from "siyuan";
 import { User, VoiceNoteRecordings, VoiceNoteSignedUrl } from "./types";
 
 const VOICENOTES_API_URL = "https://api.voicenotes.com/api";
@@ -247,6 +248,7 @@ export default class VoiceNotesApi {
       };
     } catch (error) {
       console.error("请求失败:", error);
+      showMessage(`请求失败: ${error}`);
       throw error;
     }
   }
