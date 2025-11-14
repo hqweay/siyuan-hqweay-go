@@ -120,6 +120,16 @@ export default class TypographyGo extends AddIconThenClick {
 
   setEvent(event) {
     this.customEvent = event;
+
+    // plugin.addCommand({
+    //   langKey: "openQuickInp111ut",
+    //   hotkey: "F12", // 默认使用F10快捷键
+    //   editorCallback: (protyle: IProtyle) => {
+    //     console.log("执行格式化文本命令");
+    //     console.log(protyle);
+    //     formateElement([event.detail.blockElement], event.detail.protyle);
+    //   },
+    // });
   }
   public blockIconEvent({ detail }: any) {
     detail.menu.addItem({
