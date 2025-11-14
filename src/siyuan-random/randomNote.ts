@@ -20,7 +20,8 @@ export default class RandomNote extends AddIconThenClick {
       openTab({
         app: plugin.app,
         doc: {
-          id: (res as { data: { root_id: string }[] }).data[0].root_id,
+          //@ts-ignore
+          id: res.data[0].root_id ?? res.data[0].id,
         },
       });
     }
