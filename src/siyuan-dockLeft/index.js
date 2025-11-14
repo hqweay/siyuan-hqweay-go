@@ -1,4 +1,7 @@
+import { sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
+import { plugin } from "@/utils";
+import { openTab } from "siyuan";
 
 export default class DockLeft extends AddIconThenClick {
   id = "";
@@ -12,7 +15,19 @@ export default class DockLeft extends AddIconThenClick {
       return;
     } else if (this.id.startsWith("siyuan://") || this.id.startsWith("http")) {
       window.open(this.id);
-      return;
+    } else if (this.id.trim().startsWith("select ")) {
+      const sqlTemp = `select id from (${this.id.trim()}) limit 1`;
+      let data = await sql(sqlTemp);
+      console.log(data[0].id);
+      if (data) {
+        openTab({
+          app: plugin.app,
+          doc: {
+            // @ts-ignore
+            id: data[0].id,
+          },
+        });
+      }
     } else {
       window.open("siyuan://blocks/" + this.id);
     }
