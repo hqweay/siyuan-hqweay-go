@@ -29,7 +29,7 @@ export default class DockLeft extends AddIconThenClick {
     // 创建要插入的子元素
     let childElement = document.createElement("span");
     this.thisElement = childElement;
-    childElement.setAttribute(`id`, `dock-left-custom-${this.id}`);
+    childElement.setAttribute(`id`, `${this.id}`);
     childElement.setAttribute(`class`, `dock__item b3-tooltips b3-tooltips__e`);
     childElement.setAttribute(
       `aria-label`,
