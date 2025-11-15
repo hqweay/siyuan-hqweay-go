@@ -90,19 +90,29 @@ export default class OCRPlugin extends AddIconThenClick {
   icon = "®️"; // 用户自己设置
   type = "barMode";
 
+  // OCR 运行状态控制
+  private isOcrRunning = false;
+  private shouldStopOcr = false;
+
   async exec() {
+    // 如果 OCR 正在运行，显示停止选项
+    if (this.isOcrRunning) {
+      this.stopOcr();
+      return;
+    }
+
     // 显示菜单选择 OCR 类型
     const menu = new Menu("hqweay-ocr-menu");
     menu.addItem({
       label: "识别所有无 OCR 数据的图片",
       click: async () => {
-        await batchOcr({ type: "all" });
+        await batchOcr({ type: "all" }, this);
       },
     });
     menu.addItem({
       label: "再次识别所有识别失败的图片",
       click: async () => {
-        await batchOcr({ type: "failing" });
+        await batchOcr({ type: "failing" }, this);
       },
     });
     // 获取按钮位置来显示菜单
@@ -113,6 +123,39 @@ export default class OCRPlugin extends AddIconThenClick {
         x: rect.left,
         y: rect.bottom,
       });
+    }
+  }
+
+  // 停止 OCR
+  stopOcr() {
+    this.shouldStopOcr = true;
+    showMessage("正在停止 OCR...", 2000);
+  }
+
+  // 检查是否应该停止
+  shouldStop(): boolean {
+    return this.shouldStopOcr;
+  }
+
+  // 开始 OCR
+  startOcr() {
+    this.isOcrRunning = true;
+    this.shouldStopOcr = false;
+    // 更新按钮标签提示可以停止
+    const btn = document.getElementById(this.id);
+    if (btn) {
+      btn.setAttribute("aria-label", "点击停止 OCR");
+    }
+  }
+
+  // 结束 OCR
+  endOcr() {
+    this.isOcrRunning = false;
+    this.shouldStopOcr = false;
+    // 恢复按钮标签
+    const btn = document.getElementById(this.id);
+    if (btn) {
+      btn.setAttribute("aria-label", this.label);
     }
   }
 
@@ -146,10 +189,14 @@ export default class OCRPlugin extends AddIconThenClick {
 /**
  * 批量 OCR 所有图片
  * @param options OCR 选项
+ * @param ocrPlugin OCR 插件实例，用于控制停止
  */
-export async function batchOcr(options: {
-  type: "failing" | "all";
-}): Promise<void> {
+export async function batchOcr(
+  options: {
+    type: "failing" | "all";
+  },
+  ocrPlugin?: OCRPlugin
+): Promise<void> {
   try {
     // 查询所有图片资源
     const assets: Array<{
@@ -180,15 +227,31 @@ LIMIT 99999`);
     let successful: string[] = [];
     let failing: string[] = [];
     let skip: string[] = [];
-    let consecutiveFailures = 0;
-    const MAX_CONSECUTIVE_FAILURES = 5;
+    // let consecutiveFailures = 0;
+    // const MAX_CONSECUTIVE_FAILURES = 5;
+
+    // 开始 OCR
+    if (ocrPlugin) {
+      ocrPlugin.startOcr();
+    }
 
     showMessage(
-      `开始批量 OCR，共 ${assets.length} 张图片。可以打开开发者工具查看进度`,
+      `开始批量 OCR，共 ${assets.length} 张图片。可以打开开发者工具查看进度，点击工具栏 OCR 按钮可停止`,
       5000
     );
 
     for (const img of assets) {
+      // 检查是否应该停止
+      if (ocrPlugin && ocrPlugin.shouldStop()) {
+        const stopMsg = `OCR 已停止！\n总计: ${assets.length}\n已处理: ${i}\n成功: ${successful.length}\n失败: ${failing.length}\n跳过: ${skip.length}`;
+        console.log(stopMsg);
+        showMessage(stopMsg, 10000, "info");
+        if (ocrPlugin) {
+          ocrPlugin.endOcr();
+        }
+        return;
+      }
+
       i += 1;
       let ok = false;
       const imgPath = img.path;
@@ -212,19 +275,9 @@ LIMIT 99999`);
 
         if (ok) {
           successful.push(imgPath);
-          consecutiveFailures = 0; // 重置失败计数器
         } else {
-          failing.push(imgPath);
-          consecutiveFailures++; // 增加失败计数器
+          // 失败一般是丢失的资源
           console.log("失败", imgPath);
-
-          // 检查是否达到连续失败阈值
-          if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-            const errorMsg = `OCR 接口连续失败 ${MAX_CONSECUTIVE_FAILURES} 次，已停止批量 OCR 处理。\n建议检查网络连接或 OCR 服务状态后重试。`;
-            console.error(errorMsg);
-            showMessage(errorMsg, 10000, "error");
-            return;
-          }
         }
       }
 
@@ -244,8 +297,18 @@ LIMIT 99999`);
       console.log(`以下图片识别失败:`, failing);
     }
     showMessage(finalMsg, 10000, "info");
+
+    // 结束 OCR
+    if (ocrPlugin) {
+      ocrPlugin.endOcr();
+    }
   } catch (error) {
     console.error("批量 OCR 失败:", error);
     showMessage(`批量 OCR 失败: ${error.message}`, 5000, "error");
+
+    // 结束 OCR
+    if (ocrPlugin) {
+      ocrPlugin.endOcr();
+    }
   }
 }
