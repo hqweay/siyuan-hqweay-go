@@ -13,6 +13,11 @@ on getImageText(imagePath)
     -- 加载图片
     set theImage to current application's NSImage's alloc()'s initWithContentsOfFile:imagePath
     
+    -- Add a check to verify the image loaded correctly
+    if theImage is equal to missing value then
+        error "Error: Could not load image from path: " & imagePath
+    end if
+
     -- 创建请求处理器
     set requestHandler to current application's VNImageRequestHandler's alloc()'s initWithData:(theImage's TIFFRepresentation()) options:(current application's NSDictionary's alloc()'s init())
     

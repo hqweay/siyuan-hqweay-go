@@ -169,6 +169,15 @@
         },
         {
           type: "checkbox",
+          title: "OCR 图片识别",
+          description:
+            "批量 OCR 识别图片中的文字（仅支持 MacOS，通过 AppleScript 调用 macOS Vision OCR）",
+          key: "ocr",
+          value: settings.getFlag("ocr"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "其它",
           description:
             "一些自用项目，没有或者比较难拆分为配置，感兴趣的可以自己扒源码用……",
@@ -683,6 +692,15 @@ https://shibe.online/api/shibes?count=1`,
         //   value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
         //   placeholder: "",
         // },
+      ],
+      "OCR 图片识别": [
+        {
+          type: "checkbox",
+          title: "移除换行符",
+          description: "OCR 识别后是否移除文本中的换行符",
+          key: "removeLineBreaks",
+          value: settings.getBySpace("ocrConfig", "removeLineBreaks"),
+        },
       ],
       标题下展示文档自定义属性的值: [
         {

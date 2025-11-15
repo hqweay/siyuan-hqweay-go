@@ -34,6 +34,7 @@ const DEFAULT_CONFIG = {
     voiceNotes: false,
     createDailyNote: false,
     quickAttr: false,
+    ocr: false,
   },
   codeSnippetsConfig: {},
   doOnPasteConfig: {
@@ -309,6 +310,9 @@ https://shibe.online/api/shibes?count=1`,
     enabled: true,
   },
 ]`,
+  },
+  ocrConfig: {
+    removeLineBreaks: false,
   },
 };
 
