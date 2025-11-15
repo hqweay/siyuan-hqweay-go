@@ -1,4 +1,6 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
+import { macOCR2,macOCR } from "@/ocr";
+
 import { settings } from "@/settings";
 import { plugin } from "@/utils";
 import { openTab } from "siyuan";
@@ -10,6 +12,11 @@ export default class RandomNote extends AddIconThenClick {
 
   // 打开随机文档，编辑sql选定范围
   async exec() {
+    let result = await macOCR2("/Users/hqweay/Desktop/test.png");
+    result = await macOCR("/Users/hqweay/Desktop/2.png");
+    // console.log(result);
+    return;
+ 
     let sql = settings.getBySpace("randomNoteConfig", "rangeSQL");
     if (!sql) {
       sql = "SELECT root_id FROM blocks ORDER BY random() LIMIT 1";
