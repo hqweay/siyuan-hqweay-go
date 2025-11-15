@@ -32,9 +32,9 @@ on getImageText(imagePath)
     set theResults to theRequest's results()
     
     -- 处理结果
-    set theText to {}
+    set theText to ""
     repeat with observation in theResults
-        copy ((first item in (observation's topCandidates:1))'s |string|() as text) to end of theText
+        set theText to theText & ((first item in (observation's topCandidates:1))'s |string|() as text) & linefeed
     end repeat
     
     -- 返回文本，AppleScript 列表转换成字符串
