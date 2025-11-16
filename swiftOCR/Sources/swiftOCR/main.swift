@@ -14,10 +14,13 @@ guard let nsImage = NSImage(contentsOfFile: imagePath),
     print("Failed to load image")
     exit(1)
 }
-
+ 
 // 设置 OCR 请求
 let request = VNRecognizeTextRequest()
 request.recognitionLevel = .accurate
+
+request.recognitionLanguages = ["zh-Hans", "en"]
+
 request.usesLanguageCorrection = true
 
 let requestHandler = VNImageRequestHandler(data: tiffData, options: [:])

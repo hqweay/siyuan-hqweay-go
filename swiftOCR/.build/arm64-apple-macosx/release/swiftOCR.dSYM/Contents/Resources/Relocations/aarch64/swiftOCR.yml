@@ -1,0 +1,37 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR'
+relocations:
+  - { offset: 0xE1C12, size: 0x8, addend: 0x0, symName: '_$s8swiftOCR9imagePathSSvp', symObjAddr: 0xA998, symBinAddr: 0x100008170, symSize: 0x0 }
+  - { offset: 0xE1C2C, size: 0x8, addend: 0x0, symName: '_$s8swiftOCR7requestSo22VNRecognizeTextRequestCvp', symObjAddr: 0xA9A8, symBinAddr: 0x100008180, symSize: 0x0 }
+  - { offset: 0xE1C46, size: 0x8, addend: 0x0, symName: '_$s8swiftOCR14requestHandlerSo014VNImageRequestD0Cvp', symObjAddr: 0xA9B0, symBinAddr: 0x100008188, symSize: 0x0 }
+  - { offset: 0xE1E64, size: 0x8, addend: 0x0, symName: _swiftOCR_main, symObjAddr: 0x0, symBinAddr: 0x1000010E8, symSize: 0x888 }
+  - { offset: 0xE2556, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledName, symObjAddr: 0x888, symBinAddr: 0x100001970, symSize: 0x44 }
+  - { offset: 0xE2627, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4findys10_HashTableV6BucketV6bucket_Sb5foundtxSHRzlFSo13VNImageOptiona_Tg5', symObjAddr: 0xC48, symBinAddr: 0x100001D30, symSize: 0x80 }
+  - { offset: 0xE2713, size: 0x8, addend: 0x0, symName: '_$ss12_ArrayBufferV20_consumeAndCreateNew14bufferIsUnique15minimumCapacity13growForAppendAByxGSb_SiSbtFSS_Tg5', symObjAddr: 0xCC8, symBinAddr: 0x100001DB0, symSize: 0x100 }
+  - { offset: 0xE2815, size: 0x8, addend: 0x0, symName: '_$ss22__RawDictionaryStorageC4find_9hashValues10_HashTableV6BucketV6bucket_Sb5foundtx_SitSHRzlFSo13VNImageOptiona_Tg5', symObjAddr: 0xDC8, symBinAddr: 0x100001EB0, symSize: 0x100 }
+  - { offset: 0xE293C, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOy', symObjAddr: 0x1180, symBinAddr: 0x100002268, symSize: 0x40 }
+  - { offset: 0xE2950, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaMa', symObjAddr: 0x11C0, symBinAddr: 0x1000022A8, symSize: 0x50 }
+  - { offset: 0xE2964, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataV15_RepresentationOWOe', symObjAddr: 0x1210, symBinAddr: 0x1000022F8, symSize: 0x40 }
+  - { offset: 0xE2978, size: 0x8, addend: 0x0, symName: '_$sSaySSGSayxGSKsWl', symObjAddr: 0x1250, symBinAddr: 0x100002338, symSize: 0x48 }
+  - { offset: 0xE298C, size: 0x8, addend: 0x0, symName: ___swift_instantiateConcreteTypeFromMangledNameAbstract, symObjAddr: 0x1298, symBinAddr: 0x100002380, symSize: 0x48 }
+  - { offset: 0xE29A0, size: 0x8, addend: 0x0, symName: '_$sS2SSysWl', symObjAddr: 0x12E0, symBinAddr: 0x1000023C8, symSize: 0x40 }
+  - { offset: 0xE29B4, size: 0x8, addend: 0x0, symName: '_$s10Foundation4DataVSgWOe', symObjAddr: 0x1320, symBinAddr: 0x100002408, symSize: 0x14 }
+  - { offset: 0xE29C8, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas20_SwiftNewtypeWrapperSCSYWb', symObjAddr: 0x1374, symBinAddr: 0x10000245C, symSize: 0x24 }
+  - { offset: 0xE29DC, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas20_SwiftNewtypeWrapperSCs35_HasCustomAnyHashableRepresentationPWb', symObjAddr: 0x1398, symBinAddr: 0x100002480, symSize: 0x24 }
+  - { offset: 0xE29F0, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSHSCSQWb', symObjAddr: 0x13BC, symBinAddr: 0x1000024A4, symSize: 0x24 }
+  - { offset: 0xE2A04, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptiona_yptWOc', symObjAddr: 0x1420, symBinAddr: 0x100002508, symSize: 0x48 }
+  - { offset: 0xE2A18, size: 0x8, addend: 0x0, symName: '_$sypWOb', symObjAddr: 0x1468, symBinAddr: 0x100002550, symSize: 0x10 }
+  - { offset: 0xE2B87, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas21_ObjectiveCBridgeableSCsACP09_bridgeToC1C01_C5CTypeQzyFTW', symObjAddr: 0x8CC, symBinAddr: 0x1000019B4, symSize: 0x8 }
+  - { offset: 0xE2C04, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas21_ObjectiveCBridgeableSCsACP016_forceBridgeFromC1C_6resulty01_C5CTypeQz_xSgztFZTW', symObjAddr: 0x8D4, symBinAddr: 0x1000019BC, symSize: 0x74 }
+  - { offset: 0xE2CB2, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas21_ObjectiveCBridgeableSCsACP024_conditionallyBridgeFromC1C_6resultSb01_C5CTypeQz_xSgztFZTW', symObjAddr: 0x948, symBinAddr: 0x100001A30, symSize: 0x7C }
+  - { offset: 0xE2D60, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas21_ObjectiveCBridgeableSCsACP026_unconditionallyBridgeFromC1Cyx01_C5CTypeQzSgFZTW', symObjAddr: 0x9C4, symBinAddr: 0x100001AAC, symSize: 0x40 }
+  - { offset: 0xE2DDF, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSHSCSH9hashValueSivgTW', symObjAddr: 0xA04, symBinAddr: 0x100001AEC, symSize: 0x38 }
+  - { offset: 0xE2E5D, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSHSCSH4hash4intoys6HasherVz_tFTW', symObjAddr: 0xA3C, symBinAddr: 0x100001B24, symSize: 0x40 }
+  - { offset: 0xE2EDB, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSHSCSH13_rawHashValue4seedS2i_tFTW', symObjAddr: 0xA7C, symBinAddr: 0x100001B64, symSize: 0x70 }
+  - { offset: 0xE2F51, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSQSCSQ2eeoiySbx_xtFZTW', symObjAddr: 0xAEC, symBinAddr: 0x100001BD4, symSize: 0x84 }
+  - { offset: 0xE2FF3, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionas35_HasCustomAnyHashableRepresentationSCsACP03_todeF0s0eF0VSgyFTW', symObjAddr: 0xBDC, symBinAddr: 0x100001CC4, symSize: 0x6C }
+  - { offset: 0xE3067, size: 0x8, addend: 0x0, symName: '_$sSD17dictionaryLiteralSDyxq_Gx_q_td_tcfCSo13VNImageOptiona_ypTt0g5Tf4g_n', symObjAddr: 0x1084, symBinAddr: 0x10000216C, symSize: 0xFC }
+  - { offset: 0xE344A, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSYSCSY8rawValuexSg03RawD0Qz_tcfCTW', symObjAddr: 0xB70, symBinAddr: 0x100001C58, symSize: 0x44 }
+  - { offset: 0xE3474, size: 0x8, addend: 0x0, symName: '_$sSo13VNImageOptionaSYSCSY8rawValue03RawD0QzvgTW', symObjAddr: 0xBB4, symBinAddr: 0x100001C9C, symSize: 0x28 }
+...

@@ -1,0 +1,239 @@
+{
+  "builtTestProducts" : [
+
+  ],
+  "copyCommands" : {
+
+  },
+  "explicitTargetDependencyImportCheckingMode" : {
+    "none" : {
+
+    }
+  },
+  "generatedSourceTargetSet" : [
+
+  ],
+  "pluginDescriptions" : [
+
+  ],
+  "swiftCommands" : {
+    "C.swiftOCR-arm64-apple-macosx26.0-release.module" : {
+      "executable" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "fileList" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/sources",
+      "importPath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/Modules",
+      "inputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/Sources/swiftOCR/main.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/sources"
+        }
+      ],
+      "isLibrary" : false,
+      "moduleName" : "swiftOCR",
+      "moduleOutputPath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/Modules/swiftOCR.swiftmodule",
+      "objects" : [
+        "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/main.swift.o"
+      ],
+      "otherArguments" : [
+        "-target",
+        "arm64-apple-macosx13.0",
+        "-whole-module-optimization",
+        "-num-threads",
+        "8",
+        "-serialize-diagnostics",
+        "-O",
+        "-j8",
+        "-DSWIFT_PACKAGE",
+        "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+        "-module-cache-path",
+        "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/ModuleCache",
+        "-parseable-output",
+        "-Xfrontend",
+        "-entry-point-function-name",
+        "-Xfrontend",
+        "swiftOCR_main",
+        "-color-diagnostics",
+        "-swift-version",
+        "5",
+        "-plugin-path",
+        "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+        "-sdk",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-F",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-I",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-L",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+        "-g",
+        "-Xcc",
+        "-isysroot",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+        "-Xcc",
+        "-F",
+        "-Xcc",
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+        "-Xcc",
+        "-fPIC",
+        "-Xcc",
+        "-g"
+      ],
+      "outputFileMapPath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/output-file-map.json",
+      "outputs" : [
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/main.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/Modules/swiftOCR.swiftmodule"
+        }
+      ],
+      "prepareForIndexing" : false,
+      "sources" : [
+        "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/Sources/swiftOCR/main.swift"
+      ],
+      "tempsPath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build",
+      "wholeModuleOptimization" : true
+    }
+  },
+  "swiftFrontendCommands" : {
+
+  },
+  "swiftTargetScanArgs" : {
+    "swiftOCR" : [
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc",
+      "-module-name",
+      "swiftOCR",
+      "-c",
+      "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/Sources/swiftOCR/main.swift",
+      "-I",
+      "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/Modules",
+      "-target",
+      "arm64-apple-macosx13.0",
+      "-whole-module-optimization",
+      "-num-threads",
+      "8",
+      "-serialize-diagnostics",
+      "-O",
+      "-j8",
+      "-DSWIFT_PACKAGE",
+      "-DSWIFT_MODULE_RESOURCE_BUNDLE_UNAVAILABLE",
+      "-module-cache-path",
+      "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/ModuleCache",
+      "-parseable-output",
+      "-Xfrontend",
+      "-entry-point-function-name",
+      "-Xfrontend",
+      "swiftOCR_main",
+      "-color-diagnostics",
+      "-swift-version",
+      "5",
+      "-plugin-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing",
+      "-sdk",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-F",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-I",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-L",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib",
+      "-g",
+      "-Xcc",
+      "-isysroot",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.0.sdk",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/Frameworks",
+      "-Xcc",
+      "-F",
+      "-Xcc",
+      "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/Library/PrivateFrameworks",
+      "-Xcc",
+      "-fPIC",
+      "-Xcc",
+      "-g",
+      "-driver-use-frontend-path",
+      "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+    ]
+  },
+  "targetDependencyMap" : {
+    "swiftOCR" : [
+
+    ]
+  },
+  "testDiscoveryCommands" : {
+
+  },
+  "testEntryPointCommands" : {
+
+  },
+  "traitConfiguration" : {
+    "default" : {
+
+    }
+  },
+  "writeCommands" : {
+    "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt" : {
+      "alwaysOutOfDate" : true,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<swift-get-version>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc"
+        }
+      ],
+      "outputFilePath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swift-version--58304C5D6DBC2206.txt"
+    },
+    "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/sources" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/Sources/swiftOCR/main.swift"
+        }
+      ],
+      "outputFilePath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/sources"
+    },
+    "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.product/Objects.LinkFileList" : {
+      "alwaysOutOfDate" : false,
+      "inputs" : [
+        {
+          "kind" : "virtual",
+          "name" : "<link-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.build/main.swift.o"
+        }
+      ],
+      "outputFilePath" : "/Users/hqweay/Public/Code/siyuan-hqweay-go/swiftOCR/.build/arm64-apple-macosx/release/swiftOCR.product/Objects.LinkFileList"
+    }
+  }
+}
