@@ -312,7 +312,10 @@ https://shibe.online/api/shibes?count=1`,
 ]`,
   },
   ocrConfig: {
+    ocrMethod: "macOSVision",
+    autoRemoveLineBreaks: false,
     removeLineBreaks: false,
+    removeBlankInChinese: false,
   },
 };
 

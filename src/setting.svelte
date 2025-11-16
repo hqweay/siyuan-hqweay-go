@@ -21,6 +21,14 @@
         },
         {
           type: "checkbox",
+          title: "OCR 图片识别",
+          description: "批量 OCR 识别图片中的文字",
+          key: "ocr",
+          value: settings.getFlag("ocr"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "日记相关工具",
           description: `slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；快捷小窗录入日记（默认快捷键F10）`,
           key: "createDailyNote",
@@ -167,15 +175,7 @@
           value: settings.getFlag("mobileHelper"),
           hasSetting: true,
         },
-        {
-          type: "checkbox",
-          title: "OCR 图片识别",
-          description:
-            "批量 OCR 识别图片中的文字（仅支持 MacOS，通过 AppleScript 调用 macOS Vision OCR）",
-          key: "ocr",
-          value: settings.getFlag("ocr"),
-          hasSetting: true,
-        },
+
         {
           type: "checkbox",
           title: "其它",
@@ -695,11 +695,36 @@ https://shibe.online/api/shibes?count=1`,
       ],
       "OCR 图片识别": [
         {
+          type: "select",
+          title: "方案",
+          description: "方案",
+          key: "ocrMethod",
+          value: settings.getBySpace("ocrConfig", "ocrMethod"),
+          options: {
+            macOSVision: "使用 MacOS Vision OCR",
+            umi: "使用 umi OCR",
+          },
+        },
+        {
+          type: "checkbox",
+          title: "自动移除换行",
+          description: "通过每行结尾是否存在标点自动判断移除换行",
+          key: "autoRemoveLineBreaks",
+          value: settings.getBySpace("ocrConfig", "autoRemoveLineBreaks"),
+        },
+        {
           type: "checkbox",
           title: "移除换行符",
           description: "OCR 识别后是否移除文本中的换行符",
           key: "removeLineBreaks",
           value: settings.getBySpace("ocrConfig", "removeLineBreaks"),
+        },
+        {
+          type: "checkbox",
+          title: "移除中文内的空格",
+          description: "移除中文内的空格",
+          key: "removeBlankInChinese",
+          value: settings.getBySpace("ocrConfig", "removeBlankInChinese"),
         },
       ],
       标题下展示文档自定义属性的值: [

@@ -6,6 +6,7 @@ import * as jinja from "jinja-js";
 import { fetchSyncPost, showMessage } from "siyuan";
 import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
 import VoiceNotesApi from "./voicenotes-api";
+import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 
 function getContentFromTranscriptToNextHeading(element) {
   let result = "";
@@ -493,7 +494,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         //   recording.updated_at,
         //   settings.getBySpace("voiceNotesConfig", "dateFormat")
         // ),
-        transcript: this.cleanSpacesBetweenChineseCharacters(transcript),
+        transcript: cleanSpacesBetweenChineseCharacters(transcript),
         // audio_filename: audioFilenameMD,
         summary: this.getMarkdownContent(summary, "Summary"),
         tidy: this.getMarkdownContent(tidy, "Tidy Transcript"),
@@ -678,12 +679,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     } else {
       return null; // 如果是空数组，返回null
     }
-  }
-
-  cleanSpacesBetweenChineseCharacters(text) {
-    return text
-      .replace(/(?<=[\u4e00-\u9fa5])\s(?=[\u4e00-\u9fa5])/g, "")
-      .replace(/\s+/g, " ");
   }
 
   async searchRelatedNotes(relatedNote) {

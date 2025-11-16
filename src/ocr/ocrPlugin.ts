@@ -1,9 +1,11 @@
-import AddIconThenClick from "@/myscripts/addIconThenClick";
-import { settings } from "@/settings";
-import { showMessage, Menu } from "siyuan";
-import { plugin } from "@/utils";
-import { macOCRByAppleScript } from "./utils";
 import { sql } from "@/api";
+import AddIconThenClick from "@/myscripts/addIconThenClick";
+import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
+import { settings } from "@/settings";
+import { plugin } from "@/utils";
+import { Menu, showMessage } from "siyuan";
+import { umiOCR } from "./umi-ocr";
+import { macOCRByAppleScript } from "./utils";
 
 const path = require("path");
 
@@ -40,11 +42,80 @@ async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
     const storageName = ocrStorageName(imgPath);
 
     // 从配置中获取 removeLineBreaks 设置
+    const ocrMethod =
+      settings.getBySpace("ocrConfig", "ocrMethod") || "macOSVision";
+
+    const autoRemoveLineBreaks =
+      settings.getBySpace("ocrConfig", "autoRemoveLineBreaks") || false;
     const removeLineBreaks =
       settings.getBySpace("ocrConfig", "removeLineBreaks") || false;
+    const removeBlankInChinese =
+      settings.getBySpace("ocrConfig", "removeBlankInChinese") || false;
 
+    let ocrText = "";
     // 调用 OCR
-    const ocrText = await macOCRByAppleScript(absolutePath, removeLineBreaks);
+    if (ocrMethod === "macOSVision") {
+      ocrText = await macOCRByAppleScript(absolutePath);
+    } else if (ocrMethod === "umi") {
+      ocrText = await umiOCR(
+        absolutePath,
+        "https://ocr.heartstack.space/api/ocr"
+      );
+    } else {
+      return;
+    }
+
+    if (autoRemoveLineBreaks) {
+      ocrText = processOCRText(ocrText, {
+        autoRemoveLineBreaks: true,
+        removeBlankInChinese,
+        lineEndSymbols: [
+          // 英文标点
+          ".",
+          "!",
+          "?",
+          ",",
+          ";",
+          ":",
+          "...",
+          "—",
+          "-",
+          "(",
+          ")",
+          '"',
+          "'",
+
+          // 中文标点
+          "。",
+          "，",
+          "；",
+          "：",
+          "！",
+          "？",
+          "（",
+          "）",
+          "“",
+          "”",
+          "‘",
+          "’",
+          "…",
+          "—",
+
+          // 可能还需要的中文标点
+          "、",
+          "《",
+          "》",
+          "【",
+          "】",
+          "『",
+          "』",
+          "「",
+          "」",
+        ],
+      });
+    } else if (removeLineBreaks) {
+      ocrText = ocrText.replace(/\r?\n/g, "");
+    }
 
     if (ocrText && ocrText.trim()) {
       // 保存 OCR 结果
@@ -84,6 +155,61 @@ async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
   }
 }
 
+interface OCRConfig {
+  autoRemoveLineBreaks?: boolean;
+  removeBlankInChinese?: boolean;
+  lineEndSymbols?: string[];
+}
+/**
+ * 根据配置处理 OCR 文本
+ * @param text OCR 原始文本
+ * @param config 配置
+ * @returns 处理后的文本
+ */
+export function processOCRText(text: string, config: OCRConfig = {}): string {
+  const {
+    autoRemoveLineBreaks = false,
+    removeBlankInChinese = false,
+    lineEndSymbols = [".", "!", "?", ",", "，", "。"],
+  } = config;
+
+  if (!autoRemoveLineBreaks) {
+    return text;
+  }
+
+  // 拆分成行
+  const lines = text.split(/\r?\n/);
+  const processedLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    let line = lines[i].trim();
+    // line = formatUtil.formatContent(line);
+
+    if (removeBlankInChinese) {
+      line = cleanSpacesBetweenChineseCharacters(line);
+    }
+    if (line === "") continue;
+
+    if (processedLines.length === 0) {
+      processedLines.push(line);
+      continue;
+    }
+
+    // 上一行最后一个字符是否为指定符号
+    const prevLine = processedLines[processedLines.length - 1];
+    const lastChar = prevLine.slice(-1);
+    if (lineEndSymbols.includes(lastChar)) {
+      processedLines.push(line);
+    } else {
+      // 合并当前行到上一行
+      processedLines[processedLines.length - 1] = prevLine + " " + line;
+    }
+  }
+  console.log("Processed OCR lines:", processedLines);
+  return processedLines.join("\n");
+  // return JSON.stringify(processedLines.join("\\n"));
+}
+
 export default class OCRPlugin extends AddIconThenClick {
   id = "hqweay-ocr";
   label = "批量 OCR";
@@ -103,18 +229,53 @@ export default class OCRPlugin extends AddIconThenClick {
 
     // 显示菜单选择 OCR 类型
     const menu = new Menu("hqweay-ocr-menu");
+
     menu.addItem({
-      label: "识别所有无 OCR 数据的图片",
+      label: "OCR 当前文档 的图片",
       click: async () => {
-        await batchOcr({ type: "all" }, this);
+        const currentDocId = document
+          .querySelector(
+            ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+          )
+          ?.getAttribute("data-node-id");
+
+        await batchOcr(
+          `SELECT * FROM assets where root_id = '${currentDocId}' and (PATH LIKE '%.png'
+   OR PATH LIKE '%.jpg'
+   OR PATH LIKE '%.jpeg'
+   OR PATH LIKE '%.gif'
+   OR PATH LIKE '%.bmp'
+   OR PATH LIKE '%.webp')`,
+          { type: "all" },
+          this
+        );
       },
     });
+
     menu.addItem({
-      label: "再次识别所有识别失败的图片",
+      label: "OCR 所有 图片",
       click: async () => {
-        await batchOcr({ type: "failing" }, this);
+        await batchOcr(
+          `SELECT * FROM assets
+WHERE PATH LIKE '%.png'
+   OR PATH LIKE '%.jpg'
+   OR PATH LIKE '%.jpeg'
+   OR PATH LIKE '%.gif'
+   OR PATH LIKE '%.bmp'
+   OR PATH LIKE '%.webp'
+LIMIT 99999`,
+          { type: "all" },
+          this
+        );
       },
     });
+
+    // menu.addItem({
+    //   label: "再次识别所有识别失败的图片",
+    //   click: async () => {
+    //     await batchOcr({ type: "failing" }, this);
+    //   },
+    // });
     // 获取按钮位置来显示菜单
     const btn = document.getElementById(this.id);
     if (btn) {
@@ -192,6 +353,7 @@ export default class OCRPlugin extends AddIconThenClick {
  * @param ocrPlugin OCR 插件实例，用于控制停止
  */
 export async function batchOcr(
+  sqlStr,
   options: {
     type: "failing" | "all";
   },
@@ -209,14 +371,7 @@ export async function batchOcr(
       path: string;
       root_id: string;
       title: string;
-    }> = await sql(`SELECT * FROM assets
-WHERE PATH LIKE '%.png'
-   OR PATH LIKE '%.jpg'
-   OR PATH LIKE '%.jpeg'
-   OR PATH LIKE '%.gif'
-   OR PATH LIKE '%.bmp'
-   OR PATH LIKE '%.webp'
-LIMIT 99999`);
+    }> = await sql(sqlStr);
 
     if (assets.length === 0) {
       showMessage("未找到图片资源", 3000);
