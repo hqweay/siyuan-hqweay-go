@@ -5,6 +5,7 @@ import { settings } from "@/settings";
 import { Menu, showMessage } from "siyuan";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript } from "./utils";
+import { formatUtil } from "@/siyuan-typography-go/utils";
 const path = require("path");
 
 /**
@@ -34,21 +35,28 @@ function getAbsolutePath(imgPath: string): string {
  * @param imgPath 图片路径（相对路径，如 /assets/xxx.png）
  * @returns 是否成功
  */
-async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
+async function ocrAssetsUrl(
+  imgPath: string,
+  autoRemoveLineBreaks: boolean
+): Promise<boolean> {
   try {
     const absolutePath = getAbsolutePath(imgPath);
-    const storageName = ocrStorageName(imgPath);
 
     // 从配置中获取 removeLineBreaks 设置
     const ocrMethod =
       settings.getBySpace("ocrConfig", "ocrMethod") || "macOSVision";
 
-    const autoRemoveLineBreaks =
-      settings.getBySpace("ocrConfig", "autoRemoveLineBreaks") || false;
+    if (autoRemoveLineBreaks === undefined) {
+      autoRemoveLineBreaks =
+        settings.getBySpace("ocrConfig", "autoRemoveLineBreaks") || false;
+    }
+
     const removeLineBreaks =
       settings.getBySpace("ocrConfig", "removeLineBreaks") || false;
     const removeBlankInChinese =
       settings.getBySpace("ocrConfig", "removeBlankInChinese") || false;
+    const formatWithPangu =
+      settings.getBySpace("ocrConfig", "formatWithPangu") || false;
 
     let ocrText = "";
     // 调用 OCR
@@ -115,6 +123,16 @@ async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
       ocrText = ocrText.replace(/\r?\n/g, "");
     }
 
+    // 移除中文字符间的空格
+    if (removeBlankInChinese) {
+      ocrText = cleanSpacesBetweenChineseCharacters(ocrText);
+    }
+
+    // 调用 pangu 格式化
+    if (formatWithPangu) {
+      ocrText = formatUtil.formatContent(ocrText);
+    }
+
     if (ocrText && ocrText.trim()) {
       // 调用思源 API 设置图片 OCR 文本
       try {
@@ -157,7 +175,6 @@ interface OCRConfig {
 export function processOCRText(text: string, config: OCRConfig = {}): string {
   const {
     autoRemoveLineBreaks = false,
-    removeBlankInChinese = false,
     lineEndSymbols = [".", "!", "?", ",", "，", "。"],
   } = config;
 
@@ -171,11 +188,7 @@ export function processOCRText(text: string, config: OCRConfig = {}): string {
 
   for (let i = 0; i < lines.length; i++) {
     let line = lines[i].trim();
-    // line = formatUtil.formatContent(line);
 
-    if (removeBlankInChinese) {
-      line = cleanSpacesBetweenChineseCharacters(line);
-    }
     if (line === "") continue;
 
     if (processedLines.length === 0) {
@@ -219,7 +232,7 @@ export default class OCRPlugin extends AddIconThenClick {
     const menu = new Menu("hqweay-ocr-menu");
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（强制 OCR 所有）",
+      label: "OCR 当前文档 的图片（强制 OCR 所有） + 自动换行",
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -234,14 +247,14 @@ export default class OCRPlugin extends AddIconThenClick {
    OR PATH LIKE '%.gif'
    OR PATH LIKE '%.bmp'
    OR PATH LIKE '%.webp')`,
-          { type: "force" },
+          { type: "force", autoRemoveLineBreaks: true },
           this
         );
       },
     });
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（跳过 已 OCR）",
+      label: "OCR 当前文档 的图片（强制 OCR 所有） + 不配置自动换行",
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -256,7 +269,51 @@ export default class OCRPlugin extends AddIconThenClick {
    OR PATH LIKE '%.gif'
    OR PATH LIKE '%.bmp'
    OR PATH LIKE '%.webp')`,
-          { type: "all" },
+          { type: "force", autoRemoveLineBreaks: false },
+          this
+        );
+      },
+    });
+
+    menu.addItem({
+      label: "OCR 当前文档 的图片（跳过 已 OCR） + 配置自动换行",
+      click: async () => {
+        const currentDocId = document
+          .querySelector(
+            ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+          )
+          ?.getAttribute("data-node-id");
+
+        await batchOcr(
+          `SELECT * FROM assets where root_id = '${currentDocId}' and (PATH LIKE '%.png'
+   OR PATH LIKE '%.jpg'
+   OR PATH LIKE '%.jpeg'
+   OR PATH LIKE '%.gif'
+   OR PATH LIKE '%.bmp'
+   OR PATH LIKE '%.webp')`,
+          { type: "all", autoRemoveLineBreaks: true },
+          this
+        );
+      },
+    });
+
+    menu.addItem({
+      label: "OCR 当前文档 的图片（跳过 已 OCR） + 不配置自动换行",
+      click: async () => {
+        const currentDocId = document
+          .querySelector(
+            ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+          )
+          ?.getAttribute("data-node-id");
+
+        await batchOcr(
+          `SELECT * FROM assets where root_id = '${currentDocId}' and (PATH LIKE '%.png'
+   OR PATH LIKE '%.jpg'
+   OR PATH LIKE '%.jpeg'
+   OR PATH LIKE '%.gif'
+   OR PATH LIKE '%.bmp'
+   OR PATH LIKE '%.webp')`,
+          { type: "all", autoRemoveLineBreaks: false },
           this
         );
       },
@@ -346,9 +403,14 @@ LIMIT 99999`,
     (globalThis.window.siyuan.menus.menu as Menu).addItem({
       label: "OCR 识别",
       click: async () => {
-        const ok = await ocrAssetsUrl(imgSrc);
+        const ok = await ocrAssetsUrl(imgSrc, undefined);
         if (ok) {
           showMessage(`OCR 识别成功`);
+          const existingOCR = await request("/api/asset/getImageOCRText", {
+            path: imgSrc,
+          });
+          navigator.clipboard.writeText(existingOCR.text);
+          showMessage("OCR 内容已复制到剪贴板", 2000);
         } else {
           showMessage(`OCR 识别失败`);
         }
@@ -405,6 +467,7 @@ export async function batchOcr(
   sqlStr,
   options: {
     type: "failing" | "all" | "force";
+    autoRemoveLineBreaks?: boolean;
   },
   ocrPlugin?: OCRPlugin
 ): Promise<void> {
@@ -470,7 +533,7 @@ export async function batchOcr(
       } else {
         //if force      // 强制识别所有图片
         try {
-          ok = await ocrAssetsUrl(imgPath);
+          ok = await ocrAssetsUrl(imgPath, options.autoRemoveLineBreaks);
         } catch (error) {
           ok = false;
           console.error(`OCR 处理失败 [${imgPath}]:`, error);

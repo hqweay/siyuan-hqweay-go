@@ -726,6 +726,13 @@ https://shibe.online/api/shibes?count=1`,
           key: "removeBlankInChinese",
           value: settings.getBySpace("ocrConfig", "removeBlankInChinese"),
         },
+        {
+          type: "checkbox",
+          title: "调用 pangu 格式化",
+          description: "调用 pangu 格式化",
+          key: "formatWithPangu",
+          value: settings.getBySpace("ocrConfig", "formatWithPangu"),
+        },
       ],
       标题下展示文档自定义属性的值: [
         {

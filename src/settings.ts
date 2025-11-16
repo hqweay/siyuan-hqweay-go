@@ -316,6 +316,7 @@ https://shibe.online/api/shibes?count=1`,
     autoRemoveLineBreaks: false,
     removeLineBreaks: false,
     removeBlankInChinese: false,
+    formatWithPangu: false,
   },
 };
 
