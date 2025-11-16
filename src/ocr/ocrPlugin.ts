@@ -1,4 +1,4 @@
-import { sql } from "@/api";
+import { sql, request } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 import { settings } from "@/settings";
@@ -118,12 +118,6 @@ async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
     }
 
     if (ocrText && ocrText.trim()) {
-      // 保存 OCR 结果
-      await plugin.saveData(storageName, {
-        words_result: [{ words: ocrText }],
-        text: ocrText,
-      });
-
       // 调用思源 API 设置图片 OCR 文本
       try {
         await fetch("/api/asset/setImageOCRText", {
@@ -142,15 +136,11 @@ async function ocrAssetsUrl(imgPath: string): Promise<boolean> {
 
       return true;
     } else {
-      // OCR 结果为空，保存空结果
-      await plugin.saveData(storageName, {});
+      // OCR 结果为空
       return false;
     }
   } catch (error) {
     console.error(`OCR 失败 [${imgPath}]:`, error);
-    // 保存失败标记
-    const storageName = ocrStorageName(imgPath);
-    await plugin.saveData(storageName, { error: true });
     return false;
   }
 }
@@ -231,7 +221,29 @@ export default class OCRPlugin extends AddIconThenClick {
     const menu = new Menu("hqweay-ocr-menu");
 
     menu.addItem({
-      label: "OCR 当前文档 的图片",
+      label: "OCR 当前文档 的图片（强制 OCR 所有）",
+      click: async () => {
+        const currentDocId = document
+          .querySelector(
+            ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+          )
+          ?.getAttribute("data-node-id");
+
+        await batchOcr(
+          `SELECT * FROM assets where root_id = '${currentDocId}' and (PATH LIKE '%.png'
+   OR PATH LIKE '%.jpg'
+   OR PATH LIKE '%.jpeg'
+   OR PATH LIKE '%.gif'
+   OR PATH LIKE '%.bmp'
+   OR PATH LIKE '%.webp')`,
+          { type: "force" },
+          this
+        );
+      },
+    });
+
+    menu.addItem({
+      label: "OCR 当前文档 的图片（跳过 已 OCR）",
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -253,7 +265,7 @@ export default class OCRPlugin extends AddIconThenClick {
     });
 
     menu.addItem({
-      label: "OCR 所有 图片",
+      label: "OCR 所有 图片（跳过 已 OCR）",
       click: async () => {
         await batchOcr(
           `SELECT * FROM assets
@@ -355,7 +367,7 @@ LIMIT 99999`,
 export async function batchOcr(
   sqlStr,
   options: {
-    type: "failing" | "all";
+    type: "failing" | "all" | "force";
   },
   ocrPlugin?: OCRPlugin
 ): Promise<void> {
@@ -410,17 +422,16 @@ export async function batchOcr(
       i += 1;
       let ok = false;
       const imgPath = img.path;
-      const storageName = ocrStorageName(imgPath);
-      const existingData = await plugin.loadData(storageName);
 
-      // 判断是否需要跳过
-      if (options.type === "all" && existingData && existingData.words_result) {
+      const existingOCR = await request("/api/asset/getImageOCRText", {
+        path: imgPath,
+      });
+
+      if (options.type === "all" && existingOCR?.text?.trim() !== "") {
         // 识别所有无 OCR 的图片时，跳过已有 OCR 数据的图片
         skip.push(imgPath);
-      } else if (options.type === "failing" && existingData?.words_result) {
-        // 再次识别失败图片时，跳过已有识别结果的图片
-        skip.push(imgPath);
       } else {
+        //if force      // 强制识别所有图片
         try {
           ok = await ocrAssetsUrl(imgPath);
         } catch (error) {
@@ -432,6 +443,7 @@ export async function batchOcr(
           successful.push(imgPath);
         } else {
           // 失败一般是丢失的资源
+          failing.push(imgPath);
           console.log("失败", imgPath);
         }
       }
