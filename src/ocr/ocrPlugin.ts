@@ -1,12 +1,10 @@
-import { sql, request } from "@/api";
+import { request, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 import { settings } from "@/settings";
-import { plugin } from "@/utils";
 import { Menu, showMessage } from "siyuan";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript } from "./utils";
-
 const path = require("path");
 
 /**
@@ -356,6 +354,45 @@ LIMIT 99999`,
         }
       },
     });
+    (globalThis.window.siyuan.menus.menu as Menu).addItem({
+      label: "复制 OCR 内容",
+      click: async () => {
+        const existingOCR = await request("/api/asset/getImageOCRText", {
+          path: imgSrc,
+        });
+        if (existingOCR?.text?.trim()) {
+          navigator.clipboard.writeText(existingOCR.text);
+          showMessage("OCR 内容已复制到剪贴板", 2000);
+        } else {
+          showMessage("该图片暂无 OCR 内容", 2000);
+        }
+      },
+    });
+    // (globalThis.window.siyuan.menus.menu as Menu).addItem({
+    //   label: "OCR 遮罩",
+    //   click: async () => {
+    //     // 在你的插件主代码中
+    //     // const path = img.dataset.src!.replace("/", "_");
+
+    //     // 对于在线图片暂时不处理
+    //     if (imgSrc.startsWith("http")) {
+    //       return;
+    //     }
+
+    //     const existingOCR = await request("/api/asset/getImageOCRText", {
+    //       path: imgSrc,
+    //     });
+
+    //     // 创建Svelte组件实例
+    //     const ocrComponent = new ImgOcrText({
+    //       target: img.parentElement!,
+    //       props: {
+    //         data: existingOCR || [],
+    //         imgEl: img,
+    //       },
+    //     });
+    //   },
+    // });
   }
 }
 
