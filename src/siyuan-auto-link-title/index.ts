@@ -25,6 +25,8 @@ export default class doOnPaste {
 
       settings.getBySpace("doOnPasteConfig", "recAnno") &&
         this.execRecAnno(event);
+      settings.getBySpace("doOnPasteConfig", "resizeAndCenterImg") &&
+        this.resizeAndCenterImg(event);
 
       event.detail.resolve({
         textPlain: event.detail.textPlain,
@@ -48,11 +50,27 @@ export default class doOnPaste {
     }
     return false;
   }
+
+  private async resizeAndCenterImg(event) {
+    const regex = /!\[\]\(([^)]+)\)/g;
+    const replaced = event.detail.textPlain
+      .trim()
+      .replace(
+        regex,
+        `![]($1){: style="width: calc(50% - 8px);"}`
+      );
+    event.detail.textPlain = replaced;
+    return true;
+  }
+
   private async execRecAnno(event) {
     const regex = /<<([^>]+)\s+"([^"]+)">>\n!\[\]\(([^)]+)\)/g;
     const replaced = event.detail.textPlain
       .trim()
-      .replace(regex, '![]($3)<<$1 "📌">>');
+      .replace(
+        regex,
+        `![]($3)<<$1 "📌">>`
+      );
     event.detail.textPlain = replaced;
     return true;
   }

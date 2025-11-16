@@ -19,14 +19,7 @@
           value: settings.getFlag("codeSnippets"),
           hasSetting: true,
         },
-        {
-          type: "checkbox",
-          title: "OCR 图片识别",
-          description: "批量 OCR 识别图片中的文字",
-          key: "ocr",
-          value: settings.getFlag("ocr"),
-          hasSetting: true,
-        },
+
         {
           type: "checkbox",
           title: "日记相关工具",
@@ -175,7 +168,14 @@
           value: settings.getFlag("mobileHelper"),
           hasSetting: true,
         },
-
+        {
+          type: "checkbox",
+          title: "OCR 图片识别",
+          description: "批量 OCR 识别图片中的文字",
+          key: "ocr",
+          value: settings.getFlag("ocr"),
+          hasSetting: true,
+        },
         {
           type: "checkbox",
           title: "其它",
@@ -282,6 +282,13 @@
           description: "",
           key: "recAnno",
           value: settings.getBySpace("doOnPasteConfig", "recAnno"),
+        },
+        {
+          type: "checkbox",
+          title: "图片自动缩小为 50%",
+          description: "图片自动缩小为 50%",
+          key: "resizeAndCenterImg",
+          value: settings.getBySpace("doOnPasteConfig", "resizeAndCenterImg"),
         },
         //  {
         //   type: "checkbox",

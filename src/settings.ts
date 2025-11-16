@@ -40,6 +40,7 @@ const DEFAULT_CONFIG = {
   doOnPasteConfig: {
     title: true,
     recAnno: false,
+    resizeAndCenterImg: false,
     // emptyLine: true,
   },
   sendToConfig: {
