@@ -32,12 +32,11 @@ export default class RandomNote extends AddIconThenClick {
         });
       }
     }
-    console.log(this.cacheIds);
+
     if (this.cacheIds.length > 0) {
       openTab({
         app: plugin.app,
         doc: {
-          //@ts-ignore
           id: this.cacheIds.pop(),
         },
       });

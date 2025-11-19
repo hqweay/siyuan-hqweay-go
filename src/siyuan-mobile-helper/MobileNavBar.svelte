@@ -10,6 +10,7 @@
   } from "@/myscripts/navUtil";
   import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
   import { createDailynote } from "@frostime/siyuan-plugin-kits";
+  import { sql } from "@/api";
 
   export let visible = true;
   export let config;
@@ -39,32 +40,29 @@
     openMobileFileById(plugin.app, id);
   }
 
-  async function execSQLAndOpen(sql) {
-    const execSQL = `select id from (${sql}) ORDER BY RANDOM() limit 1`;
-    try {
-      const response = await fetch("/api/query/sql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          stmt: execSQL,
-        }),
-      });
+  function generateSQLKey(sql) {
+    return sql.toUpperCase().replace(/[^A-Z0-9_]/g, ""); // 只保留字母数字下划线
+  }
+  let cacheIds = {};
+  async function execSQLAndOpen(sqlTemp) {
+    const key = generateSQLKey(sqlTemp);
+    if (cacheIds[key] === undefined) {
+      cacheIds[key] = [];
+    }
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.data && data.data.length > 0) {
-          const randomDocId = data.data[0].id;
-          openDocById(randomDocId);
-        } else {
-          console.error("随机查询未返回结果");
-          showMessage("随机查询未返回结果，请检查SQL语句", 3000, "error");
-        }
+    if (cacheIds[key].length === 0) {
+      sqlTemp = `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT 30`;
+
+      const data = await sql(sqlTemp);
+      if (data && data.length > 0) {
+        data.forEach((item: any) => {
+          cacheIds[key].push(item.id);
+        });
       }
-    } catch (error) {
-      console.error("随机查询执行失败:", error);
-      showMessage("随机查询执行失败: " + error.message, 3000, "error");
+    }
+
+    if (cacheIds[key].length > 0) {
+      openDocById(cacheIds[key].pop());
     }
   }
   async function goRandom() {

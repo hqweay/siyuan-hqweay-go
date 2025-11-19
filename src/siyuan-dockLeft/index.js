@@ -10,21 +10,27 @@ export default class DockLeft extends AddIconThenClick {
   defaultIcon = `😝`;
   type = "dockLeft";
 
+  cacheIds = [];
   async exec() {
     if (this.id === "") {
       return;
     } else if (this.id.startsWith("siyuan://") || this.id.startsWith("http")) {
       window.open(this.id);
     } else if (this.id.trim().startsWith("select ")) {
-      const sqlTemp = `select id from (${this.id.trim()}) limit 1`;
-      let data = await sql(sqlTemp);
-      console.log(data[0].id);
-      if (data) {
+      if (this.cacheIds.length === 0) {
+        const sqlTemp = `select id from (${this.id.trim()} ORDER BY random()) limit 30`;
+        let data = await sql(sqlTemp);
+        if (data && data.length > 0) {
+          data.forEach((item) => {
+            this.cacheIds.push(item.id);
+          });
+        }
+      }
+      if (this.cacheIds.length > 0) {
         openTab({
           app: plugin.app,
           doc: {
-            // @ts-ignore
-            id: data[0].id,
+            id: this.cacheIds.pop(),
           },
         });
       }
