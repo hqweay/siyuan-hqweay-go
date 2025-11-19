@@ -1,9 +1,3 @@
-import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
-
-declare const require: any;
-const { exec } = require("child_process");
-const path = require("path"); // 使用 require，而不是 import
-
 /**
  * 调用 macOS Vision OCR
  * @param imagePath 本地图片绝对路径
@@ -17,6 +11,7 @@ const path = require("path"); // 使用 require，而不是 import
  * @returns Promise<string> OCR识别结果
  */
 export function macOCRByAppleScript(imagePath: string): Promise<string> {
+  const path = require("path");
   return new Promise((resolve, reject) => {
     // AppleScript 文件路径
     const scriptPath = path.join(
@@ -26,7 +21,7 @@ export function macOCRByAppleScript(imagePath: string): Promise<string> {
 
     // 调用 osascript 执行 AppleScript
     const cmd = `osascript "${scriptPath}" "${imagePath}"`;
-
+    const { exec } = require("child_process");
     exec(
       cmd,
       { encoding: "buffer" },
@@ -46,6 +41,7 @@ export function macOCRByAppleScript(imagePath: string): Promise<string> {
 export function macOCRBySwift(imagePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const cmd = `${window.siyuan.config.system.workspaceDir}/data/plugins/siyuan-hqweay-go/swiftOCR/release/swiftOCR "${imagePath}"`;
+    const { exec } = require("child_process");
     exec(cmd, { encoding: "buffer" }, (err, stdout) => {
       if (err) reject(err);
       else {

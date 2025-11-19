@@ -58,7 +58,8 @@ https://shibe.online/api/shibes?count=1`,
     xjh: false,
   },
   randomNoteConfig: {
-    rangeSQL: "SELECT root_id FROM blocks ORDER BY random() LIMIT 1",
+    rangeSQL: "SELECT root_id FROM blocks",
+    limitNum: 30,
   },
   convertConfig: {
     styleNesting: true,
