@@ -97,7 +97,16 @@ function ViewMonitor(event, menu) {
     setBlockAttrs(id, { [`custom-${menu.key}`]: menu.value });
     location.reload();
   } else {
-    setBlockAttrs(id, { [`custom-${menu.key}`]: menu.value });
+    if (menu.keyvalues) {
+      const attrsToSet = {};
+      for (const [key, value] of Object.entries(menu.keyvalues)) {
+        attrsToSet[`custom-${key}`] = value;
+      }
+      setBlockAttrs(id, attrsToSet);
+      return;
+    } else {
+      setBlockAttrs(id, { [`custom-${menu.key}`]: menu.value });
+    }
   }
 }
 

@@ -277,6 +277,15 @@ https://shibe.online/api/shibes?count=1`,
   },
   quickAttrConfig: {
     attrs: `[
+    {
+    name: "测试配置多个属性",
+    keyvalues : {
+      "key1": "value1",
+      "key2": "value2",
+      "key3": "value3"
+    },
+    enabled: true,
+  },
   {
     name: "恢复转换效果",
     key: "f",
