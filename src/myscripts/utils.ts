@@ -9,3 +9,6 @@ export function cleanSpacesBetweenChineseCharacters(text) {
       .replace(/ +/g, " ")
   );
 }
+export function generateSQLKey(sql) {
+  return sql.toUpperCase().replace(/[^A-Z0-9_]/g, ""); // 只保留字母数字下划线
+}

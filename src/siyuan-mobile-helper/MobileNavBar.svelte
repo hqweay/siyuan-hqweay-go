@@ -11,6 +11,7 @@
   import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
   import { createDailynote } from "@frostime/siyuan-plugin-kits";
   import { sql } from "@/api";
+  import { generateSQLKey } from "@/myscripts/utils";
 
   export let visible = true;
   export let config;
@@ -40,9 +41,6 @@
     openMobileFileById(plugin.app, id);
   }
 
-  function generateSQLKey(sql) {
-    return sql.toUpperCase().replace(/[^A-Z0-9_]/g, ""); // 只保留字母数字下划线
-  }
   let cacheIds = {};
   async function execSQLAndOpen(sqlTemp) {
     const key = generateSQLKey(sqlTemp);
@@ -51,17 +49,20 @@
     }
 
     if (cacheIds[key].length === 0) {
-      sqlTemp = `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT 30`;
-
-      const data = await sql(sqlTemp);
+      let data = await sql(
+        `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT 1`
+      );
       if (data && data.length > 0) {
-        data.forEach((item: any) => {
-          cacheIds[key].push(item.id);
-        });
+        openDocById(data[0].id);
       }
-    }
-
-    if (cacheIds[key].length > 0) {
+      // 缓存
+      sqlTemp = `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT 30`;
+      sql(sqlTemp).then((data) => {
+        if (data && data.length > 0) {
+          cacheIds[key] = data.map((item) => item.id);
+        }
+      });
+    } else {
       openDocById(cacheIds[key].pop());
     }
   }

@@ -19,21 +19,27 @@ export default class RandomNote extends AddIconThenClick {
       if (!sqlTemp) {
         sqlTemp = "SELECT id FROM blocks WHERE type = 'd'";
       }
+      let data = await sql(
+        `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT ${1}`
+      );
+      openTab({
+        app: plugin.app,
+        doc: {
+          id: data[0]?.id,
+        },
+      });
       // 缓存
       const limitNum = settings.getBySpace("randomNoteConfig", "limitNum");
       sqlTemp = `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT ${
         limitNum ? limitNum : 30
       }`;
 
-      let data = await sql(sqlTemp);
-      if (data && data.length > 0) {
-        data.forEach((item: any) => {
-          this.cacheIds.push(item.id);
-        });
-      }
-    }
-
-    if (this.cacheIds.length > 0) {
+      sql(sqlTemp).then((data) => {
+        if (data && data.length > 0) {
+          this.cacheIds = data.map((item) => item.id);
+        }
+      });
+    } else {
       openTab({
         app: plugin.app,
         doc: {

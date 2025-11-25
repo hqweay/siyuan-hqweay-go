@@ -1,5 +1,6 @@
 import { sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
+import { generateSQLKey } from "@/myscripts/utils";
 import { plugin } from "@/utils";
 import { openTab } from "siyuan";
 
@@ -10,27 +11,42 @@ export default class DockLeft extends AddIconThenClick {
   defaultIcon = `😝`;
   type = "dockLeft";
 
-  cacheIds = [];
+  cacheIds = {};
   async exec() {
     if (this.id === "") {
       return;
     } else if (this.id.startsWith("siyuan://") || this.id.startsWith("http")) {
       window.open(this.id);
     } else if (this.id.trim().startsWith("select ")) {
-      if (this.cacheIds.length === 0) {
+      const sqlKey = generateSQLKey(this.id);
+      if (!this.cacheIds[sqlKey]) {
+        this.cacheIds[sqlKey] = [];
+      }
+      if (this.cacheIds[sqlKey].length === 0) {
         const sqlTemp = `select id from (${this.id.trim()} ORDER BY random()) limit 30`;
-        let data = await sql(sqlTemp);
+
+        let data = await sql(
+          `select id from( ${this.id.trim()} ) ORDER BY RANDOM() LIMIT 1`
+        );
         if (data && data.length > 0) {
-          data.forEach((item) => {
-            this.cacheIds.push(item.id);
+          openTab({
+            app: plugin.app,
+            doc: {
+              id: data[0].id,
+            },
           });
         }
-      }
-      if (this.cacheIds.length > 0) {
+
+        sql(sqlTemp).then((data) => {
+          if (data && data.length > 0) {
+            this.cacheIds[sqlKey] = data.map((item) => item.id);
+          }
+        });
+      } else {
         openTab({
           app: plugin.app,
           doc: {
-            id: this.cacheIds.pop(),
+            id: this.cacheIds[sqlKey].pop(),
           },
         });
       }
