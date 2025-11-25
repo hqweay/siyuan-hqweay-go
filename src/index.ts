@@ -211,12 +211,15 @@ export default class PluginGo extends Plugin {
 
     settings.getBySpace("createDailyNoteConfig", "slashDiaryNote") &&
       loadSlashOfCreateDailyNote();
+
     settings.getBySpace("createDailyNoteConfig", "quickInput") &&
       quickNoteOnload(this);
 
     settings.getFlag("voiceNotes") && this.voiceNotesPlugin.init();
 
     loadSlash();
+
+    settings.getFlag("quickAttr") && this.blockAttr.loadSlashOfAttrs();
 
     this.showMoreIconsOnBar();
   }

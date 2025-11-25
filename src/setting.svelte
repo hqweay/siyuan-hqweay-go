@@ -205,7 +205,7 @@
           value: settings.getBySpace("quickAttrConfig", "attrs"),
           placeholder: `[
           {
-    name: "测试配置多个属性",
+    name: "@测试配置多个属性-@开头会注册进slash",
     keyvalues : {
       "key1": "value1",
       "key2": "value2",

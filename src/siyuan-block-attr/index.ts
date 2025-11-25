@@ -1,5 +1,6 @@
 import { setBlockAttrs } from "@/api";
 import InsertCSS from "@/myscripts/insertCSS";
+import { addProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
 let menus = [
   {
@@ -73,7 +74,7 @@ export default class BlockAttr extends InsertCSS {
           iconHTML: "",
           label: menu.name,
           click: () => {
-            ViewMonitor(detail, menu);
+            ViewMonitor(detail.blockElements[0], menu);
           },
         })),
     });
@@ -86,10 +87,29 @@ export default class BlockAttr extends InsertCSS {
       setupSimpleObserver();
     }
   }
+
+  public loadSlashOfAttrs = () => {
+    console.log("加载块属性快捷设置 Slash");
+    menus = parseArrayString(settings.get("quickAttrConfig")["attrs"]);
+    menus
+      .filter((menu) => menu.enabled && menu.name.startsWith("@"))
+      .forEach((menu) => {
+        console.log(menu);
+        addProtyleSlash({
+          filter: [`${menu.name}`],
+          html: `${menu.name}`,
+          id: menu.name,
+          callback: async (event, node) => {
+            ViewMonitor(node, menu);
+            event.insert(window.Lute.Caret, false, false);
+          },
+        });
+      });
+  };
 }
 
-function ViewMonitor(event, menu) {
-  const blockEl = event.blockElements[0];
+function ViewMonitor(blockEl, menu) {
+  // const blockEl = event.blockElements[0];
   const id = blockEl.dataset.nodeId;
   const prevValue = blockEl.getAttribute("custom-f");
 

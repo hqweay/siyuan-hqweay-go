@@ -278,7 +278,7 @@ https://shibe.online/api/shibes?count=1`,
   quickAttrConfig: {
     attrs: `[
     {
-    name: "测试配置多个属性",
+  name: "@测试配置多个属性-@开头会注册进slash",
     keyvalues : {
       "key1": "value1",
       "key2": "value2",
