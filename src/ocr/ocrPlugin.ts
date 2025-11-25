@@ -4,7 +4,7 @@ import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 import { settings } from "@/settings";
 import { Menu, showMessage } from "siyuan";
 import { umiOCR } from "./umi-ocr";
-import { macOCRByAppleScript } from "./utils";
+import { macOCRByAppleScript, tesseractOCR } from "./utils";
 import { formatUtil } from "@/siyuan-typography-go/utils";
 const path = require("path");
 
@@ -67,6 +67,8 @@ async function ocrAssetsUrl(
         absolutePath,
         "https://ocr.heartstack.space/api/ocr"
       );
+    } else if (ocrMethod === "tesseract") {
+      ocrText = await tesseractOCR(absolutePath);
     } else {
       return;
     }

@@ -53,6 +53,27 @@ export function macOCRBySwift(imagePath: string): Promise<string> {
   });
 }
 
+export async function tesseractOCR(imagePath: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const { exec } = require("child_process");
+    const cmd = `tesseract "${imagePath}" stdout -l chi_sim+eng`;
+
+    exec(
+      cmd,
+      { encoding: "buffer" },
+      (err: any, stdout: Buffer, stderr: Buffer) => {
+        if (err) {
+          reject(err);
+        } else {
+          let text = stdout.toString("utf8").trim();
+          console.log(text); // 打印真实文本
+          resolve(text);
+        }
+      }
+    );
+  });
+}
+
 // 使用示例
 async function testOCR() {
   const imgPath = "/Users/yourname/Desktop/test.png"; // 替换为图片路径

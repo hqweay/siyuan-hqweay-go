@@ -745,6 +745,7 @@ https://shibe.online/api/shibes?count=1`,
           options: {
             macOSVision: "使用 MacOS Vision OCR",
             umi: "使用 umi OCR",
+            tesseract: "使用 tesseract OCR",
           },
         },
         {
