@@ -267,6 +267,17 @@
           key: "quickInput",
           value: settings.getBySpace("createDailyNoteConfig", "quickInput"),
         },
+        {
+          type: "textinput",
+          title: "获取天气并插入当前文档属性",
+          description: "https://www.sojson.com/blog/305.html",
+          placeholder: "配置城市代码，如：101270101",
+          key: "getWeatherSetAttrs",
+          value: settings.getBySpace(
+            "createDailyNoteConfig",
+            "getWeatherSetAttrs"
+          ),
+        },
       ],
       粘贴时对数据预处理: [
         {
