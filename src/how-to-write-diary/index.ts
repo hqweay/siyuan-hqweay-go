@@ -52,6 +52,7 @@ export default class DiaryPlus extends AddIconThenClick {
 
     menu.addItem({
       label: "获取当前天气并插入当前文档属性",
+      iconHTML: "🌤️",
       click: async () => {
         const docID = document
           .querySelector(
@@ -64,15 +65,22 @@ export default class DiaryPlus extends AddIconThenClick {
           return;
         }
 
+        const cityCode = settings.getBySpace(
+          "createDailyNoteConfig",
+          "getWeatherSetAttrs"
+        );
+
+        if (!cityCode) {
+          showMessage("未配置城市代码，操作取消", 2000);
+          return;
+        }
+
         const attrs = await getBlockAttrs(docID);
         if (attrs["custom-diary-weather-type"]) {
           showMessage("已存在天气属性，操作取消", 2000);
           return;
         }
-        const cityCode = settings.getBySpace(
-          "createDailyNoteConfig",
-          "getWeatherSetAttrs"
-        );
+
         const response = await fetch(
           `http://t.weather.itboy.net/api/weather/city/${cityCode}`
         );

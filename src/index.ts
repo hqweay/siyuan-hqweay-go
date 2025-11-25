@@ -172,10 +172,7 @@ export default class PluginGo extends Plugin {
     settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
     settings.getFlag("ocr") && this.ocrPlugin.onload();
 
-    settings.getBySpace("createDailyNoteConfig", "getWeatherSetAttrs") &&
-      settings
-        .getBySpace("createDailyNoteConfig", "getWeatherSetAttrs")
-        .trim() != "" &&
+    settings.getBySpace("createDailyNoteConfig", "topBar") &&
       this.diaryPlus.onload();
   }
 

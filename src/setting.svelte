@@ -268,8 +268,15 @@
           value: settings.getBySpace("createDailyNoteConfig", "quickInput"),
         },
         {
+          type: "checkbox",
+          title: "顶栏按钮快捷操作",
+          description: "",
+          key: "topBar",
+          value: settings.getBySpace("createDailyNoteConfig", "topBar"),
+        },
+        {
           type: "textinput",
-          title: "获取天气并插入当前文档属性",
+          title: "顶栏-获取天气并插入当前文档属性",
           description: "https://www.sojson.com/blog/305.html",
           placeholder: "配置城市代码，如：101270101",
           key: "getWeatherSetAttrs",

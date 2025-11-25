@@ -272,6 +272,7 @@ https://shibe.online/api/shibes?count=1`,
     noteBookID: "20240330144726-gs2xey6",
     slashDiaryNote: true,
     quickInput: true,
+    topBar: false,
     getWeatherSetAttrs: "101270101",
   },
   quickAttrConfig: {
