@@ -3,7 +3,7 @@
   import { showMessage } from "siyuan";
   import { onDestroy } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
-// let groups: string[] = ["Default", "自动获取链接标题"];
+  // let groups: string[] = ["Default", "自动获取链接标题"];
   import { plugin } from "@/utils";
   import { selectIconDialog } from "./myscripts/utils";
   import VoiceNotesPlugin from "./siyuan-voicenotes-sync";
@@ -218,6 +218,7 @@
           type: "button",
           title: "选择图标",
           key: "selectIcon",
+          value: "选择图标",
         },
         {
           type: "textarea",
