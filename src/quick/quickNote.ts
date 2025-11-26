@@ -1,6 +1,10 @@
 // thanks for https://github.com/suka233/siyuan-knote
 import { settings } from "@/settings";
-import { createDailynote, isMobile } from "@frostime/siyuan-plugin-kits";
+import {
+  createDailynote,
+  isMobile,
+  updateStyleDom,
+} from "@frostime/siyuan-plugin-kits";
 import ProtyleComponent from "./quickNote.svelte";
 
 let quickInputWin: any = null;
@@ -156,6 +160,18 @@ async function initQuickInputUI() {
   document.body.appendChild(editorContainer);
   const config = settings.get("createDailyNoteConfig");
   const blockId = await createDailynote(config.noteBookID);
+
+  // 修复打开文档时，面包屑栏隐藏的问题
+  updateStyleDom(
+    "fix-breadcrumb-style",
+    `#protyle-editor-container .protyle-breadcrumb__bar--hide {
+              opacity: unset !important;
+          }
+              .block__icon{
+              display: none !important;
+              }
+      `
+  );
 
   if (!blockId) {
     console.log("创建日记失败");
