@@ -1,5 +1,6 @@
 import { fetchSyncPost } from "siyuan";
 import { deepMerge, plugin } from "./utils";
+import { scale } from "svelte/transition";
 // import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
 
 //配置文件名称
@@ -330,6 +331,10 @@ https://shibe.online/api/shibes?count=1`,
     removeLineBreaks: false,
     removeBlankInChinese: false,
     formatWithPangu: false,
+  },
+  dockyConfig: {
+    zoomScale: 100,
+    rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
   },
 };
 

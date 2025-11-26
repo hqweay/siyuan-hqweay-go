@@ -3,7 +3,7 @@ export default class InsertCSS {
   cssSnippets: string = "";
 
   onunload() {
-    document.getElementById(this.id).remove()
+    document.getElementById(this.id)?.remove();
   }
 
   onload() {

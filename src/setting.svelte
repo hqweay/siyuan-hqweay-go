@@ -3,8 +3,9 @@
   import { showMessage } from "siyuan";
   import { onDestroy } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
-  // let groups: string[] = ["Default", "自动获取链接标题"];
+// let groups: string[] = ["Default", "自动获取链接标题"];
   import { plugin } from "@/utils";
+  import { selectIconDialog } from "./myscripts/utils";
   import VoiceNotesPlugin from "./siyuan-voicenotes-sync";
 
   const initData = () => {
@@ -26,6 +27,14 @@
           description: `slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；快捷小窗录入日记（默认快捷键F10）`,
           key: "createDailyNote",
           value: settings.getFlag("createDailyNote"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
+          title: "侧边栏展示文档或块",
+          description: `docky`,
+          key: "docky",
+          value: settings.getFlag("docky"),
           hasSetting: true,
         },
         {
@@ -196,6 +205,31 @@
           hasSetting: true,
         };
       }),
+      侧边栏展示文档或块: [
+        {
+          type: "number",
+          title: "缩放程度",
+          description: "缩放程度，100 为原始大小",
+          key: "zoomScale",
+          value: settings.getBySpace("dockyConfig", "zoomScale"),
+          placeholder: "100",
+        },
+        {
+          type: "button",
+          title: "选择图标",
+          key: "selectIcon",
+        },
+        {
+          type: "textarea",
+          title: "配置",
+          description: `e.g. id: xxx, position: xxx, icon?: xxx, hotkey?: xxx
+position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
+`,
+          key: "rules",
+          value: settings.getBySpace("dockyConfig", "rules"),
+          placeholder: `id:20251126002344-r4jzwns,position:RightTop`,
+        },
+      ],
       快捷添加属性: [
         {
           type: "textarea",
@@ -949,6 +983,10 @@ https://shibe.online/api/shibes?count=1`,
     } else if ("VoiceNotes 同步" === detail.group) {
       if ("fullSyncVoiceNotes" === detail.key) {
         await new VoiceNotesPlugin().exec(true);
+      }
+    } else if ("侧边栏展示文档或块" === detail.group) {
+      if ("selectIcon" === detail.key) {
+        selectIconDialog();
       }
     }
   };
