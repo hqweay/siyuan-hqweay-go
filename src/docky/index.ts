@@ -12,11 +12,13 @@ const initDockPanel = (docky: any, ele: HTMLElement, plugin: any) => {
   protyleContainer.style.width = "100%";
   new Protyle(plugin.app, protyleContainer, {
     blockId: id,
-    action: ["cb-get-focus"],
+    action: ["cb-get-all"],
     render: {
+      background: false,
       title: false,
       titleShowTop: false,
       hideTitleOnZoom: false,
+      // 折叠按钮
       gutter: true,
       scroll: true,
       breadcrumb: true,
@@ -107,8 +109,18 @@ export const loadDocky = (plugin: any) => {
     }
   });
 
+  // 修复侧边栏打开文档时，面包屑栏隐藏的问题
+  updateStyleDom(
+    "fix-breadcrumb-style",
+    `
+        .docky-panel-body.protyle .protyle-breadcrumb__bar--hide {
+            opacity: unset !important;
+        }
+    `.trim()
+  );
+
   const zoomScale = settings.getBySpace("dockyConfig", "zoomScale");
-  if (isNaN(zoomScale) || zoomScale <= 0) {
+  if (isNaN(zoomScale) || zoomScale <= 0 || zoomScale >= 100) {
     return;
   }
   document.documentElement.style.setProperty(
