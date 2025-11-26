@@ -116,6 +116,9 @@ export const loadDocky = (plugin: any) => {
         .docky-panel-body.protyle .protyle-breadcrumb__bar--hide {
             opacity: unset !important;
         }
+        .docky-panel-body.protyle .fn__loading.wysiwygLoading{
+          display: none !important;
+        }
     `.trim()
   );
 

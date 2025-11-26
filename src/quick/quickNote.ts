@@ -170,6 +170,9 @@ async function initQuickInputUI() {
               .block__icon{
               display: none !important;
               }
+              #protyle-editor-container .fn__loading.wysiwygLoading{
+          display: none !important;
+        }
       `
   );
 
