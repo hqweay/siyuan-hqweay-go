@@ -3,6 +3,7 @@ import { CheckIf } from "./checkif";
 import { plugin } from "@/utils";
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
+import { ocrAssetsUrl } from "@/ocr/ocrPlugin";
 export default class doOnPaste {
   onunload() {
     plugin.eventBus.off("paste", () => {});
@@ -23,8 +24,11 @@ export default class doOnPaste {
         return;
       }
 
-      settings.getBySpace("doOnPasteConfig", "recAnno") &&
-        this.execRecAnno(event);
+      const recAnnoType = settings.getBySpace("doOnPasteConfig", "recAnno");
+      if (recAnnoType) {
+        await this.execRecAnno(event, recAnnoType);
+      }
+
       settings.getBySpace("doOnPasteConfig", "resizeAndCenterImg") &&
         this.resizeAndCenterImg(event);
 
@@ -55,22 +59,45 @@ export default class doOnPaste {
     const regex = /!\[\]\(([^)]+)\)/g;
     const replaced = event.detail.textPlain
       .trim()
-      .replace(
-        regex,
-        `![]($1){: style="width: calc(50% - 8px);"}`
-      );
+      .replace(regex, `![]($1){: style="width: calc(50% - 8px);"}`);
     event.detail.textPlain = replaced;
     return true;
   }
 
-  private async execRecAnno(event) {
+  private async execRecAnno(event, recAnnoType) {
+    const clipboardText = event.detail.textPlain.trim();
     const regex = /<<([^>]+)\s+"([^"]+)">>\n!\[\]\(([^)]+)\)/g;
-    const replaced = event.detail.textPlain
-      .trim()
-      .replace(
-        regex,
-        `![]($3)<<$1 "📌">>`
+    if (!clipboardText.match(regex)) {
+      return false;
+    }
+    let replaced = ``;
+    if (recAnnoType === "imgPin") {
+      replaced = clipboardText.replace(regex, `![]($3)<<$1 "📌">>`);
+    } else if (recAnnoType === "pinImg") {
+      replaced = clipboardText.replace(regex, `<<$1 "📌">>![]($3)`);
+    } else if (recAnnoType === "ocrTextPin") {
+      showMessage("正在识别OCR，请稍候...", 2000);
+      const ocrText = await ocrAssetsUrl(
+        Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
+        undefined
       );
+      replaced = clipboardText.replace(regex, `<<$1 "📌">>\n${ocrText}`);
+    } else if (recAnnoType === "pinOcrText") {
+      showMessage("正在识别OCR，请稍候...", 2000);
+      const ocrText = await ocrAssetsUrl(
+        Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
+        undefined
+      );
+      replaced = clipboardText.replace(regex, `${ocrText}<<$1 "📌">>`);
+    } else if (recAnnoType === "ocrText") {
+      showMessage("正在识别OCR，请稍候...", 2000);
+      const ocrText = await ocrAssetsUrl(
+        Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
+        undefined
+      );
+      replaced = clipboardText.replace(regex, `<<$1 "${ocrText}">>`);
+    }
+
     event.detail.textPlain = replaced;
     return true;
   }

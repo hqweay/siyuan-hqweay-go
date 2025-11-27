@@ -339,11 +339,18 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           value: settings.getBySpace("doOnPasteConfig", "title"),
         },
         {
-          type: "checkbox",
-          title: "矩形标注粘贴时转为「图片📌」",
+          type: "select",
+          title: "矩形标注粘贴时转为",
           description: "",
           key: "recAnno",
           value: settings.getBySpace("doOnPasteConfig", "recAnno"),
+          options: {
+            ocrText: "OCR文本",
+            imgPin: "图片📌",
+            pinImg: "📌图片",
+            ocrTextPin: "📌OCR文本",
+            pinOcrText: "OCR文本📌",
+          },
         },
         {
           type: "checkbox",

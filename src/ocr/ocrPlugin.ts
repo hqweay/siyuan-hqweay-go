@@ -39,7 +39,7 @@ function getAbsolutePath(imgPath: string): string {
  * @param imgPath 图片路径（相对路径，如 /assets/xxx.png）
  * @returns 是否成功
  */
-async function ocrAssetsUrl(
+export async function ocrAssetsUrl(
   imgPath: string,
   autoRemoveLineBreaks: boolean
 ): Promise<string> {
