@@ -223,7 +223,7 @@
         {
           type: "textarea",
           title: "配置",
-          description: `e.g. id: xxx, position: xxx, icon?: xxx, hotkey?: xxx
+          description: `e.g. id: xxx, name: hello, position: xxx, icon?: xxx, hotkey?: xxx
 position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
 `,
           key: "rules",
