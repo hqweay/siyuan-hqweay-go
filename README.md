@@ -23,7 +23,7 @@ Mac 上支持使用 MacOS Vision OCR，矩形标注粘贴时支持直接粘贴 O
   - 粘贴预处理：自动获取链接标题转 Markdown 链接；PDF 矩形标注粘贴转「图片 📌」等样式（RemNote 风格） ，支持粘贴为 OCR 文本 ；图片自动缩小~~并居中~~。
   - 行内元素转换：链接 ↔ 引用、去格式（加粗/标注/标签/斜体 → 文本）、清理文档内与星标引用。
   - 创建时间展示：为指定 ID 文档（及其大纲）子元素右上角显示创建时间。
-  - 左上边栏扩展：新增固定打开常用链接/文档的图标（如一键打开日记流）。
+  - 左上边栏扩展：新增固定打开常用链接/文档的图标（如一键打开日记流）；支持配置随机浏览。
   - Docky：迁移自 [sy-f-misc/src/func/docky.ts](https://github.com/frostime/sy-f-misc/blob/e9117135ae6d351a474dec4830842ee0a4b8d54c/src/func/docky.ts)，按个人习惯优化。
   - OCR：支持使用 MacOS Vision OCR、支持 umiOCR（感谢[OceanPress_siyuan_plugin](https://github.com/2234839/OceanPress_siyuan_plugin/blob/3c3f70590b46429a9aee84f0ee965b85c39e9350/src/oceanpress-siyuan-plugin/ui/img_ocr_text.tsx)）。
   - 实验：内置代码片段合集 Demo（隐藏按钮、便利贴样式、多行标签栏、图片居中……）。
@@ -36,11 +36,84 @@ Mac 上支持使用 MacOS Vision OCR，矩形标注粘贴时支持直接粘贴 O
 2. 绑定 F10 小窗日记 + slash「创建日记引用」，配合移动端导航快速写/跳日记。
 3. 启用「粘贴预处理」和「行内元素转换」，改善阅读摘录与知识清理效率。
 
+## OCR 功能
+
+我的使用场景主要是 PDF 阅读在做矩形标注时，粘贴 OCR 文本。【在「粘贴时对数据处理」里开启】
+
+建议搭配 CSS 使用：
+
+```css
+div:has(> [data-type="file-annotation-ref"]) {
+  background-color: #e6f3ed;
+  border-radius: 8px;
+  padding: 16px;
+}
+div[data-type="file-annotation-ref"] {
+  color: #028f26;
+  padding-left: 30px;
+}
+```
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127232000-akc7jxp.png)
+
+### 其它
+
+会在右上栏增加个按钮，方便对文档内的图片一键 OCR。
+
+为图片的 context 菜单增加快捷复制 OCR 内容、用 OCR 内容替换图片的菜单。
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127231111-agiqhne.png)
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127231125-51kjxik.png)
+
+## 日记相关工具
+
+### **快捷小窗写日记** ：🙏[suka233/siyuan-knote](https://GitHub.com/suka233/siyuan-knote)
+
+- 支持全局快捷键（默认 F10）弹出一个小窗打开今日日记
+
+  - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004846-lv6yln9.png)
+
+### slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引：🙏[frostime/siyuan-plugin-kits](https://GitHub.com/frostime/siyuan-plugin-kits)（好用！）
+
+- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004927-l06jg1y.png)
+- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004930-kmxwxzx.png)
+- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004933-9ailpyy.png)
+
+### 获取天气并插入属性
+
+在「日记相关工具」里开启：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127231448-gmrui52.png)
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127231513-hwhnsqk.png)
+
+获取成功后会将天气信息写入属性：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127231553-fc0en1g.png)
+
+搭配「标题下展示文档自定义属性的值」效果：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251125225259-0pz8yq1.png)
+
+## 移动端导航，方便移动端浏览
+
+![7F3FB2D0-82D1-450D-A8EC-4B395F487F98_1_201_a](https://raw.githubusercontent.com/hqweay/picbed/master/img/7F3FB2D0-82D1-450D-A8EC-4B395F487F98_1_201_a-20250921140756-6jl9bvd.jpeg)
+
+- 支持前进后退
+- 支持打开今日日记
+- 随机跳转
+- 配置跳转（想结合「文档流」插件达到一键打开日记流的效果，但[目前思源移动端还不支持插件 url 跳转](https://GitHub.com/siyuan-note/siyuan/issues/15892)。）
+- 上下文档切换：🙏[frostime/sy-f-misc](https://GitHub.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)
+- 可配置快捷添加到数据库：🙏[wilsons](https://ld246.com/article/1746153210116)
+
 ## 快捷添加属性
 
 块菜单中增加快捷添加属性；属性可在插件设置里配置。
 
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004410-rus2kgk.png)
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127225934-wycn5a7.png)
+
+现在支持一键赋值多个属性，以`@`开头命名的配置会被注册进 slash 命令。
 
 默认值：
 
@@ -156,37 +229,6 @@ Mac 上支持使用 MacOS Vision OCR，矩形标注粘贴时支持直接粘贴 O
   { "name": "金边", "value": "ayx", "key": "f", "enabled": true }
 ]
 ```
-
-## 日记相关工具
-
-### **快捷小窗写日记** ：🙏[suka233/siyuan-knote](https://GitHub.com/suka233/siyuan-knote)
-
-- 支持全局快捷键（默认 F10）弹出一个小窗打开今日日记
-
-  - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004846-lv6yln9.png)
-
-### slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引：🙏[frostime/siyuan-plugin-kits](https://GitHub.com/frostime/siyuan-plugin-kits)（好用！）
-
-- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004927-l06jg1y.png)
-- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004930-kmxwxzx.png)
-- ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004933-9ailpyy.png)
-
-### 获取天气并插入属性
-
-搭配「标题下展示文档自定义属性的值」效果：
-
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251125225259-0pz8yq1.png)
-
-## 移动端导航，方便移动端浏览
-
-![7F3FB2D0-82D1-450D-A8EC-4B395F487F98_1_201_a](https://raw.githubusercontent.com/hqweay/picbed/master/img/7F3FB2D0-82D1-450D-A8EC-4B395F487F98_1_201_a-20250921140756-6jl9bvd.jpeg)
-
-- 支持前进后退
-- 支持打开今日日记
-- 随机跳转
-- 配置跳转（想结合「文档流」插件达到一键打开日记流的效果，但[目前思源移动端还不支持插件 url 跳转](https://GitHub.com/siyuan-note/siyuan/issues/15892)。）
-- 上下文档切换：🙏[frostime/sy-f-misc](https://GitHub.com/frostime/sy-f-misc/blob/a4915d2f6281503055529ff8e585a6d828089fd0/src/func/doc-context.tsx)
-- 可配置快捷添加到数据库：🙏[wilsons](https://ld246.com/article/1746153210116)
 
 ## VoiceNotes 笔记同步：🙏[voicenotes-sync](https://GitHub.com/mysticcoders/voicenotes-sync)
 
@@ -340,6 +382,14 @@ toolbar 支持标注并复制块引
 - 在左上边栏新增图标固定打开链接或文档（块）
 
   - > 加个快捷方式。我目前配置了文档流插件打开日记流
+
+- 支持随机浏览
+
+## Docky
+
+迁移自 [sy-f-misc/src/func/docky.ts](https://github.com/frostime/sy-f-misc/blob/e9117135ae6d351a474dec4830842ee0a4b8d54c/src/func/docky.ts)，按个人习惯优化。主要差别是开启了面包屑（方便聚焦、退出聚焦），去掉了原插件的顶栏。
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251127230806-xapo5p5.png)
 
 ## 【实验】增加代码片段合集 Demo
 
