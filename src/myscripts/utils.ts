@@ -50,3 +50,48 @@ export const selectIconDialog = () => {
     });
   });
 };
+
+/**
+ * 执行思源笔记Transaction操作的通用函数
+ * @param {Array} operationsForAPI - 要执行的操作数组
+ * @returns {Promise<Object>} API响应结果
+ */
+export async function executeTransaction(operationsForAPI) {
+  if (!operationsForAPI || operationsForAPI.length === 0) {
+    throw new Error("operationsForAPI不能为空");
+  }
+
+  const data = {
+    session: window.siyuan?.ws?.app?.appId,
+    app: window.siyuan?.ws?.app?.appId,
+    reqId: Date.now(),
+    transactions: [{ doOperations: operationsForAPI }],
+  };
+
+  try {
+    const response = await fetch("/api/transactions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    if (result.code !== 0) {
+      throw new Error(`Transaction失败: ${result.msg}`);
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Transaction执行失败", {
+      error: error.message,
+      operationsForAPI: operationsForAPI,
+    });
+    throw error;
+  }
+}

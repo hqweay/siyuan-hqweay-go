@@ -1,11 +1,15 @@
 import { request, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
-import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
+import {
+  cleanSpacesBetweenChineseCharacters,
+  executeTransaction,
+} from "@/myscripts/utils";
 import { settings } from "@/settings";
-import { Menu, showMessage } from "siyuan";
+import { formatUtil } from "@/siyuan-typography-go/utils";
+import { html2ele } from "@frostime/siyuan-plugin-kits";
+import { fetchSyncPost, IOperation, Menu, showMessage } from "siyuan";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript, tesseractOCR } from "./utils";
-import { formatUtil } from "@/siyuan-typography-go/utils";
 const path = require("path");
 
 /**
@@ -38,7 +42,7 @@ function getAbsolutePath(imgPath: string): string {
 async function ocrAssetsUrl(
   imgPath: string,
   autoRemoveLineBreaks: boolean
-): Promise<boolean> {
+): Promise<string> {
   try {
     const absolutePath = getAbsolutePath(imgPath);
 
@@ -132,10 +136,10 @@ async function ocrAssetsUrl(
 
     // 调用 pangu 格式化
     if (formatWithPangu) {
-      ocrText = formatUtil.formatContent(ocrText);
+      ocrText = formatUtil.formatContent(ocrText).trim();
     }
 
-    if (ocrText && ocrText.trim()) {
+    if (ocrText) {
       // 调用思源 API 设置图片 OCR 文本
       try {
         await fetch("/api/asset/setImageOCRText", {
@@ -152,14 +156,14 @@ async function ocrAssetsUrl(
         console.error("设置图片 OCR 文本失败:", error);
       }
 
-      return true;
+      return ocrText;
     } else {
       // OCR 结果为空
-      return false;
+      return "";
     }
   } catch (error) {
     console.error(`OCR 失败 [${imgPath}]:`, error);
-    return false;
+    return "";
   }
 }
 
@@ -339,13 +343,20 @@ LIMIT 99999`,
       },
     });
 
-    // menu.addItem({
-    //   label: "再次识别所有识别失败的图片",
-    //   click: async () => {
-    //     await batchOcr({ type: "failing" }, this);
-    //   },
-    // });
-    // 获取按钮位置来显示菜单
+    menu.addItem({
+      label: "将当前文档的所有图片替换为 OCR 识别内容（若存在）",
+      click: async () => {
+        await this.replaceAllImagesWithOcrText(false);
+      },
+    });
+
+    menu.addItem({
+      label: "将当前文档的所有图片替换为 OCR 识别内容（无 OCR 则识别）",
+      click: async () => {
+        await this.replaceAllImagesWithOcrText(true);
+      },
+    });
+
     const btn = document.getElementById(this.id);
     if (btn) {
       const rect = btn.getBoundingClientRect();
@@ -354,6 +365,72 @@ LIMIT 99999`,
         y: rect.bottom,
       });
     }
+  }
+
+  async replaceAllImagesWithOcrText(noOcrToGet: boolean) {
+    const doOperations: IOperation[] = [];
+    const currentDocId = document
+      .querySelector(
+        ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+      )
+      ?.getAttribute("data-node-id");
+
+    let childrenResult = await fetchSyncPost("/api/block/getChildBlocks", {
+      id: currentDocId,
+    });
+    let childrenBlocks = childrenResult.data;
+
+    for (let i = 0; i < childrenBlocks.length; i++) {
+      const block = childrenBlocks[i];
+
+      let response = await fetchSyncPost("/api/block/getBlockDOM", {
+        id: block.id,
+      });
+      let result = response.data.dom;
+      const id = response.data.id;
+      let ele = html2ele(result);
+      const elements = ele.querySelectorAll('[data-type="img"]');
+
+      let updateFlag = false;
+      for (const element of elements) {
+        try {
+          // 获取图片元素
+          const img = element.querySelector("img");
+          if (!img || !img.getAttribute("data-src")) continue;
+
+          const existingOCR = await request("/api/asset/getImageOCRText", {
+            path: img.getAttribute("data-src"),
+          });
+
+          let ocrText = existingOCR?.text?.trim();
+          if (!ocrText) {
+            if (noOcrToGet) {
+              ocrText = await ocrAssetsUrl(
+                img.getAttribute("data-src"),
+                undefined
+              );
+            }
+          }
+          if (ocrText) {
+            // 创建文本节点直接替换元素;
+            const textNode = document.createTextNode(ocrText);
+            element.parentNode.replaceChild(textNode, element);
+            updateFlag = true;
+          }
+        } catch (error) {
+          console.error("OCR 识别失败:", error);
+        }
+      }
+
+      if (updateFlag) {
+        doOperations.push({
+          id: id,
+          data: ele.outerHTML,
+          action: "update",
+        });
+      }
+    }
+    await executeTransaction(doOperations);
   }
 
   // 停止 OCR
@@ -391,13 +468,14 @@ LIMIT 99999`,
 
   // 图片右键菜单事件
   imageMenuEvent(event: any) {
+    console.log(event.detail.element);
     const spanImg = event.detail.element as HTMLElement;
     const img = spanImg.querySelector(`img[data-src]`) as HTMLImageElement;
     if (!img) {
       return;
     }
     const imgSrc = img.dataset.src;
-    console.log(imgSrc);
+
     if (!imgSrc) {
       return;
     }
@@ -405,13 +483,10 @@ LIMIT 99999`,
     (globalThis.window.siyuan.menus.menu as Menu).addItem({
       label: "OCR 识别",
       click: async () => {
-        const ok = await ocrAssetsUrl(imgSrc, undefined);
-        if (ok) {
+        const ocrText = await ocrAssetsUrl(imgSrc, undefined);
+        if (ocrText) {
           showMessage(`OCR 识别成功`);
-          const existingOCR = await request("/api/asset/getImageOCRText", {
-            path: imgSrc,
-          });
-          navigator.clipboard.writeText(existingOCR.text);
+          navigator.clipboard.writeText(ocrText);
           showMessage("OCR 内容已复制到剪贴板", 2000);
         } else {
           showMessage(`OCR 识别失败`);
@@ -429,6 +504,48 @@ LIMIT 99999`,
           showMessage("OCR 内容已复制到剪贴板", 2000);
         } else {
           showMessage("该图片暂无 OCR 内容", 2000);
+        }
+      },
+    });
+
+    (globalThis.window.siyuan.menus.menu as Menu).addItem({
+      label: "用 OCR 内容替换图片",
+      click: async (element, event) => {
+        const doOperations: IOperation[] = [];
+        try {
+          const existingOCR = await request("/api/asset/getImageOCRText", {
+            path: imgSrc,
+          });
+
+          let ocrText = existingOCR?.text?.trim();
+          if (!ocrText) {
+            ocrText = await ocrAssetsUrl(imgSrc, undefined);
+          }
+
+          if (ocrText) {
+            const targetElement = spanImg.closest("[data-node-id]");
+
+            // 创建文本节点直接替换元素;
+            const textNode = document.createTextNode(ocrText);
+            spanImg.parentNode.replaceChild(textNode, spanImg);
+
+            console.log(targetElement);
+            if (targetElement) {
+              doOperations.push({
+                id: targetElement.getAttribute("data-node-id"),
+                data: targetElement.outerHTML,
+                action: "update",
+              });
+
+              // 点击按钮后思源会触发一次保存操作，这里延时一秒执行事务，避免冲突
+              setTimeout(async () => {
+                await executeTransaction(doOperations);
+                showMessage("图片已被 OCR 内容替换", 2000);
+              }, 1000);
+            }
+          }
+        } catch (error) {
+          console.error("OCR 识别失败:", error);
         }
       },
     });
@@ -522,7 +639,7 @@ export async function batchOcr(
       }
 
       i += 1;
-      let ok = false;
+      let ocrText = "";
       const imgPath = img.path;
 
       const existingOCR = await request("/api/asset/getImageOCRText", {
@@ -535,13 +652,13 @@ export async function batchOcr(
       } else {
         //if force      // 强制识别所有图片
         try {
-          ok = await ocrAssetsUrl(imgPath, options.autoRemoveLineBreaks);
+          ocrText = await ocrAssetsUrl(imgPath, options.autoRemoveLineBreaks);
         } catch (error) {
-          ok = false;
+          ocrText = "";
           console.error(`OCR 处理失败 [${imgPath}]:`, error);
         }
 
-        if (ok) {
+        if (ocrText) {
           successful.push(imgPath);
         } else {
           // 失败一般是丢失的资源
