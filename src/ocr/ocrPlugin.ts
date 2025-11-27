@@ -67,10 +67,11 @@ export async function ocrAssetsUrl(
     if (ocrMethod === "macOSVision") {
       ocrText = await macOCRByAppleScript(absolutePath);
     } else if (ocrMethod === "umi") {
-      ocrText = await umiOCR(
-        absolutePath,
-        "https://ocr.heartstack.space/api/ocr"
-      );
+      const umiOCRServer = settings.getBySpace("ocrConfig", "umiOCRServer");
+      if (!umiOCRServer || umiOCRServer.trim() === "") {
+        return;
+      }
+      ocrText = await umiOCR(absolutePath, umiOCRServer.trim());
     } else if (ocrMethod === "tesseract") {
       ocrText = await tesseractOCR(absolutePath);
     } else {

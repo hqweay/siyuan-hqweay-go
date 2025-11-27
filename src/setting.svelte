@@ -341,7 +341,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
         {
           type: "select",
           title: "矩形标注粘贴时转为",
-          description: "",
+          description: "粘贴OCR文本需要配合 OCR 图片识别 功能使用",
           key: "recAnno",
           value: settings.getBySpace("doOnPasteConfig", "recAnno"),
           options: {
@@ -789,6 +789,14 @@ https://shibe.online/api/shibes?count=1`,
             umi: "使用 umi OCR",
             tesseract: "使用 tesseract OCR",
           },
+        },
+        {
+          type: "textarea",
+          title: "umi-ocr 服务地址",
+          description: "umi-ocr 服务地址",
+          key: "umiOCRServer",
+          value: settings.getBySpace("ocrConfig", "umiOCRServer"),
+          placeholder: "",
         },
         {
           type: "checkbox",
