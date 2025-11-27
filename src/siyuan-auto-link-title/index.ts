@@ -56,6 +56,7 @@ export default class doOnPaste {
   }
 
   private async resizeAndCenterImg(event) {
+    console.log("resizeAndCenterImg");
     const regex = /!\[\]\(([^)]+)\)/g;
     const replaced = event.detail.textPlain
       .trim()

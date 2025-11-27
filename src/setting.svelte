@@ -354,8 +354,8 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
         },
         {
           type: "checkbox",
-          title: "图片自动缩小为 50%",
-          description: "图片自动缩小为 50%",
+          title: "![]()格式的图片自动缩小为 50%",
+          description: "![]()格式的图片自动缩小为 50%",
           key: "resizeAndCenterImg",
           value: settings.getBySpace("doOnPasteConfig", "resizeAndCenterImg"),
         },

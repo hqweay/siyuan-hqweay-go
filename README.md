@@ -1,23 +1,31 @@
 > 这是一只恐龙，路过的人必须夸它可爱。
 
+「恐龙工具箱」是[思源笔记](https://b3log.org/siyuan/download.html)的一款插件。
+
+## 更新
+
+Mac 上支持使用 MacOS Vision OCR，矩形标注粘贴时支持直接粘贴 OCR 后的文本，支持用 OCR 文本替换图片。
+
 ## 简要总结
 
 - 核心能力：
 
-  - VoiceNotes 同步：设置页全量同步；界面加录音按钮，同步最近 20 条语音笔记。 **块菜单新增「同步至 VoiceNotes」，支持以块为单位将文本内容分享到 Voicenotes，支持修改。**
-  - 快捷添加属性：块菜单一键加属性，预置若干转换属性（表格/导图/时间线/看板/Tab 等视图切换）。
+  - VoiceNotes 同步：设置页全量同步；界面加录音按钮，同步最近 20 条语音笔记。文档菜单、块菜单新增「同步至 VoiceNotes」，支持以文档/块为单位将文本内容分享到 Voicenotes，支持修改。
+  - 快捷添加属性：块菜单一键加属性，预置若干转换属性（表格/导图/时间线/看板/Tab 等视图切换）。支持注册到 slash。
   - 便利贴样式：启用代码片段「便利贴」，用 custom-f 属性套用多种便签风格（浅/深色、渐变、金边等），可与「快捷添加属性」联动。
-  - 日记工具：F10 小窗写今日日记；slash 命令一键创建任意日期日记并插入引用；移动端导航支持前进后退、今日、随机、上下文档切换、可配置跳转、可快添到数据库。
+  - 日记工具：F10 小窗写今日日记；slash 命令一键创建任意日期日记并插入引用；移动端导航支持前进后退、今日、随机、上下文档切换、可配置跳转、可快添到数据库；获取天气并插入属性。
   - 阅读与标注：工具栏支持「标注并复制块引/文本块引」；文档标题下展示自定义属性值；可将当前文档标注批量提取到新文档（可带上下文与反向引用）。
   - 随机题头图：支持必应 API / 自定义随机图链接 / 本地文件夹，右键「随机」替换题头图。
   - 发送到：块菜单把选中内容分享至自定义链接（示例：Google 搜索、ChatGPT 带查询参数、快捷指令到提醒事项）；Script 分享卡片支持模板与样式。
   - 中文排版优化：全角/半角、混排、图片居中与宽度调整；可选自动执行思源「排版优化」「网络资源本地化」（有数据损坏风险提示）。
   - 边栏联动：按文档打开自动开/关左右边栏与停靠栏（适配长表格/数据库视图）。
   - 书签与随机浏览：快捷加书签；右上角随机跳转（也可固定跳到某块/文档，通过 SQL 配置）。
-  - 粘贴预处理：自动获取链接标题转 Markdown 链接；PDF 矩形标注粘贴转「图片 📌」样式（RemNote 风格） ;图片自动缩小~~并居中~~。
+  - 粘贴预处理：自动获取链接标题转 Markdown 链接；PDF 矩形标注粘贴转「图片 📌」等样式（RemNote 风格） ，支持粘贴为 OCR 文本 ；图片自动缩小~~并居中~~。
   - 行内元素转换：链接 ↔ 引用、去格式（加粗/标注/标签/斜体 → 文本）、清理文档内与星标引用。
   - 创建时间展示：为指定 ID 文档（及其大纲）子元素右上角显示创建时间。
   - 左上边栏扩展：新增固定打开常用链接/文档的图标（如一键打开日记流）。
+  - Docky：迁移自 [sy-f-misc/src/func/docky.ts](https://github.com/frostime/sy-f-misc/blob/e9117135ae6d351a474dec4830842ee0a4b8d54c/src/func/docky.ts)，按个人习惯优化。
+  - OCR：支持使用 MacOS Vision OCR、支持 umiOCR（感谢[OceanPress_siyuan_plugin](https://github.com/2234839/OceanPress_siyuan_plugin/blob/3c3f70590b46429a9aee84f0ee965b85c39e9350/src/oceanpress-siyuan-plugin/ui/img_ocr_text.tsx)）。
   - 实验：内置代码片段合集 Demo（隐藏按钮、便利贴样式、多行标签栏、图片居中……）。
 
 - 依赖与致谢：多处功能引用社区插件与主题资源（Achuan-2、frostime、suka233、wilsons、voicenotes-sync 等） 。
@@ -151,17 +159,23 @@
 
 ## 日记相关工具
 
-**快捷小窗写日记** ：🙏[suka233/siyuan-knote](https://GitHub.com/suka233/siyuan-knote)
+### **快捷小窗写日记** ：🙏[suka233/siyuan-knote](https://GitHub.com/suka233/siyuan-knote)
 
 - 支持全局快捷键（默认 F10）弹出一个小窗打开今日日记
 
   - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004846-lv6yln9.png)
 
-slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引：🙏[frostime/siyuan-plugin-kits](https://GitHub.com/frostime/siyuan-plugin-kits)（好用！）
+### slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引：🙏[frostime/siyuan-plugin-kits](https://GitHub.com/frostime/siyuan-plugin-kits)（好用！）
 
 - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004927-l06jg1y.png)
 - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004930-kmxwxzx.png)
 - ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20250929004933-9ailpyy.png)
+
+### 获取天气并插入属性
+
+搭配「标题下展示文档自定义属性的值」效果：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251125225259-0pz8yq1.png)
 
 ## 移动端导航，方便移动端浏览
 
@@ -178,7 +192,7 @@ slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定�
 
 - [Voicenotes: AI Notes and Meetings](https://voicenotes.com/app)
 - 设置界面可进行全量同步，右上角添加一个录音图标，点击可同步最新的 20 条笔记。
-- 块菜单新增「同步至 VoiceNotes」，支持以块为单位将文本内容分享到 Voicenotes！支持修改！
+- 文档菜单、块菜单新增「同步至 VoiceNotes」，支持以文档/块为单位将文本内容分享到 Voicenotes，支持修改。从思源同步至 Voicenotes 的数据会被打上「siyuan」标签，在同步 Voicenotes 至思源时被排除。先不考虑数据更新回来的情况——以思源数据为准。
 
 ## 阅读帮助
 
