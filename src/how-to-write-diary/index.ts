@@ -3,10 +3,14 @@ import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { Menu, showMessage } from "siyuan";
 
-export default class DiaryPlus extends AddIconThenClick {
-  id = "hqweay-diary-plus";
+export default class DiaryTools extends AddIconThenClick {
+  id = "hqweay-diary-tools";
   label = "获取天气并插入当前文档属性";
   icon = `📝`;
+
+  onload(): void {
+    super.onload();
+  }
 
   //获取天气并插入当前文档属性
   getTodayWeatherInfo(data) {
@@ -48,7 +52,7 @@ export default class DiaryPlus extends AddIconThenClick {
   }
 
   async exec() {
-    const menu = new Menu("hqweay-diary-plus-menu");
+    const menu = new Menu("hqweay-diary-tools-menu");
 
     menu.addItem({
       label: "获取当前天气并插入当前文档属性",
