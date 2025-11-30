@@ -83,27 +83,30 @@ ORDER BY
   let diaryAllEntriesCount = 0;
   let diaryHasImageEntriesCount = 0;
   let imageGalleryRef;
-  let selectedDay = null; // YYYYMMDD — when set, filters image gallery
+  let selectedDays = []; // Array of YYYYMMDD strings for multi-day filtering
   let isMobile = false;
   let showMedia = true; // default show both
   let showEntries = true; // default show both
 
   $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
   $: idListSQL = `${idListBaseSQL} order by created desc`;
-  $: filteredIdListSQL = selectedDay
-    ? `select * from (${idListSQL}) as sub where substr(created,1,8)='${selectedDay}'`
+  $: filteredIdListSQL = selectedDays.length > 0
+    ? `select * from (${idListSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
     : idListSQL;
 
-  $: filteredImgSQL = selectedDay
-    ? `select * from (${imgSQL}) as sub where substr(created,1,8)='${selectedDay}'`
+  $: filteredImgSQL = selectedDays.length > 0
+    ? `select * from (${imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
     : imgSQL;
 
   function handleDayClick(e) {
     const dayKey = e.detail?.dayKey;
     if (!dayKey) return;
-    // toggle: click same day will clear filter
-    if (selectedDay === dayKey) selectedDay = null;
-    else selectedDay = dayKey;
+    // toggle: add to array if not present, remove if present
+    if (selectedDays.includes(dayKey)) {
+      selectedDays = selectedDays.filter((d) => d !== dayKey);
+    } else {
+      selectedDays = [...selectedDays, dayKey];
+    }
   }
 
   // 图片展示已移入独立组件 ImageGallery
@@ -193,20 +196,27 @@ ORDER BY
         // }
       }}
     />
+
+    <StatCard
+      number={0}
+      label="那年今日"
+      clickable={true}
+      on:click={() => {}}
+    />
   </div>
   <!-- 图片集组件 -->
   <div class="main-row">
     <Heatmap
       sqlQuery={heatmapSQL}
       daysRange={9999}
-      {selectedDay}
+      selectedDays={selectedDays}
       on:dayclick={handleDayClick}
     />
 
-    {#if selectedDay}
+    {#if selectedDays.length > 0}
       <div class="day-filter">
-        <span>已筛选：{selectedDay}</span>
-        <button class="clear-filter" on:click={() => (selectedDay = null)}
+        <span>已筛选：{selectedDays.join(", ")}</span>
+        <button class="clear-filter" on:click={() => (selectedDays = [])}
           >清除</button
         >
       </div>
@@ -224,7 +234,7 @@ ORDER BY
             {/if}
           </div> -->
           <EntryList
-            idSQL={selectedDay ? filteredIdListSQL : idListSQL}
+            idSQL={filteredIdListSQL}
             pageSize={10}
           />
         </div>
@@ -245,7 +255,7 @@ ORDER BY
             imgSQL={filteredImgSQL}
             {layout}
             pageSize={30}
-            dayFilter={selectedDay}
+            {selectedDays}
           />
         </div>
       {/if}

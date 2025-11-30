@@ -3,7 +3,7 @@
   import { onMount, createEventDispatcher, tick } from "svelte";
   export let sqlQuery = null;
   export let daysRange = 99999; // show more by default for weekly columns
-  export let selectedDay = null; // YYYYMMDD to highlight
+  export let selectedDays = []; // Array of YYYYMMDD to highlight
 
   const dispatch = createEventDispatcher();
 
@@ -122,11 +122,11 @@
         {#each week as day}
           {#if day}
             <button
-              class="heat-cell {selectedDay === day.dayKey ? 'selected' : ''}"
+              class="heat-cell {selectedDays.includes(day.dayKey) ? 'selected' : ''}"
               title={`${day.date.toLocaleDateString()} 创建了 ${day.count} 条数据`}
               style={`background: ${colorForCount(day.count)}`}
               on:click={() => onDayClick(day)}
-              aria-pressed={selectedDay === day.dayKey}
+              aria-pressed={selectedDays.includes(day.dayKey)}
             >
               <span class="visually-hidden">{day.dayKey}</span>
             </button>
