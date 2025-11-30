@@ -10,7 +10,7 @@
   onMount(() => {
     try {
       if (Protyle && container) {
-        const protyle = new Protyle(plugin.app, container, {
+        new Protyle(plugin.app, container, {
           blockId: blockId,
           action: ["cb-get-focus"],
           render: {
@@ -23,8 +23,6 @@
             breadcrumbDocName: true,
           },
         });
-        console.log("ss");
-        console.log(protyle);
       } else {
         // Fallback: show a simple link if Protyle is not available
         if (container) {

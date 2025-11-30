@@ -1,7 +1,6 @@
 <script>
   import { sql } from "@/api";
-  import { reverse } from "dns";
-  import { onMount, createEventDispatcher } from "svelte";
+  import { onMount, createEventDispatcher, tick } from "svelte";
   export let sqlQuery = null;
   export let daysRange = 99999; // show more by default for weekly columns
   export let selectedDay = null; // YYYYMMDD to highlight
@@ -11,6 +10,7 @@
   let countsMap = new Map(); // day (YYYYMMDD) -> count
   let maxCount = 0;
   let weeks = []; // array of weeks, each week is array of 7 {date, dayKey, count} or null
+  let calendarRef;
 
   function formatDayKey(date) {
     const y = date.getFullYear().toString();
@@ -30,7 +30,7 @@
   async function loadData() {
     if (!sqlQuery) return;
     try {
-      const rows = await sql(sqlQuery);
+      const rows = await sql(`select * from (${sqlQuery}) order by day desc`);
       countsMap = new Map();
       rows.forEach((r) => {
         const day = r.day || r.date || r.DAY || r.day_key;
@@ -47,9 +47,9 @@
       // const firstWeekStart = new Date(start);
       // firstWeekStart.setDate(start.getDate() - firstWeekStart.getDay());
       const start = new Date(
-        parseInt(rows[0].day.substring(0, 4)), // 年
-        parseInt(rows[0].day.substring(4, 6)) - 1, // 月（注意月份从0开始）
-        parseInt(rows[0].day.substring(6, 8)) // 日
+        parseInt(rows[rows.length - 1].day.substring(0, 4)), // 年
+        parseInt(rows[rows.length - 1].day.substring(4, 6)) - 1, // 月（注意月份从0开始）
+        parseInt(rows[rows.length - 1].day.substring(6, 8)) // 日
       );
       const firstWeekStart = new Date(start);
       const end = new Date(today);
@@ -80,6 +80,24 @@
           if (c) maxCount = Math.max(maxCount, c.count);
         })
       );
+
+      // ensure DOM updated before scrolling to the end
+      await tick();
+      try {
+        if (calendarRef) {
+          // use scrollTo for smoother browser support
+          if (calendarRef.scrollTo) {
+            calendarRef.scrollTo({ left: calendarRef.scrollWidth });
+          } else {
+            calendarRef.scrollLeft = calendarRef.scrollWidth;
+          }
+        }
+      } catch (e) {
+        // fallback: small timeout
+        setTimeout(() => {
+          if (calendarRef) calendarRef.scrollLeft = calendarRef.scrollWidth;
+        }, 0);
+      }
     } catch (err) {
       console.error("Heatmap load error", err);
     }
@@ -98,8 +116,8 @@
 </script>
 
 <div class="heatmap">
-  <div class="calendar-weeks" role="list">
-    {#each weeks.reverse() as week}
+  <div class="calendar-weeks" role="list" bind:this={calendarRef}>
+    {#each weeks as week}
       <div class="week" role="listitem">
         {#each week as day}
           {#if day}
@@ -145,8 +163,8 @@
     align-items: flex-start;
     overflow-x: auto;
 
-    padding: 10px 0; /* 添加上下内边距，给内容留出空间 */
-    margin: 10px 0; /* 或者使用外边距 */
+    padding: 10px 10px; /* 添加上下内边距，给内容留出空间 */
+    margin: 10px 10px; /* 或者使用外边距 */
   }
 
   .week {
