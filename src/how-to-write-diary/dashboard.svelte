@@ -129,7 +129,7 @@ ORDER BY
       const day = String(now.getDate()).padStart(2, "0");
       const thisYear = now.getFullYear();
       // 假设数据最早从 2000 年开始
-      for (let y = thisYear - 1; y >= 2000; y--) {
+      for (let y = thisYear; y >= 2000; y--) {
         keys.add(`${y}${month}${day}`);
       }
     });
@@ -332,7 +332,12 @@ ORDER BY
     // 点击“那年今日”卡片，激活特殊筛选
     showEntries = true;
     showMedia = true;
-    specialDayType = SpecialDayType.ThisDayInHistory;
+    if (specialDayType === SpecialDayType.ThisDayInHistory) {
+      specialDayType = SpecialDayType.None;
+    } else {
+      specialDayType = SpecialDayType.ThisDayInHistory;
+    }
+
     selectedDays = [];
     updateSpecialDaysCounts();
   }
@@ -341,7 +346,12 @@ ORDER BY
     // 点击"那月今日"卡片，激活特殊筛选
     showEntries = true;
     showMedia = true;
-    specialDayType = SpecialDayType.ThisMonthInHistory;
+
+    if (specialDayType === SpecialDayType.ThisMonthInHistory) {
+      specialDayType = SpecialDayType.None;
+    } else {
+      specialDayType = SpecialDayType.ThisMonthInHistory;
+    }
     selectedDays = [];
     updateSpecialDaysCounts();
   }
@@ -350,20 +360,14 @@ ORDER BY
     // 点击"那周今日"卡片，激活特殊筛选
     showEntries = true;
     showMedia = true;
-    specialDayType = SpecialDayType.ThisWeekInHistory;
+
+    if (specialDayType === SpecialDayType.ThisWeekInHistory) {
+      specialDayType = SpecialDayType.None;
+    } else {
+      specialDayType = SpecialDayType.ThisWeekInHistory;
+    }
     selectedDays = [];
     updateSpecialDaysCounts();
-  }
-
-  function handleMediaToggleOnMobile() {
-    // on mobile, allow toggling between sections
-    if (showEntries && !showMedia) {
-      showMedia = true;
-      showEntries = false;
-    } else {
-      showEntries = true;
-      showMedia = false;
-    }
   }
 
   onMount(() => {
@@ -394,6 +398,7 @@ ORDER BY
   <!-- 顶部统计卡片 -->
   <div class="stats-section">
     <StatCard
+      className="total"
       number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
       label={currentConfig.indexLabel}
       clickable={currentConfig.indexID ? true : false}
@@ -406,6 +411,7 @@ ORDER BY
       }}
     />
     <StatCard
+      className="total"
       number={diaryHasImageEntriesCount || 0}
       label="总图片数"
       clickable={true}

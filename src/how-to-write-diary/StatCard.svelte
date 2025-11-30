@@ -71,4 +71,8 @@
     background: #659049;
     color: #333;
   }
+  .total {
+    background: #4badb2;
+    color: #333;
+  }
 </style>
