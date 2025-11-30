@@ -31,6 +31,14 @@
         },
         {
           type: "checkbox",
+          title: "Diary Plus",
+          description: `日记增强；提供一个日记信息统计面板。`,
+          key: "diaryPlus",
+          value: settings.getFlag("diaryPlus"),
+          hasSetting: true,
+        },
+        {
+          type: "checkbox",
           title: "侧边栏展示文档或块",
           description: `docky`,
           key: "docky",
@@ -287,6 +295,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
 ]`,
         },
       ],
+      "Diary Plus": [],
       日记相关工具: [
         {
           type: "textinput",
