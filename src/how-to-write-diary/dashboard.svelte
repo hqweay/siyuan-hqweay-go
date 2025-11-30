@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import ImageGallery from "./ImageGallery.svelte";
   import StatCard from "./StatCard.svelte";
+  import Heatmap from "./Heatmap.svelte";
   import { tick } from "svelte";
 
   // const lute = window.Lute.New();
@@ -74,12 +75,27 @@ ORDER BY
   $: mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
   $: imgSQL = currentConfig.imgSQL || generateImgSQL(mainSQL); // 自定义优先，否则生成
   $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
+  // 基于 mainSQL 聚合每天创建数，用于热力图
+  $: heatmapSQL = `SELECT substr(created,1,8) as day, count(*) as cnt FROM (${mainSQL}) as t GROUP BY day ORDER BY day`;
   $: selectedConfig && loadData(); // 当配置改变时重新加载数据
   $: layout = "masonry";
   // 日记数据存储
   let diaryAllEntriesCount = 0;
   let diaryHasImageEntriesCount = 0;
   let imageGalleryRef;
+  let selectedDay = null; // YYYYMMDD — when set, filters image gallery
+
+  $: filteredImgSQL = selectedDay
+    ? `select * from (${imgSQL}) as sub where substr(created,1,8)='${selectedDay}'`
+    : imgSQL;
+
+  function handleDayClick(e) {
+    const dayKey = e.detail?.dayKey;
+    if (!dayKey) return;
+    // toggle: click same day will clear filter
+    if (selectedDay === dayKey) selectedDay = null;
+    else selectedDay = dayKey;
+  }
 
   // 图片展示已移入独立组件 ImageGallery
 
@@ -127,7 +143,33 @@ ORDER BY
     <StatCard number={diaryHasImageEntriesCount || 0} label="图片数" />
   </div>
   <!-- 图片集组件 -->
-  <ImageGallery bind:this={imageGalleryRef} {imgSQL} {layout} pageSize={30} />
+  <div class="main-row">
+    <div class="left-column">
+      <Heatmap
+        sqlQuery={heatmapSQL}
+        daysRange={9999}
+        {selectedDay}
+        on:dayclick={handleDayClick}
+      />
+
+      {#if selectedDay}
+        <div class="day-filter">
+          <span>已筛选：{selectedDay}</span>
+          <button class="clear-filter" on:click={() => (selectedDay = null)}
+            >清除</button
+          >
+        </div>
+      {/if}
+
+      <ImageGallery
+        bind:this={imageGalleryRef}
+        imgSQL={filteredImgSQL}
+        {layout}
+        pageSize={30}
+        dayFilter={selectedDay}
+      />
+    </div>
+  </div>
 </div>
 
 <style>
@@ -585,6 +627,33 @@ ORDER BY
   .add-entry-btn:hover {
     background: #ffd700;
     color: #333;
+  }
+  .day-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    color: #495057;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    margin: 16px 0;
+    font-family: system-ui, sans-serif;
+  }
+
+  .clear-filter {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .clear-filter:hover {
+    background: #5a6268;
   }
 
   /* 响应式设计 */

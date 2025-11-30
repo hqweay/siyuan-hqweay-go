@@ -5,6 +5,7 @@
   export let imgSQL;
   export let layout = "grid"; // 'grid' | 'masonry'
   export let pageSize = 30;
+  export let dayFilter = null; // YYYYMMDD to filter images by day
 
   let images = [];
   let displayedImages = [];
@@ -51,25 +52,35 @@
     loading = false;
   }
 
-  // 当 imgSQL 改变时重新加载数据
-  $: if (imgSQL) {
-    (async () => {
-      page = 1;
-      images = [];
-      displayedImages = [];
-      hasMore = true;
-      //默认按创建时间倒序
-      const rows = await sql(`select * from (${imgSQL}) order by created desc`);
-      images = rows.map((r) => ({
-        url: r.asset_path,
-        id: r.id,
-        created: r.created,
-        updated: r.updated,
-        urls: r.asset_path || extractImageLinks(r.markdown),
-      }));
-      updateDisplayedImages();
-    })();
+  // 加载数据（响应 imgSQL 或 dayFilter 的变化）
+  async function loadImages() {
+    if (!imgSQL) return;
+    page = 1;
+    images = [];
+    displayedImages = [];
+    hasMore = true;
+
+    // 如果传入 dayFilter（YYYYMMDD），在外层 SQL 上再做过滤
+    let finalSQL;
+    if (dayFilter) {
+      finalSQL = `select * from (${imgSQL}) as sub where substr(created,1,8)='${dayFilter}' order by created desc`;
+    } else {
+      finalSQL = `select * from (${imgSQL}) order by created desc`;
+    }
+
+    const rows = await sql(finalSQL);
+    images = rows.map((r) => ({
+      url: r.asset_path,
+      id: r.id,
+      created: r.created,
+      updated: r.updated,
+      urls: r.asset_path || extractImageLinks(r.markdown),
+    }));
+    updateDisplayedImages();
   }
+
+  $: if (imgSQL) loadImages();
+  $: if (dayFilter !== undefined) loadImages();
 
   onMount(() => {
     const observer = new IntersectionObserver(
