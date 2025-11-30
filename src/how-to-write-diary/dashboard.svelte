@@ -98,59 +98,83 @@ ORDER BY
   let thisMonthInHistoryCount = 0;
   let thisWeekInHistoryCount = 0;
 
+  // 从日期字符串（YYYYMMDD）解析为 Date 对象
+  function parseYYYYMMDD(dateStr) {
+    if (!dateStr || dateStr.length !== 8) return new Date();
+    const year = parseInt(dateStr.substring(0, 4));
+    const month = parseInt(dateStr.substring(4, 6)) - 1;
+    const day = parseInt(dateStr.substring(6, 8));
+    return new Date(year, month, day);
+  }
+
   // 获取所有"那年今日"日期字符串（YYYYMMDD）
   // 例：今天是20251130，则返回20241130、20231130、20221130......
-  function getThisDayInHistoryKeys(today = new Date()) {
-    const keys = [];
-    const now = today instanceof Date ? today : new Date(today);
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const thisYear = now.getFullYear();
-    // 假设数据最早从 2000 年开始
-    for (let y = thisYear - 1; y >= 2000; y--) {
-      keys.push(`${y}${month}${day}`);
-    }
-    return keys;
+  // 或基于 selectedDays，计算所有选中日期对应的那年今日
+  function getThisDayInHistoryKeys(baseDate = null) {
+    const keys = new Set();
+    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
+    
+    dates.forEach((dateInput) => {
+      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      const thisYear = now.getFullYear();
+      // 假设数据最早从 2000 年开始
+      for (let y = thisYear - 1; y >= 2000; y--) {
+        keys.add(`${y}${month}${day}`);
+      }
+    });
+    return Array.from(keys);
   }
 
   // 获取所有"那月今日"日期字符串（YYYYMMDD）
   // 例：今天是20251130（十一月30日），则返回20251030、20250930、20250830......（所有历史同月的第30天）
-  function getThisMonthInHistoryKeys(today = new Date()) {
-    const keys = [];
-    const now = today instanceof Date ? today : new Date(today);
-    const day = String(now.getDate()).padStart(2, "0");
+  // 或基于 selectedDays，计算所有选中日期对应的那月今日
+  function getThisMonthInHistoryKeys(baseDate = null) {
+    const keys = new Set();
+    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
     
-    // 向前回溯12个月（1年），每个月找同一天
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now);
-      date.setMonth(date.getMonth() - i);
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      // 检查该月该天是否存在（2月29日在非闰年不存在）
-      const testDate = new Date(y, date.getMonth(), parseInt(day));
-      if (testDate.getMonth() === date.getMonth()) {
-        keys.push(`${y}${m}${day}`);
+    dates.forEach((dateInput) => {
+      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
+      const day = String(now.getDate()).padStart(2, "0");
+      
+      // 向前回溯12个月（1年），每个月找同一天
+      for (let i = 0; i < 12; i++) {
+        const date = new Date(now);
+        date.setMonth(date.getMonth() - i);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        // 检查该月该天是否存在（2月29日在非闰年不存在）
+        const testDate = new Date(y, date.getMonth(), parseInt(day));
+        if (testDate.getMonth() === date.getMonth()) {
+          keys.add(`${y}${m}${day}`);
+        }
       }
-    }
-    return keys;
+    });
+    return Array.from(keys);
   }
 
   // 获取所有"那周今日"日期字符串（YYYYMMDD）
   // 例：今天是周一（20251201）的话，则返回20251124、20251117、20251110......（所有历史上的周一）
-  function getThisWeekInHistoryKeys(today = new Date()) {
-    const keys = [];
-    const now = today instanceof Date ? today : new Date(today);
+  // 或基于 selectedDays，计算所有选中日期对应的那周今日
+  function getThisWeekInHistoryKeys(baseDate = null) {
+    const keys = new Set();
+    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
     
-    // 向前回溯52周（1年），每周找同一天
-    for (let i = 0; i < 52; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i * 7);
-      const y = date.getFullYear();
-      const m = String(date.getMonth() + 1).padStart(2, "0");
-      const d = String(date.getDate()).padStart(2, "0");
-      keys.push(`${y}${m}${d}`);
-    }
-    return keys;
+    dates.forEach((dateInput) => {
+      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
+      
+      // 向前回溯52周（1年），每周找同一天
+      for (let i = 0; i < 52; i++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - i * 7);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        keys.add(`${y}${m}${d}`);
+      }
+    });
+    return Array.from(keys);
   }
 
   // 计算特殊日期SQL片段
@@ -202,6 +226,8 @@ ORDER BY
     } else {
       selectedDays = [...selectedDays, dayKey];
     }
+    // 重新计算那年/那月/那周的统计
+    updateSpecialDaysCounts();
   }
 
   // 图片展示已移入独立组件 ImageGallery
@@ -215,6 +241,16 @@ ORDER BY
       const countImg = await sql(imgCountSQL);
       diaryHasImageEntriesCount = countImg[0]?.count || 0;
 
+      // 更新那年/那月/那周的统计数据
+      updateSpecialDaysCounts();
+    } catch (error) {
+      console.error("Error loading diary entries:", error);
+    }
+  }
+
+  // 根据当前的 selectedDays 重新计算特殊日期的统计
+  async function updateSpecialDaysCounts() {
+    try {
       // 统计"那年今日"、"那月今日"、"那周今日"数量
       const thisDayIdListSQL = getSpecialDaySQL(
         SpecialDayType.ThisDayInHistory,
@@ -242,7 +278,7 @@ ORDER BY
       thisMonthInHistoryCount = thisMonthCountRes[0]?.count || 0;
       thisWeekInHistoryCount = thisWeekCountRes[0]?.count || 0;
     } catch (error) {
-      console.error("Error loading diary entries:", error);
+      console.error("Error updating special days counts:", error);
     }
   }
 
@@ -270,6 +306,7 @@ ORDER BY
     showMedia = true;
     specialDayType = SpecialDayType.ThisDayInHistory;
     selectedDays = [];
+    updateSpecialDaysCounts();
   }
 
   function handleThisMonthInHistoryCardClick() {
@@ -278,6 +315,7 @@ ORDER BY
     showMedia = true;
     specialDayType = SpecialDayType.ThisMonthInHistory;
     selectedDays = [];
+    updateSpecialDaysCounts();
   }
 
   function handleThisWeekInHistoryCardClick() {
@@ -286,6 +324,7 @@ ORDER BY
     showMedia = true;
     specialDayType = SpecialDayType.ThisWeekInHistory;
     selectedDays = [];
+    updateSpecialDaysCounts();
   }
 
   function handleMediaToggleOnMobile() {
