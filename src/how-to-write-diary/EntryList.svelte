@@ -12,6 +12,8 @@
   let loading = false;
   let hasMore = true;
   let sentinel;
+  let fixedHeight;
+  let isExpanded;
 
   async function loadNext() {
     if (!idSQL || loading || !hasMore) return;
@@ -63,8 +65,20 @@
 </script>
 
 <div class="entry-list">
+  <div class="entry-header">
+    <button
+      class="tab-btn"
+      class:active={isExpanded === true}
+      on:click={() => (isExpanded = !isExpanded)}>折叠</button
+    >
+    <button
+      class="tab-btn"
+      class:active={fixedHeight === true}
+      on:click={() => (fixedHeight = !fixedHeight)}>固定高度</button
+    >
+  </div>
   {#each ids as id}
-    <EntryItem blockId={id} />
+    <EntryItem blockId={id} {isExpanded} {fixedHeight} />
   {/each}
 
   <div class="list-loading">

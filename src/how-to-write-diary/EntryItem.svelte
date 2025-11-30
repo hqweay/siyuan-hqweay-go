@@ -5,6 +5,7 @@
   export let blockId;
   export let isExpanded = false;
   export let fixedHeight = true;
+
   let container;
 
   onMount(() => {
