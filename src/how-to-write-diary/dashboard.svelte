@@ -196,61 +196,59 @@ ORDER BY
   </div>
   <!-- 图片集组件 -->
   <div class="main-row">
-    <div class="left-column">
-      <Heatmap
-        sqlQuery={heatmapSQL}
-        daysRange={9999}
-        {selectedDay}
-        on:dayclick={handleDayClick}
-      />
+    <Heatmap
+      sqlQuery={heatmapSQL}
+      daysRange={9999}
+      {selectedDay}
+      on:dayclick={handleDayClick}
+    />
 
-      {#if selectedDay}
-        <div class="day-filter">
-          <span>已筛选：{selectedDay}</span>
-          <button class="clear-filter" on:click={() => (selectedDay = null)}
-            >清除</button
-          >
+    {#if selectedDay}
+      <div class="day-filter">
+        <span>已筛选：{selectedDay}</span>
+        <button class="clear-filter" on:click={() => (selectedDay = null)}
+          >清除</button
+        >
+      </div>
+    {/if}
+
+    <div class="media-and-entries" class:mobile={isMobile}>
+      {#if showEntries}
+        <div class="entries-column" class:mobile={isMobile}>
+          <!-- <div class="column-header">
+            <h3>日记流</h3>
+            {#if isMobile}
+              <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
+                >→ 图片</button
+              >
+            {/if}
+          </div> -->
+          <EntryList
+            idSQL={selectedDay ? filteredIdListSQL : idListSQL}
+            pageSize={10}
+          />
         </div>
       {/if}
 
-      <div class="media-and-entries" class:mobile={isMobile}>
-        {#if showEntries}
-          <div class="entries-column" class:mobile={isMobile}>
-            <div class="column-header">
-              <h3>日记流</h3>
-              {#if isMobile}
-                <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
-                  >→ 图片</button
-                >
-              {/if}
-            </div>
-            <EntryList
-              idSQL={selectedDay ? filteredIdListSQL : idListSQL}
-              pageSize={10}
-            />
-          </div>
-        {/if}
-
-        {#if showMedia}
-          <div class="media-column" class:mobile={isMobile}>
-            <div class="column-header">
-              <h3>图片集</h3>
-              {#if isMobile}
-                <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
-                  >→ 日记</button
-                >
-              {/if}
-            </div>
-            <ImageGallery
-              bind:this={imageGalleryRef}
-              imgSQL={filteredImgSQL}
-              {layout}
-              pageSize={30}
-              dayFilter={selectedDay}
-            />
-          </div>
-        {/if}
-      </div>
+      {#if showMedia}
+        <div class="media-column" class:mobile={isMobile}>
+          <!-- <div class="column-header"> -->
+          <!-- <h3>图片集</h3> -->
+          <!-- {#if isMobile}
+              <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
+                >→ 日记</button
+              >
+            {/if} -->
+          <!-- </div> -->
+          <ImageGallery
+            bind:this={imageGalleryRef}
+            imgSQL={filteredImgSQL}
+            {layout}
+            pageSize={30}
+            dayFilter={selectedDay}
+          />
+        </div>
+      {/if}
     </div>
   </div>
 </div>
@@ -258,9 +256,9 @@ ORDER BY
 <style>
   .dashboard-container {
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     min-height: 100vh;
-    color: white;
+    /* color: white; */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       sans-serif;
   }
@@ -273,11 +271,11 @@ ORDER BY
     flex-wrap: wrap;
   }
 
-  .tab-btn {
+  :global(.tab-btn) {
     padding: 10px 20px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    border: 2px solid rgb(210 210 210 / 30%);
+    /* background: rgba(255, 255, 255, 0.05); */
+    /* color: white; */
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
@@ -286,12 +284,12 @@ ORDER BY
     white-space: nowrap;
   }
 
-  .tab-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+  :global(.tab-btn:hover) {
+    /* background: rgba(255, 255, 255, 0.15); */
     border-color: rgba(255, 255, 255, 0.5);
   }
 
-  .tab-btn.active {
+  :global(.tab-btn.active) {
     background: #ffd700;
     color: #333;
     border-color: #ffd700;
@@ -349,11 +347,11 @@ ORDER BY
     margin-top: 18px;
   }
   .media-column {
-    flex: 1 1 60%;
+    flex: 1 1 50%;
     min-width: 320px;
   }
   .entries-column {
-    flex: 1 1 40%;
+    flex: 1 1 50%;
     min-width: 300px;
     /* max-width: 480px; */
   }

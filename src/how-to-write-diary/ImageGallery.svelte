@@ -102,13 +102,15 @@
 
 <div class="images-section">
   <div class="images-header">
-    <h3>图片集</h3>
-    <div class="layout-toggle">
+    <!-- <h3>图片集</h3> -->
+    <div>
       <button
+        class="tab-btn"
         class:active={layout === "grid"}
         on:click={() => (layout = "grid")}>网格</button
       >
       <button
+        class="tab-btn"
         class:active={layout === "masonry"}
         on:click={() => (layout = "masonry")}>瀑布流</button
       >
@@ -159,7 +161,7 @@
 <style>
   .images-section {
     background: rgba(255, 255, 255, 0.1);
-    padding: 25px;
+    /* padding: 25px; */
     border-radius: 12px;
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -176,23 +178,6 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 12px;
-  }
-
-  .layout-toggle button {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: white;
-    padding: 6px 10px;
-    margin-left: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .layout-toggle button.active,
-  .layout-toggle button:hover {
-    background: #ffd700;
-    color: #222;
-    border-color: #ffd700;
   }
 
   .image-grid {

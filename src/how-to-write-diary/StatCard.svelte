@@ -38,7 +38,7 @@
 
 <style>
   .stat-card {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgb(60 178 59 / 10%);
     padding: 20px;
     border-radius: 12px;
     text-align: center;

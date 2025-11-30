@@ -78,7 +78,7 @@
     cursor: pointer;
     user-select: none;
     transition: background 0.2s;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   .fixed-height {
     max-height: 300px;
@@ -114,7 +114,7 @@
 
   .entry-id {
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.7);
+    /* color: rgba(255, 255, 255, 0.7); */
     font-family: monospace;
     white-space: nowrap;
     overflow: hidden;
