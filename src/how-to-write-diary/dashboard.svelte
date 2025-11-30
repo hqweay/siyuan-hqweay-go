@@ -84,6 +84,9 @@ ORDER BY
   let diaryHasImageEntriesCount = 0;
   let imageGalleryRef;
   let selectedDay = null; // YYYYMMDD — when set, filters image gallery
+  let isMobile = false;
+  let showMedia = true; // default show both
+  let showEntries = true; // default show both
 
   $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
   $: idListSQL = `${idListBaseSQL} order by created desc`;
@@ -118,8 +121,38 @@ ORDER BY
     }
   }
 
+  function handleEntryCardClick() {
+    // click entries card: show only entries
+    showEntries = true;
+    showMedia = false;
+  }
+
+  function handleImageCardClick() {
+    // click image card: show only media
+    showMedia = true;
+    showEntries = false;
+  }
+
+  function handleMediaToggleOnMobile() {
+    // on mobile, allow toggling between sections
+    if (showEntries && !showMedia) {
+      showMedia = true;
+      showEntries = false;
+    } else {
+      showEntries = true;
+      showMedia = false;
+    }
+  }
+
   onMount(() => {
     loadData();
+    // detect mobile
+    const handleResize = () => {
+      isMobile = window.innerWidth < 1024;
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   });
 </script>
 
@@ -143,10 +176,23 @@ ORDER BY
       label={currentConfig.indexLabel}
       clickable={currentConfig.indexID ? true : false}
       on:click={async () => {
-        window.open(`siyuan://blocks/${currentConfig.indexID}`);
+        // if (isMobile) {
+        handleEntryCardClick();
+        // } else {
+        //   window.open(`siyuan://blocks/${currentConfig.indexID}`);
+        // }
       }}
     />
-    <StatCard number={diaryHasImageEntriesCount || 0} label="图片数" />
+    <StatCard
+      number={diaryHasImageEntriesCount || 0}
+      label="图片数"
+      clickable={true}
+      on:click={() => {
+        // if (isMobile) {
+        handleImageCardClick();
+        // }
+      }}
+    />
   </div>
   <!-- 图片集组件 -->
   <div class="main-row">
@@ -167,19 +213,43 @@ ORDER BY
         </div>
       {/if}
 
-      <div class="media-and-entries">
-        <div class="media-column">
-          <ImageGallery
-            bind:this={imageGalleryRef}
-            imgSQL={filteredImgSQL}
-            {layout}
-            pageSize={30}
-            dayFilter={selectedDay}
-          />
-        </div>
-        <div class="entries-column">
-          <EntryList idSQL={selectedDay ? filteredIdListSQL : idListSQL} pageSize={10} />
-        </div>
+      <div class="media-and-entries" class:mobile={isMobile}>
+        {#if showEntries}
+          <div class="entries-column" class:mobile={isMobile}>
+            <div class="column-header">
+              <h3>日记流</h3>
+              {#if isMobile}
+                <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
+                  >→ 图片</button
+                >
+              {/if}
+            </div>
+            <EntryList
+              idSQL={selectedDay ? filteredIdListSQL : idListSQL}
+              pageSize={10}
+            />
+          </div>
+        {/if}
+
+        {#if showMedia}
+          <div class="media-column" class:mobile={isMobile}>
+            <div class="column-header">
+              <h3>图片集</h3>
+              {#if isMobile}
+                <button class="toggle-btn" on:click={handleMediaToggleOnMobile}
+                  >→ 日记</button
+                >
+              {/if}
+            </div>
+            <ImageGallery
+              bind:this={imageGalleryRef}
+              imgSQL={filteredImgSQL}
+              {layout}
+              pageSize={30}
+              dayFilter={selectedDay}
+            />
+          </div>
+        {/if}
       </div>
     </div>
   </div>
@@ -279,13 +349,65 @@ ORDER BY
     margin-top: 18px;
   }
   .media-column {
-    flex: 1 1 50%;
+    flex: 1 1 60%;
     min-width: 320px;
   }
   .entries-column {
-    flex: 1 1 50%;
+    flex: 1 1 40%;
     min-width: 300px;
-    max-width: 480px;
+    /* max-width: 480px; */
+  }
+
+  .column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+
+  .column-header h3 {
+    margin: 0;
+    color: #ffd700;
+    font-size: 1.1rem;
+  }
+
+  .toggle-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+  }
+
+  .toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  @media (max-width: 1023px) {
+    .media-and-entries {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .media-and-entries.mobile {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .media-column.mobile,
+    .entries-column.mobile {
+      flex: 1 1 100%;
+      max-width: none;
+      min-width: auto;
+    }
+
+    .stats-section {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   .nav-btn {
