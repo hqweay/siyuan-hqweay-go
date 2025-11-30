@@ -3,19 +3,23 @@
   import { onMount } from "svelte";
   import ImageGallery from "./ImageGallery.svelte";
   import StatCard from "./StatCard.svelte";
+  import { tick } from "svelte";
 
   // const lute = window.Lute.New();
 
   // 配置多个不同的 SQL 来源
   const sqlConfigs = {
     doc: {
-      name: "📄 Voicenotes",
+      name: "➿ Voicenotes",
+      indexID: "20250126213235-a3tnoqb", //定义点击打开的块
+      indexLabel: "总语音日记",
       mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
-      imgSQL: null, // 若为 null，则使用 getImgSQL 生成
-      // imgSQL: `custom sql query here` // 可选：自定义 imgSQL
+      imgSQL: null, //  可选：自定义 imgSQL，若为 null，则使用 getImgSQL 生成
     },
     ssn: {
       name: "📝 碎碎念引用",
+      indexID: "",
+      indexLabel: "碎碎念引用块",
       mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
 SELECT blocks.* FROM blocks 
 WHERE 
@@ -55,12 +59,8 @@ ORDER BY
     },
     all: {
       name: "🌐 全部",
-      mainSQL: `select blocks.* from blocks where blocks.path LIKE '%20250126213235-a3tnoqb%'`,
-      imgSQL: `select blocks.* from blocks
-      left join blocks as parent_blocks on blocks.parent_id = parent_blocks.id
-      left join blocks as grandparent_blocks on parent_blocks.parent_id = grandparent_blocks.id
-      left join blocks as great_grandparent_blocks on grandparent_blocks.parent_id = great_grandparent_blocks.id
-      left join blocks as great_great_grandparent_blocks on great_grandparent_blocks.parent_id = great_great_grandparent_blocks.id`,
+      indexLabel: "总文档",
+      mainSQL: `select blocks.* from blocks where type = 'd'`,
     },
   };
 
@@ -75,10 +75,11 @@ ORDER BY
   $: imgSQL = currentConfig.imgSQL || generateImgSQL(mainSQL); // 自定义优先，否则生成
   $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
   $: selectedConfig && loadData(); // 当配置改变时重新加载数据
-
+  $: layout = "masonry";
   // 日记数据存储
   let diaryAllEntriesCount = 0;
   let diaryHasImageEntriesCount = 0;
+  let imageGalleryRef;
 
   // 图片展示已移入独立组件 ImageGallery
 
@@ -117,12 +118,16 @@ ORDER BY
   <div class="stats-section">
     <StatCard
       number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
-      label="总日记数"
+      label={currentConfig.indexLabel}
+      clickable={currentConfig.indexID ? true : false}
+      on:click={async () => {
+        window.open(`siyuan://blocks/${currentConfig.indexID}`);
+      }}
     />
     <StatCard number={diaryHasImageEntriesCount || 0} label="图片数" />
   </div>
   <!-- 图片集组件 -->
-  <ImageGallery {imgSQL} pageSize={30} />
+  <ImageGallery bind:this={imageGalleryRef} {imgSQL} {layout} pageSize={30} />
 </div>
 
 <style>

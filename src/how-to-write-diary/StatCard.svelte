@@ -1,10 +1,37 @@
 <script>
+  import { createEventDispatcher } from "svelte";
+
   export let number = 0;
   export let label = "";
   export let className = "";
+  // 如果父组件希望响应点击，将这个属性设为 true
+  export let clickable = false;
+
+  const dispatch = createEventDispatcher();
+
+  function handleClick(event) {
+    if (!clickable) return;
+    dispatch("click", { number, label, originalEvent: event });
+  }
+
+  function handleKeydown(event) {
+    if (!clickable) return;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleClick(event);
+    }
+  }
 </script>
 
-<div class={`stat-card ${className}`} role="group" aria-label={label}>
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+<div
+  class={`stat-card ${className}`}
+  role={clickable ? "button" : "group"}
+  tabindex={clickable ? 0 : undefined}
+  aria-label={label}
+  on:click={handleClick}
+  on:keydown={handleKeydown}
+>
   <div class="stat-number">{number}</div>
   <div class="stat-label">{label}</div>
 </div>
@@ -33,5 +60,9 @@
     font-size: 0.9rem;
     opacity: 0.8;
     margin-top: 5px;
+  }
+
+  .stat-card[role="button"] {
+    cursor: pointer;
   }
 </style>

@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   export let imgSQL;
+  export let layout = "grid"; // 'grid' | 'masonry'
   export let pageSize = 30;
 
   let images = [];
@@ -57,7 +58,8 @@
       images = [];
       displayedImages = [];
       hasMore = true;
-      const rows = await sql(imgSQL);
+      //默认按创建时间倒序
+      const rows = await sql(`select * from (${imgSQL}) order by created desc`);
       images = rows.map((r) => ({
         url: r.asset_path,
         id: r.id,
@@ -88,21 +90,50 @@
 </script>
 
 <div class="images-section">
-  <h3>图片集</h3>
-  <div class="image-grid">
-    {#each displayedImages as img}
-      <div class="image-item" title={formatTimestamp(img.created)}>
-        <a href={"siyuan://blocks/" + img.id}>
-          {#each img.url ? [img.url] : img.urls || [] as url, index}
-            <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
-          {/each}
-        </a>
-        <div class="image-overlay">
-          <span class="image-date">{formatTimestamp(img.updated)}</span>
-        </div>
-      </div>
-    {/each}
+  <div class="images-header">
+    <h3>图片集</h3>
+    <div class="layout-toggle">
+      <button
+        class:active={layout === "grid"}
+        on:click={() => (layout = "grid")}>网格</button
+      >
+      <button
+        class:active={layout === "masonry"}
+        on:click={() => (layout = "masonry")}>瀑布流</button
+      >
+    </div>
   </div>
+  {#if layout === "grid"}
+    <div class="image-grid">
+      {#each displayedImages as img}
+        <div class="image-item" title={formatTimestamp(img.created)}>
+          <a href={"siyuan://blocks/" + img.id}>
+            {#each img.url ? [img.url] : img.urls || [] as url, index}
+              <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
+            {/each}
+          </a>
+          <div class="image-overlay">
+            <span class="image-date">{formatTimestamp(img.updated)}</span>
+          </div>
+        </div>
+      {/each}
+    </div>
+  {:else}
+    <div class="masonry">
+      {#each displayedImages as img}
+        {#each img.url ? [img.url] : img.urls || [] as url, index}
+          <div class="image-item" title={formatTimestamp(img.created)}>
+            <a href={"siyuan://blocks/" + img.id}>
+              <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
+            </a>
+            <div class="image-overlay">
+              <span class="image-date">{formatTimestamp(img.updated)}</span>
+            </div>
+          </div>
+        {/each}
+      {/each}
+    </div>
+  {/if}
 
   <div class="images-loading">
     {#if loading}
@@ -129,6 +160,30 @@
     font-size: 1.3rem;
   }
 
+  .images-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .layout-toggle button {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+    padding: 6px 10px;
+    margin-left: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .layout-toggle button.active,
+  .layout-toggle button:hover {
+    background: #ffd700;
+    color: #222;
+    border-color: #ffd700;
+  }
+
   .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -152,6 +207,38 @@
     height: 120px;
     object-fit: cover;
     display: block;
+  }
+
+  /* 瀑布流样式 */
+  .masonry {
+    column-count: 4;
+    column-gap: 12px;
+  }
+
+  .masonry .image-item {
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .masonry .image-item img {
+    width: 100%;
+    height: auto; /* 保持等比例 */
+    object-fit: contain;
+    display: block;
+  }
+
+  @media (max-width: 1200px) {
+    .masonry {
+      column-count: 3;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .masonry {
+      column-count: 2;
+    }
   }
 
   .image-overlay {
