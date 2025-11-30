@@ -1,0 +1,3 @@
+[submodule "plugin-sample"]
+	path = plugin-sample
+	url = git@github.com:siyuan-note/plugin-sample.git
