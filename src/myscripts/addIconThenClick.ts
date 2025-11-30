@@ -9,8 +9,6 @@ export default class AddIconThenClick {
   thisElement;
 
   onunload() {
-    // document.getElementById(this.id) &&
-    //   document.getElementById(this.id).remove();
     this.thisElement && this.thisElement.remove();
   }
 
@@ -31,11 +29,7 @@ export default class AddIconThenClick {
     if ("barMode" === this.type) {
       // 添加一个按钮
       this.addBarMode();
-    }
-    // else if ("dockLeft" === this.type) {
-    //   this.addDockLeft();
-    // }
-    else {
+    } else {
       this.addIcon();
     }
   }
