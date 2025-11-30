@@ -84,21 +84,23 @@ ORDER BY
   let diaryHasImageEntriesCount = 0;
   // 那年今日相关
   let thisDayInHistoryCount = 0;
-  let thisDayInHistoryImgCount = 0;
-  let thisDayInHistoryActive = false;
 
-  // 可扩展的“特殊日历筛选”类型
+  // 可扩展的"特殊日历筛选"类型
   const SpecialDayType = {
     None: "none",
     ThisDayInHistory: "thisDayInHistory",
-    // 未来可扩展：ThisMonthInHistory, ThisWeekInHistory
+    ThisMonthInHistory: "thisMonthInHistory",
+    ThisWeekInHistory: "thisWeekInHistory",
   };
   let specialDayType = SpecialDayType.None;
 
-  // 获取所有“那年今日”日期字符串（YYYYMMDD）
+  // 统计各特殊日期类型的数量
+  let thisMonthInHistoryCount = 0;
+  let thisWeekInHistoryCount = 0;
+
+  // 获取所有"那年今日"日期字符串（YYYYMMDD）
+  // 例：今天是20251130，则返回20241130、20231130、20221130......
   function getThisDayInHistoryKeys(today = new Date()) {
-    //测试配置指定日期
-    today = new Date("2026-03-30");
     const keys = [];
     const now = today instanceof Date ? today : new Date(today);
     const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -111,13 +113,60 @@ ORDER BY
     return keys;
   }
 
-  // 计算“那年今日”SQL 片段
+  // 获取所有"那月今日"日期字符串（YYYYMMDD）
+  // 例：今天是20251130（十一月30日），则返回20251030、20250930、20250830......（所有历史同月的第30天）
+  function getThisMonthInHistoryKeys(today = new Date()) {
+    const keys = [];
+    const now = today instanceof Date ? today : new Date(today);
+    const day = String(now.getDate()).padStart(2, "0");
+    
+    // 向前回溯12个月（1年），每个月找同一天
+    for (let i = 0; i < 12; i++) {
+      const date = new Date(now);
+      date.setMonth(date.getMonth() - i);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      // 检查该月该天是否存在（2月29日在非闰年不存在）
+      const testDate = new Date(y, date.getMonth(), parseInt(day));
+      if (testDate.getMonth() === date.getMonth()) {
+        keys.push(`${y}${m}${day}`);
+      }
+    }
+    return keys;
+  }
+
+  // 获取所有"那周今日"日期字符串（YYYYMMDD）
+  // 例：今天是周一（20251201）的话，则返回20251124、20251117、20251110......（所有历史上的周一）
+  function getThisWeekInHistoryKeys(today = new Date()) {
+    const keys = [];
+    const now = today instanceof Date ? today : new Date(today);
+    
+    // 向前回溯52周（1年），每周找同一天
+    for (let i = 0; i < 52; i++) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i * 7);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      keys.push(`${y}${m}${d}`);
+    }
+    return keys;
+  }
+
+  // 计算特殊日期SQL片段
   function getSpecialDaySQL(type, baseSQL) {
     if (type === SpecialDayType.ThisDayInHistory) {
       const keys = getThisDayInHistoryKeys();
       return `select * from (${baseSQL}) as sub where substr(created,1,8) in (${keys.map((d) => `'${d}'`).join(", ")})`;
     }
-    // 未来可扩展：那月今日、那周今日
+    if (type === SpecialDayType.ThisMonthInHistory) {
+      const keys = getThisMonthInHistoryKeys();
+      return `select * from (${baseSQL}) as sub where substr(created,1,8) in (${keys.map((d) => `'${d}'`).join(", ")})`;
+    }
+    if (type === SpecialDayType.ThisWeekInHistory) {
+      const keys = getThisWeekInHistoryKeys();
+      return `select * from (${baseSQL}) as sub where substr(created,1,8) in (${keys.map((d) => `'${d}'`).join(", ")})`;
+    }
     return baseSQL;
   }
   let imageGalleryRef;
@@ -129,17 +178,17 @@ ORDER BY
   $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
   $: idListSQL = `${idListBaseSQL} order by created desc`;
 
-  // 支持特殊日历筛选（如那年今日）和普通多日筛选
+  // 支持特殊日历筛选（那年今日、那月今日、那周今日）和普通多日筛选
   $: filteredIdListSQL =
-    specialDayType === SpecialDayType.ThisDayInHistory
-      ? getSpecialDaySQL(SpecialDayType.ThisDayInHistory, idListSQL)
+    specialDayType !== SpecialDayType.None
+      ? getSpecialDaySQL(specialDayType, idListSQL)
       : selectedDays.length > 0
         ? `select * from (${idListSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
         : idListSQL;
 
   $: filteredImgSQL =
-    specialDayType === SpecialDayType.ThisDayInHistory
-      ? getSpecialDaySQL(SpecialDayType.ThisDayInHistory, imgSQL)
+    specialDayType !== SpecialDayType.None
+      ? getSpecialDaySQL(specialDayType, imgSQL)
       : selectedDays.length > 0
         ? `select * from (${imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
         : imgSQL;
@@ -166,23 +215,32 @@ ORDER BY
       const countImg = await sql(imgCountSQL);
       diaryHasImageEntriesCount = countImg[0]?.count || 0;
 
-      // 统计“那年今日”数量
+      // 统计"那年今日"、"那月今日"、"那周今日"数量
       const thisDayIdListSQL = getSpecialDaySQL(
         SpecialDayType.ThisDayInHistory,
         idListSQL
       );
-      const thisDayImgSQL = getSpecialDaySQL(
-        SpecialDayType.ThisDayInHistory,
-        imgSQL
+      const thisMonthIdListSQL = getSpecialDaySQL(
+        SpecialDayType.ThisMonthInHistory,
+        idListSQL
       );
+      const thisWeekIdListSQL = getSpecialDaySQL(
+        SpecialDayType.ThisWeekInHistory,
+        idListSQL
+      );
+
       const thisDayCountSQL = `select count(*) as count from (${thisDayIdListSQL})`;
-      const thisDayImgCountSQL = `select count(*) as count from (${thisDayImgSQL})`;
-      const [thisDayCountRes, thisDayImgCountRes] = await Promise.all([
+      const thisMonthCountSQL = `select count(*) as count from (${thisMonthIdListSQL})`;
+      const thisWeekCountSQL = `select count(*) as count from (${thisWeekIdListSQL})`;
+
+      const [thisDayCountRes, thisMonthCountRes, thisWeekCountRes] = await Promise.all([
         sql(thisDayCountSQL),
-        sql(thisDayImgCountSQL),
+        sql(thisMonthCountSQL),
+        sql(thisWeekCountSQL),
       ]);
       thisDayInHistoryCount = thisDayCountRes[0]?.count || 0;
-      thisDayInHistoryImgCount = thisDayImgCountRes[0]?.count || 0;
+      thisMonthInHistoryCount = thisMonthCountRes[0]?.count || 0;
+      thisWeekInHistoryCount = thisWeekCountRes[0]?.count || 0;
     } catch (error) {
       console.error("Error loading diary entries:", error);
     }
@@ -211,6 +269,22 @@ ORDER BY
     showEntries = true;
     showMedia = true;
     specialDayType = SpecialDayType.ThisDayInHistory;
+    selectedDays = [];
+  }
+
+  function handleThisMonthInHistoryCardClick() {
+    // 点击"那月今日"卡片，激活特殊筛选
+    showEntries = true;
+    showMedia = true;
+    specialDayType = SpecialDayType.ThisMonthInHistory;
+    selectedDays = [];
+  }
+
+  function handleThisWeekInHistoryCardClick() {
+    // 点击"那周今日"卡片，激活特殊筛选
+    showEntries = true;
+    showMedia = true;
+    specialDayType = SpecialDayType.ThisWeekInHistory;
     selectedDays = [];
   }
 
@@ -281,6 +355,18 @@ ORDER BY
       clickable={true}
       on:click={handleThisDayInHistoryCardClick}
     />
+    <StatCard
+      number={thisMonthInHistoryCount}
+      label="那月今日"
+      clickable={true}
+      on:click={handleThisMonthInHistoryCardClick}
+    />
+    <StatCard
+      number={thisWeekInHistoryCount}
+      label="那周今日"
+      clickable={true}
+      on:click={handleThisWeekInHistoryCardClick}
+    />
   </div>
   <!-- 图片集组件 -->
   <div class="main-row">
@@ -295,6 +381,10 @@ ORDER BY
       <div class="day-filter">
         {#if specialDayType === SpecialDayType.ThisDayInHistory}
           <span>已筛选：那年今日</span>
+        {:else if specialDayType === SpecialDayType.ThisMonthInHistory}
+          <span>已筛选：那月今日</span>
+        {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
+          <span>已筛选：那周今日</span>
         {:else if selectedDays.length > 0}
           <span>已筛选：{selectedDays.join(", ")}</span>
         {/if}
