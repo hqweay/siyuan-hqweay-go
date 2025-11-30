@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   export let blockId;
   export let isExpanded = false;
+  export let fixedHeight = true;
   let container;
 
   onMount(() => {
@@ -48,8 +49,22 @@
       <span class="arrow">{isExpanded ? "➡️" : "⬇️"}</span>
     </button>
     <span class="entry-id">{blockId}</span>
+    <button
+      class="toggle-btn"
+      on:click={() => {
+        fixedHeight = !fixedHeight;
+      }}
+      title={fixedHeight ? "固定高度" : "展开"}
+    >
+      <span class="arrow">{fixedHeight ? "🔧" : "🔒"}</span>
+    </button>
   </div>
-  <div class="entry-item" bind:this={container} class:expanded={isExpanded} />
+  <div
+    class="entry-item"
+    bind:this={container}
+    class:expanded={isExpanded}
+    class:fixed-height={fixedHeight}
+  />
 </div>
 
 <style>
@@ -64,6 +79,10 @@
     user-select: none;
     transition: background 0.2s;
     margin-bottom: 10px;
+  }
+  .fixed-height {
+    max-height: 300px;
+    overflow: hidden;
   }
 
   .entry-header:hover {
