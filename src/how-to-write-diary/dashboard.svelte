@@ -112,10 +112,19 @@ ORDER BY
   // 或基于 selectedDays，计算所有选中日期对应的那年今日
   function getThisDayInHistoryKeys(baseDate = null) {
     const keys = new Set();
-    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
-    
+    const dates = baseDate
+      ? [baseDate]
+      : selectedDays.length > 0
+        ? selectedDays
+        : [new Date()];
+
     dates.forEach((dateInput) => {
-      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
+      const now =
+        typeof dateInput === "string"
+          ? parseYYYYMMDD(dateInput)
+          : dateInput instanceof Date
+            ? dateInput
+            : new Date(dateInput);
       const month = String(now.getMonth() + 1).padStart(2, "0");
       const day = String(now.getDate()).padStart(2, "0");
       const thisYear = now.getFullYear();
@@ -132,12 +141,21 @@ ORDER BY
   // 或基于 selectedDays，计算所有选中日期对应的那月今日
   function getThisMonthInHistoryKeys(baseDate = null) {
     const keys = new Set();
-    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
-    
+    const dates = baseDate
+      ? [baseDate]
+      : selectedDays.length > 0
+        ? selectedDays
+        : [new Date()];
+
     dates.forEach((dateInput) => {
-      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
+      const now =
+        typeof dateInput === "string"
+          ? parseYYYYMMDD(dateInput)
+          : dateInput instanceof Date
+            ? dateInput
+            : new Date(dateInput);
       const day = String(now.getDate()).padStart(2, "0");
-      
+
       // 向前回溯12个月（1年），每个月找同一天
       for (let i = 0; i < 12; i++) {
         const date = new Date(now);
@@ -159,11 +177,20 @@ ORDER BY
   // 或基于 selectedDays，计算所有选中日期对应的那周今日
   function getThisWeekInHistoryKeys(baseDate = null) {
     const keys = new Set();
-    const dates = baseDate ? [baseDate] : selectedDays.length > 0 ? selectedDays : [new Date()];
-    
+    const dates = baseDate
+      ? [baseDate]
+      : selectedDays.length > 0
+        ? selectedDays
+        : [new Date()];
+
     dates.forEach((dateInput) => {
-      const now = typeof dateInput === 'string' ? parseYYYYMMDD(dateInput) : (dateInput instanceof Date ? dateInput : new Date(dateInput));
-      
+      const now =
+        typeof dateInput === "string"
+          ? parseYYYYMMDD(dateInput)
+          : dateInput instanceof Date
+            ? dateInput
+            : new Date(dateInput);
+
       // 向前回溯52周（1年），每周找同一天
       for (let i = 0; i < 52; i++) {
         const date = new Date(now);
@@ -269,11 +296,12 @@ ORDER BY
       const thisMonthCountSQL = `select count(*) as count from (${thisMonthIdListSQL})`;
       const thisWeekCountSQL = `select count(*) as count from (${thisWeekIdListSQL})`;
 
-      const [thisDayCountRes, thisMonthCountRes, thisWeekCountRes] = await Promise.all([
-        sql(thisDayCountSQL),
-        sql(thisMonthCountSQL),
-        sql(thisWeekCountSQL),
-      ]);
+      const [thisDayCountRes, thisMonthCountRes, thisWeekCountRes] =
+        await Promise.all([
+          sql(thisDayCountSQL),
+          sql(thisMonthCountSQL),
+          sql(thisWeekCountSQL),
+        ]);
       thisDayInHistoryCount = thisDayCountRes[0]?.count || 0;
       thisMonthInHistoryCount = thisMonthCountRes[0]?.count || 0;
       thisWeekInHistoryCount = thisWeekCountRes[0]?.count || 0;
@@ -379,7 +407,7 @@ ORDER BY
     />
     <StatCard
       number={diaryHasImageEntriesCount || 0}
-      label="图片数"
+      label="总图片数"
       clickable={true}
       on:click={() => {
         // if (isMobile) {
@@ -393,18 +421,27 @@ ORDER BY
       label="那年今日"
       clickable={true}
       on:click={handleThisDayInHistoryCardClick}
+      className={specialDayType === SpecialDayType.ThisDayInHistory
+        ? "active"
+        : ""}
     />
     <StatCard
       number={thisMonthInHistoryCount}
       label="那月今日"
       clickable={true}
       on:click={handleThisMonthInHistoryCardClick}
+      className={specialDayType === SpecialDayType.ThisMonthInHistory
+        ? "active"
+        : ""}
     />
     <StatCard
       number={thisWeekInHistoryCount}
       label="那周今日"
       clickable={true}
       on:click={handleThisWeekInHistoryCardClick}
+      className={specialDayType === SpecialDayType.ThisWeekInHistory
+        ? "active"
+        : ""}
     />
   </div>
   <!-- 图片集组件 -->
@@ -424,7 +461,11 @@ ORDER BY
           <span>已筛选：那月今日</span>
         {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
           <span>已筛选：那周今日</span>
-        {:else if selectedDays.length > 0}
+          <!-- {:else if selectedDays.length > 0}
+          <span>已筛选：{selectedDays.join(", ")}</span>
+        {/if} -->
+        {/if}
+        {#if selectedDays.length > 0}
           <span>已筛选：{selectedDays.join(", ")}</span>
         {/if}
         <button

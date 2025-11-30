@@ -1,6 +1,6 @@
 <script>
   import { createEventDispatcher } from "svelte";
-
+  import { fade } from "svelte/transition";
   export let number = 0;
   export let label = "";
   export let className = "";
@@ -25,6 +25,7 @@
 
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
+  transition:fade={{ duration: 300 }}
   class={`stat-card ${className}`}
   role={clickable ? "button" : "group"}
   tabindex={clickable ? 0 : undefined}
@@ -64,5 +65,10 @@
 
   .stat-card[role="button"] {
     cursor: pointer;
+  }
+
+  .active {
+    background: #659049;
+    color: #333;
   }
 </style>
