@@ -4,7 +4,9 @@
 
 ## 更新
 
-实现了一版仪表盘功能，主要为日记使用。目前是概念验证阶段，还没提取配置项。效果如下：
+实现了一版仪表盘功能，主要想为日记使用，也许可以作为一个回顾的工具。目前是概念验证阶段，还没提取配置项。效果如下：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201004918-12x5wq7.png)
 
 ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201002550-weijk99.png)
 
@@ -41,6 +43,8 @@
 ## 仪表盘
 
 实现了一版仪表盘功能，主要为日记使用。目前是概念验证阶段，还没提取配置项。效果如下：
+
+![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201004918-12x5wq7.png)
 
 ![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201002550-weijk99.png)
 

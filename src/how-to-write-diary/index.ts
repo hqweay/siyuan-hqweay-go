@@ -125,15 +125,15 @@ export default class DiaryTools {
       });
     }
 
-    // 添加打开日记仪表盘选项
+    // 添加打开仪表盘选项
     if (settings.getFlag("diaryPlus")) {
       menu.addItem({
-        label: "打开日记仪表盘",
+        label: "打开仪表盘",
         iconHTML: "🌤️",
         click: async () => {
           if (isMobile) {
             let dialog = new Dialog({
-              title: "日记仪表盘",
+              title: "仪表盘",
               content: `<div id="hqweay-diary-dashboard" style="height: 600px;"></div>`,
               width: "400px",
               destroyCallback: (options) => {
@@ -159,7 +159,7 @@ export default class DiaryTools {
               app: plugin.app,
               custom: {
                 icon: "",
-                title: "日记仪表盘",
+                title: "仪表盘",
                 data: {},
                 id: plugin.name + TAB_TYPE,
               },

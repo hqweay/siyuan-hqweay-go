@@ -14,6 +14,8 @@
       name: "➿ Voicenotes",
       indexID: "20250126213235-a3tnoqb", //定义点击打开的块
       indexLabel: "总语音日记",
+      showEntries: true,
+      showMedia: true,
       mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
       imgSQL: null, //  可选：自定义 imgSQL，若为 null，则使用 getImgSQL 生成
     },
@@ -21,6 +23,8 @@
       name: "📝 碎碎念引用",
       indexID: "",
       indexLabel: "碎碎念引用块",
+      showEntries: true,
+      showMedia: true,
       mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
 SELECT blocks.* FROM blocks 
 WHERE 
@@ -61,7 +65,16 @@ ORDER BY
     all: {
       name: "🌐 全部",
       indexLabel: "总文档",
+      showEntries: true,
+      showMedia: true,
       mainSQL: `select blocks.* from blocks where type = 'd'`,
+    },
+    random: {
+      name: "🎲 随机！",
+      indexLabel: "随机文档",
+      showEntries: true,
+      showMedia: false,
+      mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
     },
   };
 
@@ -223,8 +236,10 @@ ORDER BY
   let imageGalleryRef;
   let selectedDays = []; // Array of YYYYMMDD strings for multi-day filtering
   let isMobile = false;
-  let showMedia = true; // default show both
-  let showEntries = true; // default show both
+  $: showMedia =
+    currentConfig?.showMedia == undefined ? true : currentConfig.showMedia; // default show both
+  $: showEntries =
+    currentConfig?.showEntries == undefined ? true : currentConfig.showEntries; // default show both
 
   $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
   $: idListSQL = `${idListBaseSQL} order by created desc`;
