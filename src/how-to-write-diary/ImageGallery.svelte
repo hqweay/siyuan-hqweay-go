@@ -24,6 +24,18 @@
     return `${year}年${month}月${day}日 ${hour}:${minute}:${second}`;
   };
 
+  const extractImageLinks = (markdownText) => {
+    const pattern = /!\[.*?\]\((.*?)\)/g;
+    const matches = [];
+    let match;
+
+    while ((match = pattern.exec(markdownText)) !== null) {
+      matches.push(match[1]);
+    }
+
+    return matches;
+  };
+
   function updateDisplayedImages() {
     const count = page * pageSize;
     displayedImages = images.slice(0, count);
@@ -38,20 +50,26 @@
     loading = false;
   }
 
-  onMount(async () => {
-    if (!imgSQL) return;
-    // 从 SQL 拉取包含图片的行（假设 SQL 已 join assets 并返回 asset_path）
-    const rows = await sql(imgSQL);
-    // 每行应包含 asset_path、id、created、updated
-    images = rows.map((r) => ({
-      url: r.asset_path || r.PATH || r.path,
-      id: r.id,
-      created: r.created,
-      updated: r.updated,
-    }));
+  // 当 imgSQL 改变时重新加载数据
+  $: if (imgSQL) {
+    (async () => {
+      page = 1;
+      images = [];
+      displayedImages = [];
+      hasMore = true;
+      const rows = await sql(imgSQL);
+      images = rows.map((r) => ({
+        url: r.asset_path,
+        id: r.id,
+        created: r.created,
+        updated: r.updated,
+        urls: r.asset_path || extractImageLinks(r.markdown),
+      }));
+      updateDisplayedImages();
+    })();
+  }
 
-    updateDisplayedImages();
-
+  onMount(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -75,7 +93,9 @@
     {#each displayedImages as img}
       <div class="image-item" title={formatTimestamp(img.created)}>
         <a href={"siyuan://blocks/" + img.id}>
-          <img src={img.url} alt="日记图片" loading="lazy" />
+          {#each img.url ? [img.url] : img.urls || [] as url, index}
+            <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
+          {/each}
         </a>
         <div class="image-overlay">
           <span class="image-date">{formatTimestamp(img.updated)}</span>

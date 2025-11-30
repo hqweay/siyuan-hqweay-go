@@ -6,47 +6,120 @@
 
   // const lute = window.Lute.New();
 
-  const mainSQL = `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`;
-  const mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
-  const imgSQL = `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace("'d'", "'p'")}) as mainSQL left join assets on mainSQL.id= assets.block_id
-where (assets.PATH LIKE '%.png'
-   OR assets.PATH LIKE '%.jpg'
-   OR assets.PATH LIKE '%.jpeg'
-   OR assets.PATH LIKE '%.gif'
-   OR assets.PATH LIKE '%.bmp'
-   OR assets.PATH LIKE '%.webp')`;
+  // 配置多个不同的 SQL 来源
+  const sqlConfigs = {
+    doc: {
+      name: "📄 Voicenotes",
+      mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
+      imgSQL: null, // 若为 null，则使用 getImgSQL 生成
+      // imgSQL: `custom sql query here` // 可选：自定义 imgSQL
+    },
+    ssn: {
+      name: "📝 碎碎念引用",
+      mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
+SELECT blocks.* FROM blocks 
+WHERE 
+    -- 情况4：引用块的直接父块（容器块）
+    id IN (
+        SELECT DISTINCT parent_id 
+        FROM blocks 
+        WHERE id IN (
+            SELECT DISTINCT block_id 
+            FROM refs 
+            WHERE def_block_root_id = '20250126213235-a3tnoqb'
+        )
+        AND parent_id IS NOT NULL
+    )
+ORDER BY 
+    created desc
+LIMIT 512`,
+      imgSQL: `
+-- 查询引用块、其直接父块（容器块）以及所有相关子块
+SELECT * FROM blocks 
+WHERE 
+    -- 情况4：引用块的直接父块（容器块）
+    id IN (
+        SELECT DISTINCT parent_id 
+        FROM blocks 
+        WHERE id IN (
+            SELECT DISTINCT block_id 
+            FROM refs 
+            WHERE def_block_root_id = '20250126213235-a3tnoqb'
+        )
+        AND parent_id IS NOT NULL
+    )
+    and markdown like '%![%'
+ORDER BY 
+    created desc
+`,
+    },
+    all: {
+      name: "🌐 全部",
+      mainSQL: `select blocks.* from blocks where blocks.path LIKE '%20250126213235-a3tnoqb%'`,
+      imgSQL: `select blocks.* from blocks
+      left join blocks as parent_blocks on blocks.parent_id = parent_blocks.id
+      left join blocks as grandparent_blocks on parent_blocks.parent_id = grandparent_blocks.id
+      left join blocks as great_grandparent_blocks on grandparent_blocks.parent_id = great_grandparent_blocks.id
+      left join blocks as great_great_grandparent_blocks on great_grandparent_blocks.parent_id = great_great_grandparent_blocks.id`,
+    },
+  };
+
+  // 生成 imgSQL 的默认函数
+  const generateImgSQL = (mainSQL) =>
+    `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace("d", "p")}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
+
+  let selectedConfig = "doc"; // 默认选中文档配置
+  $: currentConfig = sqlConfigs[selectedConfig];
+  $: mainSQL = currentConfig.mainSQL;
+  $: mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
+  $: imgSQL = currentConfig.imgSQL || generateImgSQL(mainSQL); // 自定义优先，否则生成
+  $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
+  $: selectedConfig && loadData(); // 当配置改变时重新加载数据
 
   // 日记数据存储
-  let diaryAllEntries = [];
   let diaryAllEntriesCount = 0;
-  let diaryHasImageEntries = [];
+  let diaryHasImageEntriesCount = 0;
 
   // 图片展示已移入独立组件 ImageGallery
 
-  onMount(async () => {
-    // 获取总数（原有逻辑）
-    // diaryAllEntries = await sql(mainSQL);
-    // @ts-ignore
-    const diaryAllEntriesCountData = await sql(mainCountSQL);
-    console.log("diaryAllEntriesCountData", diaryAllEntriesCountData);
-    diaryAllEntriesCount = diaryAllEntriesCountData[0].count;
+  async function loadData() {
+    // 根据当前选中的配置获取数据
+    try {
+      const countAll = await sql(mainCountSQL);
+      diaryAllEntriesCount = countAll[0]?.count || 0;
 
-    // 获取包含图片的日记条目（保留计数逻辑，但图片渲染放到组件中）
-    // diaryHasImageEntries 可供统计使用
-    diaryHasImageEntries = await sql(imgSQL);
+      const countImg = await sql(imgCountSQL);
+      diaryHasImageEntriesCount = countImg[0]?.count || 0;
+    } catch (error) {
+      console.error("Error loading diary entries:", error);
+    }
+  }
+
+  onMount(() => {
+    loadData();
   });
 </script>
 
 <div class="dashboard-container">
+  <!-- 配置切换标签栏 -->
+  <div class="config-tabs">
+    {#each Object.entries(sqlConfigs) as [key, config]}
+      <button
+        class={`tab-btn ${selectedConfig === key ? "active" : ""}`}
+        on:click={() => (selectedConfig = key)}
+      >
+        {config.name}
+      </button>
+    {/each}
+  </div>
+
   <!-- 顶部统计卡片 -->
   <div class="stats-section">
     <StatCard
-      number={diaryAllEntriesCount
-        ? diaryAllEntriesCount
-        : diaryAllEntries.length}
+      number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
       label="总日记数"
     />
-    <StatCard number={diaryHasImageEntries.length} label="图片数" />
+    <StatCard number={diaryHasImageEntriesCount || 0} label="图片数" />
   </div>
   <!-- 图片集组件 -->
   <ImageGallery {imgSQL} pageSize={30} />
@@ -60,6 +133,39 @@ where (assets.PATH LIKE '%.png'
     color: white;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
       sans-serif;
+  }
+
+  /* 配置切换标签栏 */
+  .config-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 10px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  .tab-btn.active {
+    background: #ffd700;
+    color: #333;
+    border-color: #ffd700;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
   }
 
   /* 统计卡片 */
