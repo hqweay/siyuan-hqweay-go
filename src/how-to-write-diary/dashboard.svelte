@@ -4,7 +4,7 @@
   import ImageGallery from "./ImageGallery.svelte";
   import StatCard from "./StatCard.svelte";
   import Heatmap from "./Heatmap.svelte";
-  import { tick } from "svelte";
+  import EntryList from "./EntryList.svelte";
 
   // const lute = window.Lute.New();
 
@@ -85,6 +85,12 @@ ORDER BY
   let imageGalleryRef;
   let selectedDay = null; // YYYYMMDD — when set, filters image gallery
 
+  $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
+  $: idListSQL = `${idListBaseSQL} order by created desc`;
+  $: filteredIdListSQL = selectedDay
+    ? `select * from (${idListSQL}) as sub where substr(created,1,8)='${selectedDay}'`
+    : idListSQL;
+
   $: filteredImgSQL = selectedDay
     ? `select * from (${imgSQL}) as sub where substr(created,1,8)='${selectedDay}'`
     : imgSQL;
@@ -161,13 +167,20 @@ ORDER BY
         </div>
       {/if}
 
-      <ImageGallery
-        bind:this={imageGalleryRef}
-        imgSQL={filteredImgSQL}
-        {layout}
-        pageSize={30}
-        dayFilter={selectedDay}
-      />
+      <div class="media-and-entries">
+        <div class="media-column">
+          <ImageGallery
+            bind:this={imageGalleryRef}
+            imgSQL={filteredImgSQL}
+            {layout}
+            pageSize={30}
+            dayFilter={selectedDay}
+          />
+        </div>
+        <div class="entries-column">
+          <EntryList idSQL={selectedDay ? filteredIdListSQL : idListSQL} pageSize={10} />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -256,6 +269,23 @@ ORDER BY
   .calendar-header h2 {
     margin: 0;
     font-size: 1.5rem;
+  }
+
+  /* media and entries side-by-side */
+  .media-and-entries {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    margin-top: 18px;
+  }
+  .media-column {
+    flex: 1 1 50%;
+    min-width: 320px;
+  }
+  .entries-column {
+    flex: 1 1 50%;
+    min-width: 300px;
+    max-width: 480px;
   }
 
   .nav-btn {
