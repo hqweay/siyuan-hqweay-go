@@ -29,7 +29,12 @@
           type: "text",
           label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
         },
-        { type: "percentage", label: "完成率", percentage: 20 },
+        {
+          type: "number-text",
+          label: "天",
+          number: 20,
+          hover: "距离 2026 年还有",
+        },
       ],
       //控制是否展示 热力图
       showHeatmap: true,
@@ -43,7 +48,7 @@
       indexID: "",
       indexLabel: "碎碎念引用块",
       showEntries: true,
-      showMedia: true,
+      showMedia: false,
       mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
 SELECT blocks.* FROM blocks 
 WHERE 
@@ -404,8 +409,6 @@ ORDER BY
     updateSpecialDaysCounts();
   }
 
-  const lute = window.Lute.New();
-
   let cardStates = new Map();
 
   // 响应 currentConfig 变化
@@ -581,19 +584,20 @@ ORDER BY
   </div>
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
     <div class="custom-cards">
-      {#each Array.from(cardStates.values()) as card, index}
+      {#each Array.from(cardStates.values()) as card}
         <StatCard
           type={card.type}
           percentage={card.percentage}
-          number={card.count}
+          number={card.number}
           label={card.label}
+          hover={card.hover}
         />
       {/each}
     </div>
   {/if}
-  {#if currentConfig.showHeatmap}
-    <!-- 图片集组件 -->
-    <div class="main-row">
+
+  <div class="main-row">
+    {#if currentConfig.showHeatmap}
       <Heatmap
         sqlQuery={heatmapSQL}
         daysRange={9999}
@@ -627,28 +631,27 @@ ORDER BY
           </button>
         </div>
       {/if}
+    {/if}
+    <div class="media-and-entries">
+      {#if showEntries}
+        <div class="entries-column">
+          <EntryList idSQL={filteredIdListSQL} pageSize={10} />
+        </div>
+      {/if}
 
-      <div class="media-and-entries">
-        {#if showEntries}
-          <div class="entries-column">
-            <EntryList idSQL={filteredIdListSQL} pageSize={10} />
-          </div>
-        {/if}
-
-        {#if showMedia}
-          <div class="media-column">
-            <ImageGallery
-              bind:this={imageGalleryRef}
-              imgSQL={filteredImgSQL}
-              {layout}
-              pageSize={30}
-              {selectedDays}
-            />
-          </div>
-        {/if}
-      </div>
+      {#if showMedia}
+        <div class="media-column">
+          <ImageGallery
+            bind:this={imageGalleryRef}
+            imgSQL={filteredImgSQL}
+            {layout}
+            pageSize={30}
+            {selectedDays}
+          />
+        </div>
+      {/if}
     </div>
-  {/if}
+  </div>
 </div>
 
 <style lang="scss">

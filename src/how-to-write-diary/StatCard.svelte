@@ -2,6 +2,7 @@
   import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
   export let type = "";
+  export let hover = "";
   export let number = 0;
   export let label = "";
   export let className = "";
@@ -39,6 +40,7 @@
   aria-label={label}
   on:click={handleClick}
   on:keydown={handleKeydown}
+  title={hover}
 >
   {#if type === "text"}
     <div class="stat-label">{@html label}</div>
@@ -132,6 +134,9 @@
         </div>
       {/if}
     </div>
+  {:else if type === "number-text"}
+    <div class="stat-number">{number}</div>
+    <div class="stat-label">{@html label}</div>
   {:else}
     <div class="stat-label">{@html label}</div>
     <div class="stat-number">{number}</div>
