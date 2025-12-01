@@ -55,7 +55,7 @@
       }}
       title={fixedHeight ? "固定高度" : "展开"}
     >
-      <span class="arrow">{fixedHeight ? "🔧" : "🔒"}</span>
+      <span class="arrow">{fixedHeight ? "🔒" : "🔧"}</span>
     </button>
   </div>
   <div
