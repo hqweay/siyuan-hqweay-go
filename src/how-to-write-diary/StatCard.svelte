@@ -2,6 +2,8 @@
   import { createEventDispatcher } from "svelte";
   import { fade } from "svelte/transition";
   export let type = "";
+  export let header = "";
+  export let footer = "";
   export let hover = "";
   export let number = 0;
   export let label = "";
@@ -34,20 +36,23 @@
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
   transition:fade={{ duration: 300 }}
-  class={`stat-card ${className}`}
+  class={`stat-card custom-tooltip ${className}`}
   role={clickable ? "button" : "group"}
   tabindex={clickable ? 0 : undefined}
-  aria-label={label}
+  aria-label={label ? label : ""}
   on:click={handleClick}
   on:keydown={handleKeydown}
   title={hover}
 >
+  {#if header}
+    <div style="">{@html header ? header : ""}</div>
+  {/if}
   {#if type === "text"}
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
   {:else if type === "number"}
-    <div class="stat-number">{number}</div>
+    <div class="stat-number">{number != undefined ? number : ""}</div>
   {:else if type === "progress"}
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
     <div class="progress-container">
       <div class="progress-bar">
         <div class="progress-fill" style="width: {percentage}%"></div>
@@ -71,13 +76,13 @@
       </svg>
       <div class="percentage-content">
         <div class="percentage-number">{percentage}%</div>
-        <div class="stat-label">{@html label}</div>
+        <div class="stat-label">{@html label ? label : ""}</div>
       </div>
     </div>
   {:else if type === "trend"}
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
     <div class="trend-container">
-      <div class="stat-number">{number}</div>
+      <div class="stat-number">{number != undefined ? number : ""}</div>
       <div class="trend-indicator {trend}">
         {#if trend === "up"}
           <span class="trend-arrow">↗</span>
@@ -93,32 +98,32 @@
       {#if icon}
         <div class="icon">{icon}</div>
       {/if}
-      <div class="stat-number">{number}</div>
-      <div class="stat-label">{@html label}</div>
+      <div class="stat-number">{number != undefined ? number : ""}</div>
+      <div class="stat-label">{@html label ? label : ""}</div>
     </div>
   {:else if type === "status"}
     <div class="status-container">
       <div class="status-indicator {status}"></div>
       <div class="status-content">
-        <div class="stat-number">{number}</div>
-        <div class="stat-label">{@html label}</div>
+        <div class="stat-number">{number != undefined ? number : ""}</div>
+        <div class="stat-label">{@html label ? label : ""}</div>
       </div>
     </div>
   {:else if type === "time"}
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
     <div class="time-container">
       <div class="time-value">{time || number}</div>
     </div>
   {:else if type === "badge"}
     <div class="badge-container">
       <div class="badge-content">
-        <div class="stat-number">{number}</div>
-        <div class="stat-label">{@html label}</div>
+        <div class="stat-number">{number != undefined ? number : ""}</div>
+        <div class="stat-label">{@html label ? label : ""}</div>
       </div>
       <div class="badge-dot {status}"></div>
     </div>
   {:else if type === "multi-number"}
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
     <div class="multi-number-container">
       {#if subNumbers.left !== undefined}
         <div class="multi-number-item">
@@ -135,11 +140,14 @@
       {/if}
     </div>
   {:else if type === "number-text"}
-    <div class="stat-number">{number}</div>
-    <div class="stat-label">{@html label}</div>
+    <div class="stat-number">{number != undefined ? number : ""}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
   {:else}
-    <div class="stat-label">{@html label}</div>
-    <div class="stat-number">{number}</div>
+    <div class="stat-label">{@html label ? label : ""}</div>
+    <div class="stat-number">{number != undefined ? number : ""}</div>
+  {/if}
+  {#if footer}
+    <div style="">{@html footer ? footer : ""}</div>
   {/if}
 </div>
 
@@ -164,9 +172,6 @@
     box-sizing: border-box;
   }
 
-  .stat-card:hover {
-    transform: translateY(-5px);
-  }
   .stat-number {
     font-size: 2rem;
     font-weight: bold;

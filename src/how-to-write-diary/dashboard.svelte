@@ -31,8 +31,15 @@
         },
         {
           type: "number-text",
-          label: "天",
-          number: 20,
+          header: "距离 2026 年还有",
+          number: () => {
+            const targetDate = new Date("2026-01-01").getTime();
+            const currentDate = new Date().getTime();
+            const timeDiff = targetDate - currentDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            return daysDiff;
+          },
+          footer: "天",
           hover: "距离 2026 年还有",
         },
       ],
@@ -588,9 +595,13 @@ ORDER BY
         <StatCard
           type={card.type}
           percentage={card.percentage}
-          number={card.number}
+          number={typeof card.number === "function"
+            ? card.number()
+            : card.number}
           label={card.label}
           hover={card.hover}
+          header={card.header}
+          footer={card.footer}
         />
       {/each}
     </div>
