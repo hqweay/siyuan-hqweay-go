@@ -124,18 +124,6 @@ export default class PluginGo extends Plugin {
 
   //App 准备好时加载
   async onLayoutReady() {
-    //topbar 新增图表、手机端也能用
-    const topBarElement = this.addTopBar({
-      icon: "iconBookmark",
-      title: "恐龙工具箱",
-      position: "right",
-      callback: () => {
-        (settings.getBySpace("createDailyNoteConfig", "topBar") ||
-          settings.getFlag("diaryTools")) &&
-          this.diaryTools.onload(topBarElement);
-      },
-    });
-
     settings.getFlag("randomHeaderImage") &&
       this.randomImagePlugin.onLayoutReady();
 
@@ -162,6 +150,17 @@ export default class PluginGo extends Plugin {
 
   // 在边栏上注入的图标在onLayoutReady执行；为了避免同步插件配置改变后会执行 unload 逻辑，因此 load 需要再执行一下。
   showMoreIconsOnBar() {
+    //topbar 新增图表、手机端也能用
+    const topBarElement = this.addTopBar({
+      icon: "iconBookmark",
+      title: "恐龙工具箱",
+      position: "right",
+      callback: () => {
+        (settings.getBySpace("createDailyNoteConfig", "topBar") ||
+          settings.getFlag("diaryTools")) &&
+          this.diaryTools.onload(topBarElement);
+      },
+    });
     settings.getFlag("randomNote") && this.randomNotePlugin.onload();
     settings.getFlag("typography") && this.typographyPlugin.onload();
     settings.getFlag("voiceNotes") && this.voiceNotesPlugin.onload();
