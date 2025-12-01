@@ -24,7 +24,7 @@
       //控制是否展示 那年、那月、那周今日
       showOnThisDay: true,
       //控制是否展示 自定义卡片
-      showcustomCards: [{ variant: "text", text: "good " }],
+      showcustomCards: [{ variant: "text", label: "good" }],
       //控制是否展示 热力图
       showHeatmap: true,
       //主SQL
@@ -418,109 +418,122 @@ ORDER BY
 
   <!-- 顶部统计卡片 -->
   <div class="stats-section">
-    <StatCard
-      className="total"
-      number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
-      label={currentConfig.indexLabel}
-      clickable={currentConfig.indexID ? true : false}
-      on:click={async () => {
-        handleEntryCardClick();
-      }}
-    />
-    <StatCard
-      className="total"
-      number={diaryHasImageEntriesCount || 0}
-      label="总图片数"
-      clickable={true}
-      on:click={() => {
-        handleImageCardClick();
-      }}
-    />
+    {#if currentConfig.showMainStatics}
+      <StatCard
+        className="total"
+        number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
+        label={currentConfig.indexLabel}
+        clickable={currentConfig.indexID ? true : false}
+        on:click={async () => {
+          handleEntryCardClick();
+        }}
+      />
+      <StatCard
+        className="total"
+        number={diaryHasImageEntriesCount || 0}
+        label="总图片数"
+        clickable={true}
+        on:click={() => {
+          handleImageCardClick();
+        }}
+      />
+    {/if}
+    {#if currentConfig.showOnThisDay}
+      <StatCard
+        number={thisDayInHistoryCount}
+        label="那年今日"
+        clickable={true}
+        on:click={handleThisDayInHistoryCardClick}
+        className={specialDayType === SpecialDayType.ThisDayInHistory
+          ? "active"
+          : ""}
+      />
 
-    <StatCard
-      number={thisDayInHistoryCount}
-      label="那年今日"
-      clickable={true}
-      on:click={handleThisDayInHistoryCardClick}
-      className={specialDayType === SpecialDayType.ThisDayInHistory
-        ? "active"
-        : ""}
-    />
-    <StatCard
-      number={thisMonthInHistoryCount}
-      label="那月今日"
-      clickable={true}
-      on:click={handleThisMonthInHistoryCardClick}
-      className={specialDayType === SpecialDayType.ThisMonthInHistory
-        ? "active"
-        : ""}
-    />
-    <StatCard
-      number={thisWeekInHistoryCount}
-      label="那周今日"
-      clickable={true}
-      on:click={handleThisWeekInHistoryCardClick}
-      className={specialDayType === SpecialDayType.ThisWeekInHistory
-        ? "active"
-        : ""}
-    />
+      <StatCard
+        number={thisMonthInHistoryCount}
+        label="那月今日"
+        clickable={true}
+        on:click={handleThisMonthInHistoryCardClick}
+        className={specialDayType === SpecialDayType.ThisMonthInHistory
+          ? "active"
+          : ""}
+      />
+      <StatCard
+        number={thisWeekInHistoryCount}
+        label="那周今日"
+        clickable={true}
+        on:click={handleThisWeekInHistoryCardClick}
+        className={specialDayType === SpecialDayType.ThisWeekInHistory
+          ? "active"
+          : ""}
+      />
+    {/if}
   </div>
-  <!-- 图片集组件 -->
-  <div class="main-row">
-    <Heatmap
-      sqlQuery={heatmapSQL}
-      daysRange={9999}
-      {selectedDays}
-      on:dayclick={handleDayClick}
-    />
+  {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
+    <div class="custom-cards">
+      {#each currentConfig.showcustomCards as card}
+        <StatCard number={card.count} label={card.label} />
+      {/each}
+    </div>
+  {/if}
+  {#if currentConfig.showHeatmap}
+    <!-- 图片集组件 -->
+    <div class="main-row">
+      <Heatmap
+        sqlQuery={heatmapSQL}
+        daysRange={9999}
+        {selectedDays}
+        on:dayclick={handleDayClick}
+      />
 
-    {#if selectedDays.length > 0 || specialDayType !== SpecialDayType.None}
-      <div class="day-filter">
-        {#if specialDayType === SpecialDayType.ThisDayInHistory}
-          <span>已筛选：那年今日</span>
-        {:else if specialDayType === SpecialDayType.ThisMonthInHistory}
-          <span>已筛选：那月今日</span>
-        {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
-          <span>已筛选：那周今日</span>
-          <!-- {:else if selectedDays.length > 0}
+      {#if selectedDays.length > 0 || specialDayType !== SpecialDayType.None}
+        <div class="day-filter">
+          {#if specialDayType === SpecialDayType.ThisDayInHistory}
+            <span>已筛选：那年今日</span>
+          {:else if specialDayType === SpecialDayType.ThisMonthInHistory}
+            <span>已筛选：那月今日</span>
+          {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
+            <span>已筛选：那周今日</span>
+            <!-- {:else if selectedDays.length > 0}
           <span>已筛选：{selectedDays.join(", ")}</span>
         {/if} -->
+          {/if}
+          {#if selectedDays.length > 0}
+            <span>已筛选：{selectedDays.join(", ")}</span>
+          {/if}
+          <button
+            class="clear-filter"
+            on:click={() => {
+              specialDayType = SpecialDayType.None;
+              selectedDays = [];
+            }}
+          >
+            清除
+          </button>
+        </div>
+      {/if}
+
+      <div class="media-and-entries">
+        {#if showEntries}
+          <div class="entries-column">
+            <EntryList idSQL={filteredIdListSQL} pageSize={10} />
+          </div>
         {/if}
-        {#if selectedDays.length > 0}
-          <span>已筛选：{selectedDays.join(", ")}</span>
+
+        {#if showMedia}
+          <div class="media-column">
+            <ImageGallery
+              bind:this={imageGalleryRef}
+              imgSQL={filteredImgSQL}
+              {layout}
+              pageSize={30}
+              {selectedDays}
+            />
+          </div>
         {/if}
-        <button
-          class="clear-filter"
-          on:click={() => {
-            specialDayType = SpecialDayType.None;
-            selectedDays = [];
-          }}
-        >
-          清除
-        </button>
       </div>
-    {/if}
-
-    <div class="media-and-entries">
-      {#if showEntries}
-        <div class="entries-column">
-          <EntryList idSQL={filteredIdListSQL} pageSize={10} />
-        </div>
-      {/if}
-
-      {#if showMedia}
-        <div class="media-column">
-          <ImageGallery
-            bind:this={imageGalleryRef}
-            imgSQL={filteredImgSQL}
-            {layout}
-            pageSize={30}
-            {selectedDays}
-          />
-        </div>
-      {/if}
     </div>
-  </div>
+  {/if}
 </div>
 
 <style lang="scss">
