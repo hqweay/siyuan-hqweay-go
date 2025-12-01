@@ -41,11 +41,11 @@
   on:keydown={handleKeydown}
 >
   {#if type === "text"}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
   {:else if type === "number"}
     <div class="stat-number">{number}</div>
   {:else if type === "progress"}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
     <div class="progress-container">
       <div class="progress-bar">
         <div class="progress-fill" style="width: {percentage}%"></div>
@@ -69,11 +69,11 @@
       </svg>
       <div class="percentage-content">
         <div class="percentage-number">{percentage}%</div>
-        <div class="stat-label">{label}</div>
+        <div class="stat-label">{@html label}</div>
       </div>
     </div>
   {:else if type === "trend"}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
     <div class="trend-container">
       <div class="stat-number">{number}</div>
       <div class="trend-indicator {trend}">
@@ -92,18 +92,18 @@
         <div class="icon">{icon}</div>
       {/if}
       <div class="stat-number">{number}</div>
-      <div class="stat-label">{label}</div>
+      <div class="stat-label">{@html label}</div>
     </div>
   {:else if type === "status"}
     <div class="status-container">
       <div class="status-indicator {status}"></div>
       <div class="status-content">
         <div class="stat-number">{number}</div>
-        <div class="stat-label">{label}</div>
+        <div class="stat-label">{@html label}</div>
       </div>
     </div>
   {:else if type === "time"}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
     <div class="time-container">
       <div class="time-value">{time || number}</div>
     </div>
@@ -111,12 +111,12 @@
     <div class="badge-container">
       <div class="badge-content">
         <div class="stat-number">{number}</div>
-        <div class="stat-label">{label}</div>
+        <div class="stat-label">{@html label}</div>
       </div>
       <div class="badge-dot {status}"></div>
     </div>
   {:else if type === "multi-number"}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
     <div class="multi-number-container">
       {#if subNumbers.left !== undefined}
         <div class="multi-number-item">
@@ -133,7 +133,7 @@
       {/if}
     </div>
   {:else}
-    <div class="stat-label">{label}</div>
+    <div class="stat-label">{@html label}</div>
     <div class="stat-number">{number}</div>
   {/if}
 </div>

@@ -5,6 +5,7 @@
   import StatCard from "./StatCard.svelte";
   import Heatmap from "./Heatmap.svelte";
   import EntryList from "./EntryList.svelte";
+  import { Lute } from "siyuan";
 
   // const lute = window.Lute.New();
 
@@ -25,7 +26,10 @@
       showOnThisDay: true,
       //控制是否展示 自定义卡片
       showcustomCards: [
-        { type: "text", label: "good" },
+        {
+          type: "text",
+          label: `select markdown from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+        },
         { type: "percentage", label: "完成率", percentage: 20 },
       ],
       //控制是否展示 热力图
@@ -401,8 +405,63 @@ ORDER BY
     updateSpecialDaysCounts();
   }
 
-  onMount(() => {
-    loadData();
+  const lute = window.Lute.New();
+
+  let isCardLabelLoading = true; // 添加加载状态
+  async function loadCustomCards() {
+    if (!currentConfig.showcustomCards) {
+      isCardLabelLoading = false;
+      return;
+    }
+
+    isCardLabelLoading = true;
+    if (currentConfig.showcustomCards) {
+      // 创建新的数组来触发响应式更新
+      const updatedCards = [];
+
+      for (const card of currentConfig.showcustomCards) {
+        // 创建卡片副本
+        const cardCopy = { ...card };
+
+        if (cardCopy.label && cardCopy.label.startsWith("select ")) {
+          try {
+            const response = await sql(cardCopy.label);
+            if (response[0]?.markdown) {
+              const markdown = response[0].markdown;
+              let subHtml = lute.Md2BlockDOM(markdown);
+              if (markdown.length > 200) {
+                subHtml = lute.Md2BlockDOM(markdown.substring(0, 50) + "...");
+              }
+
+              // 整合逻辑：判断长度并包装
+              if (markdown.length > 100) {
+                cardCopy.label = `
+                  <span title="${markdown.replace(/"/g, "&quot;")}"
+                  >
+                    ${subHtml}
+                  </span>
+                `;
+              } else {
+                cardCopy.label = subHtml;
+              }
+            }
+          } catch (error) {
+            console.error("处理卡片失败:", error);
+          }
+        }
+
+        updatedCards.push(cardCopy);
+      }
+
+      // 重新赋值触发响应式更新
+      currentConfig.showcustomCards = updatedCards;
+      isCardLabelLoading = false;
+    }
+  }
+
+  onMount(async () => {
+    await loadData();
+    await loadCustomCards();
   });
 </script>
 
@@ -480,11 +539,12 @@ ORDER BY
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
     <div class="custom-cards">
       {#each currentConfig.showcustomCards as card}
+        <!-- label 如果以 select 开头，则表示通过 SQL 查询 -->
         <StatCard
           type={card.type}
           percentage={card.percentage}
           number={card.count}
-          label={card.label}
+          label={isCardLabelLoading ? "" : card.label}
         />
       {/each}
     </div>
