@@ -24,7 +24,10 @@
       //控制是否展示 那年、那月、那周今日
       showOnThisDay: true,
       //控制是否展示 自定义卡片
-      showcustomCards: [{ variant: "text", label: "good" }],
+      showcustomCards: [
+        { type: "text", label: "good" },
+        { type: "percentage", label: "完成率", percentage: 20 },
+      ],
       //控制是否展示 热力图
       showHeatmap: true,
       //主SQL
@@ -420,6 +423,7 @@ ORDER BY
   <div class="stats-section">
     {#if currentConfig.showMainStatics}
       <StatCard
+        type="num-text"
         className="total"
         number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
         label={currentConfig.indexLabel}
@@ -429,6 +433,7 @@ ORDER BY
         }}
       />
       <StatCard
+        type="num-text"
         className="total"
         number={diaryHasImageEntriesCount || 0}
         label="总图片数"
@@ -440,6 +445,7 @@ ORDER BY
     {/if}
     {#if currentConfig.showOnThisDay}
       <StatCard
+        type="num-text"
         number={thisDayInHistoryCount}
         label="那年今日"
         clickable={true}
@@ -450,6 +456,7 @@ ORDER BY
       />
 
       <StatCard
+        type="num-text"
         number={thisMonthInHistoryCount}
         label="那月今日"
         clickable={true}
@@ -459,6 +466,7 @@ ORDER BY
           : ""}
       />
       <StatCard
+        type="num-text"
         number={thisWeekInHistoryCount}
         label="那周今日"
         clickable={true}
@@ -472,7 +480,12 @@ ORDER BY
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
     <div class="custom-cards">
       {#each currentConfig.showcustomCards as card}
-        <StatCard number={card.count} label={card.label} />
+        <StatCard
+          type={card.type}
+          percentage={card.percentage}
+          number={card.count}
+          label={card.label}
+        />
       {/each}
     </div>
   {/if}
@@ -578,11 +591,18 @@ ORDER BY
     }
 
     /* 统计卡片 */
-    .stats-section {
+    .stats-section,
+    .custom-cards {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       gap: 20px;
       margin-bottom: 30px;
+      .stat-card {
+        min-width: 150px;
+        min-height: 150px;
+        max-width: 300px;
+        max-height: 300px;
+      }
     }
 
     /* media and entries side-by-side */
@@ -656,11 +676,6 @@ ORDER BY
         flex: 1 1 100%;
         max-width: none;
         min-width: auto;
-      }
-
-      .stats-section {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
       }
     }
   }
