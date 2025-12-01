@@ -5,7 +5,6 @@
   import StatCard from "./StatCard.svelte";
   import Heatmap from "./Heatmap.svelte";
   import EntryList from "./EntryList.svelte";
-  import { Lute } from "siyuan";
 
   // const lute = window.Lute.New();
 
@@ -28,7 +27,7 @@
       showcustomCards: [
         {
           type: "text",
-          label: `select markdown from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+          label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
         },
         { type: "percentage", label: "完成率", percentage: 20 },
       ],
@@ -407,61 +406,105 @@ ORDER BY
 
   const lute = window.Lute.New();
 
-  let isCardLabelLoading = true; // 添加加载状态
-  async function loadCustomCards() {
-    if (!currentConfig.showcustomCards) {
-      isCardLabelLoading = false;
-      return;
-    }
+  let cardStates = new Map();
 
-    isCardLabelLoading = true;
+  // 响应 currentConfig 变化
+  $: if (currentConfig.showcustomCards) {
+    initializeCardStates();
+  }
+
+  function initializeCardStates() {
+    // 清空旧数据
+    cardStates = new Map();
+
+    currentConfig.showcustomCards.forEach((card, index) => {
+      if (card.label && card.label.startsWith("select ")) {
+        // 需要异步处理的卡片
+        cardStates.set(index, {
+          ...card,
+          label: '<span style="color:#999">加载中...</span>',
+          isLoading: true,
+        });
+
+        processCardAsync(card, index);
+      } else {
+        // 同步卡片
+        cardStates.set(index, {
+          ...card,
+          isLoading: false,
+        });
+      }
+    });
+
+    // 触发更新
+    cardStates = new Map(cardStates);
+  }
+  // 初始化卡片状态
+  $: {
     if (currentConfig.showcustomCards) {
-      // 创建新的数组来触发响应式更新
-      const updatedCards = [];
+      currentConfig.showcustomCards.forEach((card, index) => {
+        if (!cardStates.has(index)) {
+          if (card.label && card.label.startsWith("select ")) {
+            // 需要异步处理的卡片
+            cardStates.set(index, {
+              ...card,
+              label: '<span style="color:#999">加载中...</span>',
+              isLoading: true,
+            });
 
-      for (const card of currentConfig.showcustomCards) {
-        // 创建卡片副本
-        const cardCopy = { ...card };
-
-        if (cardCopy.label && cardCopy.label.startsWith("select ")) {
-          try {
-            const response = await sql(cardCopy.label);
-            if (response[0]?.markdown) {
-              const markdown = response[0].markdown;
-              let subHtml = lute.Md2BlockDOM(markdown);
-              if (markdown.length > 200) {
-                subHtml = lute.Md2BlockDOM(markdown.substring(0, 50) + "...");
-              }
-
-              // 整合逻辑：判断长度并包装
-              if (markdown.length > 100) {
-                cardCopy.label = `
-                  <span title="${markdown.replace(/"/g, "&quot;")}"
-                  >
-                    ${subHtml}
-                  </span>
-                `;
-              } else {
-                cardCopy.label = subHtml;
-              }
-            }
-          } catch (error) {
-            console.error("处理卡片失败:", error);
+            // 异步处理
+            processCardAsync(card, index);
+          } else {
+            // 同步卡片
+            cardStates.set(index, {
+              ...card,
+              isLoading: false,
+            });
           }
         }
+      });
 
-        updatedCards.push(cardCopy);
-      }
-
-      // 重新赋值触发响应式更新
-      currentConfig.showcustomCards = updatedCards;
-      isCardLabelLoading = false;
+      // 触发响应式更新
+      cardStates = new Map(cardStates);
     }
   }
 
+  async function processCardAsync(card, index) {
+    try {
+      const response = await sql(card.label);
+      if (response[0]?.markdown) {
+        // const markdown = response[0].markdown;
+        let content = response[0].content;
+        let subHtml = content;
+        // let subHtml = lute.Md2BlockDOM(markdown);
+
+        if (content.length > 200) {
+          subHtml = content.substring(0, 50) + "...";
+        }
+
+        const finalLabel = `<a style="color: inherit; text-decoration: none;" href="siyuan://blocks/${response[0].id}" "><span title="${content.replace(/"/g, "&quot;")}">${subHtml}</span></a>`;
+
+        cardStates.set(index, {
+          ...card,
+          label: finalLabel,
+          isLoading: false,
+        });
+      }
+    } catch (error) {
+      console.error("处理卡片失败:", error);
+      cardStates.set(index, {
+        ...card,
+        label: '<span style="color:red">加载失败</span>',
+        isLoading: false,
+      });
+    }
+
+    // 触发更新
+    cardStates = new Map(cardStates);
+  }
   onMount(async () => {
     await loadData();
-    await loadCustomCards();
+    // await loadCustomCards();
   });
 </script>
 
@@ -538,13 +581,12 @@ ORDER BY
   </div>
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
     <div class="custom-cards">
-      {#each currentConfig.showcustomCards as card}
-        <!-- label 如果以 select 开头，则表示通过 SQL 查询 -->
+      {#each Array.from(cardStates.values()) as card, index}
         <StatCard
           type={card.type}
           percentage={card.percentage}
           number={card.count}
-          label={isCardLabelLoading ? "" : card.label}
+          label={card.label}
         />
       {/each}
     </div>
