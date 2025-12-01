@@ -248,7 +248,7 @@ ORDER BY
   }
   let imageGalleryRef;
   let selectedDays = []; // Array of YYYYMMDD strings for multi-day filtering
-  let isMobile = false;
+
   $: showMedia =
     currentConfig?.showMedia == undefined ? true : currentConfig.showMedia; // default show both
   $: showEntries =
@@ -400,13 +400,6 @@ ORDER BY
 
   onMount(() => {
     loadData();
-    // detect mobile
-    const handleResize = () => {
-      isMobile = window.innerWidth < 1024;
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
   });
 </script>
 
@@ -431,11 +424,7 @@ ORDER BY
       label={currentConfig.indexLabel}
       clickable={currentConfig.indexID ? true : false}
       on:click={async () => {
-        // if (isMobile) {
         handleEntryCardClick();
-        // } else {
-        //   window.open(`siyuan://blocks/${currentConfig.indexID}`);
-        // }
       }}
     />
     <StatCard
@@ -444,9 +433,7 @@ ORDER BY
       label="总图片数"
       clickable={true}
       on:click={() => {
-        // if (isMobile) {
         handleImageCardClick();
-        // }
       }}
     />
 
@@ -514,15 +501,15 @@ ORDER BY
       </div>
     {/if}
 
-    <div class="media-and-entries" class:mobile={isMobile}>
+    <div class="media-and-entries">
       {#if showEntries}
-        <div class="entries-column" class:mobile={isMobile}>
+        <div class="entries-column">
           <EntryList idSQL={filteredIdListSQL} pageSize={10} />
         </div>
       {/if}
 
       {#if showMedia}
-        <div class="media-column" class:mobile={isMobile}>
+        <div class="media-column">
           <ImageGallery
             bind:this={imageGalleryRef}
             imgSQL={filteredImgSQL}
@@ -646,13 +633,13 @@ ORDER BY
         gap: 12px;
       }
 
-      .media-and-entries.mobile {
+      .media-and-entries {
         display: flex;
         flex-direction: column;
       }
 
-      .media-column.mobile,
-      .entries-column.mobile {
+      .media-column,
+      .entries-column {
         flex: 1 1 100%;
         max-width: none;
         min-width: auto;
