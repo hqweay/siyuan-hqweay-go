@@ -357,18 +357,14 @@ ORDER BY
   }
 
   function handleEntryCardClick() {
-    // click entries card: show only entries
-    showEntries = true;
-    showMedia = false;
+    showEntries = !showEntries;
     // 取消特殊筛选
     specialDayType = SpecialDayType.None;
     selectedDays = [];
   }
 
   function handleImageCardClick() {
-    // click image card: show only media
-    showMedia = true;
-    showEntries = false;
+    showMedia = !showMedia;
     // 取消特殊筛选
     specialDayType = SpecialDayType.None;
     selectedDays = [];
@@ -416,102 +412,6 @@ ORDER BY
     updateSpecialDaysCounts();
   }
 
-  let cardStates = new Map();
-
-  // 响应 currentConfig 变化
-  $: if (currentConfig.showcustomCards) {
-    initializeCardStates();
-  }
-
-  function initializeCardStates() {
-    // 清空旧数据
-    cardStates = new Map();
-
-    currentConfig.showcustomCards.forEach((card, index) => {
-      if (card.label && card.label.startsWith("select ")) {
-        // 需要异步处理的卡片
-        cardStates.set(index, {
-          ...card,
-          label: '<span style="color:#999">加载中...</span>',
-          isLoading: true,
-        });
-
-        processCardAsync(card, index);
-      } else {
-        // 同步卡片
-        cardStates.set(index, {
-          ...card,
-          isLoading: false,
-        });
-      }
-    });
-
-    // 触发更新
-    cardStates = new Map(cardStates);
-  }
-  // 初始化卡片状态
-  $: {
-    if (currentConfig.showcustomCards) {
-      currentConfig.showcustomCards.forEach((card, index) => {
-        if (!cardStates.has(index)) {
-          if (card.label && card.label.startsWith("select ")) {
-            // 需要异步处理的卡片
-            cardStates.set(index, {
-              ...card,
-              label: '<span style="color:#999">加载中...</span>',
-              isLoading: true,
-            });
-
-            // 异步处理
-            processCardAsync(card, index);
-          } else {
-            // 同步卡片
-            cardStates.set(index, {
-              ...card,
-              isLoading: false,
-            });
-          }
-        }
-      });
-
-      // 触发响应式更新
-      cardStates = new Map(cardStates);
-    }
-  }
-
-  async function processCardAsync(card, index) {
-    try {
-      const response = await sql(card.label);
-      if (response[0]?.markdown) {
-        // const markdown = response[0].markdown;
-        let content = response[0].content;
-        let subHtml = content;
-        // let subHtml = lute.Md2BlockDOM(markdown);
-
-        if (content.length > 200) {
-          subHtml = content.substring(0, 50) + "...";
-        }
-
-        const finalLabel = `<a style="color: inherit; text-decoration: none;" href="siyuan://blocks/${response[0].id}" "><span title="${content.replace(/"/g, "&quot;")}">${subHtml}</span></a>`;
-
-        cardStates.set(index, {
-          ...card,
-          label: finalLabel,
-          isLoading: false,
-        });
-      }
-    } catch (error) {
-      console.error("处理卡片失败:", error);
-      cardStates.set(index, {
-        ...card,
-        label: '<span style="color:red">加载失败</span>',
-        isLoading: false,
-      });
-    }
-
-    // 触发更新
-    cardStates = new Map(cardStates);
-  }
   onMount(async () => {
     await loadData();
     // await loadCustomCards();
@@ -522,12 +422,24 @@ ORDER BY
   <!-- 配置切换标签栏 -->
   <div class="config-tabs">
     {#each Object.entries(sqlConfigs) as [key, config]}
-      <button
+      <!-- <button
         class={`tab-btn ${selectedConfig === key ? "active" : ""}`}
         on:click={() => (selectedConfig = key)}
       >
         {config.name}
-      </button>
+      </button> -->
+      <StatCard
+        type="text"
+        asButton={true}
+        active={selectedConfig === key}
+        size="medium"
+        label={config.name}
+        activeBackground="rgba(16, 185, 129, 0.12)"
+        clickable={true}
+        onClick={() => {
+          selectedConfig = key;
+        }}
+      />
     {/each}
   </div>
 
@@ -535,63 +447,52 @@ ORDER BY
   <div class="stats-section">
     {#if currentConfig.showMainStatics}
       <StatCard
-        type="num-text"
-        className="total"
-        number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
+        type="icon-stat"
         label={currentConfig.indexLabel}
-        clickable={currentConfig.indexID ? true : false}
-        on:click={async () => {
-          handleEntryCardClick();
-        }}
+        number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
+        active={showEntries}
+        clickable={true}
+        onClick={handleEntryCardClick}
       />
       <StatCard
-        type="num-text"
-        className="total"
-        number={diaryHasImageEntriesCount || 0}
+        type="icon-stat"
         label="总图片数"
+        number={diaryHasImageEntriesCount || 0}
+        active={showMedia}
         clickable={true}
-        on:click={() => {
-          handleImageCardClick();
-        }}
+        onClick={handleImageCardClick}
       />
     {/if}
     {#if currentConfig.showOnThisDay}
       <StatCard
-        type="num-text"
-        number={thisDayInHistoryCount}
+        type="icon-stat"
         label="那年今日"
+        number={thisDayInHistoryCount}
+        active={specialDayType === SpecialDayType.ThisDayInHistory}
         clickable={true}
-        on:click={handleThisDayInHistoryCardClick}
-        className={specialDayType === SpecialDayType.ThisDayInHistory
-          ? "active"
-          : ""}
+        onClick={handleThisDayInHistoryCardClick}
       />
-
       <StatCard
-        type="num-text"
-        number={thisMonthInHistoryCount}
+        type="icon-stat"
         label="那月今日"
+        number={thisMonthInHistoryCount}
+        active={specialDayType === SpecialDayType.ThisMonthInHistory}
         clickable={true}
-        on:click={handleThisMonthInHistoryCardClick}
-        className={specialDayType === SpecialDayType.ThisMonthInHistory
-          ? "active"
-          : ""}
+        onClick={handleThisMonthInHistoryCardClick}
       />
       <StatCard
-        type="num-text"
-        number={thisWeekInHistoryCount}
+        type="icon-stat"
         label="那周今日"
+        number={thisWeekInHistoryCount}
+        active={specialDayType === SpecialDayType.ThisWeekInHistory}
         clickable={true}
-        on:click={handleThisWeekInHistoryCardClick}
-        className={specialDayType === SpecialDayType.ThisWeekInHistory
-          ? "active"
-          : ""}
+        onClick={handleThisWeekInHistoryCardClick}
       />
     {/if}
   </div>
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
     <div class="custom-cards">
-      {#each Array.from(cardStates.values()) as card}
+      {#each currentConfig.showcustomCards as card}
         <StatCard
           type={card.type}
           percentage={card.percentage}
@@ -681,14 +582,15 @@ ORDER BY
 
   :global(.tab-btn:hover) {
     /* background: rgba(255, 255, 255, 0.15); */
-    border-color: rgba(255, 255, 255, 0.5);
+    // border-color: rgba(255, 255, 255, 0.5);
+    border-color: transparent;
   }
 
   :global(.tab-btn.active) {
-    background: #ffd700;
+    background: rgba(16, 185, 129, 0.12);
     color: #333;
-    border-color: #ffd700;
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+    // border-color: #ffd700;
+    // box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
   }
 
   .dashboard-container {

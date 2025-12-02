@@ -1,398 +1,560 @@
 <script>
-  import { createEventDispatcher } from "svelte";
-  import { fade } from "svelte/transition";
-  export let type = "";
-  export let header = "";
+  import { onMount } from "svelte";
+
+  // 基础属性
+  export let type = "number"; // 'number', 'text', 'progress', 'trend', 'gauge', 'comparison', 'list', 'icon-stat'
+  export let label = "";
+  export let number = undefined;
+  export let text = "";
+  export let unit = "";
+  export let icon = ""; // 图标类名或 emoji
+
+  // 按钮模式属性
+  export let asButton = false;
+  export let active = false;
+  export let activeColor = "#3b82f6";
+  export let inactiveColor = "#94a3b8";
+  export let activeBackground = "rgba(59, 130, 246, 0.12)";
+  export let inactiveBackground = "transparent";
+
+  // 固定尺寸属性 ⭐ 新增
+  export let fixedWidth = ""; // 例如: "120px", "10rem", "auto"
+  export let fixedHeight = ""; // 例如: "80px", "6rem", "auto"
+  export let minWidth = ""; // 最小宽度
+  export let maxWidth = ""; // 最大宽度
+
+  // 进度条类型
+  export let percentage = 0;
+  export let showPercentage = true;
+  export let progressColor = "var(--b3-theme-primary)";
+
+  // 趋势类型
+  export let trend = "up"; // 'up', 'down', 'neutral'
+  export let trendValue = "";
+  export let previousValue = undefined;
+
+  // 仪表盘类型
+  export let gaugeValue = 0;
+  export let gaugeMax = 100;
+  export let gaugeMin = 0;
+  export let gaugeThresholds = []; // [{value: 50, color: 'yellow'}, {value: 80, color: 'red'}]
+
+  // 对比类型
+  export let currentValue = 0;
+  export let comparisonValue = 0;
+  export let comparisonLabel = "vs 上期";
+
+  // 列表类型
+  export let items = []; // [{label: '', value: ''}]
+  export let maxItems = 5;
+
+  // 样式
   export let footer = "";
   export let hover = "";
-  export let number = 0;
-  export let label = "";
-  export let className = "";
-  export let icon = "";
-  export let percentage = 0;
-  export let trend = "stable"; // up, down, stable
-  export let status = "normal"; // normal, success, warning, error
-  export let time = "";
-  export let subNumbers = {}; // 用于多数字对比，如 {left: 10, right: 20}
-  // 如果父组件希望响应点击，将这个属性设为 true
   export let clickable = false;
+  export let color = "";
+  export let backgroundColor = "";
+  export let size = "medium"; // 'small', 'medium', 'large'
 
-  const dispatch = createEventDispatcher();
+  export let animate = true;
+
+  // 事件
+  export let onClick = null;
+
+  let mounted = false;
+  let displayNumber = 0;
+  let displayPercentage = 0;
+
+  // 按钮模式下的计算属性 ⭐
+  $: isButtonMode = asButton || clickable;
+  $: computedColor = asButton
+    ? active
+      ? activeColor
+      : inactiveColor
+    : color || "var(--b3-theme-on-surface)";
+  $: computedBackground = asButton
+    ? active
+      ? activeBackground
+      : inactiveBackground
+    : backgroundColor || "var(--b3-theme-surface)";
+
+  onMount(() => {
+    mounted = true;
+    if (animate && type === "number" && number != undefined) {
+      animateNumber(number);
+    }
+    if (animate && type === "progress") {
+      animateProgress(percentage);
+    }
+  });
+
+  function animateNumber(target) {
+    const duration = 1000;
+    const steps = 30;
+    const increment = target / steps;
+    let current = 0;
+    const interval = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        displayNumber = target;
+        clearInterval(interval);
+      } else {
+        displayNumber = Math.round(current);
+      }
+    }, duration / steps);
+  }
+
+  function animateProgress(target) {
+    const duration = 1000;
+    const steps = 30;
+    const increment = target / steps;
+    let current = 0;
+    const interval = setInterval(() => {
+      current += increment;
+      if (current >= target) {
+        displayPercentage = target;
+        clearInterval(interval);
+      } else {
+        displayPercentage = Math.round(current);
+      }
+    }, duration / steps);
+  }
 
   function handleClick(event) {
-    if (!clickable) return;
-    dispatch("click", { number, label, originalEvent: event });
-  }
-
-  function handleKeydown(event) {
-    if (!clickable) return;
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      handleClick(event);
+    if (isButtonMode && onClick) {
+      onClick(event);
     }
   }
+
+  function getTrendIcon() {
+    if (trend === "up") return "↗";
+    if (trend === "down") return "↘";
+    return "→";
+  }
+
+  function getTrendColor() {
+    if (trend === "up") return "#4caf50";
+    if (trend === "down") return "#f44336";
+    return "#9e9e9e";
+  }
+
+  function getChangePercentage() {
+    if (previousValue === undefined || previousValue === 0) return 0;
+    return (((number - previousValue) / previousValue) * 100).toFixed(1);
+  }
+
+  function getGaugeColor() {
+    if (!gaugeThresholds.length) return "var(--b3-theme-primary)";
+    const normalizedValue =
+      ((gaugeValue - gaugeMin) / (gaugeMax - gaugeMin)) * 100;
+    for (let i = gaugeThresholds.length - 1; i >= 0; i--) {
+      if (normalizedValue >= gaugeThresholds[i].value) {
+        return gaugeThresholds[i].color;
+      }
+    }
+    return "var(--b3-theme-primary)";
+  }
+
+  function getComparisonChange() {
+    if (comparisonValue === 0) return 0;
+    return (((currentValue - comparisonValue) / comparisonValue) * 100).toFixed(
+      1
+    );
+  }
+
+  $: displayedNumber = animate && mounted ? displayNumber : number;
+  $: displayedPercentage = animate && mounted ? displayPercentage : percentage;
+  $: gaugeRotation =
+    ((gaugeValue - gaugeMin) / (gaugeMax - gaugeMin)) * 180 - 90;
 </script>
 
 <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <div
-  transition:fade={{ duration: 300 }}
-  class={`stat-card custom-tooltip ${className}`}
-  role={clickable ? "button" : "group"}
-  tabindex={clickable ? 0 : undefined}
-  aria-label={label ? label : ""}
+  class="stat-card {type} {size}"
+  class:clickable={isButtonMode}
+  class:active={asButton && active}
+  class:button-mode={asButton}
+  class:fixed-size={asButton && (fixedWidth || fixedHeight)}
+  class:has-icon={icon}
+  style:--card-color={computedColor}
+  style:--card-bg={computedBackground}
+  style:--progress-color={progressColor}
+  style:--active-color={activeColor}
+  style:--inactive-color={inactiveColor}
+  style:--fixed-width={fixedWidth}
+  style:--fixed-height={fixedHeight}
+  style:--min-width={minWidth}
+  style:--max-width={maxWidth}
   on:click={handleClick}
-  on:keydown={handleKeydown}
+  on:keydown={(e) => e.key === "Enter" && handleClick(e)}
+  role={isButtonMode ? "button" : undefined}
+  tabindex={isButtonMode ? 0 : undefined}
+  aria-pressed={asButton ? active : undefined}
   title={hover}
 >
-  {#if header}
-    <div style="">{@html header ? header : ""}</div>
+  {#if icon}
+    <div class="stat-icon" class:active={asButton && active}>{icon}</div>
   {/if}
-  {#if type === "text"}
-    <div class="stat-label">{@html label ? label : ""}</div>
-  {:else if type === "number"}
-    <div class="stat-number">{number != undefined ? number : ""}</div>
-  {:else if type === "progress"}
-    <div class="stat-label">{@html label ? label : ""}</div>
-    <div class="progress-container">
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: {percentage}%"></div>
-      </div>
-      <span class="progress-text">{percentage}%</span>
-    </div>
-  {:else if type === "percentage"}
-    <div class="percentage-container">
-      <svg class="percentage-circle" viewBox="0 0 100 100">
-        <circle class="percentage-bg" cx="50" cy="50" r="45"></circle>
-        <circle
-          class="percentage-fill"
-          cx="50"
-          cy="50"
-          r="45"
-          style="stroke-dasharray: {2 * Math.PI * 45}; stroke-dashoffset: {2 *
-            Math.PI *
-            45 *
-            (1 - percentage / 100)}"
-        ></circle>
-      </svg>
-      <div class="percentage-content">
-        <div class="percentage-number">{percentage}%</div>
-        <div class="stat-label">{@html label ? label : ""}</div>
-      </div>
-    </div>
-  {:else if type === "trend"}
-    <div class="stat-label">{@html label ? label : ""}</div>
-    <div class="trend-container">
-      <div class="stat-number">{number != undefined ? number : ""}</div>
-      <div class="trend-indicator {trend}">
-        {#if trend === "up"}
-          <span class="trend-arrow">↗</span>
-        {:else if trend === "down"}
-          <span class="trend-arrow">↘</span>
-        {:else}
-          <span class="trend-arrow">→</span>
+
+  <div class="stat-content">
+    {#if label}
+      <div class="stat-label" class:active={asButton && active}>{label}</div>
+    {/if}
+
+    {#if type === "number"}
+      <div class="stat-number">
+        {displayedNumber != undefined ? displayedNumber : ""}
+        {#if unit}
+          <span class="stat-unit">{unit}</span>
         {/if}
       </div>
-    </div>
-  {:else if type === "icon"}
-    <div class="icon-container">
-      {#if icon}
-        <div class="icon">{icon}</div>
-      {/if}
-      <div class="stat-number">{number != undefined ? number : ""}</div>
-      <div class="stat-label">{@html label ? label : ""}</div>
-    </div>
-  {:else if type === "status"}
-    <div class="status-container">
-      <div class="status-indicator {status}"></div>
-      <div class="status-content">
-        <div class="stat-number">{number != undefined ? number : ""}</div>
-        <div class="stat-label">{@html label ? label : ""}</div>
-      </div>
-    </div>
-  {:else if type === "time"}
-    <div class="stat-label">{@html label ? label : ""}</div>
-    <div class="time-container">
-      <div class="time-value">{time || number}</div>
-    </div>
-  {:else if type === "badge"}
-    <div class="badge-container">
-      <div class="badge-content">
-        <div class="stat-number">{number != undefined ? number : ""}</div>
-        <div class="stat-label">{@html label ? label : ""}</div>
-      </div>
-      <div class="badge-dot {status}"></div>
-    </div>
-  {:else if type === "multi-number"}
-    <div class="stat-label">{@html label ? label : ""}</div>
-    <div class="multi-number-container">
-      {#if subNumbers.left !== undefined}
-        <div class="multi-number-item">
-          <span class="multi-number-value">{subNumbers.left}</span>
-          <span class="multi-number-label">左</span>
+      {#if previousValue !== undefined}
+        <div class="stat-change" style:color={getTrendColor()}>
+          {getTrendIcon()}
+          {getChangePercentage()}%
         </div>
       {/if}
-      {#if subNumbers.right !== undefined}
-        <div class="multi-number-separator">:</div>
-        <div class="multi-number-item">
-          <span class="multi-number-value">{subNumbers.right}</span>
-          <span class="multi-number-label">右</span>
+    {:else if type === "text"}
+      <div class="stat-text">{text}</div>
+    {:else if type === "progress"}
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" style:width="{displayedPercentage}%"></div>
         </div>
-      {/if}
-    </div>
-  {:else if type === "number-text"}
-    <div class="stat-number">{number != undefined ? number : ""}</div>
-    <div class="stat-label">{@html label ? label : ""}</div>
-  {:else}
-    <div class="stat-label">{@html label ? label : ""}</div>
-    <div class="stat-number">{number != undefined ? number : ""}</div>
-  {/if}
-  {#if footer}
-    <div style="">{@html footer ? footer : ""}</div>
-  {/if}
+        {#if showPercentage}
+          <div class="progress-text">{displayedPercentage}%</div>
+        {/if}
+      </div>
+    {:else if type === "trend"}
+      <div class="trend-container">
+        <div class="trend-value">
+          {number}
+          {#if unit}<span class="stat-unit">{unit}</span>{/if}
+        </div>
+        <div class="trend-indicator" style:color={getTrendColor()}>
+          <span class="trend-icon">{getTrendIcon()}</span>
+          {#if trendValue}
+            <span class="trend-text">{trendValue}</span>
+          {/if}
+        </div>
+      </div>
+    {:else if type === "gauge"}
+      <div class="gauge-container">
+        <svg class="gauge-svg" viewBox="0 0 100 60">
+          <path
+            class="gauge-background"
+            d="M 10 50 A 40 40 0 0 1 90 50"
+            fill="none"
+            stroke="var(--b3-theme-surface-lighter)"
+            stroke-width="8"
+          />
+          <path
+            class="gauge-fill"
+            d="M 10 50 A 40 40 0 0 1 90 50"
+            fill="none"
+            stroke={getGaugeColor()}
+            stroke-width="8"
+            stroke-dasharray="125.6"
+            stroke-dashoffset={125.6 -
+              (125.6 * (gaugeValue - gaugeMin)) / (gaugeMax - gaugeMin)}
+          />
+          <circle cx="50" cy="50" r="3" fill={getGaugeColor()} />
+          <line
+            x1="50"
+            y1="50"
+            x2="50"
+            y2="15"
+            stroke={getGaugeColor()}
+            stroke-width="2"
+            transform="rotate({gaugeRotation} 50 50)"
+          />
+        </svg>
+        <div class="gauge-value">
+          {gaugeValue}
+          {#if unit}<span class="stat-unit">{unit}</span>{/if}
+        </div>
+      </div>
+    {:else if type === "comparison"}
+      <div class="comparison-container">
+        <div class="comparison-current">
+          <div class="comparison-value">{currentValue}</div>
+          <div class="comparison-label">当前</div>
+        </div>
+        <div class="comparison-divider">
+          <div
+            class="comparison-change"
+            style:color={getComparisonChange() >= 0 ? "#4caf50" : "#f44336"}
+          >
+            {getComparisonChange() >= 0 ? "↑" : "↓"}
+            {Math.abs(getComparisonChange())}%
+          </div>
+        </div>
+        <div class="comparison-previous">
+          <div class="comparison-value">{comparisonValue}</div>
+          <div class="comparison-label">{comparisonLabel}</div>
+        </div>
+      </div>
+    {:else if type === "list"}
+      <div class="list-container">
+        {#each items.slice(0, maxItems) as item, i}
+          <div class="list-item">
+            <span class="list-label">{item.label}</span>
+            <span class="list-value">{item.value}</span>
+          </div>
+        {/each}
+      </div>
+    {:else if type === "icon-stat"}
+      <div class="icon-stat-container">
+        <div class="icon-stat-number">
+          {number}
+          {#if unit}<span class="stat-unit">{unit}</span>{/if}
+        </div>
+        {#if text}
+          <div class="icon-stat-text">{text}</div>
+        {/if}
+      </div>
+    {/if}
+
+    {#if footer}
+      <div class="stat-footer">{footer}</div>
+    {/if}
+  </div>
 </div>
 
-<style>
+<style lang="scss">
   .stat-card {
-    background: rgb(60 178 59 / 10%);
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform 0.3s ease;
-    /* 统一样式尺寸 */
-    min-width: 180px;
-    min-height: 120px;
-    max-width: 300px;
-    width: 100%;
+    background: var(--card-bg, var(--b3-theme-surface));
+    border: 1px solid var(--b3-theme-surface-lighter);
+    border-radius: 8px;
+    padding: 16px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
     display: flex;
-    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 固定尺寸样式 ⭐ */
+  .stat-card.fixed-size {
+    width: var(--fixed-width, auto);
+    height: var(--fixed-height, auto);
+    min-width: var(--min-width, auto);
+    max-width: var(--max-width, auto);
+    flex-shrink: 0; /* 防止被压缩 */
+  }
+
+  /* 按钮模式下的默认固定尺寸 */
+  .stat-card.button-mode {
+    cursor: pointer;
+    user-select: none;
+    min-width: 100px; /* 默认最小宽度 */
+    .stat-content {
+      display: unset;
+    }
+  }
+
+  /* 按钮模式下的紧凑布局 */
+  .stat-card.button-mode .stat-content {
     justify-content: center;
-    align-items: center;
-    box-sizing: border-box;
+    text-align: center;
   }
 
-  .stat-number {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #ffd700;
+  .stat-card.button-mode .stat-number,
+  .stat-card.button-mode .icon-stat-number {
+    font-size: 1.8em; /* 按钮模式下稍小一点 */
   }
 
-  .stat-label {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-top: 5px;
+  .stat-card.button-mode.small {
+    padding: 8px 12px;
+    min-width: 80px;
   }
 
-  .stat-card[role="button"] {
+  .stat-card.button-mode.small .stat-number,
+  .stat-card.button-mode.small .icon-stat-number {
+    font-size: 1.4em;
+  }
+
+  .stat-card.button-mode.large {
+    padding: 20px;
+    min-width: 140px;
+  }
+
+  .stat-card.small {
+    padding: 12px;
+    font-size: 0.9em;
+  }
+
+  .stat-card.large {
+    padding: 24px;
+    font-size: 1.1em;
+  }
+
+  /* 按钮模式样式 ⭐ */
+  .stat-card.button-mode {
+    cursor: pointer;
+    user-select: none;
+    .stat-label {
+      color: unset;
+    }
+  }
+
+  .stat-card.button-mode.active {
+    border-color: var(--active-color);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+  }
+
+  .stat-card.button-mode:not(.active) {
+    opacity: 0.7;
+  }
+
+  .stat-card.button-mode:not(.active):hover {
+    opacity: 0.85;
+    background: rgba(59, 130, 246, 0.05);
+    transform: translateY(-1px);
+  }
+
+  .stat-card.button-mode.active:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  }
+
+  .stat-card.button-mode:active {
+    transform: translateY(0);
+  }
+
+  /* 传统可点击样式 */
+  .stat-card.clickable:not(.button-mode) {
     cursor: pointer;
   }
 
-  .active {
-    background: #659049;
-    color: #333;
-  }
-  .total {
-    background: #4badb2;
-    color: #333;
+  .stat-card.clickable:not(.button-mode):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--b3-theme-primary);
   }
 
-  /* Progress type styles */
-  .progress-container {
-    margin-top: 10px;
+  .stat-card.has-icon {
+    padding-left: 12px;
   }
+
+  .stat-icon {
+    font-size: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+
+  .stat-icon.active {
+    opacity: 1;
+  }
+
+  .stat-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-label {
+    font-size: 0.85em;
+    color: var(--b3-theme-on-surface-light);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: color 0.3s ease;
+  }
+
+  .stat-label.active {
+    color: var(--card-color);
+    font-weight: 600;
+  }
+
+  .stat-number {
+    font-size: 2em;
+    font-weight: 700;
+    color: var(--card-color, var(--b3-theme-on-surface));
+    line-height: 1.2;
+  }
+
+  .stat-unit {
+    font-size: 0.5em;
+    font-weight: 400;
+    color: var(--b3-theme-on-surface-light);
+    margin-left: 4px;
+  }
+
+  .stat-text {
+    font-size: 1.2em;
+    color: var(--card-color, var(--b3-theme-on-surface));
+    line-height: 1.4;
+  }
+
+  .stat-change {
+    font-size: 0.9em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-footer {
+    font-size: 0.8em;
+    color: var(--b3-theme-on-surface-light);
+    padding-top: 8px;
+    border-top: 1px solid var(--b3-theme-surface-lighter);
+  }
+
+  /* ... 其他样式保持不变 ... */
+
+  /* Progress Type */
+  .progress-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
   .progress-bar {
-    width: 100%;
+    flex: 1;
     height: 8px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--b3-theme-surface-lighter);
     border-radius: 4px;
     overflow: hidden;
   }
+
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ffd700, #ffed4e);
+    background: var(--progress-color);
     border-radius: 4px;
-    transition: width 0.3s ease;
+    transition: width 1s ease-out;
   }
+
   .progress-text {
-    font-size: 0.8rem;
-    color: #ffd700;
-    margin-top: 5px;
-    display: block;
+    font-weight: 600;
+    color: var(--b3-theme-on-surface);
+    min-width: 45px;
+    text-align: right;
   }
 
-  /* Percentage type styles */
-  .percentage-container {
-    position: relative;
-    width: 80px;
-    height: 80px;
-    margin: 10px auto;
-  }
-  .percentage-circle {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-  .percentage-bg {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.2);
-    stroke-width: 8;
-  }
-  .percentage-fill {
-    fill: none;
-    stroke: #ffd700;
-    stroke-width: 8;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.3s ease;
-  }
-  .percentage-content {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-  }
-  .percentage-number {
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #ffd700;
-  }
-
-  /* Trend type styles */
-  .trend-container {
+  /* Icon Stat Type */
+  .icon-stat-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-  }
-  .trend-indicator {
-    display: flex;
-    align-items: center;
-    padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8rem;
-  }
-  .trend-indicator.up {
-    background: rgba(76, 175, 80, 0.3);
-    color: #4caf50;
-  }
-  .trend-indicator.down {
-    background: rgba(244, 67, 54, 0.3);
-    color: #f44336;
-  }
-  .trend-indicator.stable {
-    background: rgba(158, 158, 158, 0.3);
-    color: #9e9e9e;
-  }
-  .trend-arrow {
-    font-size: 1rem;
+    gap: 8px;
   }
 
-  /* Icon type styles */
-  .icon-container {
+  .icon-stat-number {
+    font-size: 2.5em;
+    font-weight: 700;
+    color: var(--card-color, var(--b3-theme-on-surface));
+  }
+
+  .icon-stat-text {
+    font-size: 0.9em;
+    color: var(--b3-theme-on-surface-light);
     text-align: center;
-  }
-  .icon {
-    font-size: 2rem;
-    margin-bottom: 10px;
-  }
-
-  /* Status type styles */
-  .status-container {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
-    justify-content: center;
-  }
-  .status-indicator {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-  .status-indicator.success {
-    background: #4caf50;
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-  }
-  .status-indicator.warning {
-    background: #ff9800;
-    box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
-  }
-  .status-indicator.error {
-    background: #f44336;
-    box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
-  }
-  .status-indicator.normal {
-    background: #2196f3;
-    box-shadow: 0 0 10px rgba(33, 150, 243, 0.5);
-  }
-  .status-content {
-    flex: 1;
-  }
-
-  /* Time type styles */
-  .time-container {
-    margin-top: 10px;
-  }
-  .time-value {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ffd700;
-    font-family: "Courier New", monospace;
-  }
-
-  /* Badge type styles */
-  .badge-container {
-    position: relative;
-    text-align: center;
-  }
-  .badge-dot {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-  .badge-dot.success {
-    background: #4caf50;
-  }
-  .badge-dot.warning {
-    background: #ff9800;
-  }
-  .badge-dot.error {
-    background: #f44336;
-  }
-  .badge-dot.normal {
-    background: #2196f3;
-  }
-
-  /* Multi-number type styles */
-  .multi-number-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 10px;
-  }
-  .multi-number-item {
-    text-align: center;
-  }
-  .multi-number-value {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #ffd700;
-  }
-  .multi-number-label {
-    font-size: 0.7rem;
-    opacity: 0.7;
-    margin-top: 2px;
-  }
-  .multi-number-separator {
-    font-size: 1.2rem;
-    color: rgba(255, 255, 255, 0.5);
   }
 </style>

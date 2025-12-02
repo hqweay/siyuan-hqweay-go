@@ -1,6 +1,7 @@
 <script>
   import { sql } from "@/api";
   import { onMount } from "svelte";
+  import StatCard from "./StatCard.svelte";
 
   export let imgSQL;
   export let layout = "grid"; // 'grid' | 'masonry'
@@ -103,18 +104,31 @@
 
 <div class="images-section">
   <div class="images-header">
-    <!-- <h3>图片集</h3> -->
-    <div>
-      <button
-        class="tab-btn"
-        class:active={layout === "grid"}
-        on:click={() => (layout = "grid")}>网格</button
-      >
-      <button
-        class="tab-btn"
-        class:active={layout === "masonry"}
-        on:click={() => (layout = "masonry")}>瀑布流</button
-      >
+    <div style="display: flex; gap: 12px; margin-bottom: 30px;flex-wrap: wrap;">
+      <StatCard
+        type="text"
+        asButton={true}
+        label="网格"
+        active={layout === "grid"}
+        activeBackground="rgba(16, 185, 129, 0.12)"
+        fixedWidth="25%"
+        clickable={true}
+        onClick={() => {
+          layout = "grid";
+        }}
+      />
+      <StatCard
+        type="text"
+        asButton={true}
+        label="瀑布流"
+        fixedWidth="25%"
+        active={layout === "masonry"}
+        activeBackground="rgba(16, 185, 129, 0.12)"
+        clickable={true}
+        onClick={() => {
+          layout = "masonry";
+        }}
+      />
     </div>
   </div>
   {#if layout === "grid"}

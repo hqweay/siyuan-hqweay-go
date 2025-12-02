@@ -2,6 +2,7 @@
   import { sql } from "@/api";
   import { onMount } from "svelte";
   import EntryItem from "./EntryItem.svelte";
+  import StatCard from "./StatCard.svelte";
 
   export let idSQL = null; // a query that returns rows with `id` and optionally `created`
   export let pageSize = 12;
@@ -65,17 +66,34 @@
 </script>
 
 <div class="entry-list">
-  <div class="entry-header">
-    <button
-      class="tab-btn"
-      class:active={isExpanded === true}
-      on:click={() => (isExpanded = !isExpanded)}>折叠</button
-    >
-    <button
-      class="tab-btn"
-      class:active={fixedHeight === true}
-      on:click={() => (fixedHeight = !fixedHeight)}>固定高度</button
-    >
+  <div
+    class="entry-header"
+    style="display: flex; gap: 12px; margin-bottom: 30px;flex-wrap: wrap;"
+  >
+    <StatCard
+      type="text"
+      asButton={true}
+      label="折叠"
+      active={isExpanded}
+      activeBackground="rgba(16, 185, 129, 0.12)"
+      fixedWidth="25%"
+      clickable={true}
+      onClick={() => {
+        isExpanded = !isExpanded;
+      }}
+    />
+    <StatCard
+      type="text"
+      asButton={true}
+      label="固定高度"
+      fixedWidth="25%"
+      active={fixedHeight}
+      activeBackground="rgba(16, 185, 129, 0.12)"
+      clickable={true}
+      onClick={() => {
+        fixedHeight = !fixedHeight;
+      }}
+    />
   </div>
   {#each ids as id}
     <EntryItem blockId={id} {isExpanded} {fixedHeight} />
