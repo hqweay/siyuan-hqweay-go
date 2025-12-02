@@ -1,4 +1,6 @@
 <script>
+  // @ts-nocheck
+
   import { onMount } from "svelte";
 
   // 基础属性
@@ -198,14 +200,16 @@
 
   <div class="stat-content">
     {#if label}
-      <div class="stat-label" class:active={asButton && active}>{label}</div>
+      <div class="stat-label" class:active={asButton && active}>
+        {@html label}
+      </div>
     {/if}
 
     {#if type === "number"}
       <div class="stat-number">
         {displayedNumber != undefined ? displayedNumber : ""}
         {#if unit}
-          <span class="stat-unit">{unit}</span>
+          <span class="stat-unit">{@html unit}</span>
         {/if}
       </div>
       {#if previousValue !== undefined}
@@ -271,7 +275,7 @@
         </svg>
         <div class="gauge-value">
           {gaugeValue}
-          {#if unit}<span class="stat-unit">{unit}</span>{/if}
+          {#if unit}<span class="stat-unit">{@html unit}</span>{/if}
         </div>
       </div>
     {:else if type === "comparison"}
@@ -290,16 +294,16 @@
           </div>
         </div>
         <div class="comparison-previous">
-          <div class="comparison-value">{comparisonValue}</div>
-          <div class="comparison-label">{comparisonLabel}</div>
+          <div class="comparison-value">{@html comparisonValue}</div>
+          <div class="comparison-label">{@html comparisonLabel}</div>
         </div>
       </div>
     {:else if type === "list"}
       <div class="list-container">
         {#each items.slice(0, maxItems) as item, i}
           <div class="list-item">
-            <span class="list-label">{item.label}</span>
-            <span class="list-value">{item.value}</span>
+            <span class="list-label">{@html item.label}</span>
+            <span class="list-value">{@html item.value}</span>
           </div>
         {/each}
       </div>
@@ -307,16 +311,16 @@
       <div class="icon-stat-container">
         <div class="icon-stat-number">
           {number}
-          {#if unit}<span class="stat-unit">{unit}</span>{/if}
+          {#if unit}<span class="stat-unit">{@html unit}</span>{/if}
         </div>
         {#if text}
-          <div class="icon-stat-text">{text}</div>
+          <div class="icon-stat-text">{@html text}</div>
         {/if}
       </div>
     {/if}
 
     {#if footer}
-      <div class="stat-footer">{footer}</div>
+      <div class="stat-footer">{@html footer}</div>
     {/if}
   </div>
 </div>

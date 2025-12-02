@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { sql } from "@/api";
   import { onMount } from "svelte";
   import ImageGallery from "./ImageGallery.svelte";
@@ -28,10 +28,14 @@
         {
           type: "text",
           label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+          onClick: (card) => {
+            console.log("卡片数据:", card);
+            console.log("标签:", card.label);
+          },
         },
         {
-          type: "number-text",
-          header: "距离 2026 年还有",
+          type: "icon-stat",
+          label: "距离 2026 年还有",
           number: () => {
             const targetDate = new Date("2026-01-01").getTime();
             const currentDate = new Date().getTime();
@@ -39,8 +43,7 @@
             const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
             return daysDiff;
           },
-          footer: "天",
-          hover: "距离 2026 年还有",
+          text: "天",
         },
       ],
       //控制是否展示 热力图
@@ -412,9 +415,78 @@ ORDER BY
     updateSpecialDaysCounts();
   }
 
+  // ------------------- 解析单个属性 -------------------
+  async function resolveProp(key, value, card): Promise<any> {
+    // ✅ 或者明確列出不需要處理的屬性
+    const skipProps = ["onClick", "onHover", "onFocus", "onBlur"];
+    if (skipProps.includes(key)) {
+      return value;
+    }
+
+    // 1️⃣ 函数 → 调用
+    if (typeof value === "function") return value();
+
+    // 2️⃣ SELECT 语句（忽略大小写、前后空格） → 执行 SQL
+    if (typeof value === "string" && /^\s*select\s+/i.test(value)) {
+      const result = await sql(value);
+      // 根据实际返回结构取第一列/第一个值
+      // 这里假设返回的就是我们想要的标量
+      return result;
+    }
+
+    // 3️⃣ 其它 → 原样返回
+    return value;
+  }
+
+  // ------------------- 解析整张卡片 -------------------
+  async function resolveCard(card: Record<string, any>) {
+    const resolved: Record<string, any> = {};
+
+    // 遍历卡片的所有键（type、label、number、percentage、hover、footer…）
+    for (const [key, value] of Object.entries(card)) {
+      if (typeof value === "string" && /^\s*select\s+/i.test(value)) {
+        const result = await resolveProp(key, value, card);
+        resolved[key] = result[0]?.content;
+        resolved["blocks"] = result;
+      } else {
+        resolved[key] = await resolveProp(key, value, card);
+      }
+    }
+
+    return resolved;
+  }
+
+  // ------------------- 返回 Promise -------------------
+  async function loadCards() {
+    if (!currentConfig?.showcustomCards) return [];
+    const promises = currentConfig.showcustomCards.map(
+      (card) => resolveCard({ ...card }) // 传递新对象避免引用相同
+    );
+    return Promise.all(promises);
+  }
+
+  // 响应式：当配置变化时重新创建 Promise
+  $: cardsPromise = loadCards();
+
   onMount(async () => {
     await loadData();
     // await loadCustomCards();
+    // 建立 Promise，讓 {#await cardsPromise} 能追蹤
+    cardsPromise = (async () => {
+      try {
+        // 取得完整卡片資料
+        const cards = await loadCards();
+
+        // 重新指派整個陣列給 currentConfig（觸發渲染）
+        currentConfig = {
+          ...currentConfig,
+          showcustomCards: cards,
+        };
+        return currentConfig; // 讓 {:then currentConfig} 能取得
+      } catch (e) {
+        throw e; // 讓 {:catch} 能捕獲
+      }
+    })();
   });
 </script>
 
@@ -485,21 +557,32 @@ ORDER BY
     {/if}
   </div>
   {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
-    <div class="custom-cards">
-      {#each currentConfig.showcustomCards as card}
-        <StatCard
-          type={card.type}
-          percentage={card.percentage}
-          number={typeof card.number === "function"
-            ? card.number()
-            : card.number}
-          label={card.label}
-          hover={card.hover}
-          header={card.header}
-          footer={card.footer}
-        />
-      {/each}
-    </div>
+    {#await cardsPromise}
+      <div class="custom-cards-loading"><p>加载中...</p></div>
+    {:then}
+      <div class="custom-cards">
+        {#each currentConfig.showcustomCards as card (card.id)}
+          <StatCard
+            type={card.type}
+            percentage={card.percentage}
+            number={card.number}
+            label={card.label}
+            text={card.text}
+            unit={card.unit}
+            hover={card.hover}
+            footer={card.footer}
+            asButton={true}
+            active={card.active}
+            maxWidth={card.maxWidth ? card.maxWidth : "20%"}
+            onClick={card.onClick ? () => card.onClick(card) : undefined}
+          />
+        {/each}
+      </div>
+    {:catch error}
+      <div class="error"><p>加载失败: {error.message}</p></div>
+    {/await}
+  {:else}
+    <p class="placeholder">暂无自定义卡片</p>
   {/if}
 
   <div class="main-row">
@@ -519,9 +602,6 @@ ORDER BY
             <span>已筛选：那月今日</span>
           {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
             <span>已筛选：那周今日</span>
-            <!-- {:else if selectedDays.length > 0}
-          <span>已筛选：{selectedDays.join(", ")}</span>
-        {/if} -->
           {/if}
           {#if selectedDays.length > 0}
             <span>已筛选：{selectedDays.join(", ")}</span>
