@@ -422,12 +422,6 @@ ORDER BY
   <!-- 配置切换标签栏 -->
   <div class="config-tabs">
     {#each Object.entries(sqlConfigs) as [key, config]}
-      <!-- <button
-        class={`tab-btn ${selectedConfig === key ? "active" : ""}`}
-        on:click={() => (selectedConfig = key)}
-      >
-        {config.name}
-      </button> -->
       <StatCard
         type="text"
         asButton={true}
