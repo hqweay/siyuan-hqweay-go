@@ -161,6 +161,7 @@ export default class PluginGo extends Plugin {
           this.diaryTools.onload(topBarElement);
       },
     });
+
     settings.getFlag("randomNote") && this.randomNotePlugin.onload();
     settings.getFlag("typography") && this.typographyPlugin.onload();
     settings.getFlag("voiceNotes") && this.voiceNotesPlugin.onload();

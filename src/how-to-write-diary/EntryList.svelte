@@ -13,8 +13,8 @@
   let loading = false;
   let hasMore = true;
   let sentinel;
-  let fixedHeight;
-  let isExpanded;
+  let fixedHeight = false;
+  let isExpanded = false;
 
   async function loadNext() {
     if (!idSQL || loading || !hasMore) return;

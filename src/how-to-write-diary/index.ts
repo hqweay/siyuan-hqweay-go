@@ -29,7 +29,14 @@ export default class DiaryTools {
     }
   }
 
-  onunload(): void {}
+  onunload(): void {
+    // 查询所有匹配的元素并删除
+    document
+      .querySelectorAll('[id^="plugin_siyuan-hqweay-go_"]')
+      .forEach((element) => {
+        element.remove();
+      });
+  }
 
   //获取天气并插入当前文档属性
   getTodayWeatherInfo(data) {
@@ -73,7 +80,7 @@ export default class DiaryTools {
   private addMenu(rect?: DOMRect) {
     const menu = new Menu("hqweay-diary-tools-menu");
     // 添加获取天气并插入当前文档属性选项
-    if (settings.getBySpace("createDailyNoteConfig", "topBar") && !isMobile) {
+    if (settings.getBySpace("createDailyNoteConfig", "topBar")) {
       menu.addItem({
         label: "获取当前天气并插入当前文档属性",
         iconHTML: "🌤️",

@@ -5,6 +5,8 @@
   import StatCard from "./StatCard.svelte";
   import Heatmap from "./Heatmap.svelte";
   import EntryList from "./EntryList.svelte";
+  import { isMobile, plugin } from "@/utils";
+  import { openMobileFileById } from "siyuan";
 
   // const lute = window.Lute.New();
 
@@ -23,16 +25,35 @@
       showMainStatics: true,
       //控制是否展示 那年、那月、那周今日
       showOnThisDay: true,
+      //控制是否展示 热力图
+      showHeatmap: true,
       //控制是否展示 自定义卡片
       showcustomCards: [
+        {
+          id: "random",
+          type: "text",
+          label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+          onClick: () => {
+            loadCards("random").then((res) => {
+              customCards = customCards.map((card) => {
+                const matchedRes = res.find((item) => item.id === card.id);
+                return matchedRes ? matchedRes : card;
+              });
+            });
+          },
+        },
         {
           type: "text",
           label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
           onClick: (card) => {
-            console.log("卡片数据:", card);
-            console.log("标签:", card.label);
+            if (isMobile) {
+              openMobileFileById(plugin.app, card.labelBlocks[0]?.id);
+            } else {
+              window.open(`siyuan://blocks/${card.labelBlocks[0]?.id}`);
+            }
           },
         },
+
         {
           type: "icon-stat",
           label: "距离 2026 年还有",
@@ -46,8 +67,7 @@
           text: "天",
         },
       ],
-      //控制是否展示 热力图
-      showHeatmap: true,
+
       //主SQL
       mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
       //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
@@ -59,6 +79,9 @@
       indexLabel: "碎碎念引用块",
       showEntries: true,
       showMedia: false,
+      showMainStatics: true,
+      showOnThisDay: true,
+      showHeatmap: true,
       mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
 SELECT blocks.* FROM blocks 
 WHERE 
@@ -100,7 +123,10 @@ ORDER BY
       name: "🌐 全部",
       indexLabel: "总文档",
       showEntries: true,
-      showMedia: true,
+      showMedia: false,
+      showMainStatics: true,
+      showOnThisDay: true,
+      showHeatmap: true,
       mainSQL: `select blocks.* from blocks where type = 'd'`,
     },
     random: {
@@ -108,6 +134,9 @@ ORDER BY
       indexLabel: "随机文档",
       showEntries: true,
       showMedia: false,
+      showMainStatics: true,
+      showOnThisDay: true,
+      showHeatmap: true,
       mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
     },
   };
@@ -429,8 +458,6 @@ ORDER BY
     // 2️⃣ SELECT 语句（忽略大小写、前后空格） → 执行 SQL
     if (typeof value === "string" && /^\s*select\s+/i.test(value)) {
       const result = await sql(value);
-      // 根据实际返回结构取第一列/第一个值
-      // 这里假设返回的就是我们想要的标量
       return result;
     }
 
@@ -447,7 +474,7 @@ ORDER BY
       if (typeof value === "string" && /^\s*select\s+/i.test(value)) {
         const result = await resolveProp(key, value, card);
         resolved[key] = result[0]?.content;
-        resolved["blocks"] = result;
+        resolved[`${key}Blocks`] = result;
       } else {
         resolved[key] = await resolveProp(key, value, card);
       }
@@ -457,36 +484,29 @@ ORDER BY
   }
 
   // ------------------- 返回 Promise -------------------
-  async function loadCards() {
+  async function loadCards(id: string = undefined) {
     if (!currentConfig?.showcustomCards) return [];
-    const promises = currentConfig.showcustomCards.map(
+
+    const cardsToLoad = id
+      ? currentConfig.showcustomCards.filter((card) => card.id === id)
+      : currentConfig.showcustomCards;
+
+    const promises = cardsToLoad.map(
       (card) => resolveCard({ ...card }) // 传递新对象避免引用相同
     );
+
     return Promise.all(promises);
   }
 
-  // 响应式：当配置变化时重新创建 Promise
-  $: cardsPromise = loadCards();
-
+  $: customCards = [];
+  $: if (currentConfig) {
+    console.log("currentConfig", currentConfig);
+    loadCards().then((res) => {
+      customCards = res;
+    });
+  }
   onMount(async () => {
     await loadData();
-    // await loadCustomCards();
-    // 建立 Promise，讓 {#await cardsPromise} 能追蹤
-    cardsPromise = (async () => {
-      try {
-        // 取得完整卡片資料
-        const cards = await loadCards();
-
-        // 重新指派整個陣列給 currentConfig（觸發渲染）
-        currentConfig = {
-          ...currentConfig,
-          showcustomCards: cards,
-        };
-        return currentConfig; // 讓 {:then currentConfig} 能取得
-      } catch (e) {
-        throw e; // 讓 {:catch} 能捕獲
-      }
-    })();
   });
 </script>
 
@@ -556,33 +576,25 @@ ORDER BY
       />
     {/if}
   </div>
-  {#if currentConfig.showcustomCards && currentConfig.showcustomCards.length > 0}
-    {#await cardsPromise}
-      <div class="custom-cards-loading"><p>加载中...</p></div>
-    {:then}
-      <div class="custom-cards">
-        {#each currentConfig.showcustomCards as card (card.id)}
-          <StatCard
-            type={card.type}
-            percentage={card.percentage}
-            number={card.number}
-            label={card.label}
-            text={card.text}
-            unit={card.unit}
-            hover={card.hover}
-            footer={card.footer}
-            asButton={true}
-            active={card.active}
-            maxWidth={card.maxWidth ? card.maxWidth : "20%"}
-            onClick={card.onClick ? () => card.onClick(card) : undefined}
-          />
-        {/each}
-      </div>
-    {:catch error}
-      <div class="error"><p>加载失败: {error.message}</p></div>
-    {/await}
-  {:else}
-    <p class="placeholder">暂无自定义卡片</p>
+  {#if customCards && customCards.length > 0}
+    <div class="custom-cards">
+      {#each customCards as card}
+        <StatCard
+          type={card.type}
+          percentage={card.percentage}
+          number={card.number}
+          label={card.label}
+          text={card.text}
+          unit={card.unit}
+          hover={card.hover}
+          footer={card.footer}
+          asButton={true}
+          active={card.active}
+          maxWidth={card.maxWidth ? card.maxWidth : "20%"}
+          onClick={card.onClick ? () => card.onClick(card) : undefined}
+        />
+      {/each}
+    </div>
   {/if}
 
   <div class="main-row">

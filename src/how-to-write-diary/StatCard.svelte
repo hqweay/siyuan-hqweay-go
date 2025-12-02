@@ -123,8 +123,10 @@
   }
 
   function handleClick(event) {
-    if (isButtonMode && onClick) {
-      onClick(event);
+    if (isButtonMode || onClick) {
+      if (typeof onClick === "function") {
+        onClick(event);
+      }
     }
   }
 
@@ -219,7 +221,7 @@
         </div>
       {/if}
     {:else if type === "text"}
-      <div class="stat-text">{text}</div>
+      <div class="stat-text">{@html text ? text : ""}</div>
     {:else if type === "progress"}
       <div class="progress-container">
         <div class="progress-bar">
