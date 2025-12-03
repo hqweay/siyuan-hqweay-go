@@ -83,7 +83,18 @@ export default class DiaryTools {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "open") {
-      console.log("11");
+      let dialog = new Dialog({
+        title: "仪表盘",
+        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+        width: "400px",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
+
+      let pannel = new DashboardComponent({
+        target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+      });
     }
   }
 
