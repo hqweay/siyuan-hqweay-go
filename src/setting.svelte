@@ -906,6 +906,13 @@ https://shibe.online/api/shibes?count=1`,
         },
         {
           type: "checkbox",
+          title: "显示仪表盘按钮",
+          description: "在导航栏中显示仪表盘按钮",
+          key: "showDashBoard",
+          value: settings.getBySpace("mobileHelperConfig", "showDashBoard"),
+        },
+        {
+          type: "checkbox",
           title: "显示随机按钮",
           description: "在导航栏中显示随机跳转按钮",
           key: "showRandomButton",

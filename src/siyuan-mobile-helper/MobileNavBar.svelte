@@ -11,7 +11,7 @@
   import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
   import { createDailynote } from "@frostime/siyuan-plugin-kits";
   import { sql } from "@/api";
-  import { generateSQLKey } from "@/myscripts/utils";
+  import { generateSQLKey, openByMobile } from "@/myscripts/utils";
 
   export let visible = true;
   export let config;
@@ -23,6 +23,7 @@
   let buttonColor = config.buttonColor || "#333333";
   let showBackButton = config.showBackButton !== false;
   let showForwardButton = config.showForwardButton !== false;
+  let showDashBoard = config.showDashBoard !== false;
   let showContextButton = config.showContextButton !== false;
   let showRandomButton = config.showRandomButton !== false;
   let showCustomLinksButton = config.showCustomLinksButton !== false;
@@ -137,10 +138,11 @@
   function handleCustomLinkClick(url) {
     if (url.toLowerCase().startsWith("select ")) {
       execSQLAndOpen(url);
+    } else if (url.toLowerCase().startsWith("siyuan://")) {
+      plugin.eventBus.emit("open-siyuan-url-plugin", { url });
     } else {
-      window.open(url, "_blank");
+      openByMobile(url);
     }
-    // closeDropdownLinks();
   }
 
   async function handleAddToDatabase(url: any) {
@@ -194,6 +196,19 @@
         <div class="nav-icon">→</div>
         <div class="nav-text">前进</div>
       </button>
+    {/if}
+    {#if showDashBoard}
+      <a
+        href="javascript:void(0)"
+        on:click|stopPropagation={() => {
+          handleCustomLinkClick("siyuan://plugins/siyuan-hqweay-go/open");
+        }}
+        class="nav-button"
+        style="text-decoration: none;"
+      >
+        <div class="nav-icon">📅</div>
+        <div class="nav-text">仪表盘</div>
+      </a>
     {/if}
 
     {#if showContextButton}
