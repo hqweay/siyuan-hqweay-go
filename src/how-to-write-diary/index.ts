@@ -85,19 +85,54 @@ export default class DiaryTools {
     if (method === "open") {
       const index = urlObj.searchParams.get("index");
 
-      let dialog = new Dialog({
-        title: "仪表盘",
-        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-        width: "400px",
-        destroyCallback: (options) => {
-          pannel.$destroy();
-        },
-      });
+      // let dialog = new Dialog({
+      //   title: "仪表盘",
+      //   content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+      //   width: "400px",
+      //   destroyCallback: (options) => {
+      //     pannel.$destroy();
+      //   },
+      // });
 
-      let pannel = new DashboardComponent({
-        target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-        props: { selectedConfig: index },
-      });
+      // let pannel = new DashboardComponent({
+      //   target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+      //   props: { selectedConfig: index },
+      // });
+      if (isMobile) {
+        let dialog = new Dialog({
+          title: "仪表盘",
+          content: `<div id="hqweay-diary-dashboard" style="height: 600px;"></div>`,
+          width: "400px",
+          destroyCallback: (options) => {
+            pannel.$destroy();
+          },
+        });
+
+        let pannel = new DashboardComponent({
+          target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+          props: { selectedConfig: index },
+        });
+      } else {
+        let tabDiv = document.createElement("div");
+        new DashboardComponent({
+          target: tabDiv,
+        });
+        plugin.addTab({
+          type: TAB_TYPE,
+          init() {
+            this.element.appendChild(tabDiv);
+          },
+        });
+        openTab({
+          app: plugin.app,
+          custom: {
+            icon: "",
+            title: "仪表盘",
+            data: {},
+            id: plugin.name + TAB_TYPE,
+          },
+        });
+      }
     }
   }
 
