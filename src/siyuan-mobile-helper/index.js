@@ -1,7 +1,7 @@
 import { settings } from "@/settings";
 
 import MobileNavBar from "./MobileNavBar.svelte"; // Import the Svelte component
-import { isMobile } from "@frostime/siyuan-plugin-kits";
+import { isMobile } from "@/utils";
 
 export default class MobileHelper {
   constructor() {
