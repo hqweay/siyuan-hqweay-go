@@ -83,7 +83,7 @@ export default class DiaryTools {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "open") {
-      const index = urlObj.searchParams.get("index");
+      const index = urlObj.searchParams.get("index") || 0;
 
       // let dialog = new Dialog({
       //   title: "仪表盘",
@@ -116,6 +116,7 @@ export default class DiaryTools {
         let tabDiv = document.createElement("div");
         new DashboardComponent({
           target: tabDiv,
+          props: { selectedConfig: index },
         });
         plugin.addTab({
           type: TAB_TYPE,
