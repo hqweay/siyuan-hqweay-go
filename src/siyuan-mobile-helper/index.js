@@ -1,6 +1,7 @@
 import { settings } from "@/settings";
-import { isMobile } from "@/utils";
+
 import MobileNavBar from "./MobileNavBar.svelte"; // Import the Svelte component
+import { isMobile } from "@frostime/siyuan-plugin-kits";
 
 export default class MobileHelper {
   constructor() {
@@ -10,7 +11,7 @@ export default class MobileHelper {
   }
 
   onload() {
-    if (isMobile && settings.getFlag("mobileHelper")) {
+    if (isMobile && settings.getFlag("mobileHelper") && !this.navComponent) {
       this.createBottomNavigation();
     }
   }

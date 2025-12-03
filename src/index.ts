@@ -131,6 +131,19 @@ export default class PluginGo extends Plugin {
 
   //App 准备好时加载
   async onLayoutReady() {
+    const topBarElement = this.addTopBar({
+      icon: "iconBookmark",
+      title: "恐龙工具箱",
+      position: "right",
+      callback: () => {
+        (settings.getBySpace("createDailyNoteConfig", "topBar") ||
+          settings.getFlag("diaryTools")) &&
+          this.diaryTools.onload(topBarElement);
+      },
+    });
+    settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
+    settings.getFlag("diaryTools") && this.diaryTools.addDock();
+
     settings.getFlag("randomHeaderImage") &&
       this.randomImagePlugin.onLayoutReady();
 
@@ -178,28 +191,16 @@ export default class PluginGo extends Plugin {
       this.dockLeftPlugins.forEach((ele) => {
         ele.onload();
       });
-    settings.getFlag("mobileHelper") && this.mobileHelperPlugin.onload();
+
     settings.getFlag("ocr") && this.ocrPlugin.onload();
 
     settings.getFlag("docky") && loadDocky(this);
-
-    settings.getFlag("diaryTools") && this.diaryTools.addDock();
   }
 
   //App 启动时加载
   async onload() {
     this.init();
 
-    const topBarElement = this.addTopBar({
-      icon: "iconBookmark",
-      title: "恐龙工具箱",
-      position: "right",
-      callback: () => {
-        (settings.getBySpace("createDailyNoteConfig", "topBar") ||
-          settings.getFlag("diaryTools")) &&
-          this.diaryTools.onload(topBarElement);
-      },
-    });
     await settings.initData();
 
     this.addIcons(`<symbol id="iconFace" viewBox="0 0 32 32">
@@ -257,6 +258,12 @@ export default class PluginGo extends Plugin {
     this.showMoreIconsOnBar();
   }
 
+  // ?
+  onDataChanged() {
+    console.log("onDataChanged");
+    this.showMoreIconsOnBar();
+  }
+
   //卸载逻辑
   onunload() {
     this.typographyPlugin.onunload();
@@ -265,7 +272,7 @@ export default class PluginGo extends Plugin {
     this.randomImagePlugin.onunload();
     this.memoPlugin.onunload();
     this.voiceNotesPlugin.onunload();
-    this.mobileHelperPlugin.onunload();
+    // this.mobileHelperPlugin.onunload();
     this.blockAttr.onunload();
     this.dockLeftPlugins.forEach((ele) => {
       ele.onunload();
@@ -274,7 +281,7 @@ export default class PluginGo extends Plugin {
     this.ocrPlugin.onunload();
     this.eventBus.off("open-menu-image", this.imageMenuEventBindThis);
 
-    this.diaryTools.onunload();
+    // this.diaryTools.onunload();
 
     unloadDocky(this);
   }

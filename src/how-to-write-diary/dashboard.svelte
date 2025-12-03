@@ -11,8 +11,8 @@
 
   const sqlConfigs =
     settings.getBySpace("diaryToolsConfig", "configs") === "hqweay"
-      ? {
-          doc: {
+      ? [
+          {
             //配置名
             name: "➿ Voicenotes",
             //主页总数 label
@@ -76,7 +76,7 @@
             //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
             imgSQL: null,
           },
-          ssn: {
+          {
             name: "📝 碎碎念引用",
             indexID: "",
             indexLabel: "碎碎念引用块",
@@ -86,43 +86,56 @@
             showOnThisDay: true,
             showHeatmap: true,
             mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
-SELECT blocks.* FROM blocks 
-WHERE 
-    -- 情况4：引用块的直接父块（容器块）
-    id IN (
-        SELECT DISTINCT parent_id 
-        FROM blocks 
-        WHERE id IN (
-            SELECT DISTINCT block_id 
-            FROM refs 
-            WHERE def_block_root_id = '20250126213235-a3tnoqb'
-        )
-        AND parent_id IS NOT NULL
-    )
-ORDER BY 
-    created desc
-LIMIT 512`,
+  SELECT blocks.* FROM blocks
+  WHERE
+      -- 情况4：引用块的直接父块（容器块）
+      id IN (
+          SELECT DISTINCT parent_id
+          FROM blocks
+          WHERE id IN (
+              SELECT DISTINCT block_id
+              FROM refs
+              WHERE def_block_root_id = '20250126213235-a3tnoqb'
+          )
+          AND parent_id IS NOT NULL
+      )
+  ORDER BY
+      created desc
+  LIMIT 512`,
             imgSQL: `
--- 查询引用块、其直接父块（容器块）以及所有相关子块
-SELECT * FROM blocks 
-WHERE 
-    -- 情况4：引用块的直接父块（容器块）
-    id IN (
-        SELECT DISTINCT parent_id 
-        FROM blocks 
-        WHERE id IN (
-            SELECT DISTINCT block_id 
-            FROM refs 
-            WHERE def_block_root_id = '20250126213235-a3tnoqb'
-        )
-        AND parent_id IS NOT NULL
-    )
-    and markdown like '%![%'
-ORDER BY 
-    created desc
-`,
+  -- 查询引用块、其直接父块（容器块）以及所有相关子块
+  SELECT * FROM blocks
+  WHERE
+      -- 情况4：引用块的直接父块（容器块）
+      id IN (
+          SELECT DISTINCT parent_id
+          FROM blocks
+          WHERE id IN (
+              SELECT DISTINCT block_id
+              FROM refs
+              WHERE def_block_root_id = '20250126213235-a3tnoqb'
+          )
+          AND parent_id IS NOT NULL
+      )
+      and markdown like '%![%'
+  ORDER BY
+      created desc
+  `,
           },
-          all: {
+          {
+            name: "Daily Notes",
+            indexLabel: "Daily Notes",
+            showEntries: true,
+            showMedia: false,
+            showMainStatics: false,
+            showOnThisDay: false,
+            showHeatmap: false,
+            mainSQL: `select blocks.* from blocks join attributes
+on blocks.id = attributes.block_id
+where attributes.name like 'custom-dailynote%'
+order by attributes.value desc`,
+          },
+          {
             name: "🌐 全部",
             indexLabel: "总文档",
             showEntries: true,
@@ -132,7 +145,7 @@ ORDER BY
             showHeatmap: true,
             mainSQL: `select blocks.* from blocks where type = 'd'`,
           },
-          random: {
+          {
             name: "🎲 随机！",
             indexLabel: "随机文档",
             showEntries: true,
@@ -142,19 +155,14 @@ ORDER BY
             showHeatmap: true,
             mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
           },
-        }
+        ]
       : eval(`(${settings.getBySpace("diaryToolsConfig", "configs")})`);
-
-  // const sqlConfigs = eval(``);
-  // sqlConfigs.openMobileFileById = openMobileFileById;
-  // sqlConfigs.isMobile = isMobile;
-  // sqlConfigs.plugin = plugin;
 
   // 生成 imgSQL 的默认函数
   const generateImgSQL = (mainSQL) =>
-    `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace("d", "p")}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
+    `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace(`'d'`, `'p'`)}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
 
-  let selectedConfig = "doc"; // 默认选中文档配置
+  export let selectedConfig = 0; // 默认选中文档配置
   $: currentConfig = sqlConfigs[selectedConfig];
   $: mainSQL = currentConfig.mainSQL;
   $: mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
@@ -162,7 +170,7 @@ ORDER BY
   $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
   // 基于 mainSQL 聚合每天创建数，用于热力图
   $: heatmapSQL = `SELECT substr(created,1,8) as day, count(*) as cnt FROM (${mainSQL}) as t GROUP BY day ORDER BY day`;
-  $: selectedConfig && loadData(); // 当配置改变时重新加载数据
+  $: selectedConfig !== undefined && selectedConfig !== null && loadData(); // 当配置改变时重新加载数据
   $: layout = "masonry";
   // 日记数据存储
   let diaryAllEntriesCount = 0;
@@ -531,17 +539,17 @@ ORDER BY
 <div class="dashboard-container">
   <!-- 配置切换标签栏 -->
   <div class="config-tabs">
-    {#each Object.entries(sqlConfigs) as [key, config]}
+    {#each sqlConfigs as config, index}
       <StatCard
         type="text"
         asButton={true}
-        active={selectedConfig === key}
+        active={selectedConfig === index}
         size="medium"
         label={config.name}
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
         onClick={() => {
-          selectedConfig = key;
+          selectedConfig = index;
         }}
       />
     {/each}

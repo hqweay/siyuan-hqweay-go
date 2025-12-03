@@ -341,8 +341,8 @@ https://shibe.online/api/shibes?count=1`,
   },
   diaryToolsConfig: {
     addToDock: false,
-    configs: `{
-    doc: {
+    configs: `[
+    {
       //配置名
       name: "所有文档！",
       //主页总数 label
@@ -388,11 +388,11 @@ https://shibe.online/api/shibes?count=1`,
           type: "icon-stat",
           label: "距离 2026 年还有",
           number: () => {
-             const targetDate = new Date(2026, 0, 1).getTime(); // 月份是 0-based
-    const currentDate = new Date().getTime();
-    const timeDiff = targetDate - currentDate;
-    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-    return daysDiff;
+            const targetDate = new Date("2026-01-01").getTime();
+            const currentDate = new Date().getTime();
+            const timeDiff = targetDate - currentDate;
+            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            return daysDiff;
           },
           text: "天",
         },
@@ -402,7 +402,7 @@ https://shibe.online/api/shibes?count=1`,
       //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
       imgSQL: null,
     },
-    random: {
+    {
       name: "🎲 随机！",
       indexLabel: "随机文档",
       showEntries: true,
@@ -412,7 +412,17 @@ https://shibe.online/api/shibes?count=1`,
       showHeatmap: true,
       mainSQL: "select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT " + (Math.floor(Math.random() * 51) + 50),
     },
-  }`,
+    {
+      name: "Daily Notes",
+      indexLabel: "Daily Notes",
+      showEntries: true,
+      showMedia: false,
+      showMainStatics: false,
+      showOnThisDay: false,
+      showHeatmap: false,
+      mainSQL: "select blocks.* from blocks join attributes on blocks.id = attributes.block_id where attributes.name like 'custom-dailynote%' order by attributes.value desc",
+    },
+  ]`,
   },
 };
 
