@@ -31,10 +31,10 @@
         },
         {
           type: "checkbox",
-          title: "Diary Plus",
-          description: `日记增强；提供一个日记信息统计面板。`,
-          key: "diaryPlus",
-          value: settings.getFlag("diaryPlus"),
+          title: "仪表盘",
+          description: `提供一个展示文档信息的面板，为 Journal 设计`,
+          key: "diaryTools",
+          value: settings.getFlag("diaryTools"),
           hasSetting: true,
         },
         {
@@ -295,7 +295,25 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
 ]`,
         },
       ],
-      "Diary Plus": [],
+      仪表盘: [
+        {
+          type: "textinput",
+          title: "添加到 Dock",
+          description:
+            "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
+          key: "addToDock",
+          value: settings.getBySpace("diaryToolsConfig", "addToDock"),
+          placeholder: "为空不添加",
+        },
+        {
+          type: "textarea",
+          title: "仪表盘配置",
+          description: "参考默认配置……",
+          key: "configs",
+          value: settings.getBySpace("diaryToolsConfig", "configs"),
+          placeholder: "参考默认配置……",
+        },
+      ],
       日记相关工具: [
         {
           type: "textinput",

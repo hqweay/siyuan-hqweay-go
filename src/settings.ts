@@ -36,6 +36,7 @@ const DEFAULT_CONFIG = {
     createDailyNote: false,
     quickAttr: false,
     ocr: false,
+    diaryTools: false,
   },
   codeSnippetsConfig: {},
   doOnPasteConfig: {
@@ -336,6 +337,10 @@ https://shibe.online/api/shibes?count=1`,
   dockyConfig: {
     zoomScale: 100,
     rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
+  },
+  diaryToolsConfig: {
+    addToDock: false,
+    configs: ``,
   },
 };
 

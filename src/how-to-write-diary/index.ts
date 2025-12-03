@@ -2,16 +2,57 @@ import { getBlockAttrs, setBlockAttrs } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { isMobile, plugin } from "@/utils";
-import { Dialog, Menu, openTab, showMessage } from "siyuan";
+import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 
 import DashboardComponent from "./dashboard.svelte";
 
 const TAB_TYPE = "custom_tab";
-
+const DOCK_TYPE = "dock_tab";
+const docks = [
+  "LeftTop",
+  "LeftBottom",
+  "RightTop",
+  "RightBottom",
+  "BottomLeft",
+  "BottomRight",
+];
 export default class DiaryTools {
   id = "hqweay-diary-tools";
   label = "获取天气并插入当前文档属性";
   icon = `📝`;
+
+  addDock() {
+    const addToDock = settings.getBySpace("diaryToolsConfig", "addToDock");
+
+    console.log("addToDock", addToDock);
+    if (docks.includes(addToDock)) {
+      plugin.addDock({
+        config: {
+          position: addToDock,
+          size: { width: 200, height: 0 },
+          icon: "iconAttr",
+          title: "仪表盘",
+          hotkey: "⌥⌘W",
+        },
+        data: { text: "This is my custom dock" },
+        type: DOCK_TYPE + "aaa",
+        resize() {
+          console.log(DOCK_TYPE + " resize");
+        },
+        update() {
+          console.log(DOCK_TYPE + " update");
+        },
+        init: (dock) => {
+          new DashboardComponent({
+            target: dock.element,
+          });
+        },
+        destroy() {
+          console.log("destroy dock:", DOCK_TYPE);
+        },
+      });
+    }
+  }
 
   onload(topBarElement) {
     if (isMobile) {
@@ -36,6 +77,14 @@ export default class DiaryTools {
       .forEach((element) => {
         element.remove();
       });
+  }
+
+  openSiyuanUrlPluginEvent({ detail }) {
+    const urlObj = new URL(detail.url);
+    const method = urlObj.pathname.split("/").pop();
+    if (method === "open") {
+      console.log("11");
+    }
   }
 
   //获取天气并插入当前文档属性
@@ -133,7 +182,7 @@ export default class DiaryTools {
     }
 
     // 添加打开仪表盘选项
-    if (settings.getFlag("diaryPlus")) {
+    if (settings.getFlag("diaryTools")) {
       menu.addItem({
         label: "打开仪表盘",
         iconHTML: "🌤️",

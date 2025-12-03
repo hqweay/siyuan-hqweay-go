@@ -7,139 +7,17 @@
   import EntryList from "./EntryList.svelte";
   import { isMobile, plugin } from "@/utils";
   import { openMobileFileById } from "siyuan";
-
-  // const lute = window.Lute.New();
+  import { settings } from "@/settings";
 
   // 配置多个不同的 SQL 来源
-  const sqlConfigs = {
-    doc: {
-      //配置名
-      name: "➿ Voicenotes",
-      //主页总数 label
-      indexLabel: "总语音日记",
-      //进入时是否加载列表
-      showEntries: true,
-      //进入时是否加载图片
-      showMedia: true,
-      //控制是否展示 主统计信息
-      showMainStatics: true,
-      //控制是否展示 那年、那月、那周今日
-      showOnThisDay: true,
-      //控制是否展示 热力图
-      showHeatmap: true,
-      //控制是否展示 自定义卡片
-      showcustomCards: [
-        {
-          id: "random",
-          type: "text",
-          label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
-          onClick: () => {
-            loadCards("random").then((res) => {
-              customCards = customCards.map((card) => {
-                const matchedRes = res.find((item) => item.id === card.id);
-                return matchedRes ? matchedRes : card;
-              });
-            });
-          },
-        },
-        {
-          type: "text",
-          label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
-          onClick: (card) => {
-            if (isMobile) {
-              openMobileFileById(plugin.app, card.labelBlocks[0]?.id);
-            } else {
-              window.open(`siyuan://blocks/${card.labelBlocks[0]?.id}`);
-            }
-          },
-        },
+  const sqlConfigs = eval(
+    `(${settings.getBySpace("diaryToolsConfig", "configs")})`
+  );
 
-        {
-          type: "icon-stat",
-          label: "距离 2026 年还有",
-          number: () => {
-            const targetDate = new Date("2026-01-01").getTime();
-            const currentDate = new Date().getTime();
-            const timeDiff = targetDate - currentDate;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-            return daysDiff;
-          },
-          text: "天",
-        },
-      ],
-
-      //主SQL
-      mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
-      //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
-      imgSQL: null,
-    },
-    ssn: {
-      name: "📝 碎碎念引用",
-      indexID: "",
-      indexLabel: "碎碎念引用块",
-      showEntries: true,
-      showMedia: false,
-      showMainStatics: true,
-      showOnThisDay: true,
-      showHeatmap: true,
-      mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
-SELECT blocks.* FROM blocks 
-WHERE 
-    -- 情况4：引用块的直接父块（容器块）
-    id IN (
-        SELECT DISTINCT parent_id 
-        FROM blocks 
-        WHERE id IN (
-            SELECT DISTINCT block_id 
-            FROM refs 
-            WHERE def_block_root_id = '20250126213235-a3tnoqb'
-        )
-        AND parent_id IS NOT NULL
-    )
-ORDER BY 
-    created desc
-LIMIT 512`,
-      imgSQL: `
--- 查询引用块、其直接父块（容器块）以及所有相关子块
-SELECT * FROM blocks 
-WHERE 
-    -- 情况4：引用块的直接父块（容器块）
-    id IN (
-        SELECT DISTINCT parent_id 
-        FROM blocks 
-        WHERE id IN (
-            SELECT DISTINCT block_id 
-            FROM refs 
-            WHERE def_block_root_id = '20250126213235-a3tnoqb'
-        )
-        AND parent_id IS NOT NULL
-    )
-    and markdown like '%![%'
-ORDER BY 
-    created desc
-`,
-    },
-    all: {
-      name: "🌐 全部",
-      indexLabel: "总文档",
-      showEntries: true,
-      showMedia: false,
-      showMainStatics: true,
-      showOnThisDay: true,
-      showHeatmap: true,
-      mainSQL: `select blocks.* from blocks where type = 'd'`,
-    },
-    random: {
-      name: "🎲 随机！",
-      indexLabel: "随机文档",
-      showEntries: true,
-      showMedia: false,
-      showMainStatics: true,
-      showOnThisDay: true,
-      showHeatmap: true,
-      mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
-    },
-  };
+  // const sqlConfigs = eval(``);
+  // sqlConfigs.openMobileFileById = openMobileFileById;
+  // sqlConfigs.isMobile = isMobile;
+  // sqlConfigs.plugin = plugin;
 
   // 生成 imgSQL 的默认函数
   const generateImgSQL = (mainSQL) =>
@@ -536,15 +414,17 @@ ORDER BY
         type="icon-stat"
         label={currentConfig.indexLabel}
         number={diaryAllEntriesCount ? diaryAllEntriesCount : 0}
-        active={showEntries}
         clickable={true}
+        backgroundColor={showEntries
+          ? "rgba(59, 130, 246, 0.12)"
+          : "transparent"}
         onClick={handleEntryCardClick}
       />
       <StatCard
         type="icon-stat"
         label="总图片数"
         number={diaryHasImageEntriesCount || 0}
-        active={showMedia}
+        backgroundColor={showMedia ? "rgba(59, 130, 246, 0.12)" : "transparent"}
         clickable={true}
         onClick={handleImageCardClick}
       />
@@ -554,7 +434,9 @@ ORDER BY
         type="icon-stat"
         label="那年今日"
         number={thisDayInHistoryCount}
-        active={specialDayType === SpecialDayType.ThisDayInHistory}
+        backgroundColor={specialDayType === SpecialDayType.ThisDayInHistory
+          ? "rgba(59, 130, 246, 0.12)"
+          : "transparent"}
         clickable={true}
         onClick={handleThisDayInHistoryCardClick}
       />
@@ -562,7 +444,9 @@ ORDER BY
         type="icon-stat"
         label="那月今日"
         number={thisMonthInHistoryCount}
-        active={specialDayType === SpecialDayType.ThisMonthInHistory}
+        backgroundColor={specialDayType === SpecialDayType.ThisMonthInHistory
+          ? "rgba(59, 130, 246, 0.12)"
+          : "transparent"}
         clickable={true}
         onClick={handleThisMonthInHistoryCardClick}
       />
@@ -570,7 +454,9 @@ ORDER BY
         type="icon-stat"
         label="那周今日"
         number={thisWeekInHistoryCount}
-        active={specialDayType === SpecialDayType.ThisWeekInHistory}
+        backgroundColor={specialDayType === SpecialDayType.ThisWeekInHistory
+          ? "rgba(59, 130, 246, 0.12)"
+          : "transparent"}
         clickable={true}
         onClick={handleThisWeekInHistoryCardClick}
       />
@@ -709,23 +595,6 @@ ORDER BY
       }
     }
 
-    /* media and entries side-by-side */
-    .media-and-entries {
-      display: flex;
-      gap: 18px;
-      align-items: flex-start;
-      margin-top: 18px;
-    }
-    .media-column {
-      flex: 1 1 50%;
-      min-width: 320px;
-    }
-    .entries-column {
-      flex: 1 1 50%;
-      min-width: 300px;
-      /* max-width: 480px; */
-    }
-
     .day-filter {
       display: flex;
       align-items: center;
@@ -753,28 +622,36 @@ ORDER BY
     .clear-filter:hover {
       background: #5a6268;
     }
-    .column-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-  }
 
-  /* 响应式设计 */
-  @media (max-width: 1024px) {
-    .dashboard-container {
-      padding: 10px;
+    container-type: inline-size;
+    container-name: media-entry;
+
+    @container media-entry (min-width: 767px) {
+      .media-and-entries {
+        display: flex;
+        gap: 18px;
+        align-items: flex-start;
+        margin-top: 18px;
+        .media-column {
+          flex: 1 1 50%;
+          min-width: 320px;
+        }
+        .entries-column {
+          flex: 1 1 50%;
+          min-width: 300px;
+        }
+      }
+    }
+    @container media-entry (max-width: 767px) {
+      width: 100vw;
       .media-and-entries {
         flex-direction: column;
         gap: 12px;
       }
-
       .media-and-entries {
         display: flex;
         flex-direction: column;
       }
-
       .media-column,
       .entries-column {
         flex: 1 1 100%;
