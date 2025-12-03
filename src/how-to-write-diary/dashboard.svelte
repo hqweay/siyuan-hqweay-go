@@ -9,10 +9,141 @@
   import { openMobileFileById } from "siyuan";
   import { settings } from "@/settings";
 
-  // 配置多个不同的 SQL 来源
-  const sqlConfigs = eval(
-    `(${settings.getBySpace("diaryToolsConfig", "configs")})`
-  );
+  const sqlConfigs =
+    settings.getBySpace("diaryToolsConfig", "configs") === "hqweay"
+      ? {
+          doc: {
+            //配置名
+            name: "➿ Voicenotes",
+            //主页总数 label
+            indexLabel: "总语音日记",
+            //进入时是否加载列表
+            showEntries: true,
+            //进入时是否加载图片
+            showMedia: true,
+            //控制是否展示 主统计信息
+            showMainStatics: true,
+            //控制是否展示 那年、那月、那周今日
+            showOnThisDay: true,
+            //控制是否展示 热力图
+            showHeatmap: true,
+            //控制是否展示 自定义卡片
+            showcustomCards: [
+              {
+                id: "random",
+                type: "text",
+                label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+                onClick: () => {
+                  loadCards("random").then((res) => {
+                    customCards = customCards.map((card) => {
+                      const matchedRes = res.find(
+                        (item) => item.id === card.id
+                      );
+                      return matchedRes ? matchedRes : card;
+                    });
+                    updateCustomCards(customCards);
+                  });
+                },
+              },
+              {
+                type: "text",
+                label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
+                onClick: (card) => {
+                  if (isMobile) {
+                    openMobileFileById(plugin.app, card.labelBlocks[0]?.id);
+                  } else {
+                    window.open(`siyuan://blocks/${card.labelBlocks[0]?.id}`);
+                  }
+                },
+              },
+
+              {
+                type: "icon-stat",
+                label: "距离 2026 年还有",
+                number: () => {
+                  const targetDate = new Date(2026, 0, 1).getTime(); // 月份是 0-based
+                  const currentDate = new Date().getTime();
+                  const timeDiff = targetDate - currentDate;
+                  const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                  return daysDiff;
+                },
+                text: "天",
+              },
+            ],
+
+            //主SQL
+            mainSQL: `select blocks.* from blocks where blocks.type = 'd' and blocks.path LIKE '%20250126213235-a3tnoqb%'`,
+            //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
+            imgSQL: null,
+          },
+          ssn: {
+            name: "📝 碎碎念引用",
+            indexID: "",
+            indexLabel: "碎碎念引用块",
+            showEntries: true,
+            showMedia: false,
+            showMainStatics: true,
+            showOnThisDay: true,
+            showHeatmap: true,
+            mainSQL: `-- 查询引用块、其直接父块（容器块）以及所有相关子块
+SELECT blocks.* FROM blocks 
+WHERE 
+    -- 情况4：引用块的直接父块（容器块）
+    id IN (
+        SELECT DISTINCT parent_id 
+        FROM blocks 
+        WHERE id IN (
+            SELECT DISTINCT block_id 
+            FROM refs 
+            WHERE def_block_root_id = '20250126213235-a3tnoqb'
+        )
+        AND parent_id IS NOT NULL
+    )
+ORDER BY 
+    created desc
+LIMIT 512`,
+            imgSQL: `
+-- 查询引用块、其直接父块（容器块）以及所有相关子块
+SELECT * FROM blocks 
+WHERE 
+    -- 情况4：引用块的直接父块（容器块）
+    id IN (
+        SELECT DISTINCT parent_id 
+        FROM blocks 
+        WHERE id IN (
+            SELECT DISTINCT block_id 
+            FROM refs 
+            WHERE def_block_root_id = '20250126213235-a3tnoqb'
+        )
+        AND parent_id IS NOT NULL
+    )
+    and markdown like '%![%'
+ORDER BY 
+    created desc
+`,
+          },
+          all: {
+            name: "🌐 全部",
+            indexLabel: "总文档",
+            showEntries: true,
+            showMedia: false,
+            showMainStatics: true,
+            showOnThisDay: true,
+            showHeatmap: true,
+            mainSQL: `select blocks.* from blocks where type = 'd'`,
+          },
+          random: {
+            name: "🎲 随机！",
+            indexLabel: "随机文档",
+            showEntries: true,
+            showMedia: false,
+            showMainStatics: true,
+            showOnThisDay: true,
+            showHeatmap: true,
+            mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
+          },
+        }
+      : eval(`(${settings.getBySpace("diaryToolsConfig", "configs")})`);
 
   // const sqlConfigs = eval(``);
   // sqlConfigs.openMobileFileById = openMobileFileById;
@@ -383,8 +514,17 @@
       customCards = res;
     });
   }
+  const updateCustomCards = (customCardsTemp) => {
+    customCards = customCardsTemp;
+  };
   onMount(async () => {
     await loadData();
+    (window as any).diaryTools = {
+      openMobileFileById,
+      isMobile,
+      plugin,
+      updateCustomCards,
+    };
   });
 </script>
 
