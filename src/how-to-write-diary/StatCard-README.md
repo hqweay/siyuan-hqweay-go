@@ -52,12 +52,22 @@
 
 带大图标的统计卡片
 
-<StatCard 
-  type="icon-stat" 
-  icon="📝" 
-  label="日记数量" 
+<StatCard
+  type="icon-stat"
+  icon="📝"
+  label="日记数量"
   number={365}
   text="本年度"
+/>
+
+7. Full-width (全宽模式)
+
+全宽展示，占据整行
+<StatCard
+type="progress"
+label="项目完成进度"
+percentage={85}
+fullWidth={true}
 />
 
 新增功能
@@ -69,3 +79,4 @@
 可点击 - 支持点击事件
 自定义颜色 - 支持自定义主色和背景色
 响应式 - 自适应不同尺寸
+全宽模式 - 通过 `fullWidth={true}` 使卡片占据整行展示

@@ -147,3 +147,12 @@ export const openByMobile = (uri: string) => {
     window.open(uri);
   }
 };
+
+// 从日期字符串（YYYYMMDD）解析为 Date 对象
+export function parseYYYYMMDD(dateStr) {
+  if (!dateStr || dateStr.length !== 8) return new Date();
+  const year = parseInt(dateStr.substring(0, 4));
+  const month = parseInt(dateStr.substring(4, 6)) - 1;
+  const day = parseInt(dateStr.substring(6, 8));
+  return new Date(year, month, day);
+}

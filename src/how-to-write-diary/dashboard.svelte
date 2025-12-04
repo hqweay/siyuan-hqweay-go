@@ -1,13 +1,14 @@
 <script lang="ts">
   import { sql } from "@/api";
-  import { onMount } from "svelte";
-  import ImageGallery from "./ImageGallery.svelte";
-  import StatCard from "./StatCard.svelte";
-  import Heatmap from "./Heatmap.svelte";
-  import EntryList from "./EntryList.svelte";
+  import { settings } from "@/settings";
   import { isMobile, plugin } from "@/utils";
   import { openMobileFileById } from "siyuan";
-  import { settings } from "@/settings";
+  import { onMount } from "svelte";
+  import EntryList from "./EntryList.svelte";
+  import Heatmap from "./Heatmap.svelte";
+  import ImageGallery from "./ImageGallery.svelte";
+  import StatCard from "./StatCard.svelte";
+  import { parseYYYYMMDD } from "@/myscripts/utils";
 
   const sqlConfigs =
     settings.getBySpace("diaryToolsConfig", "configs") === "hqweay"
@@ -198,8 +199,11 @@ order by attributes.value desc`,
                   label:
                     "select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1",
                   onClick: (card) => {
+                    //@ts-ignore
                     if (window.diaryTools.isMobile) {
+                      //@ts-ignore
                       window.diaryTools.openMobileFileById(
+                        //@ts-ignore
                         window.diaryTools.plugin.app,
                         card.labelBlocks[0]?.id
                       );
@@ -253,25 +257,131 @@ order by attributes.value desc`,
             },
           ];
 
-  // 生成 imgSQL 的默认函数
-  const generateImgSQL = (mainSQL) =>
-    `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace(`'d'`, `'p'`)}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
+  export let selectedConfig: number | string = 0;
+  export let type: string = ""; //clear
+  let internalSelectedConfig = 0;
 
-  export let selectedConfig = 0; // 默认选中文档配置
-  $: currentConfig = sqlConfigs[selectedConfig];
+  $: if (type) {
+    if (type === "clear") {
+      showConfigTabs = false;
+      showEntries = false;
+      showMedia = false;
+      showMainStatics = false;
+      showOnThisDay = false;
+      showHeatmap = false;
+    }
+  }
+  $: internalSelectedConfig = (() => {
+    if (typeof selectedConfig === "number") {
+      if (
+        Array.isArray(sqlConfigs) &&
+        selectedConfig >= 0 &&
+        selectedConfig < sqlConfigs.length
+      ) {
+        return selectedConfig;
+      } else {
+        console.warn(
+          `Invalid numeric index ${selectedConfig}, using default 0`
+        );
+        return 0;
+      }
+    } else if (typeof selectedConfig === "string") {
+      if (Array.isArray(sqlConfigs) && sqlConfigs.length > 0) {
+        const foundIndex = sqlConfigs.findIndex(
+          (config) => config.name === selectedConfig
+        );
+        if (foundIndex !== -1) {
+          return foundIndex;
+        } else {
+          console.warn(
+            `Config with name "${selectedConfig}" not found, using default 0`
+          );
+          return 0;
+        }
+      } else {
+        return 0;
+      }
+    } else {
+      return 0; // 默认选中文档配置
+    }
+  })();
+
+  $: currentConfig = (() => {
+    try {
+      if (
+        internalSelectedConfig == null ||
+        !Array.isArray(sqlConfigs) ||
+        internalSelectedConfig < 0 ||
+        internalSelectedConfig >= sqlConfigs.length
+      ) {
+        return null;
+      }
+      return sqlConfigs[internalSelectedConfig];
+    } catch (error) {
+      console.error("Error setting currentConfig:", error);
+      return null;
+    }
+  })();
+
   $: mainSQL = currentConfig.mainSQL;
   $: mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
   $: imgSQL = currentConfig.imgSQL || generateImgSQL(mainSQL); // 自定义优先，否则生成
   $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
-  // 基于 mainSQL 聚合每天创建数，用于热力图
   $: heatmapSQL = `SELECT substr(created,1,8) as day, count(*) as cnt FROM (${mainSQL}) as t GROUP BY day ORDER BY day`;
-  $: selectedConfig !== undefined && selectedConfig !== null && loadData(); // 当配置改变时重新加载数据
-  $: layout = "masonry";
+  // 仅支持通过链接打开传入
+  let showConfigTabs = true;
+  $: showMedia =
+    currentConfig?.showMedia == undefined ? true : currentConfig.showMedia; // default show both
+  $: showEntries =
+    currentConfig?.showEntries == undefined ? true : currentConfig.showEntries; // default show both
+  $: showMainStatics =
+    currentConfig?.showMainStatics == undefined
+      ? true
+      : currentConfig.showMainStatics;
+  $: showOnThisDay =
+    currentConfig?.showOnThisDay == undefined
+      ? true
+      : currentConfig.showOnThisDay;
+  $: showHeatmap =
+    currentConfig?.showHeatmap == undefined ? true : currentConfig.showHeatmap;
+
+  $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
+  $: idListSQL = `${idListBaseSQL} order by created desc`;
+
+  // 支持特殊日历筛选（那年今日、那月今日、那周今日）和普通多日筛选
+  $: filteredIdListSQL =
+    specialDayType !== SpecialDayType.None
+      ? getSpecialDaySQL(specialDayType, idListSQL)
+      : selectedDays.length > 0
+        ? `select * from (${idListSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
+        : idListSQL;
+
+  $: filteredImgSQL =
+    specialDayType !== SpecialDayType.None
+      ? getSpecialDaySQL(specialDayType, imgSQL)
+      : selectedDays.length > 0
+        ? `select * from (${imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
+        : imgSQL;
+  $: customCards = [];
+  $: if (currentConfig) {
+    loadData();
+    loadCards().then((res) => {
+      customCards = res;
+    });
+    //重新加载后清理
+    specialDayType = SpecialDayType.None;
+    selectedDays = [];
+  }
+
+  let layout = "masonry";
   // 日记数据存储
   let diaryAllEntriesCount = 0;
   let diaryHasImageEntriesCount = 0;
-  // 那年今日相关
+  // 统计各特殊日期类型的数量
   let thisDayInHistoryCount = 0;
+  let thisMonthInHistoryCount = 0;
+  let thisWeekInHistoryCount = 0;
+  let selectedDays = []; // Array of YYYYMMDD strings for multi-day filtering
 
   // 可扩展的"特殊日历筛选"类型
   const SpecialDayType = {
@@ -281,19 +391,6 @@ order by attributes.value desc`,
     ThisWeekInHistory: "thisWeekInHistory",
   };
   let specialDayType = SpecialDayType.None;
-
-  // 统计各特殊日期类型的数量
-  let thisMonthInHistoryCount = 0;
-  let thisWeekInHistoryCount = 0;
-
-  // 从日期字符串（YYYYMMDD）解析为 Date 对象
-  function parseYYYYMMDD(dateStr) {
-    if (!dateStr || dateStr.length !== 8) return new Date();
-    const year = parseInt(dateStr.substring(0, 4));
-    const month = parseInt(dateStr.substring(4, 6)) - 1;
-    const day = parseInt(dateStr.substring(6, 8));
-    return new Date(year, month, day);
-  }
 
   // 获取所有"那年今日"日期字符串（YYYYMMDD）
   // 例：今天是20251130，则返回20241130、20231130、20221130......
@@ -391,6 +488,9 @@ order by attributes.value desc`,
     });
     return Array.from(keys);
   }
+  // 生成 imgSQL 的默认函数
+  const generateImgSQL = (mainSQL) =>
+    `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace(`'d'`, `'p'`)}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
 
   // 计算特殊日期SQL片段
   function getSpecialDaySQL(type, baseSQL) {
@@ -408,31 +508,6 @@ order by attributes.value desc`,
     }
     return baseSQL;
   }
-  let imageGalleryRef;
-  let selectedDays = []; // Array of YYYYMMDD strings for multi-day filtering
-
-  $: showMedia =
-    currentConfig?.showMedia == undefined ? true : currentConfig.showMedia; // default show both
-  $: showEntries =
-    currentConfig?.showEntries == undefined ? true : currentConfig.showEntries; // default show both
-
-  $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
-  $: idListSQL = `${idListBaseSQL} order by created desc`;
-
-  // 支持特殊日历筛选（那年今日、那月今日、那周今日）和普通多日筛选
-  $: filteredIdListSQL =
-    specialDayType !== SpecialDayType.None
-      ? getSpecialDaySQL(specialDayType, idListSQL)
-      : selectedDays.length > 0
-        ? `select * from (${idListSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
-        : idListSQL;
-
-  $: filteredImgSQL =
-    specialDayType !== SpecialDayType.None
-      ? getSpecialDaySQL(specialDayType, imgSQL)
-      : selectedDays.length > 0
-        ? `select * from (${imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
-        : imgSQL;
 
   function handleDayClick(e) {
     const dayKey = e.detail?.dayKey;
@@ -449,17 +524,14 @@ order by attributes.value desc`,
 
   // 图片展示已移入独立组件 ImageGallery
 
+  // 修改 loadData 函数，添加调试信息
   async function loadData() {
-    // 根据当前选中的配置获取数据
     try {
       const countAll = await sql(mainCountSQL);
       diaryAllEntriesCount = countAll[0]?.count || 0;
-
       const countImg = await sql(imgCountSQL);
       diaryHasImageEntriesCount = countImg[0]?.count || 0;
-
-      // 更新那年/那月/那周的统计数据
-      updateSpecialDaysCounts();
+      await updateSpecialDaysCounts();
     } catch (error) {
       console.error("Error loading diary entries:", error);
     }
@@ -502,14 +574,12 @@ order by attributes.value desc`,
 
   function handleEntryCardClick() {
     showEntries = !showEntries;
-    // 取消特殊筛选
     specialDayType = SpecialDayType.None;
     selectedDays = [];
   }
 
   function handleImageCardClick() {
     showMedia = !showMedia;
-    // 取消特殊筛选
     specialDayType = SpecialDayType.None;
     selectedDays = [];
   }
@@ -610,18 +680,10 @@ order by attributes.value desc`,
     return Promise.all(promises);
   }
 
-  $: customCards = [];
-  $: if (currentConfig) {
-    console.log("currentConfig", currentConfig);
-    loadCards().then((res) => {
-      customCards = res;
-    });
-  }
   const updateCustomCards = (customCardsTemp) => {
     customCards = customCardsTemp;
   };
   onMount(async () => {
-    await loadData();
     (window as any).diaryTools = {
       openMobileFileById,
       isMobile,
@@ -633,26 +695,28 @@ order by attributes.value desc`,
 
 <div class="dashboard-container">
   <!-- 配置切换标签栏 -->
-  <div class="config-tabs">
-    {#each sqlConfigs as config, index}
-      <StatCard
-        type="text"
-        asButton={true}
-        active={selectedConfig === index}
-        size="medium"
-        label={config.name}
-        activeBackground="rgba(16, 185, 129, 0.12)"
-        clickable={true}
-        onClick={() => {
-          selectedConfig = index;
-        }}
-      />
-    {/each}
-  </div>
+  {#if showConfigTabs}
+    <div class="config-tabs">
+      {#each sqlConfigs as config, index}
+        <StatCard
+          type="text"
+          asButton={true}
+          active={internalSelectedConfig === index}
+          size="medium"
+          label={config.name}
+          activeBackground="rgba(16, 185, 129, 0.12)"
+          clickable={true}
+          onClick={() => {
+            selectedConfig = index;
+          }}
+        />
+      {/each}
+    </div>
+  {/if}
 
   <!-- 顶部统计卡片 -->
   <div class="stats-section">
-    {#if currentConfig.showMainStatics}
+    {#if showMainStatics}
       <StatCard
         type="icon-stat"
         label={currentConfig.indexLabel}
@@ -672,7 +736,7 @@ order by attributes.value desc`,
         onClick={handleImageCardClick}
       />
     {/if}
-    {#if currentConfig.showOnThisDay}
+    {#if showOnThisDay}
       <StatCard
         type="icon-stat"
         label="那年今日"
@@ -727,7 +791,7 @@ order by attributes.value desc`,
   {/if}
 
   <div class="main-row">
-    {#if currentConfig.showHeatmap}
+    {#if showHeatmap}
       <Heatmap
         sqlQuery={heatmapSQL}
         daysRange={9999}
@@ -769,7 +833,6 @@ order by attributes.value desc`,
       {#if showMedia}
         <div class="media-column">
           <ImageGallery
-            bind:this={imageGalleryRef}
             imgSQL={filteredImgSQL}
             {layout}
             pageSize={30}

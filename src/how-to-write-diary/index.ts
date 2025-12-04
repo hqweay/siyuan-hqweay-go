@@ -83,25 +83,17 @@ export default class DiaryTools {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "open") {
-      const index = urlObj.searchParams.get("index") || 0;
+      const indexParam = urlObj.searchParams.get("index");
+      const type = urlObj.searchParams.get("type");
 
-      // let dialog = new Dialog({
-      //   title: "仪表盘",
-      //   content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-      //   width: "400px",
-      //   destroyCallback: (options) => {
-      //     pannel.$destroy();
-      //   },
-      // });
+      const index =
+        //@ts-ignore
+        indexParam && !isNaN(indexParam) ? Number(indexParam) : indexParam || 0;
 
-      // let pannel = new DashboardComponent({
-      //   target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-      //   props: { selectedConfig: index },
-      // });
       if (isMobile) {
         let dialog = new Dialog({
           title: "仪表盘",
-          content: `<div id="hqweay-diary-dashboard" style="height: 600px;"></div>`,
+          content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -110,16 +102,17 @@ export default class DiaryTools {
 
         let pannel = new DashboardComponent({
           target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-          props: { selectedConfig: index },
+          props: { selectedConfig: index, type },
         });
       } else {
         let tabDiv = document.createElement("div");
+        tabDiv.setAttribute("id", "hqweay-diary-dashboard" + index);
         new DashboardComponent({
           target: tabDiv,
-          props: { selectedConfig: index },
+          props: { selectedConfig: index, type },
         });
         plugin.addTab({
-          type: TAB_TYPE,
+          type: TAB_TYPE + index,
           init() {
             this.element.appendChild(tabDiv);
           },
@@ -130,7 +123,7 @@ export default class DiaryTools {
             icon: "",
             title: "仪表盘",
             data: {},
-            id: plugin.name + TAB_TYPE,
+            id: plugin.name + TAB_TYPE + index,
           },
         });
       }
@@ -240,7 +233,7 @@ export default class DiaryTools {
           if (isMobile) {
             let dialog = new Dialog({
               title: "仪表盘",
-              content: `<div id="hqweay-diary-dashboard" style="height: 600px;"></div>`,
+              content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
               width: "400px",
               destroyCallback: (options) => {
                 pannel.$destroy();
