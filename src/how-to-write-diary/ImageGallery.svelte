@@ -278,7 +278,7 @@
   }
 
   .loading-text {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.9);
     font-size: 0.9rem;
     opacity: 0.9;
     padding: 6px 12px;

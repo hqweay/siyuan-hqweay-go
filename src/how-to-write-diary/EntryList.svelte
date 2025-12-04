@@ -120,7 +120,7 @@
     padding: 8px 0;
   }
   .loading-text {
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(0, 0, 0, 0.9);
   }
   .sentinel {
     height: 12px;

@@ -11,6 +11,7 @@
   let maxCount = 0;
   let weeks = []; // array of weeks, each week is array of 7 {date, dayKey, count} or null
   let calendarRef;
+  let monthLabels = []; // Array of { month, year, weekIndex } for positioning labels
 
   function formatDayKey(date) {
     const y = date.getFullYear().toString();
@@ -40,12 +41,6 @@
 
       // build date range
       const today = new Date();
-      // const start = new Date(today);
-      // start.setDate(today.getDate() - (daysRange - 1));
-
-      // // align to the previous Sunday to make full weeks
-      // const firstWeekStart = new Date(start);
-      // firstWeekStart.setDate(start.getDate() - firstWeekStart.getDay());
       const start = new Date(
         parseInt(rows[rows.length - 1].day.substring(0, 4)), // 年
         parseInt(rows[rows.length - 1].day.substring(4, 6)) - 1, // 月（注意月份从0开始）
@@ -80,6 +75,59 @@
           if (c) maxCount = Math.max(maxCount, c.count);
         })
       );
+
+      // compute month labels
+      monthLabels = [];
+      if (weeks.length > 0) {
+        const monthNames = [
+          "1月",
+          "2月",
+          "3月",
+          "4月",
+          "5月",
+          "6月",
+          "7月",
+          "8月",
+          "9月",
+          "10月",
+          "11月",
+          "12月",
+        ];
+
+        let currentMonth = -1;
+        let currentYear = -1;
+
+        // Process each week to find month transitions
+        weeks.forEach((week, weekIndex) => {
+          const firstDayOfWeek = week.find((d) => d);
+          if (firstDayOfWeek) {
+            const date = firstDayOfWeek.date;
+            const month = date.getMonth();
+            const year = date.getFullYear();
+
+            // If this is the first week, or if we've entered a new month
+            if (
+              currentMonth === -1 ||
+              month !== currentMonth ||
+              year !== currentYear
+            ) {
+              // Only add label if this week contains the 1st of the month or it's the first week
+              const hasFirstOfMonth = week.some(
+                (day) => day && day.date.getDate() === 1
+              );
+              if (hasFirstOfMonth || currentMonth === -1) {
+                monthLabels.push({
+                  month: monthNames[month],
+                  year: year,
+                  weekIndex: weekIndex,
+                });
+                currentMonth = month;
+                currentYear = year;
+              }
+            }
+          }
+        });
+      }
 
       // ensure DOM updated before scrolling to the end
       await tick();
@@ -116,26 +164,45 @@
 </script>
 
 <div class="heatmap">
-  <div class="calendar-weeks" role="list" bind:this={calendarRef}>
-    {#each weeks as week}
-      <div class="week" role="listitem">
-        {#each week as day}
-          {#if day}
-            <button
-              class="heat-cell {selectedDays.includes(day.dayKey) ? 'selected' : ''}"
-              title={`${day.date.toLocaleDateString()} 创建了 ${day.count} 条数据`}
-              style={`background: ${colorForCount(day.count)}`}
-              on:click={() => onDayClick(day)}
-              aria-pressed={selectedDays.includes(day.dayKey)}
-            >
-              <span class="visually-hidden">{day.dayKey}</span>
-            </button>
-          {:else}
-            <div class="heat-cell empty" aria-hidden="true"></div>
+  <div class="calendar-container" bind:this={calendarRef}>
+    <div class="month-labels-container">
+      {#each monthLabels as label, i}
+        <div
+          class="month-label"
+          style={`left: ${label.weekIndex * 20}px`}
+          title={`${label.year}年${label.month}`}
+        >
+          {#if i === 0 || label.year !== monthLabels[i - 1]?.year}
+            {label.year}年
           {/if}
-        {/each}
-      </div>
-    {/each}
+          {label.month}
+        </div>
+      {/each}
+    </div>
+
+    <div class="calendar-weeks" role="list">
+      {#each weeks as week}
+        <div class="week" role="listitem">
+          {#each week as day}
+            {#if day}
+              <button
+                class="heat-cell {selectedDays.includes(day.dayKey)
+                  ? 'selected'
+                  : ''}"
+                title={`${day.date.toLocaleDateString()} 创建了 ${day.count} 条数据`}
+                style={`background: ${colorForCount(day.count)}`}
+                on:click={() => onDayClick(day)}
+                aria-pressed={selectedDays.includes(day.dayKey)}
+              >
+                <span class="visually-hidden">{day.dayKey}</span>
+              </button>
+            {:else}
+              <div class="heat-cell empty" aria-hidden="true"></div>
+            {/if}
+          {/each}
+        </div>
+      {/each}
+    </div>
   </div>
 
   <div class="heatmap-legend">
@@ -154,17 +221,44 @@
     flex-direction: column;
     gap: 8px;
     padding: 6px 0;
-    padding-top: 10px;
+    /* padding-top: 10px; */
+    position: relative;
+  }
+
+  .month-labels-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 20px;
+    width: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .month-label {
+    position: absolute;
+    top: 0;
+    font-size: 0.75rem;
+    color: rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+    font-weight: 500;
+  }
+
+  .calendar-container {
+    position: relative;
+    overflow-x: auto;
+    width: 100%;
+    padding: 10px;
   }
 
   .calendar-weeks {
     display: flex;
     gap: 6px;
     align-items: flex-start;
-    overflow-x: auto;
-
-    padding: 10px 10px; /* 添加上下内边距，给内容留出空间 */
-    margin: 10px 10px; /* 或者使用外边距 */
+    padding-top: 10px;
   }
 
   .week {
@@ -210,8 +304,10 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(0, 0, 0, 0.8);
     font-size: 0.85rem;
+    /* margin-left: 10px; */
+    font-weight: 500;
   }
 
   .legend-box {
