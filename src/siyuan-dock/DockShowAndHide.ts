@@ -1,5 +1,6 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
+import { isMobile } from "@/utils";
 
 export default class DockShowAndHide {
   leftWidthRegex = /left\[(.*?)\]/;
@@ -12,11 +13,13 @@ export default class DockShowAndHide {
   usedFlag = false;
 
   onLayoutReady() {
-    this.originHideDock = window.siyuan.config.uiLayout.hideDock;
-    this.originLeftWidth =
-      window.siyuan.layout.leftDock.layout.element.style.width;
-    this.originRightWidth =
-      window.siyuan.layout.rightDock.layout.element.style.width;
+    if (!isMobile) {
+      this.originHideDock = window?.siyuan?.config?.uiLayout?.hideDock;
+      this.originLeftWidth =
+        window?.siyuan?.layout?.leftDock?.layout?.element?.style?.width;
+      this.originRightWidth =
+        window?.siyuan?.layout?.rightDock?.layout?.element?.style?.width;
+    }
   }
 
   async switchProtyleEvent({ detail }) {
@@ -122,9 +125,7 @@ export default class DockShowAndHide {
         //   window.siyuan.layout.bottomDock.layout.element.style.width = "0px";
         // }
 
-      //  window.siyuan.layout.leftDock.hideDock(true);
-  
-  
+        //  window.siyuan.layout.leftDock.hideDock(true);
       }
     });
 
