@@ -33,6 +33,7 @@
               {
                 id: "random",
                 type: "text",
+                fullWidth: true,
                 label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
                 onClick: () => {
                   loadCards("random").then((res) => {
@@ -784,6 +785,7 @@ order by attributes.value desc`,
           asButton={true}
           active={card.active}
           maxWidth={card.maxWidth ? card.maxWidth : "20%"}
+          fullWidth={card.fullWidth}
           onClick={card.onClick ? () => card.onClick(card) : undefined}
         />
       {/each}

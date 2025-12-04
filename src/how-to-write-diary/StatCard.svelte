@@ -57,6 +57,7 @@
   export let color = "";
   export let backgroundColor = "";
   export let size = "medium"; // 'small', 'medium', 'large'
+  export let fullWidth = false; // 是否占据整行展示
 
   export let animate = true;
 
@@ -180,6 +181,7 @@
   class:button-mode={asButton}
   class:fixed-size={asButton && (fixedWidth || fixedHeight)}
   class:has-icon={icon}
+  class:full-width={fullWidth}
   style:--card-color={computedColor}
   style:--card-bg={computedBackground}
   style:--progress-color={progressColor}
@@ -338,6 +340,59 @@
     overflow: hidden;
     display: flex;
     gap: 12px;
+  }
+
+  .stat-card.full-width {
+    // 调整占宽一点
+    grid-column: 1 / 3;
+    max-width: none; /* 移除最大宽度限制 */
+
+    padding: 24px;
+
+    .stat-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 3em;
+    }
+
+    .stat-text {
+      font-size: 1.5em;
+    }
+
+    .progress-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .gauge-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .comparison-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .list-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .icon-stat-container {
+      width: 100%;
+    }
   }
 
   /* 固定尺寸样式 ⭐ */
