@@ -279,32 +279,7 @@
           hasSetting: true,
         };
       }),
-      侧边栏展示文档或块: [
-        {
-          type: "number",
-          title: "缩放程度",
-          description: "缩放程度，100 为原始大小",
-          key: "zoomScale",
-          value: settings.getBySpace("docky", "zoomScale"),
-          placeholder: "100",
-        },
-        {
-          type: "button",
-          title: "选择图标",
-          key: "selectIcon",
-          value: "选择图标",
-        },
-        {
-          type: "textarea",
-          title: "配置",
-          description: `e.g. id: xxx, name: hello, position: xxx, icon?: xxx, hotkey?: xxx
-position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
-`,
-          key: "rules",
-          value: settings.getBySpace("docky", "rules"),
-          placeholder: `id:20251126002344-r4jzwns,position:RightTop`,
-        },
-      ],
+ 
       快捷添加属性: [
         {
           type: "textarea",
