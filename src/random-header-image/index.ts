@@ -1,25 +1,42 @@
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
+import { SubPlugin } from "@/types/plugin";
+
 const fs = require("fs");
 const path = require("path");
 
-export default class RandomImage {
-  changeImageBindThis = this.changeImage.bind(this);
+class RandomHeaderImagePlugin implements SubPlugin {
+  name = "randomHeaderImage";
+  displayName = "随机题头图";
+  enabled = false;
 
+  changeImageBindThis = this.changeImage.bind(this);
   customEvent;
   cachedImages = {};
-  onunload() {
+
+  constructor() {
+    // Bind methods
+  }
+
+  async onload() {
+    this.enabled = true;
+    document.addEventListener("contextmenu", this.changeImageBindThis);
+  }
+
+  async onunload() {
+    this.enabled = false;
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
-  onLayoutReady() {
-    document.addEventListener("contextmenu", this.changeImageBindThis);
+  async onLayoutReady() {
+    // Already handled in onload
   }
+
   setEvent(event) {
     this.customEvent = event;
   }
 
-  async changeImage(event, ele) {
+  async changeImage(event, ele?) {
     let targetEle = event.target;
     if (ele) {
       targetEle = ele;
@@ -92,7 +109,7 @@ export default class RandomImage {
 
       const result = await this.request(folderPath);
 
-      const matches = result.match(regex);
+      const matches = (result as string).match(regex);
 
       if (matches) {
         //todo 如果 matches 有多个，考虑再随机一下
@@ -178,3 +195,5 @@ export default class RandomImage {
     });
   }
 }
+
+export default RandomHeaderImagePlugin;

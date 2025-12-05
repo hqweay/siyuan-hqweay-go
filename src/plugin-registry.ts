@@ -2,14 +2,37 @@ import { settings } from "./settings";
 import { SubPlugin, PluginMetadata } from "./types/plugin";
 
 // Static imports for plugin configurations
-import epubReaderConfig from "./epub-reader/plugin";
-import diaryToolsConfig from "./how-to-write-diary/plugin";
+import epubReaderConfig from "./lets-epub-reader/plugin";
+import diaryToolsConfig from "./lets-how-to-write-diary/plugin";
 import ocrConfig from "./ocr/plugin";
 
 // Dynamic imports for plugin classes
-import EpubReaderPlugin from "./epub-reader";
-import DiaryTools from "./how-to-write-diary";
+import EpubReaderPlugin from "./lets-epub-reader";
+import DiaryTools from "./lets-how-to-write-diary";
 import OCRPlugin from "./ocr";
+import randomHeaderImage from "./random-header-image";
+
+// 自动导出所有子插件
+// const modules = import.meta.glob("./lets*/index.ts", { eager: true }) as Record<
+//   string,
+//   { default: SubPlugin }
+// >;
+
+// export const subPlugins = Object.entries(modules).reduce(
+//   (acc, [path, module]) => {
+//     const pluginName = path.split("/")[1]; // 获取文件夹名
+//     acc[pluginName] = module.default;
+//     return acc;
+//   },
+//   {} as Record<string, SubPlugin>
+// );
+
+// const configs = [
+//   "random-header-image",
+//   "epub-reader",
+//   "how-to-write-diary",
+//   "ocr",
+// ];
 
 export class PluginRegistry {
   private static instance: PluginRegistry;
@@ -26,18 +49,48 @@ export class PluginRegistry {
   }
 
   async scanPlugins() {
-    // Register plugins with their configurations
-    this.registerPluginWithConfig(
-      "epub-reader",
-      epubReaderConfig as any,
-      EpubReaderPlugin
+    // 读取所有符合模式的文件
+    const pluginFiles = import.meta.glob(
+      ["./lets-*/index.ts", "./lets-*/plugin.ts"],
+      {
+        eager: true,
+        import: "default",
+      }
     );
-    this.registerPluginWithConfig(
-      "how-to-write-diary",
-      diaryToolsConfig as any,
-      DiaryTools
-    );
-    this.registerPluginWithConfig("ocr", ocrConfig as any, OCRPlugin);
+
+    // 使用 Map 按插件名分组
+    const pluginMap = new Map<string, { config?: any; plugin?: any }>();
+
+    Object.entries(pluginFiles).forEach(([path, module]) => {
+      // 注意这里的正则：lets- 后面是插件名
+      const match = path.match(/\.\/lets-([^\/]+)\/(index|plugin)\.ts$/);
+      if (match) {
+        const [, pluginName, fileType] = match;
+
+        if (!pluginMap.has(pluginName)) {
+          pluginMap.set(pluginName, {});
+        }
+
+        const pluginData = pluginMap.get(pluginName)!;
+        if (fileType === "index") {
+          pluginData.config = module;
+        } else {
+          pluginData.plugin = module;
+        }
+      }
+    });
+
+    // 注册所有插件
+    for (const [pluginName, { config, plugin }] of pluginMap) {
+      if (config && plugin) {
+        this.registerPluginWithConfig(pluginName, plugin, config);
+      } else {
+        console.warn(`插件 ${pluginName} 缺少配置文件`, {
+          hasConfig: !!config,
+          hasPlugin: !!plugin,
+        });
+      }
+    }
   }
 
   private registerPluginWithConfig(
