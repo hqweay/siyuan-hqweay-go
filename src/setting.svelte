@@ -48,6 +48,16 @@
         hasSetting: pluginMeta.settings ? true : false,
       });
 
+      console.log(pluginMeta.name);
+      console.log("pluginMeta.settings");
+      console.log(pluginMeta.settings);
+      pluginMeta.settings = pluginMeta.settings?.map((item) => {
+        return {
+          ...item, // 保留其他属性
+          value: settings.getBySpace(pluginMeta.name, item.key),
+        };
+      });
+      console.log(pluginMeta.settings);
       // Add plugin settings
       if (pluginMeta.settings) {
         dynamicSettings[pluginMeta.displayName] = pluginMeta.settings;
