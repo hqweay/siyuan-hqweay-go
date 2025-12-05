@@ -6,6 +6,7 @@ export const pluginMetadata: PluginMetadata = {
   description: "在侧边栏中展示指定的文档或块内容",
   version: "1.0.0",
   defaultConfig: {
+    enabled: false,
     zoomScale: 100,
     rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
   },

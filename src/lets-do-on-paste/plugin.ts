@@ -7,6 +7,7 @@ export const pluginMetadata: PluginMetadata = {
   description: "在粘贴内容时自动进行数据预处理和格式化",
   version: "1.0.0",
   defaultConfig: {
+    enabled: false,
     title: true,
     recAnno: false,
     resizeAndCenterImg: false,

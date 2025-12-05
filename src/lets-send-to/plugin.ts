@@ -6,6 +6,7 @@ export const pluginMetadata: PluginMetadata = {
   description: "将内容发送到指定的位置或应用",
   version: "1.0.0",
   defaultConfig: {
+    enabled: false,
     inputArea: `Gemini 总结====shortcuts://run-shortcut?name=Gemini 总结剪贴板
 ChatGPT 总结====https://chat.openai.com/chat?q=请帮我总结：\${content}
 提醒事项====shortcuts://run-shortcut?name=从剪贴板添加提醒事项

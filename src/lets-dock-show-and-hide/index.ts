@@ -1,8 +1,13 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 import { isMobile } from "@/utils";
 
-export default class DockShowAndHide {
+export default class DockShowAndHide implements SubPlugin {
+  onunload(): void {
+    throw new Error("Method not implemented.");
+  }
+
   leftWidthRegex = /left\[(.*?)\]/;
   rightWidthRegex = /right\[(.*?)\]/;
 
@@ -11,6 +16,7 @@ export default class DockShowAndHide {
   originRightWidth;
 
   usedFlag = false;
+  onload(): void {}
 
   onLayoutReady() {
     if (!isMobile) {
@@ -24,7 +30,7 @@ export default class DockShowAndHide {
 
   async switchProtyleEvent({ detail }) {
     const returnIfSplit = settings.getBySpace(
-      "dockShowAndHideConfig",
+      "dockShowAndHide",
       "returnIfSplit"
     );
 
@@ -35,7 +41,7 @@ export default class DockShowAndHide {
       //分屏默认不操作
       return;
     }
-    const items = settings.getBySpace("dockShowAndHideConfig", "items");
+    const items = settings.getBySpace("dockShowAndHide", "items");
 
     if (!items) return;
 
@@ -48,14 +54,18 @@ export default class DockShowAndHide {
         window.siyuan.layout.rightDock.layout.element.style.width;
     }
 
-    let rightWidth = settings.getBySpace("dockShowAndHideConfig", "rightWidth");
-    let leftWidth = settings.getBySpace("dockShowAndHideConfig", "leftWidth");
-    let hideDock = settings.getBySpace("dockShowAndHideConfig", "hideDock");
+    let rightWidth = settings.getBySpace("dockShowAndHide", "rightWidth");
+    let leftWidth = settings.getBySpace("dockShowAndHide", "leftWidth");
+    let hideDock = settings.getBySpace("dockShowAndHide", "hideDock");
 
     rightWidth = rightWidth ? rightWidth : "200px";
     leftWidth = leftWidth ? leftWidth : "200px";
 
     let configFlag = false;
+
+    console.log(items);
+    console.log(detail);
+
     items.split("\n").forEach((line) => {
       const configs = line.split("====");
       if (configs[0].trim() !== detail.protyle.block.rootID) {
@@ -131,7 +141,7 @@ export default class DockShowAndHide {
 
     //执行到这说明：已经进入过配置了的文档；该文档未配置；因此尝试恢复。
     if (!configFlag && this.usedFlag) {
-      let otherDocs = settings.getBySpace("dockShowAndHideConfig", "otherDocs");
+      let otherDocs = settings.getBySpace("dockShowAndHide", "otherDocs");
       //保持当前配置
       if (otherDocs === "恢复上次使用配置") {
         window.siyuan.config.uiLayout.hideDock = this.originHideDock;
