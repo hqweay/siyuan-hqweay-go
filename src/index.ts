@@ -28,7 +28,10 @@ export default class PluginGo extends Plugin {
         try {
           plugin[eventName](eventData);
         } catch (error) {
-          console.error(`Error in ${eventName} for plugin ${plugin.name}:`, error);
+          console.error(
+            `Error in ${eventName} for plugin ${plugin.name}:`,
+            error
+          );
         }
       }
     }
@@ -36,29 +39,29 @@ export default class PluginGo extends Plugin {
 
   //绑定文档块右键菜单
   editortitleiconEvent(eventData: any) {
-    this.delegateEvent('editortitleiconEvent', eventData);
+    this.delegateEvent("editortitleiconEvent", eventData);
   }
 
   mobilekeyboardshowEvent(eventData: any) {
-    this.delegateEvent('mobilekeyboardshowEvent', eventData);
+    this.delegateEvent("mobilekeyboardshowEvent", eventData);
   }
 
   mobilekeyboardhideEvent(eventData: any) {
-    this.delegateEvent('mobilekeyboardhideEvent', eventData);
+    this.delegateEvent("mobilekeyboardhideEvent", eventData);
   }
 
   //编辑器切换事件
   switchProtyleEvent(eventData: any) {
-    this.delegateEvent('switchProtyleEvent', eventData);
+    this.delegateEvent("switchProtyleEvent", eventData);
   }
 
   openSiyuanUrlPluginEvent(eventData: any) {
-    this.delegateEvent('openSiyuanUrlPluginEvent', eventData);
+    this.delegateEvent("openSiyuanUrlPluginEvent", eventData);
   }
 
   //块右键菜单
   private blockIconEvent(eventData: any) {
-    this.delegateEvent('blockIconEvent', eventData);
+    this.delegateEvent("blockIconEvent", eventData);
   }
 
   //App 准备好时加载
@@ -89,7 +92,7 @@ export default class PluginGo extends Plugin {
 
     this.eventBus.on("loaded-protyle-static", (event) => {
       // Delegate to plugins that handle protyle events
-      this.delegateEvent('onProtyleLoaded', event);
+      this.delegateEvent("onProtyleLoaded", event);
     });
 
     //这里注入CSS和JS - 需要保留代码片段功能
@@ -110,13 +113,13 @@ export default class PluginGo extends Plugin {
   async onload() {
     this.init();
 
-    await settings.initData();
-
     // Scan and load all plugins
     await this.pluginRegistry.scanPlugins();
 
     // Initialize enabled plugins
     await this.pluginRegistry.initializeEnabledPlugins();
+
+    await settings.initData();
 
     this.addIcons(`<symbol id="iconFace" viewBox="0 0 32 32">
 <path d="M13.667 17.333c0 0.92-0.747 1.667-1.667 1.667s-1.667-0.747-1.667-1.667 0.747-1.667 1.667-1.667 1.667 0.747 1.667 1.667zM20 15.667c-0.92 0-1.667 0.747-1.667 1.667s0.747 1.667 1.667 1.667 1.667-0.747 1.667-1.667-0.747-1.667-1.667-1.667zM29.333 16c0 7.36-5.973 13.333-13.333 13.333s-13.333-5.973-13.333-13.333 5.973-13.333 13.333-13.333 13.333 5.973 13.333 13.333zM14.213 5.493c1.867 3.093 5.253 5.173 9.12 5.173 0.613 0 1.213-0.067 1.787-0.16-1.867-3.093-5.253-5.173-9.12-5.173-0.613 0-1.213 0.067-1.787 0.16zM5.893 12.627c2.28-1.293 4.040-3.4 4.88-5.92-2.28 1.293-4.040 3.4-4.88 5.92zM26.667 16c0-1.040-0.16-2.040-0.44-2.987-0.933 0.2-1.893 0.32-2.893 0.32-4.173 0-7.893-1.92-10.347-4.92-1.4 3.413-4.187 6.093-7.653 7.4 0.013 0.053 0 0.12 0 0.187 0 5.88 4.787 10.667 10.667 10.667s10.667-4.787 10.667-10.667z"></path>
@@ -127,11 +130,21 @@ export default class PluginGo extends Plugin {
 
     // Bind global events that plugins may need
     this.eventBus.on("click-blockicon", (event) => this.blockIconEvent(event));
-    this.eventBus.on("switch-protyle", (event) => this.switchProtyleEvent(event));
-    this.eventBus.on("click-editortitleicon", (event) => this.editortitleiconEvent(event));
-    this.eventBus.on("mobile-keyboard-show", (event) => this.mobilekeyboardshowEvent(event));
-    this.eventBus.on("mobile-keyboard-hide", (event) => this.mobilekeyboardhideEvent(event));
-    this.eventBus.on("open-siyuan-url-plugin", (event) => this.openSiyuanUrlPluginEvent(event));
+    this.eventBus.on("switch-protyle", (event) =>
+      this.switchProtyleEvent(event)
+    );
+    this.eventBus.on("click-editortitleicon", (event) =>
+      this.editortitleiconEvent(event)
+    );
+    this.eventBus.on("mobile-keyboard-show", (event) =>
+      this.mobilekeyboardshowEvent(event)
+    );
+    this.eventBus.on("mobile-keyboard-hide", (event) =>
+      this.mobilekeyboardhideEvent(event)
+    );
+    this.eventBus.on("open-siyuan-url-plugin", (event) =>
+      this.openSiyuanUrlPluginEvent(event)
+    );
 
     // OCR 图片右键菜单事件 - delegate to plugins
     this.eventBus.on("open-menu-image", (event) => this.imageMenuEvent(event));
@@ -174,17 +187,27 @@ export default class PluginGo extends Plugin {
 
     // Clean up global event listeners
     this.eventBus.off("click-blockicon", (event) => this.blockIconEvent(event));
-    this.eventBus.off("switch-protyle", (event) => this.switchProtyleEvent(event));
-    this.eventBus.off("click-editortitleicon", (event) => this.editortitleiconEvent(event));
-    this.eventBus.off("mobile-keyboard-show", (event) => this.mobilekeyboardshowEvent(event));
-    this.eventBus.off("mobile-keyboard-hide", (event) => this.mobilekeyboardhideEvent(event));
-    this.eventBus.off("open-siyuan-url-plugin", (event) => this.openSiyuanUrlPluginEvent(event));
+    this.eventBus.off("switch-protyle", (event) =>
+      this.switchProtyleEvent(event)
+    );
+    this.eventBus.off("click-editortitleicon", (event) =>
+      this.editortitleiconEvent(event)
+    );
+    this.eventBus.off("mobile-keyboard-show", (event) =>
+      this.mobilekeyboardshowEvent(event)
+    );
+    this.eventBus.off("mobile-keyboard-hide", (event) =>
+      this.mobilekeyboardhideEvent(event)
+    );
+    this.eventBus.off("open-siyuan-url-plugin", (event) =>
+      this.openSiyuanUrlPluginEvent(event)
+    );
     this.eventBus.off("open-menu-image", (event) => this.imageMenuEvent(event));
   }
 
   // 图片右键菜单事件
   private imageMenuEvent(event: any) {
-    this.delegateEvent('imageMenuEvent', event);
+    this.delegateEvent("imageMenuEvent", event);
   }
 
   openSetting(): void {

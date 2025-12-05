@@ -117,7 +117,7 @@ export class PluginRegistry {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
       const pluginConfig = this.pluginConfigs.get(plugin.name);
-      const isEnabled =  settings.getBySpace(plugin.name + 'Config', 'enabled') || false;
+      const isEnabled = settings.getBySpace(plugin.name, "enabled") || false;
 
       if (isEnabled) {
         plugin.enabled = true;
@@ -135,7 +135,7 @@ export class PluginRegistry {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
       const pluginConfig = this.pluginConfigs.get(plugin.name);
-      const isEnabled =   settings.getBySpace(plugin.name + 'Config', 'enabled') || false;
+      const isEnabled = settings.getBySpace(plugin.name, "enabled") || false;
 
       if (!isEnabled && plugin.enabled) {
         plugin.enabled = false;

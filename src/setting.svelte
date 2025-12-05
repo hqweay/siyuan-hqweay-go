@@ -42,7 +42,7 @@
         description: pluginMeta.description || "",
         key: pluginMeta.name,
         value:
-          settings.getBySpace(pluginMeta.name + "Config", "enabled") || false,
+          settings.getBySpace(pluginMeta.name , "enabled") || false,
         hasSetting: pluginMeta.settings ? true : false,
       });
 
@@ -1097,7 +1097,8 @@ https://shibe.online/api/shibes?count=1`,
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
     if (detail.group === "开关") {
       // Update plugin's enabled status in its config
-      settings.setBySpace(detail.key + "Config", "enabled", detail.value);
+      console.log(detail);
+      settings.setBySpace(detail.key , "enabled", detail.value);
     } else if (detail.group === "代码片段合集") {
       settings.setBySpace("codeSnippetsConfig", detail.key, detail.value);
       if (detail.value) {
@@ -1109,8 +1110,8 @@ https://shibe.online/api/shibes?count=1`,
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;
       });
-      // console.log(opItem);
-      settings.setBySpace(opItem[0].key + "Config", detail.key, detail.value);
+      console.log(opItem);
+      settings.setBySpace(opItem[0].key , detail.key, detail.value);
     }
 
     for (let index = 0; index < SettingItems[focusGroup].length; index++) {
