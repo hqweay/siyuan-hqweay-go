@@ -16,11 +16,6 @@ const docks = [
 ];
 
 export default class DiaryTools implements SubPlugin {
-  name = "diaryTools";
-  displayName = "日记相关工具";
-  description = "提供日记相关的工具，包括仪表盘、天气信息插入等功能";
-  version = "1.0.0";
-  enabled = settings.getBySpace("diaryToolsConfig", "enabled");
 
   private id = "hqweay-diary-tools";
   private label = "获取天气并插入当前文档属性";

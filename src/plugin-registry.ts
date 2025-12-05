@@ -102,8 +102,19 @@ export class PluginRegistry {
       // Register configuration
       this.registerPluginConfig(name, config);
 
-      // Instantiate and register plugin
+      // Instantiate plugin
       const pluginInstance = new PluginClass();
+
+      // Copy metadata from config to plugin instance
+      pluginInstance.name = config.name;
+      pluginInstance.displayName = config.displayName;
+      pluginInstance.description = config.description;
+      pluginInstance.version = config.version;
+      pluginInstance.enabled =
+        settings.getBySpace(pluginInstance.name, "enabled") || false;
+      // enabled will be read from settings when needed
+
+      // Register plugin
       this.registerPlugin(pluginInstance);
 
       console.log(`Loaded plugin: ${name}`);
@@ -116,11 +127,7 @@ export class PluginRegistry {
   async initializeEnabledPlugins() {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
-      const pluginConfig = this.pluginConfigs.get(plugin.name);
-      const isEnabled = settings.getBySpace(plugin.name, "enabled") || false;
-
-      if (isEnabled) {
-        plugin.enabled = true;
+      if (plugin.enabled) {
         try {
           await plugin.onload();
         } catch (error) {
@@ -134,11 +141,7 @@ export class PluginRegistry {
   async unloadDisabledPlugins() {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
-      const pluginConfig = this.pluginConfigs.get(plugin.name);
-      const isEnabled = settings.getBySpace(plugin.name, "enabled") || false;
-
-      if (!isEnabled && plugin.enabled) {
-        plugin.enabled = false;
+      if (!plugin.enabled) {
         try {
           await plugin.onunload();
         } catch (error) {

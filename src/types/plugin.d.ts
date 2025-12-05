@@ -14,12 +14,12 @@ export interface PluginSettings {
 }
 
 export interface SubPlugin {
-  name: string;
-  displayName: string;
+  // Core properties (will be set from PluginMetadata)
+  name?: string;
+  displayName?: string;
   description?: string;
   version?: string;
-  settings?: PluginSettings;
-  // enabled: boolean;
+  enabled?: boolean;
 
   onload(): void;
   onunload(): void;
@@ -43,6 +43,7 @@ export interface PluginMetadata {
   description?: string;
   version?: string;
   author?: string;
+  enabled?: boolean;
   defaultConfig?: Record<string, any>;
   settings?: PluginSettings;
 }

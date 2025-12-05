@@ -118,10 +118,15 @@ export default class PluginGo extends Plugin {
   async onload() {
     this.init();
 
+    //载入配置
+    await settings.load();
+
+    console.log("initData", plugin.data);
+
     // Scan and load all plugins
     await this.pluginRegistry.scanPlugins();
 
-    await settings.initData();
+    await settings.initData(); 
 
     // Initialize enabled plugins
     await this.pluginRegistry.initializeEnabledPlugins();

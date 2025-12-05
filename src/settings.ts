@@ -330,11 +330,6 @@ class Settings {
 
   //初始化配置文件
   async initData() {
-    //载入配置
-    await this.load();
-
-    console.log("initData", plugin.data[CONFIG]);
-
     //配置不存在则按照默认值建立配置文件
     if (
       plugin.data[CONFIG] === "" ||

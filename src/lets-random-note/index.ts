@@ -6,9 +6,7 @@ import { openTab } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
 
 class RandomNotePlugin extends AddIconThenClick implements SubPlugin {
-  name = "randomNote";
-  displayName = "随机浏览";
-  enabled = false;
+  private _isEnabled = false;
 
   id = "hqweay-random-note";
   label = "随机漫游";
@@ -21,12 +19,12 @@ class RandomNotePlugin extends AddIconThenClick implements SubPlugin {
   }
 
   async onload() {
-    this.enabled = true;
+    this._isEnabled = true;
     this.addIconThenClick();
   }
 
   async onunload() {
-    this.enabled = false;
+    this._isEnabled = false;
     if (this.thisElement) {
       this.thisElement.remove();
     }

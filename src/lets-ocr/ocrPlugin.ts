@@ -219,11 +219,7 @@ export function processOCRText(text: string, config: OCRConfig = {}): string {
 }
 
 export default class OCRPlugin implements SubPlugin {
-  name = "ocr";
-  displayName = "OCR 图片识别";
-  description = "批量 OCR 识别图片中的文字";
-  version = "1.0.0";
-  enabled = false;
+  private _isEnabled = false;
 
   private id = "hqweay-ocr";
   private label = "批量 OCR";

@@ -6,9 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 class RandomHeaderImagePlugin implements SubPlugin {
-  name = "randomHeaderImage";
-  displayName = "随机题头图";
-  enabled = false;
+  private _isEnabled = false;
 
   changeImageBindThis = this.changeImage.bind(this);
   customEvent;
@@ -19,12 +17,12 @@ class RandomHeaderImagePlugin implements SubPlugin {
   }
 
   async onload() {
-    this.enabled = true;
+    this._isEnabled = true;
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
   async onunload() {
-    this.enabled = false;
+    this._isEnabled = false;
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
