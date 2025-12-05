@@ -9,7 +9,7 @@ import EpubReader from "./Reader.svelte"; // Alias for backward compatibility
 import { plugin } from "@/utils";
 
 export default class EpubReaderPlugin extends AddIconThenClick implements SubPlugin {
-  name = "epub-reader";
+  name = "epubReader";
   displayName = "EPUB 阅读器";
   description = "支持 EPUB 文件的阅读功能";
   version = "1.0.0";

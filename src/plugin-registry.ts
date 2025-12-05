@@ -2,9 +2,9 @@ import { settings } from "./settings";
 import { SubPlugin, PluginMetadata } from "./types/plugin";
 
 // Static imports for plugin configurations
-import epubReaderConfig from "./epub-reader/plugin.json";
-import diaryToolsConfig from "./how-to-write-diary/plugin.json";
-import ocrConfig from "./ocr/plugin.json";
+import epubReaderConfig from "./epub-reader/plugin";
+import diaryToolsConfig from "./how-to-write-diary/plugin";
+import ocrConfig from "./ocr/plugin";
 
 // Dynamic imports for plugin classes
 import EpubReaderPlugin from "./epub-reader";

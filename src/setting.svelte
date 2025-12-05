@@ -16,6 +16,22 @@
     // Generate dynamic settings from plugins
     const dynamicSettings: any = {
       开关: [],
+      设置: [
+        {
+          type: "button",
+          title: "合并数据",
+          description: "若某些功能无法正常使用，尝试使用此选项。",
+          key: "mergeData",
+          value: "确认",
+        },
+        {
+          type: "button",
+          title: "恢复/清理数据",
+          description: "若合并数据后仍有问题，尝试使用此选项。",
+          key: "resetData",
+          value: "确认",
+        },
+      ],
     };
 
     // Add plugin flags
@@ -31,7 +47,9 @@
 
       // Add plugin settings
       if (pluginMeta.settings) {
-        for (const [groupName, settings] of Object.entries(pluginMeta.settings)) {
+        for (const [groupName, settings] of Object.entries(
+          pluginMeta.settings
+        )) {
           if (!dynamicSettings[groupName]) {
             dynamicSettings[groupName] = [];
           }
@@ -40,6 +58,7 @@
       }
     }
 
+    return dynamicSettings;
     return {
       开关: [
         {
