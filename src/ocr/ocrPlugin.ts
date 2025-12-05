@@ -1,5 +1,4 @@
 import { request, sql } from "@/api";
-import AddIconThenClick from "@/myscripts/addIconThenClick";
 import {
   cleanSpacesBetweenChineseCharacters,
   executeTransaction,
@@ -8,6 +7,7 @@ import { settings } from "@/settings";
 import { formatUtil } from "@/siyuan-typography-go/utils";
 import { html2ele } from "@frostime/siyuan-plugin-kits";
 import { fetchSyncPost, IOperation, Menu, showMessage } from "siyuan";
+import { SubPlugin } from "@/types/plugin";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript, tesseractOCR } from "./utils";
 const path = require("path");
@@ -218,15 +218,66 @@ export function processOCRText(text: string, config: OCRConfig = {}): string {
   // return JSON.stringify(processedLines.join("\\n"));
 }
 
-export default class OCRPlugin extends AddIconThenClick {
-  id = "hqweay-ocr";
-  label = "批量 OCR";
-  icon = "®️"; // 用户自己设置
-  type = "barMode";
+export default class OCRPlugin implements SubPlugin {
+  name = "ocr";
+  displayName = "OCR 图片识别";
+  description = "批量 OCR 识别图片中的文字";
+  version = "1.0.0";
+  enabled = false;
+
+  private id = "hqweay-ocr";
+  private label = "批量 OCR";
+  private icon = "®️";
+  private thisElement: HTMLElement | null = null;
 
   // OCR 运行状态控制
   private isOcrRunning = false;
   private shouldStopOcr = false;
+
+  async onload() {
+    // Add icon to toolbar
+    this.addIconToToolbar();
+  }
+
+  onunload() {
+    // Clean up
+    if (this.thisElement) {
+      this.thisElement.remove();
+      this.thisElement = null;
+    }
+  }
+
+  private addIconToToolbar() {
+    if (document.getElementById(this.id) || this.thisElement) {
+      return;
+    }
+
+    const barMode = document.getElementById("barMode");
+    if (!barMode) {
+      return;
+    }
+
+    barMode.insertAdjacentHTML(
+      "beforebegin",
+      `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" ></div>`
+    );
+
+    const btn = document.getElementById(this.id);
+    if (btn) {
+      this.thisElement = btn as HTMLElement;
+      btn.style.width = "auto";
+      btn.innerHTML = this.icon;
+      btn.addEventListener(
+        "click",
+        (e) => {
+          this.exec();
+          e.stopPropagation();
+          e.preventDefault();
+        },
+        true
+      );
+    }
+  }
 
   async exec() {
     // 如果 OCR 正在运行，显示停止选项
@@ -550,31 +601,6 @@ LIMIT 99999`,
         }
       },
     });
-    // (globalThis.window.siyuan.menus.menu as Menu).addItem({
-    //   label: "OCR 遮罩",
-    //   click: async () => {
-    //     // 在你的插件主代码中
-    //     // const path = img.dataset.src!.replace("/", "_");
-
-    //     // 对于在线图片暂时不处理
-    //     if (imgSrc.startsWith("http")) {
-    //       return;
-    //     }
-
-    //     const existingOCR = await request("/api/asset/getImageOCRText", {
-    //       path: imgSrc,
-    //     });
-
-    //     // 创建Svelte组件实例
-    //     const ocrComponent = new ImgOcrText({
-    //       target: img.parentElement!,
-    //       props: {
-    //         data: existingOCR || [],
-    //         imgEl: img,
-    //       },
-    //     });
-    //   },
-    // });
   }
 }
 

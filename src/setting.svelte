@@ -7,8 +7,39 @@
   import { plugin } from "@/utils";
   import { selectIconDialog } from "./myscripts/utils";
   import VoiceNotesPlugin from "./siyuan-voicenotes-sync";
+  import { PluginRegistry } from "./plugin-registry";
 
   const initData = () => {
+    const pluginRegistry = PluginRegistry.getInstance();
+    const pluginConfigs = pluginRegistry.getPluginConfigs();
+
+    // Generate dynamic settings from plugins
+    const dynamicSettings: any = {
+      开关: [],
+    };
+
+    // Add plugin flags
+    for (const pluginMeta of pluginConfigs) {
+      dynamicSettings.开关.push({
+        type: "checkbox",
+        title: pluginMeta.displayName || pluginMeta.name,
+        description: pluginMeta.description || "",
+        key: pluginMeta.name,
+        value: settings.getFlag(pluginMeta.name),
+        hasSetting: pluginMeta.settings ? true : false,
+      });
+
+      // Add plugin settings
+      if (pluginMeta.settings) {
+        for (const [groupName, settings] of Object.entries(pluginMeta.settings)) {
+          if (!dynamicSettings[groupName]) {
+            dynamicSettings[groupName] = [];
+          }
+          dynamicSettings[groupName].push(...settings);
+        }
+      }
+    }
+
     return {
       开关: [
         {

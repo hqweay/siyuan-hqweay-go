@@ -1,8 +1,8 @@
 import { getBlockAttrs, setBlockAttrs } from "@/api";
-import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { isMobile, plugin } from "@/utils";
 import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
+import { SubPlugin } from "@/types/plugin";
 
 import DashboardComponent from "./dashboard.svelte";
 
@@ -16,10 +16,18 @@ const docks = [
   "BottomLeft",
   "BottomRight",
 ];
-export default class DiaryTools {
-  id = "hqweay-diary-tools";
-  label = "获取天气并插入当前文档属性";
-  icon = `📝`;
+
+export default class DiaryTools implements SubPlugin {
+  name = "diaryTools";
+  displayName = "日记相关工具";
+  description = "提供日记相关的工具，包括仪表盘、天气信息插入等功能";
+  version = "1.0.0";
+  enabled = settings.getBySpace("diaryToolsConfig", "enabled");
+
+  private id = "hqweay-diary-tools";
+  private label = "获取天气并插入当前文档属性";
+  private icon = `📝`;
+  private thisElement: HTMLElement | null = null;
 
   addDock() {
     const addToDock = settings.getBySpace("diaryToolsConfig", "addToDock");
@@ -54,20 +62,50 @@ export default class DiaryTools {
     }
   }
 
-  onload(topBarElement) {
+  async onload() {
+    console.log("diary-tools onload");
+    // Add icon to toolbar
+    this.addIconToToolbar();
+
+    // Add dock if configured
+    this.addDock();
+
+    // Setup menu for mobile or desktop
     if (isMobile) {
       this.addMenu();
-    } else {
-      let rect = topBarElement.getBoundingClientRect();
-      // 如果被隐藏，则使用更多按钮
-      if (rect.width === 0) {
-        rect = document.querySelector("#barMore").getBoundingClientRect();
-      }
-      if (rect.width === 0) {
-        rect = document.querySelector("#barPlugins").getBoundingClientRect();
-      }
-      this.addMenu(rect);
     }
+  }
+
+  private addIconToToolbar() {
+    this.showMenu();
+  }
+
+  private showMenu() {
+    console.log("showMenu");
+    this.thisElement = plugin.addTopBar({
+      icon: "iconBookmark",
+      title: "恐龙工具箱",
+      position: "right",
+      callback: () => {
+        if (isMobile) {
+          this.addMenu();
+        } else {
+          let rect = this.thisElement?.getBoundingClientRect();
+          if (!rect || rect.width === 0) {
+            rect = document.querySelector("#barMore")?.getBoundingClientRect();
+          }
+          if (!rect || rect.width === 0) {
+            rect = document
+              .querySelector("#barPlugins")
+              ?.getBoundingClientRect();
+          }
+          if (rect) {
+            this.addMenu(rect);
+          }
+        }
+        // diaryTools handles its own menu display
+      },
+    });
   }
 
   onunload(): void {

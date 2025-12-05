@@ -1,6 +1,7 @@
 import { fetchSyncPost } from "siyuan";
 import { deepMerge, plugin } from "./utils";
 import { scale } from "svelte/transition";
+import { PluginRegistry } from "./plugin-registry";
 // import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
 
 //配置文件名称
@@ -428,9 +429,11 @@ https://shibe.online/api/shibes?count=1`,
 
 let mergedFlag = false;
 /**
- * 配置类
- */
+  * 配置类
+  */
 class Settings {
+  private pluginRegistry = PluginRegistry.getInstance();
+
   //初始化配置文件
   async initData() {
     //载入配置
@@ -462,6 +465,24 @@ class Settings {
   }
 
   async mergeData() {
+    // Merge plugin configurations
+    const pluginConfigs = this.pluginRegistry.getPluginConfigs();
+    for (const pluginMeta of pluginConfigs) {
+      if (pluginMeta.settings) {
+        // Add plugin settings to DEFAULT_CONFIG
+        for (const [groupName, settings] of Object.entries(pluginMeta.settings)) {
+          if (!DEFAULT_CONFIG[groupName + 'Config']) {
+            DEFAULT_CONFIG[groupName + 'Config'] = {};
+          }
+          deepMerge(DEFAULT_CONFIG[groupName + 'Config'], settings);
+        }
+        // Add plugin flag
+        if (!DEFAULT_CONFIG.pluginFlag[pluginMeta.name]) {
+          DEFAULT_CONFIG.pluginFlag[pluginMeta.name] = false;
+        }
+      }
+    }
+
     // console.log("mergeData", plugin.data[CONFIG]);
     // console.log("mergeData", DEFAULT_CONFIG);
     deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);

@@ -1,12 +1,20 @@
 import { Plugin, showMessage, fetchSyncPost, Menu, openTab } from "siyuan";
 import { settings } from "@/settings";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
+import { SubPlugin } from "@/types/plugin";
 
 import Reader from "./Reader.svelte";
+import EpubReader from "./Reader.svelte"; // Alias for backward compatibility
 
 import { plugin } from "@/utils";
 
-export default class EpubReaderPlugin extends AddIconThenClick {
+export default class EpubReaderPlugin extends AddIconThenClick implements SubPlugin {
+  name = "epub-reader";
+  displayName = "EPUB 阅读器";
+  description = "支持 EPUB 文件的阅读功能";
+  version = "1.0.0";
+  enabled = false;
+
   id = "hqweay-epub-reader";
   label = "EPUB 阅读器";
   icon = "📖"; // 书本图标
@@ -156,8 +164,7 @@ export default class EpubReaderPlugin extends AddIconThenClick {
       new Reader({
         target: tabDiv,
         props: {
-          src: url,
-          file: file,
+          src: file || url,
         },
       });
 
@@ -214,10 +221,7 @@ export default class EpubReaderPlugin extends AddIconThenClick {
       const embeddedReader = new Reader({
         target: container,
         props: {
-          epubPath: fullEpubPath, // 传递完整路径
-          onClose: () => {
-            container.remove();
-          },
+          src: fullEpubPath, // 传递完整路径
         },
       });
     } catch (error) {
@@ -395,14 +399,10 @@ export default class EpubReaderPlugin extends AddIconThenClick {
       const fullEpubPath = this.getFullAssetPath(epubPath);
       console.log("完整 EPUB 路径:", fullEpubPath);
 
-      this.epubReaderInstance = new EpubReader({
+      this.epubReaderInstance = new Reader({
         target: tabContainer,
         props: {
-          epubPath: fullEpubPath, // 传递完整路径
-          onClose: () => {
-            console.log("关闭阅读器");
-            this.cleanupEpubReader();
-          },
+          src: fullEpubPath, // 传递完整路径
         },
       });
     } catch (error) {
@@ -485,13 +485,10 @@ export default class EpubReaderPlugin extends AddIconThenClick {
   ) => {
     let tabDiv = document.createElement("div");
     tabDiv.setAttribute("id", "hqweay-diary-dashboreard");
-    new EpubReader({
+    new Reader({
       target: tabDiv,
       props: {
-        epubPath: this.getFullAssetPath(url),
-        onClose: () => {
-          console.log("关闭阅读器");
-        },
+        src: data.epubPath || data.src,
       },
     });
     plugin.addTab({
@@ -510,16 +507,6 @@ export default class EpubReaderPlugin extends AddIconThenClick {
       },
       position: "right",
     });
-    // openTab({
-    //   app: (plugin as any).app,
-    //   custom: { icon: "iconBook", title, data, id: `${plugin.name}${type}` },
-    //   position:
-    //     openMode === "rightTab"
-    //       ? "right"
-    //       : openMode === "bottomTab"
-    //       ? "bottom"
-    //       : undefined,
-    // });
   };
 
   /**
