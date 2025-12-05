@@ -34,6 +34,9 @@
       ],
     };
 
+    console.log('pluginConfigs');
+    console.log(pluginConfigs);
+
     // Add plugin flags
     for (const pluginMeta of pluginConfigs) {
       dynamicSettings.开关.push({
