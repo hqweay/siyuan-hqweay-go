@@ -3,7 +3,7 @@ import { CheckIf } from "./checkif";
 import { plugin } from "@/utils";
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
-import { ocrAssetsUrl } from "@/ocr/ocrPlugin";
+import { ocrAssetsUrl } from "@/lets-ocr/ocrPlugin";
 export default class doOnPaste {
   onunload() {
     plugin.eventBus.off("paste", () => {});

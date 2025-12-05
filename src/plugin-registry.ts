@@ -4,13 +4,13 @@ import { SubPlugin, PluginMetadata } from "./types/plugin";
 // Static imports for plugin configurations
 import epubReaderConfig from "./lets-epub-reader/plugin";
 import diaryToolsConfig from "./lets-how-to-write-diary/plugin";
-import ocrConfig from "./ocr/plugin";
+import ocrConfig from "./lets-ocr/plugin";
 
 // Dynamic imports for plugin classes
 import EpubReaderPlugin from "./lets-epub-reader";
 import DiaryTools from "./lets-how-to-write-diary";
-import OCRPlugin from "./ocr";
-import randomHeaderImage from "./random-header-image";
+import OCRPlugin from "./lets-ocr";
+import randomHeaderImage from "./lets-random-header-image";
 
 // 自动导出所有子插件
 // const modules = import.meta.glob("./lets*/index.ts", { eager: true }) as Record<

@@ -4,6 +4,9 @@ export default {
   description: "支持 EPUB 文件的阅读功能",
   version: "1.0.0",
   author: "hqweay",
+  defaultConfig: {
+    enabled: false,
+  },
   settings: {
     "EPUB 阅读器": [
       {

@@ -14,99 +14,83 @@ const inpuAreas = {
   添加块链接到提醒事项: "shortcuts://run-shortcut?name=从剪贴板添加提醒事项",
   "Google 搜索": "https://www.google.com/search?q=${content}",
 };
-//配置文件内容
-const DEFAULT_CONFIG = {
-  pluginFlag: {
-    sendTo: false,
-    convert: false,
-    typography: false,
-    randomNote: false,
-    randomHeaderImage: false,
-    memo: false,
-    dockLeft: false,
-    read: false,
-    readHelper: false,
-    bookmark: false,
-    dockShowAndHide: false,
-    doOnPaste: false,
-    adjustTitleLevel: false,
-    codeSnippets: false,
-    showCustomPropertiesUnderTitle: false,
-    mobileHelper: false,
-    voiceNotes: false,
-    createDailyNote: false,
-    quickAttr: false,
-    ocr: false,
-    diaryTools: false,
-  },
-  codeSnippetsConfig: {},
-  doOnPasteConfig: {
+// 动态生成默认配置
+function generateDefaultConfig(pluginRegistry: PluginRegistry) {
+  const config: any = {
+    pluginFlag: {},
+  };
+
+  // 从插件注册表获取所有插件配置
+  const pluginConfigs = pluginRegistry.getPluginConfigs();
+
+  // 为每个插件添加启用标志和默认配置
+  for (const pluginMeta of pluginConfigs) {
+    // 添加插件启用标志
+    config.pluginFlag[pluginMeta.name] = false;
+
+    // 添加插件默认配置
+    if (pluginMeta.defaultConfig) {
+      const configKey = pluginMeta.name + 'Config';
+      config[configKey] = { ...pluginMeta.defaultConfig };
+    }
+  }
+
+  // 添加一些全局配置（这些是还没有迁移到子插件的功能）
+  config.codeSnippetsConfig = {};
+  config.doOnPasteConfig = {
     title: true,
     recAnno: false,
     resizeAndCenterImg: false,
-    // emptyLine: true,
-  },
-  sendToConfig: {
+  };
+  config.sendToConfig = {
     inputArea: Object.entries(inpuAreas)
       .map(([key, value]) => `${key}====${value}`)
       .join("\n"),
     isToClipboard: true,
     separator: "",
-  },
-  randomHeaderImageConfig: {
-    folderPaths: `/Users/hqweay/SiYuan/data/assets/images
-https://shibe.online/api/shibes?count=1`,
-    isCached: true,
-    bing: false,
-    xjh: false,
-  },
-  randomNoteConfig: {
-    rangeSQL: "SELECT root_id FROM blocks",
-    limitNum: 30,
-  },
-  convertConfig: {
+  };
+  config.convertConfig = {
     styleNesting: true,
-  },
-  memoConfig: {
+  };
+  config.memoConfig = {
     id: "20240406015842-137jie3",
     activeDoc: false,
-  },
-  dockLeftConfig: {
+  };
+  config.dockLeftConfig = {
     ids: `🥹====20240330144736-irg5pfz
 😉====20240416195915-sod1ftd
 🌁====siyuan://plugins/sy-docs-flow/open-rule?ruleType=SQL&ruleInput=select+B.*+from+blocks+as+B+join+attributes+as+A%0Aon+B.id+%3D+A.block_id%0Awhere+A.name+like+%27custom-dailynote%25%27%0Aorder+by+A.value+desc%3B&ruleTitle=%F0%9F%98%80%F0%9F%98%80+Daily+Notes&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A15%2C%22shift%22%3A10%7D%7D`,
-  },
-  readConfig: {
+  };
+  config.readConfig = {
     extractPath: "",
     noteBookID: "",
     keepContext: true,
     addRef: false,
     addOutline: false,
-  },
-  readHelperConfig: {
+  };
+  config.readHelperConfig = {
     markAndCopyRef: false,
     markAndCopyTextRef: false,
     markAndCopyTextRefNoHighlight: false,
-  },
-  bookmarkConfig: {
+  };
+  config.bookmarkConfig = {
     items: "读到这里啦",
-  },
-  typographyConfig: {
+  };
+  config.typographyConfig = {
     autoSpace: false,
     netImg2LocalAssets: false,
     closeTip: true,
     imageCenter: 0,
-  },
-  dockShowAndHideConfig: {
+  };
+  config.dockShowAndHideConfig = {
     items: `20240330144736-irg5pfz====show====left[200px],right[200px]====首页\n20240416195915-sod1ftd====hide====right====GTD\n20240501000821-w4e1kth====show====right[400px]`,
     leftWidth: `200px`,
     rightWidth: `200px`,
     hideDock: false,
     returnIfSplit: true,
-    // 0-恢复上次使用配置；1-保持当前配置；
     otherDocs: "恢复上次使用配置",
-  },
-  cardConfig: {
+  };
+  config.cardConfig = {
     author: "养恐龙",
     addTime: "byCreated",
     hideLi: true,
@@ -163,8 +147,8 @@ https://shibe.online/api/shibes?count=1`,
         addDOCTitle: "none",
       },
     },
-  },
-  voiceNotesConfig: {
+  };
+  config.voiceNotesConfig = {
     token: "",
     formatContent: false,
     syncedRecordingIds: "",
@@ -174,9 +158,6 @@ https://shibe.online/api/shibes?count=1`,
     manualSyncPageCount: "2",
     excludeTags: "siyuan",
     notebook: "",
-    //     frontmatterTemplate: `duration: {{duration}}
-    // created_at: {{created_at}}
-    // updated_at: {{updated_at}}`,
     newLineNewBlock: true,
     noteTemplate: `{% if summary %}
 ## Summary
@@ -249,11 +230,11 @@ https://shibe.online/api/shibes?count=1`,
 {{ related_notes }}
 {% endif %}
 `,
-  },
-  showCustomPropertiesUnderTitleConfig: {
+  };
+  config.showCustomPropertiesUnderTitleConfig = {
     customProperties: "custom-createdAt|创建时间",
-  },
-  mobileHelperConfig: {
+  };
+  config.mobileHelperConfig = {
     enableBottomNav: true,
     showBackButton: true,
     navJustInMain: true,
@@ -271,15 +252,15 @@ https://shibe.online/api/shibes?count=1`,
       "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
     customLinks:
       "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D\n养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n添加到写作数据库====20250914152149-1emaqok",
-  },
-  createDailyNoteConfig: {
+  };
+  config.createDailyNoteConfig = {
     noteBookID: "20240330144726-gs2xey6",
     slashDiaryNote: true,
     quickInput: true,
     topBar: false,
     getWeatherSetAttrs: "101270101",
-  },
-  quickAttrConfig: {
+  };
+  config.quickAttrConfig = {
     attrs: `[
     {
   name: "@测试配置多个属性-@开头会注册进slash",
@@ -327,105 +308,17 @@ https://shibe.online/api/shibes?count=1`,
     enabled: true,
   },
 ]`,
-  },
-  ocrConfig: {
-    ocrMethod: "macOSVision",
-    umiOCRServer: "",
-    autoRemoveLineBreaks: false,
-    removeLineBreaks: false,
-    removeBlankInChinese: false,
-    formatWithPangu: false,
-  },
-  dockyConfig: {
+  };
+  config.dockyConfig = {
     zoomScale: 100,
     rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
-  },
-  diaryToolsConfig: {
-    addToDock: false,
-    configs: `[
-    {
-      //配置名
-      name: "所有文档！",
-      //主页总数 label
-      indexLabel: "文档数量",
-      //进入时是否加载列表
-      showEntries: true,
-      //进入时是否加载图片
-      showMedia: true,
-      //控制是否展示 主统计信息
-      showMainStatics: true,
-      //控制是否展示 那年、那月、那周今日
-      showOnThisDay: true,
-      //控制是否展示 热力图
-      showHeatmap: true,
-      //控制是否展示 自定义卡片
-      showcustomCards: [
-        {
-          id: "random",
-          type: "text",
-          label: "select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1",
-          onClick: () => {
-            loadCards("random").then((res) => {
-              customCards = customCards.map((card) => {
-                const matchedRes = res.find((item) => item.id === card.id);
-                return matchedRes ? matchedRes : card;
-              });
-              window.diaryTools.updateCustomCards(customCards);
-            });
-          },
-        },
-        {
-          type: "text",
-          label: "select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1",
-          onClick: (card) => {
-            if (window.diaryTools.isMobile) {
-              window.diaryTools.openMobileFileById(window.diaryTools.plugin.app, card.labelBlocks[0]?.id);
-            } else {
-              window.open("siyuan://blocks/" + card.labelBlocks[0]?.id);
-            }
-          },
-        },
-        {
-          type: "icon-stat",
-          label: "距离 2026 年还有",
-          number: () => {
-            const targetDate = new Date("2026-01-01").getTime();
-            const currentDate = new Date().getTime();
-            const timeDiff = targetDate - currentDate;
-            const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-            return daysDiff;
-          },
-          text: "天",
-        },
-      ],
-      //主SQL
-      mainSQL: "select blocks.* from blocks where type = 'd'",
-      //可选：图片SQL。若为 null，则通过 mainSQL 关联查询
-      imgSQL: null,
-    },
-    {
-      name: "🎲 随机！",
-      indexLabel: "随机文档",
-      showEntries: true,
-      showMedia: false,
-      showMainStatics: true,
-      showOnThisDay: true,
-      showHeatmap: true,
-      mainSQL: "select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT " + (Math.floor(Math.random() * 51) + 50),
-    },
-    {
-      name: "Daily Notes",
-      indexLabel: "Daily Notes",
-      showEntries: true,
-      showMedia: false,
-      showMainStatics: false,
-      showOnThisDay: false,
-      showHeatmap: false,
-      mainSQL: "select blocks.* from blocks join attributes on blocks.id = attributes.block_id where attributes.name like 'custom-dailynote%' order by attributes.value desc",
-    },
-  ]`,
-  },
-};
+  };
+
+
+  console.log("config", config);
+
+  return config;
+}
 
 let mergedFlag = false;
 /**
@@ -434,10 +327,17 @@ let mergedFlag = false;
 class Settings {
   private pluginRegistry = PluginRegistry.getInstance();
 
+  // 获取动态生成的默认配置
+  private getDefaultConfig() {
+    return generateDefaultConfig(this.pluginRegistry);
+  }
+
   //初始化配置文件
   async initData() {
     //载入配置
     await this.load();
+
+    console.log("initData", plugin.data[CONFIG]);
 
     //配置不存在则按照默认值建立配置文件
     if (
@@ -445,7 +345,7 @@ class Settings {
       plugin.data[CONFIG] === undefined ||
       plugin.data[CONFIG] === null
     ) {
-      await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
+      await plugin.saveData(CONFIG, JSON.stringify(this.getDefaultConfig()));
     }
 
     //插件加载时 merge
@@ -460,28 +360,12 @@ class Settings {
   }
 
   async resetData() {
-    await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    await plugin.saveData(CONFIG, JSON.stringify(this.getDefaultConfig()));
     await this.load();
   }
 
   async mergeData() {
-    // Merge plugin configurations
-    const pluginConfigs = this.pluginRegistry.getPluginConfigs();
-    for (const pluginMeta of pluginConfigs) {
-      if (pluginMeta.settings) {
-        // Add plugin settings to DEFAULT_CONFIG
-        for (const [groupName, settings] of Object.entries(pluginMeta.settings)) {
-          if (!DEFAULT_CONFIG[groupName + 'Config']) {
-            DEFAULT_CONFIG[groupName + 'Config'] = {};
-          }
-          deepMerge(DEFAULT_CONFIG[groupName + 'Config'], settings);
-        }
-        // Add plugin flag
-        if (!DEFAULT_CONFIG.pluginFlag[pluginMeta.name]) {
-          DEFAULT_CONFIG.pluginFlag[pluginMeta.name] = false;
-        }
-      }
-    }
+    const DEFAULT_CONFIG = this.getDefaultConfig();
 
     // console.log("mergeData", plugin.data[CONFIG]);
     // console.log("mergeData", DEFAULT_CONFIG);

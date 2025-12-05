@@ -43,5 +43,6 @@ export interface PluginMetadata {
   description?: string;
   version?: string;
   author?: string;
+  defaultConfig?: Record<string, any>;
   settings?: PluginSettings;
 }

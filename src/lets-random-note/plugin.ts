@@ -5,6 +5,11 @@ export default {
     "在界面右上角生成一个随机图标，点击可跳转指定 id 条目；由于跳转通过 SQL 配置，你也可以配置固定跳转到某个块或文档。",
   version: "1.0.0",
   author: "hqweay",
+  defaultConfig: {
+    enabled: false,
+    rangeSQL: "SELECT root_id FROM blocks",
+    limitNum: 30,
+  },
   settings: {
     随机浏览: [
       {
