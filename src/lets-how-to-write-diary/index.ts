@@ -73,7 +73,7 @@ export default class DiaryTools implements SubPlugin {
   private addMenu(rect?: DOMRect) {
     const menu = new Menu("hqweay-diary-tools-menu");
     // 添加获取天气并插入当前文档属性选项
-    if (settings.getBySpace("createDailyNoteConfig", "topBar")) {
+    if (settings.getBySpace("createDailyNote", "topBar")) {
       menu.addItem({
         label: "获取当前天气并插入当前文档属性",
         iconHTML: "🌤️",

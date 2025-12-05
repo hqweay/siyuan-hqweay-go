@@ -48,26 +48,26 @@ export async function ocrAssetsUrl(
 
     // 从配置中获取 removeLineBreaks 设置
     const ocrMethod =
-      settings.getBySpace("ocrConfig", "ocrMethod") || "macOSVision";
+      settings.getBySpace("ocr", "ocrMethod") || "macOSVision";
 
     if (autoRemoveLineBreaks === undefined) {
       autoRemoveLineBreaks =
-        settings.getBySpace("ocrConfig", "autoRemoveLineBreaks") || false;
+        settings.getBySpace("ocr", "autoRemoveLineBreaks") || false;
     }
 
     const removeLineBreaks =
-      settings.getBySpace("ocrConfig", "removeLineBreaks") || false;
+      settings.getBySpace("ocr", "removeLineBreaks") || false;
     const removeBlankInChinese =
-      settings.getBySpace("ocrConfig", "removeBlankInChinese") || false;
+      settings.getBySpace("ocr", "removeBlankInChinese") || false;
     const formatWithPangu =
-      settings.getBySpace("ocrConfig", "formatWithPangu") || false;
+      settings.getBySpace("ocr", "formatWithPangu") || false;
 
     let ocrText = "";
     // 调用 OCR
     if (ocrMethod === "macOSVision") {
       ocrText = await macOCRByAppleScript(absolutePath);
     } else if (ocrMethod === "umi") {
-      const umiOCRServer = settings.getBySpace("ocrConfig", "umiOCRServer");
+      const umiOCRServer = settings.getBySpace("ocr", "umiOCRServer");
       if (!umiOCRServer || umiOCRServer.trim() === "") {
         return;
       }

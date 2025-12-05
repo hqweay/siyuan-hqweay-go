@@ -11,7 +11,7 @@
   import { parseYYYYMMDD } from "@/myscripts/utils";
 
   const sqlConfigs =
-    settings.getBySpace("diaryToolsConfig", "configs") === "hqweay"
+    settings.getBySpace("diaryTools", "configs") === "hqweay"
       ? [
           {
             //配置名
@@ -158,8 +158,8 @@ order by attributes.value desc`,
             mainSQL: `select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT ${Math.floor(Math.random() * 51) + 50}`,
           },
         ]
-      : settings.getBySpace("diaryToolsConfig", "configs")
-        ? eval(`(${settings.getBySpace("diaryToolsConfig", "configs")})`)
+      : settings.getBySpace("diaryTools", "configs")
+        ? eval(`(${settings.getBySpace("diaryTools", "configs")})`)
         : [
             {
               //配置名

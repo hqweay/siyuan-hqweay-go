@@ -33,7 +33,7 @@ class RandomNotePlugin extends AddIconThenClick implements SubPlugin {
   // 打开随机文档，编辑sql选定范围
   async exec() {
     if (this.cacheIds.length === 0) {
-      let sqlTemp = settings.getBySpace("randomNoteConfig", "rangeSQL");
+      let sqlTemp = settings.getBySpace("randomNote", "rangeSQL");
 
       if (!sqlTemp) {
         sqlTemp = "SELECT id FROM blocks WHERE type = 'd'";
@@ -48,7 +48,7 @@ class RandomNotePlugin extends AddIconThenClick implements SubPlugin {
         },
       });
       // 缓存
-      const limitNum = settings.getBySpace("randomNoteConfig", "limitNum");
+      const limitNum = settings.getBySpace("randomNote", "limitNum");
       sqlTemp = `select id from( ${sqlTemp} ) ORDER BY RANDOM() LIMIT ${
         limitNum ? limitNum : 30
       }`;

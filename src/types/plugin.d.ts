@@ -45,5 +45,5 @@ export interface PluginMetadata {
   author?: string;
   enabled?: boolean;
   defaultConfig?: Record<string, any>;
-  settings?: PluginSettings;
+  settings?: PluginSettingItem[];
 }

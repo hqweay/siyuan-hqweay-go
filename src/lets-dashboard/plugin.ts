@@ -1,4 +1,6 @@
-export default {
+import { PluginMetadata } from "@/types/plugin";
+
+const pluginMetadata: PluginMetadata = {
   name: "dashBoard",
   displayName: "仪表盘",
   description: "仪表盘",
@@ -90,25 +92,25 @@ export default {
     },
   ]`,
   },
-  settings: {
-    仪表盘: [
-      {
-        type: "textinput",
-        title: "添加到 Dock",
-        description:
-          "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
-        key: "addToDock",
-        value: false,
-        placeholder: "为空不添加",
-      },
-      {
-        type: "textarea",
-        title: "仪表盘配置",
-        description: "参考默认配置……",
-        key: "configs",
-        value: "",
-        placeholder: "参考默认配置……",
-      },
-    ],
-  },
+  settings: [
+    {
+      type: "textinput",
+      title: "添加到 Dock",
+      description:
+        "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
+      key: "addToDock",
+      value: false,
+      placeholder: "为空不添加",
+    },
+    {
+      type: "textarea",
+      title: "仪表盘配置",
+      description: "参考默认配置……",
+      key: "configs",
+      value: "",
+      placeholder: "参考默认配置……",
+    },
+  ],
 };
+
+export default pluginMetadata;

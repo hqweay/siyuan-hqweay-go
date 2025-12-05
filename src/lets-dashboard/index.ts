@@ -24,7 +24,7 @@ export default class DashBoard implements SubPlugin {
   private thisElement: HTMLElement | null = null;
 
   addDock() {
-    const addToDock = settings.getBySpace("diaryToolsConfig", "addToDock");
+    const addToDock = settings.getBySpace("diaryTools", "addToDock");
 
     console.log("addToDock", addToDock);
     if (docks.includes(addToDock)) {

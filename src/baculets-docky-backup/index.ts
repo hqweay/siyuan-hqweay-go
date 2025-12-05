@@ -94,7 +94,7 @@ const parseProtyle = (line: string): any => {
 };
 
 export const loadDocky = (plugin: any) => {
-  const rules = settings.getBySpace("dockyConfig", "rules");
+  const rules = settings.getBySpace("docky", "rules");
   if (!rules || rules.trim() === "") {
     return;
   }
@@ -122,7 +122,7 @@ export const loadDocky = (plugin: any) => {
     `.trim()
   );
 
-  const zoomScale = settings.getBySpace("dockyConfig", "zoomScale");
+  const zoomScale = settings.getBySpace("docky", "zoomScale");
   if (isNaN(zoomScale) || zoomScale <= 0 || zoomScale >= 100) {
     return;
   }

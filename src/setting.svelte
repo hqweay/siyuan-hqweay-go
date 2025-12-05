@@ -34,7 +34,7 @@
       ],
     };
 
-    console.log('pluginConfigs');
+    console.log("pluginConfigs");
     console.log(pluginConfigs);
 
     // Add plugin flags
@@ -44,25 +44,25 @@
         title: pluginMeta.displayName || pluginMeta.name,
         description: pluginMeta.description || "",
         key: pluginMeta.name,
-        value:
-          settings.getBySpace(pluginMeta.name , "enabled") || false,
+        value: settings.getBySpace(pluginMeta.name, "enabled") || false,
         hasSetting: pluginMeta.settings ? true : false,
       });
 
       // Add plugin settings
       if (pluginMeta.settings) {
-        for (const [groupName, settings] of Object.entries(
-          pluginMeta.settings
-        )) {
-          if (!dynamicSettings[groupName]) {
-            dynamicSettings[groupName] = [];
-          }
-          dynamicSettings[groupName].push(...settings);
-        }
+        dynamicSettings[pluginMeta.displayName] = pluginMeta.settings;
+        // for (const [groupName, settings] of Object.entries(
+        //   pluginMeta.settings
+        // )) {
+        //   if (!dynamicSettings[groupName]) {
+        //     dynamicSettings[groupName] = [];
+        //   }
+        //  .push(...settings);
+        // }
       }
     }
 
-    console.log('dynamicSettings');
+    console.log("dynamicSettings");
     console.log(dynamicSettings);
     return dynamicSettings;
     return {
@@ -265,7 +265,7 @@
           title: `${ele.title} - ${ele.author && ele.link ? `@<a href= '${ele.link}'>${ele.author}</a>` : ""}`,
           description: `${ele.description}`,
           key: `${ele.id}`,
-          value: settings.getBySpace("codeSnippetsConfig", `${ele.id}`),
+          value: settings.getBySpace("codeSnippets", `${ele.id}`),
           hasSetting: true,
         };
       }),
@@ -275,7 +275,7 @@
           title: "缩放程度",
           description: "缩放程度，100 为原始大小",
           key: "zoomScale",
-          value: settings.getBySpace("dockyConfig", "zoomScale"),
+          value: settings.getBySpace("docky", "zoomScale"),
           placeholder: "100",
         },
         {
@@ -291,7 +291,7 @@
 position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
 `,
           key: "rules",
-          value: settings.getBySpace("dockyConfig", "rules"),
+          value: settings.getBySpace("docky", "rules"),
           placeholder: `id:20251126002344-r4jzwns,position:RightTop`,
         },
       ],
@@ -301,7 +301,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           title: "配置",
           description: "",
           key: "attrs",
-          value: settings.getBySpace("quickAttrConfig", "attrs"),
+          value: settings.getBySpace("quickAttr", "attrs"),
           placeholder: `[
           {
     name: "@测试配置多个属性-@开头会注册进slash",
@@ -358,7 +358,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           description:
             "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
           key: "addToDock",
-          value: settings.getBySpace("diaryToolsConfig", "addToDock"),
+          value: settings.getBySpace("diaryTools", "addToDock"),
           placeholder: "为空不添加",
         },
         {
@@ -366,7 +366,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           title: "仪表盘配置",
           description: "参考默认配置……",
           key: "configs",
-          value: settings.getBySpace("diaryToolsConfig", "configs"),
+          value: settings.getBySpace("diaryTools", "configs"),
           placeholder: "参考默认配置……",
         },
       ],
@@ -376,7 +376,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           title: "创建日记的笔记本id",
           description: "",
           key: "noteBookID",
-          value: settings.getBySpace("createDailyNoteConfig", "noteBookID"),
+          value: settings.getBySpace("createDailyNote", "noteBookID"),
           placeholder: "20240330144726-gs2xey6",
         },
         {
@@ -385,21 +385,21 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
             "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
           description: "",
           key: "slashDiaryNote",
-          value: settings.getBySpace("createDailyNoteConfig", "slashDiaryNote"),
+          value: settings.getBySpace("createDailyNote", "slashDiaryNote"),
         },
         {
           type: "checkbox",
           title: "快捷小窗录入日记（默认快捷键F10）",
           description: "",
           key: "quickInput",
-          value: settings.getBySpace("createDailyNoteConfig", "quickInput"),
+          value: settings.getBySpace("createDailyNote", "quickInput"),
         },
         {
           type: "checkbox",
           title: "顶栏按钮快捷操作",
           description: "",
           key: "topBar",
-          value: settings.getBySpace("createDailyNoteConfig", "topBar"),
+          value: settings.getBySpace("createDailyNote", "topBar"),
         },
         {
           type: "textinput",
@@ -413,57 +413,21 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           ),
         },
       ],
-      粘贴时对数据预处理: [
-        {
-          type: "checkbox",
-          title: "自动获取标题链接",
-          description: "",
-          key: "title",
-          value: settings.getBySpace("doOnPasteConfig", "title"),
-        },
-        {
-          type: "select",
-          title: "矩形标注粘贴时转为",
-          description: "粘贴OCR文本需要配合 OCR 图片识别 功能使用",
-          key: "recAnno",
-          value: settings.getBySpace("doOnPasteConfig", "recAnno"),
-          options: {
-            ocrText: "OCR文本",
-            imgPin: "图片📌",
-            pinImg: "📌图片",
-            ocrTextPin: "📌OCR文本",
-            pinOcrText: "OCR文本📌",
-          },
-        },
-        {
-          type: "checkbox",
-          title: "![]()格式的图片自动缩小为 50%",
-          description: "![]()格式的图片自动缩小为 50%",
-          key: "resizeAndCenterImg",
-          value: settings.getBySpace("doOnPasteConfig", "resizeAndCenterImg"),
-        },
-        //  {
-        //   type: "checkbox",
-        //   title: "清理空行",
-        //   description: "",
-        //   key: "emptyLine",
-        //   value: settings.getBySpace("doOnPasteConfig", "emptyLine"),
-        // },
-      ],
+
       发送到: [
         {
           type: "checkbox",
           title: "写入剪贴板？",
           description: "",
           key: "isToClipboard",
-          value: settings.getBySpace("sendToConfig", "isToClipboard"),
+          value: settings.getBySpace("sendTo", "isToClipboard"),
         },
         {
           type: "textinput",
           title: "多行内容分隔符",
           description: "",
           key: "separator",
-          value: settings.getBySpace("sendToConfig", "separator"),
+          value: settings.getBySpace("sendTo", "separator"),
           placeholder: "====",
         },
         {
@@ -471,7 +435,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           title: "自定义链接",
           description: "",
           key: "inputArea",
-          value: settings.getBySpace("sendToConfig", "inputArea"),
+          value: settings.getBySpace("sendTo", "inputArea"),
           placeholder:
             "以 名称====链接 配置；换行分隔。${content} 将会替换为选中的内容",
         },
@@ -483,7 +447,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           description:
             "如果打开，会减少从文件夹遍历获取图片，但新添加到文件夹的图片不会及时生效。",
           key: "isCached",
-          value: settings.getBySpace("randomHeaderImageConfig", "isCached"),
+          value: settings.getBySpace("randomHeaderImage", "isCached"),
         },
         {
           type: "checkbox",
@@ -491,7 +455,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           description:
             "使用 https://bing.img.run/api.html 的 API 获取历史随机壁纸",
           key: "bing",
-          value: settings.getBySpace("randomHeaderImageConfig", "bing"),
+          value: settings.getBySpace("randomHeaderImage", "bing"),
         },
         {
           type: "checkbox",
@@ -499,7 +463,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
           description:
             "使用 https://img.xjh.me/random_img.php 的 API 获取随机图片",
           key: "xjh",
-          value: settings.getBySpace("randomHeaderImageConfig", "xjh"),
+          value: settings.getBySpace("randomHeaderImage", "xjh"),
         },
         {
           type: "textarea",
@@ -511,7 +475,7 @@ position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRig
             4️⃣本地文件夹可使用软链接引用 Siyuan 工作目录外的文件夹。<br/>
             5️⃣使用：1）配置；2️）在文档点击「随机题头图」；3️）右键点击「随机」。（详情见 https://ld246.com/article/1694612740828 03 开始用吧）`,
           key: "folderPaths",
-          value: settings.getBySpace("randomHeaderImageConfig", "folderPaths"),
+          value: settings.getBySpace("randomHeaderImage", "folderPaths"),
           placeholder: `/Users/hqweay/SiYuan/data/assets/images
 https://shibe.online/api/shibes?count=1`,
         },
@@ -522,7 +486,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "随机浏览的范围，通过 SQL 限定",
           description: "",
           key: "rangeSQL",
-          value: settings.getBySpace("randomNoteConfig", "rangeSQL"),
+          value: settings.getBySpace("randomNote", "rangeSQL"),
           placeholder: "SELECT id FROM blocks WHERE type = 'd'",
         },
         {
@@ -530,7 +494,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "缓存数量",
           description: "",
           key: "limitNum",
-          value: settings.getBySpace("randomNoteConfig", "limitNum"),
+          value: settings.getBySpace("randomNote", "limitNum"),
           placeholder: "默认一次查询 30 条缓存",
         },
       ],
@@ -557,7 +521,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
           key: "styleNesting",
-          value: settings.getBySpace("convertConfig", "styleNesting"),
+          value: settings.getBySpace("convert", "styleNesting"),
         },
       ],
       碎碎念: [
@@ -567,7 +531,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
           key: "activeDoc",
-          value: settings.getBySpace("memoConfig", "activeDoc"),
+          value: settings.getBySpace("memo", "activeDoc"),
         },
         {
           type: "textarea",
@@ -577,7 +541,7 @@ https://shibe.online/api/shibes?count=1`,
               - - hello`,
           key: "id",
           placeholder: `20240406015842-137jie3`,
-          value: settings.getBySpace("memoConfig", "id"),
+          value: settings.getBySpace("memo", "id"),
         },
       ],
       左上边栏扩充: [
@@ -589,7 +553,7 @@ https://shibe.online/api/shibes?count=1`,
           placeholder: `🥹====20240330144736-irg5pfz
 😉====20240416195915-sod1ftd
 🌁====siyuan://plugins/sy-docs-flow/open-rule?ruleType=SQL&ruleInput=select+B.*+from+blocks+as+B+join+attributes+as+A%0Aon+B.id+%3D+A.block_id%0Awhere+A.name+like+%27custom-dailynote%25%27%0Aorder+by+A.value+desc%3B&ruleTitle=%F0%9F%98%80%F0%9F%98%80+Daily+Notes&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A15%2C%22shift%22%3A10%7D%7D`,
-          value: settings.getBySpace("dockLeftConfig", "ids"),
+          value: settings.getBySpace("dockLeft", "ids"),
         },
       ],
       阅读帮助: [
@@ -598,14 +562,14 @@ https://shibe.online/api/shibes?count=1`,
           title: "toolbar 新增标注并复制块引",
           description: "toolbar 新增标注并复制块引",
           key: "markAndCopyRef",
-          value: settings.getBySpace("readHelperConfig", "markAndCopyRef"),
+          value: settings.getBySpace("readHelper", "markAndCopyRef"),
         },
         {
           type: "checkbox",
           title: "toolbar 新增标注并复制 Text* 格式块引",
           description: "toolbar 新增标注并复制块引",
           key: "markAndCopyTextRef",
-          value: settings.getBySpace("readHelperConfig", "markAndCopyTextRef"),
+          value: settings.getBySpace("readHelper", "markAndCopyTextRef"),
         },
         {
           type: "checkbox",
@@ -624,7 +588,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "提取标注到新文档：",
         //   description: "",
         //   key: "noteBookID",
-        //   value: settings.getBySpace("readConfig", "noteBookID"),
+        //   value: settings.getBySpace("read", "noteBookID"),
         //   placeholder: "",
         // },
         // {
@@ -632,7 +596,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "保留上下文？",
         //   description: "`今天==天气==很好？`：若取消勾选，则只提取「天气」。",
         //   key: "keepContext",
-        //   value: settings.getBySpace("readConfig", "keepContext"),
+        //   value: settings.getBySpace("read", "keepContext"),
         // },
         {
           type: "textinput",
@@ -640,7 +604,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "文档菜单打开事件新增提取当前文档行内元素至新文档。<br/>若为空，则新文档建立于当前文档下；若配置，则新文档建立在配置路径下。",
           key: "extractPath",
-          value: settings.getBySpace("readConfig", "extractPath"),
+          value: settings.getBySpace("read", "extractPath"),
           placeholder: "/我的笔记本/",
         },
         {
@@ -648,14 +612,14 @@ https://shibe.online/api/shibes?count=1`,
           title: "添加一个 * 引用",
           description: "新文档内的行内元素会在末尾添加一个 * 引用指向原块",
           key: "addRef",
-          value: settings.getBySpace("readConfig", "addRef"),
+          value: settings.getBySpace("read", "addRef"),
         },
         {
           type: "checkbox",
           title: "提取元素为大纲块",
           description: "开启则新文档内的行内元素提取为大纲块，否则为文档块",
           key: "addOutline",
-          value: settings.getBySpace("readConfig", "addOutline"),
+          value: settings.getBySpace("read", "addOutline"),
         },
       ],
       快捷添加书签: [
@@ -664,7 +628,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "书签",
           description: "快捷添加的书签名<br/>多个书签以换行分隔",
           key: "items",
-          value: settings.getBySpace("bookmarkConfig", "items"),
+          value: settings.getBySpace("bookmark", "items"),
           placeholder: "读到这里啦",
         },
       ],
@@ -675,7 +639,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "点击右上角机器人对文档格式化时调用思源的「排版优化」来自动插入空格",
           key: "autoSpace",
-          value: settings.getBySpace("typographyConfig", "autoSpace"),
+          value: settings.getBySpace("typography", "autoSpace"),
         },
         {
           type: "checkbox",
@@ -683,7 +647,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "点击右上角机器人对文档格式化时调用思源的「网络资源文件转换本地」",
           key: "netImg2LocalAssets",
-          value: settings.getBySpace("typographyConfig", "netImg2LocalAssets"),
+          value: settings.getBySpace("typography", "netImg2LocalAssets"),
         },
         {
           type: "checkbox",
@@ -691,7 +655,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "点击右上角机器人对文档格式化时会有损坏数据的风险，如果你确认风险可以打开开关，关闭每次操作前的提示。",
           key: "closeTip",
-          value: settings.getBySpace("typographyConfig", "closeTip"),
+          value: settings.getBySpace("typography", "closeTip"),
         },
         {
           type: "number",
@@ -699,7 +663,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "为 10-100 的值则居中并按百分比数值缩放；其它值则不居中。",
           key: "imageCenter",
-          value: settings.getBySpace("typographyConfig", "imageCenter"),
+          value: settings.getBySpace("typography", "imageCenter"),
         },
       ],
       "边栏自动打开、关闭": [
@@ -708,7 +672,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "左边栏打开默认宽度",
           description: "配置自动打开边栏时左边栏的默认宽度",
           key: "leftWidth",
-          value: settings.getBySpace("dockShowAndHideConfig", "leftWidth"),
+          value: settings.getBySpace("dockShowAndHide", "leftWidth"),
           placeholder: "200px",
         },
         {
@@ -716,7 +680,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "右边栏打开默认宽度",
           description: "配置自动打开边栏时右边栏的默认宽度",
           key: "rightWidth",
-          value: settings.getBySpace("dockShowAndHideConfig", "rightWidth"),
+          value: settings.getBySpace("dockShowAndHide", "rightWidth"),
           placeholder: "200px",
         },
         {
@@ -724,21 +688,21 @@ https://shibe.online/api/shibes?count=1`,
           title: "同时打开/关闭停靠栏",
           description: "打开/关闭边栏时同时操作停靠栏",
           key: "hideDock",
-          value: settings.getBySpace("dockShowAndHideConfig", "hideDock"),
+          value: settings.getBySpace("dockShowAndHide", "hideDock"),
         },
         {
           type: "checkbox",
           title: "分屏时不触发",
           description: "分屏时不触发",
           key: "returnIfSplit",
-          value: settings.getBySpace("dockShowAndHideConfig", "returnIfSplit"),
+          value: settings.getBySpace("dockShowAndHide", "returnIfSplit"),
         },
         {
           type: "select",
           title: "其它文档默认操作",
           description: "打开其他文件时配置边栏状态",
           key: "otherDocs",
-          value: settings.getBySpace("dockShowAndHideConfig", "otherDocs"),
+          value: settings.getBySpace("dockShowAndHide", "otherDocs"),
           options: {
             恢复上次使用配置: "恢复上次使用配置",
             保持当前配置: "保持当前配置",
@@ -750,7 +714,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "格式：文档id====【show/hide】====【left[width]/right[width]】====备注（可选）<br/>多个文档以换行分隔",
           key: "items",
-          value: settings.getBySpace("dockShowAndHideConfig", "items"),
+          value: settings.getBySpace("dockShowAndHide", "items"),
           placeholder: `20240330144736-irg5pfz====show====left[200px],right[200px]====首页\n20240416195915-sod1ftd====hide====right====GTD\n20240501000821-w4e1kth====show====right[400px]`,
         },
       ],
@@ -760,7 +724,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "Token",
           description: "token",
           key: "token",
-          value: settings.getBySpace("voiceNotesConfig", "token"),
+          value: settings.getBySpace("voiceNotes", "token"),
           placeholder: "12345|abcdefgh",
         },
         {
@@ -768,7 +732,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "思源笔记笔记本id",
           description: "思源笔记笔记本id",
           key: "notebook",
-          value: settings.getBySpace("voiceNotesConfig", "notebook"),
+          value: settings.getBySpace("voiceNotes", "notebook"),
           placeholder: "20240330144726-gs2xey6",
         },
         {
@@ -776,7 +740,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "同步的目录",
           description: "同步的目录",
           key: "syncDirectory",
-          value: settings.getBySpace("voiceNotesConfig", "syncDirectory"),
+          value: settings.getBySpace("voiceNotes", "syncDirectory"),
           placeholder: "voicenotes",
         },
         {
@@ -785,7 +749,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "小于 0 时同步全量，大于 0 时会同步配置的前多少页【建议合理配置】",
           key: "manualSyncPageCount",
-          value: settings.getBySpace("voiceNotesConfig", "manualSyncPageCount"),
+          value: settings.getBySpace("voiceNotes", "manualSyncPageCount"),
           placeholder: "2",
         },
         {
@@ -811,14 +775,14 @@ https://shibe.online/api/shibes?count=1`,
           title: "同步时使用中英文排版优化格式化",
           description: "同步时使用中英文排版优化格式化",
           key: "formatContent",
-          value: settings.getBySpace("voiceNotesConfig", "formatContent"),
+          value: settings.getBySpace("voiceNotes", "formatContent"),
         },
         {
           type: "checkbox",
           title: "换行是否新建块",
           description: "否则当作行内换行处理",
           key: "newLineNewBlock",
-          value: settings.getBySpace("voiceNotesConfig", "newLineNewBlock"),
+          value: settings.getBySpace("voiceNotes", "newLineNewBlock"),
         },
         // {
         //   type: "textinput",
@@ -832,7 +796,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "排除标签",
           description: "同步时排除该标签下的笔记",
           key: "excludeTags",
-          value: settings.getBySpace("voiceNotesConfig", "excludeTags"),
+          value: settings.getBySpace("voiceNotes", "excludeTags"),
           placeholder: "done,no",
         },
         // {
@@ -840,7 +804,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "frontmatterTemplate",
         //   description: "",
         //   key: "frontmatterTemplate",
-        //   value: settings.getBySpace("voiceNotesConfig", "frontmatterTemplate"),
+        //   value: settings.getBySpace("voiceNotes", "frontmatterTemplate"),
         //   placeholder: "",
         // },
         {
@@ -848,7 +812,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "noteTemplate",
           description: "",
           key: "noteTemplate",
-          value: settings.getBySpace("voiceNotesConfig", "noteTemplate"),
+          value: settings.getBySpace("voiceNotes", "noteTemplate"),
           placeholder: "",
         },
         // {
@@ -856,7 +820,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "同步过的笔记id，一般别修改",
         //   description: "",
         //   key: "syncedRecordingIds",
-        //   value: settings.getBySpace("voiceNotesConfig", "syncedRecordingIds"),
+        //   value: settings.getBySpace("voiceNotes", "syncedRecordingIds"),
         //   placeholder: "",
         // },
       ],
@@ -866,7 +830,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "方案",
           description: "方案",
           key: "ocrMethod",
-          value: settings.getBySpace("ocrConfig", "ocrMethod"),
+          value: settings.getBySpace("ocr", "ocrMethod"),
           options: {
             macOSVision: "使用 MacOS Vision OCR",
             umi: "使用 umi OCR",
@@ -878,7 +842,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "umi-ocr 服务地址",
           description: "umi-ocr 服务地址",
           key: "umiOCRServer",
-          value: settings.getBySpace("ocrConfig", "umiOCRServer"),
+          value: settings.getBySpace("ocr", "umiOCRServer"),
           placeholder: "",
         },
         {
@@ -886,28 +850,28 @@ https://shibe.online/api/shibes?count=1`,
           title: "自动移除换行",
           description: "通过每行结尾是否存在标点自动判断移除换行",
           key: "autoRemoveLineBreaks",
-          value: settings.getBySpace("ocrConfig", "autoRemoveLineBreaks"),
+          value: settings.getBySpace("ocr", "autoRemoveLineBreaks"),
         },
         {
           type: "checkbox",
           title: "移除换行符",
           description: "OCR 识别后是否移除文本中的换行符",
           key: "removeLineBreaks",
-          value: settings.getBySpace("ocrConfig", "removeLineBreaks"),
+          value: settings.getBySpace("ocr", "removeLineBreaks"),
         },
         {
           type: "checkbox",
           title: "移除中文内的空格",
           description: "移除中文内的空格",
           key: "removeBlankInChinese",
-          value: settings.getBySpace("ocrConfig", "removeBlankInChinese"),
+          value: settings.getBySpace("ocr", "removeBlankInChinese"),
         },
         {
           type: "checkbox",
           title: "调用 pangu 格式化",
           description: "调用 pangu 格式化",
           key: "formatWithPangu",
-          value: settings.getBySpace("ocrConfig", "formatWithPangu"),
+          value: settings.getBySpace("ocr", "formatWithPangu"),
         },
       ],
       标题下展示文档自定义属性的值: [
@@ -929,21 +893,21 @@ https://shibe.online/api/shibes?count=1`,
           title: "启用底部导航栏",
           description: "在移动端页面底部显示导航栏",
           key: "enableBottomNav",
-          value: settings.getBySpace("mobileHelperConfig", "enableBottomNav"),
+          value: settings.getBySpace("mobileHelper", "enableBottomNav"),
         },
         {
           type: "checkbox",
           title: "导航栏只在首页展示",
           description: "导航栏只在首页展示",
           key: "navJustInMain",
-          value: settings.getBySpace("mobileHelperConfig", "navJustInMain"),
+          value: settings.getBySpace("mobileHelper", "navJustInMain"),
         },
         {
           type: "textinput",
           title: "打开今日日记",
           description: "配置日记所在笔记本 id",
           key: "noteBookID",
-          value: settings.getBySpace("mobileHelperConfig", "noteBookID"),
+          value: settings.getBySpace("mobileHelper", "noteBookID"),
           placeholder: "20240330144726-gs2xey6",
         },
         {
@@ -951,35 +915,35 @@ https://shibe.online/api/shibes?count=1`,
           title: "显示后退按钮",
           description: "在导航栏中显示后退按钮",
           key: "showBackButton",
-          value: settings.getBySpace("mobileHelperConfig", "showBackButton"),
+          value: settings.getBySpace("mobileHelper", "showBackButton"),
         },
         {
           type: "checkbox",
           title: "显示前进按钮",
           description: "在导航栏中显示前进按钮",
           key: "showForwardButton",
-          value: settings.getBySpace("mobileHelperConfig", "showForwardButton"),
+          value: settings.getBySpace("mobileHelper", "showForwardButton"),
         },
         {
           type: "checkbox",
           title: "显示仪表盘按钮",
           description: "在导航栏中显示仪表盘按钮",
           key: "showDashBoard",
-          value: settings.getBySpace("mobileHelperConfig", "showDashBoard"),
+          value: settings.getBySpace("mobileHelper", "showDashBoard"),
         },
         {
           type: "checkbox",
           title: "显示随机按钮",
           description: "在导航栏中显示随机跳转按钮",
           key: "showRandomButton",
-          value: settings.getBySpace("mobileHelperConfig", "showRandomButton"),
+          value: settings.getBySpace("mobileHelper", "showRandomButton"),
         },
         {
           type: "checkbox",
           title: "显示上下文按钮",
           description: "在导航栏中显示上下文按钮",
           key: "showContextButton",
-          value: settings.getBySpace("mobileHelperConfig", "showContextButton"),
+          value: settings.getBySpace("mobileHelper", "showContextButton"),
         },
 
         // {
@@ -987,7 +951,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "导航栏高度",
         //   description: "设置导航栏的高度",
         //   key: "navBarHeight",
-        //   value: settings.getBySpace("mobileHelperConfig", "navBarHeight"),
+        //   value: settings.getBySpace("mobileHelper", "navBarHeight"),
         //   placeholder: "60px",
         // },
         // {
@@ -995,7 +959,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "背景颜色",
         //   description: "设置导航栏的背景颜色",
         //   key: "backgroundColor",
-        //   value: settings.getBySpace("mobileHelperConfig", "backgroundColor"),
+        //   value: settings.getBySpace("mobileHelper", "backgroundColor"),
         //   placeholder: "#ffffff",
         // },
         // {
@@ -1003,7 +967,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "按钮颜色",
         //   description: "设置按钮的文字颜色",
         //   key: "buttonColor",
-        //   value: settings.getBySpace("mobileHelperConfig", "buttonColor"),
+        //   value: settings.getBySpace("mobileHelper", "buttonColor"),
         //   placeholder: "#333333",
         // },
         // {
@@ -1011,7 +975,7 @@ https://shibe.online/api/shibes?count=1`,
         //   title: "激活按钮颜色",
         //   description: "设置按钮激活时的颜色",
         //   key: "activeButtonColor",
-        //   value: settings.getBySpace("mobileHelperConfig", "activeButtonColor"),
+        //   value: settings.getBySpace("mobileHelper", "activeButtonColor"),
         //   placeholder: "#007aff",
         // },
         {
@@ -1019,7 +983,7 @@ https://shibe.online/api/shibes?count=1`,
           title: "随机SQL查询",
           description: "设置随机按钮使用的SQL查询语句",
           key: "randomSql",
-          value: settings.getBySpace("mobileHelperConfig", "randomSql"),
+          value: settings.getBySpace("mobileHelper", "randomSql"),
           placeholder:
             "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM()",
         },
@@ -1039,7 +1003,7 @@ https://shibe.online/api/shibes?count=1`,
           description:
             "格式：项目名1====链接1<br/>项目名2====链接2<br/>多个项目以换行分隔<br/>当项目名以「💾」开头时，链接配置为【数据库块id】，支持一键添加到数据库",
           key: "customLinks",
-          value: settings.getBySpace("mobileHelperConfig", "customLinks"),
+          value: settings.getBySpace("mobileHelper", "customLinks"),
           placeholder:
             "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D\n养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n💾写作数据库====20250914152149-1emaqok",
         },
@@ -1101,7 +1065,15 @@ https://shibe.online/api/shibes?count=1`,
     if (detail.group === "开关") {
       // Update plugin's enabled status in its config
       console.log(detail);
-      settings.setBySpace(detail.key , "enabled", detail.value);
+      settings.setBySpace(detail.key, "enabled", detail.value);
+
+      console.log(detail);
+      console.log();
+      if (!detail.value) {
+        PluginRegistry.getInstance().unloadPlugin(detail.key);
+      } else {
+        PluginRegistry.getInstance().beginPlugin(detail.key);
+      }
     } else if (detail.group === "代码片段合集") {
       settings.setBySpace("codeSnippetsConfig", detail.key, detail.value);
       if (detail.value) {
@@ -1110,11 +1082,13 @@ https://shibe.online/api/shibes?count=1`,
         plugin.insertCss.onunloadCSSByID(detail.key);
       }
     } else {
+      console.log(detail);
+      console.log(SettingItems);
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;
       });
       console.log(opItem);
-      settings.setBySpace(opItem[0].key , detail.key, detail.value);
+      settings.setBySpace(opItem[0].key, detail.key, detail.value);
     }
 
     for (let index = 0; index < SettingItems[focusGroup].length; index++) {
@@ -1147,6 +1121,8 @@ https://shibe.online/api/shibes?count=1`,
         on:click={() => {
           focusGroup = group;
           settings.save();
+          console.log("focusGroup", focusGroup);
+          console.log("SettingItems", SettingItems);
         }}
         on:keydown={() => {}}
       >

@@ -10,24 +10,22 @@ export default {
     rangeSQL: "SELECT root_id FROM blocks",
     limitNum: 30,
   },
-  settings: {
-    随机浏览: [
-      {
-        type: "textarea",
-        title: "随机浏览的范围，通过 SQL 限定",
-        description: "",
-        key: "rangeSQL",
-        value: "SELECT id FROM blocks WHERE type = 'd'",
-        placeholder: "SELECT id FROM blocks WHERE type = 'd'",
-      },
-      {
-        type: "number",
-        title: "缓存数量",
-        description: "",
-        key: "limitNum",
-        value: 30,
-        placeholder: "默认一次查询 30 条缓存",
-      },
-    ],
-  },
+  settings: [
+    {
+      type: "textarea",
+      title: "随机浏览的范围，通过 SQL 限定",
+      description: "",
+      key: "rangeSQL",
+      value: "SELECT id FROM blocks WHERE type = 'd'",
+      placeholder: "SELECT id FROM blocks WHERE type = 'd'",
+    },
+    {
+      type: "number",
+      title: "缓存数量",
+      description: "",
+      key: "limitNum",
+      value: 30,
+      placeholder: "默认一次查询 30 条缓存",
+    },
+  ],
 };

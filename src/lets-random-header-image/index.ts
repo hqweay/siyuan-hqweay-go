@@ -76,14 +76,14 @@ class RandomHeaderImagePlugin implements SubPlugin {
 
     let imageFolders = [];
 
-    settings.getBySpace("randomHeaderImageConfig", "bing") &&
+    settings.getBySpace("randomHeaderImage", "bing") &&
       imageFolders.push("https://bing.img.run/rand.php");
 
-    settings.getBySpace("randomHeaderImageConfig", "xjh") &&
+    settings.getBySpace("randomHeaderImage", "xjh") &&
       imageFolders.push("https://img.xjh.me/random_img.php");
 
     const folderPaths = settings
-      .getBySpace("randomHeaderImageConfig", "folderPaths")
+      .getBySpace("randomHeaderImage", "folderPaths")
       .replace(/^\s+|\s+$/g, "");
 
     if (folderPaths !== "") {
@@ -123,7 +123,7 @@ class RandomHeaderImagePlugin implements SubPlugin {
     }
 
     if (
-      settings.getBySpace("randomHeaderImageConfig", "isCached") &&
+      settings.getBySpace("randomHeaderImage", "isCached") &&
       this.cachedImages[folderPath]
     ) {
       const randomIndex = Math.floor(
@@ -140,7 +140,7 @@ class RandomHeaderImagePlugin implements SubPlugin {
       return imageExtensions.includes(extension);
     });
 
-    if (settings.getBySpace("randomHeaderImageConfig", "isCached")) {
+    if (settings.getBySpace("randomHeaderImage", "isCached")) {
       this.cachedImages[folderPath] = fileNames;
     }
 

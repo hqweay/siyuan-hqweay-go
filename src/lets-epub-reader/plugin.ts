@@ -7,15 +7,13 @@ export default {
   defaultConfig: {
     enabled: false,
   },
-  settings: {
-    "EPUB 阅读器": [
-      {
-        type: "checkbox",
-        title: "启用 EPUB 阅读器",
-        description: "启用 EPUB 文件阅读功能",
-        key: "enabled",
-        value: false,
-      },
-    ],
-  },
+  settings: [
+    {
+      type: "checkbox",
+      title: "启用 EPUB 阅读器",
+      description: "启用 EPUB 文件阅读功能",
+      key: "enabled",
+      value: false,
+    },
+  ],
 };
