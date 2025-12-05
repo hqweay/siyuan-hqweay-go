@@ -41,7 +41,8 @@
         title: pluginMeta.displayName || pluginMeta.name,
         description: pluginMeta.description || "",
         key: pluginMeta.name,
-        value: settings.getFlag(pluginMeta.name),
+        value:
+          settings.getBySpace(pluginMeta.name + "Config", "enabled") || false,
         hasSetting: pluginMeta.settings ? true : false,
       });
 
@@ -58,6 +59,8 @@
       }
     }
 
+    console.log('dynamicSettings');
+    console.log(dynamicSettings);
     return dynamicSettings;
     return {
       开关: [
@@ -1093,7 +1096,8 @@ https://shibe.online/api/shibes?count=1`,
 
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
     if (detail.group === "开关") {
-      settings.setFlag(detail.key, detail.value);
+      // Update plugin's enabled status in its config
+      settings.setBySpace(detail.key + "Config", "enabled", detail.value);
     } else if (detail.group === "代码片段合集") {
       settings.setBySpace("codeSnippetsConfig", detail.key, detail.value);
       if (detail.value) {
@@ -1116,7 +1120,6 @@ https://shibe.online/api/shibes?count=1`,
       }
     }
     settings.save();
-    // console.log(detail);
   };
 
   onDestroy(async () => {

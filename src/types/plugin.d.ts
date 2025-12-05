@@ -1,5 +1,5 @@
 export interface PluginSettingItem {
-  type: 'checkbox' | 'textinput' | 'textarea' | 'select' | 'number' | 'button';
+  type: "checkbox" | "textinput" | "textarea" | "select" | "number" | "button";
   title: string;
   description?: string;
   key: string;

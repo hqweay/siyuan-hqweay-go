@@ -16,18 +16,13 @@ const inpuAreas = {
 };
 // 动态生成默认配置
 function generateDefaultConfig(pluginRegistry: PluginRegistry) {
-  const config: any = {
-    pluginFlag: {},
-  };
+  const config: any = {};
 
   // 从插件注册表获取所有插件配置
   const pluginConfigs = pluginRegistry.getPluginConfigs();
 
-  // 为每个插件添加启用标志和默认配置
+  // 为每个插件添加默认配置
   for (const pluginMeta of pluginConfigs) {
-    // 添加插件启用标志
-    config.pluginFlag[pluginMeta.name] = false;
-
     // 添加插件默认配置
     if (pluginMeta.defaultConfig) {
       const configKey = pluginMeta.name + 'Config';
@@ -375,14 +370,17 @@ class Settings {
     await this.load();
   }
 
+  // Legacy method for backward compatibility
   setFlag(key: any, value: any, config = CONFIG) {
-    plugin.data[config]["pluginFlag"][key] = value;
+    // Redirect to plugin's enabled config
+    this.setBySpace(key + "Config", "enabled", value, config);
   }
+
   getFlag(key: any, config = CONFIG) {
-    return (
-      plugin && plugin.data[config] && plugin.data[config]["pluginFlag"]?.[key]
-    );
+    // Redirect to plugin's enabled config
+    return this.getBySpace(key + "Config", "enabled", config);
   }
+
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {
     plugin.data[config][space][key] = value;

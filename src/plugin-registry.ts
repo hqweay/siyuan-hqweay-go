@@ -116,9 +116,10 @@ export class PluginRegistry {
   async initializeEnabledPlugins() {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
-      console.log(plugin);
-      console.log(settings.getFlag(plugin.name));
-      if (settings.getFlag(plugin.name)) {
+      const pluginConfig = this.pluginConfigs.get(plugin.name);
+      const isEnabled =  settings.getBySpace(plugin.name + 'Config', 'enabled') || false;
+
+      if (isEnabled) {
         plugin.enabled = true;
         try {
           await plugin.onload();
@@ -133,7 +134,10 @@ export class PluginRegistry {
   async unloadDisabledPlugins() {
     const plugins = this.getAllPlugins();
     for (const plugin of plugins) {
-      if (!settings.getFlag(plugin.name) && plugin.enabled) {
+      const pluginConfig = this.pluginConfigs.get(plugin.name);
+      const isEnabled =   settings.getBySpace(plugin.name + 'Config', 'enabled') || false;
+
+      if (!isEnabled && plugin.enabled) {
         plugin.enabled = false;
         try {
           await plugin.onunload();
