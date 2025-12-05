@@ -76,9 +76,14 @@ export default class PluginGo extends Plugin {
     // });
 
     // Call onLayoutReady for enabled plugins
+    console.log("onLayoutReady");
+
     const plugins = this.pluginRegistry.getAllPlugins();
+
+    console.log("onLayoutReady", plugins);
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.onLayoutReady) {
+        console.log("onLayoutReady", plugin.name);
         try {
           await plugin.onLayoutReady();
         } catch (error) {

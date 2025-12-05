@@ -17,8 +17,8 @@ const docks = [
   "BottomRight",
 ];
 
-export default class DiaryTools implements SubPlugin {
-  name = "diaryTools";
+export default class DashBoard implements SubPlugin {
+  name = "dashBoard";
   displayName = "日记相关工具";
   description = "提供日记相关的工具，包括仪表盘、天气信息插入等功能";
   version = "1.0.0";
@@ -62,7 +62,8 @@ export default class DiaryTools implements SubPlugin {
     }
   }
 
-  async onload() {
+  onload(): void {}
+  async onLayoutReady() {
     console.log("diary-tools onload");
     // Add icon to toolbar
     this.addIconToToolbar();

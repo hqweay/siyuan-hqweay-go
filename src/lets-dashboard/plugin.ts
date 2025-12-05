@@ -106,7 +106,7 @@ export default {
         title: "仪表盘配置",
         description: "参考默认配置……",
         key: "configs",
-        value: "[]",
+        value: "",
         placeholder: "参考默认配置……",
       },
     ],

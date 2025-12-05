@@ -19,7 +19,7 @@ export interface SubPlugin {
   description?: string;
   version?: string;
   settings?: PluginSettings;
-  enabled: boolean;
+  // enabled: boolean;
 
   onload(): void;
   onunload(): void;
