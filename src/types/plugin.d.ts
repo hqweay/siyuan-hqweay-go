@@ -27,6 +27,7 @@ export interface SubPlugin {
   onDataChanged?(): void;
 
   // Event handlers
+  addMenuItem?(menu: Menu): void;
   editortitleiconEvent?(detail: any): void;
   mobilekeyboardshowEvent?(detail: any): void;
   mobilekeyboardhideEvent?(detail: any): void;

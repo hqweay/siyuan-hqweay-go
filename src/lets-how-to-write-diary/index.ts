@@ -16,19 +16,16 @@ const docks = [
 ];
 
 export default class DiaryTools implements SubPlugin {
-
   private id = "hqweay-diary-tools";
   private label = "获取天气并插入当前文档属性";
   private icon = `📝`;
   private thisElement: HTMLElement | null = null;
 
-  async onload() {
-    // Setup menu for mobile or desktop
-    if (isMobile) {
-      this.addMenu();
-    }
-  }
+  // async onLayoutReady() {
+  //   // Setup menu for mobile or desktop
 
+  // }
+  onload(): void {}
   onunload(): void {}
 
   //获取天气并插入当前文档属性
@@ -70,10 +67,10 @@ export default class DiaryTools implements SubPlugin {
     };
   }
 
-  private addMenu(rect?: DOMRect) {
-    const menu = new Menu("hqweay-diary-tools-menu");
+  addMenuItem(menu) {
     // 添加获取天气并插入当前文档属性选项
-    if (settings.getBySpace("createDailyNote", "topBar")) {
+    if (settings.getBySpace("diaryTools", "topBar")) {
+      console.log("addMenuItem");
       menu.addItem({
         label: "获取当前天气并插入当前文档属性",
         iconHTML: "🌤️",
@@ -90,7 +87,7 @@ export default class DiaryTools implements SubPlugin {
           }
 
           const cityCode = settings.getBySpace(
-            "createDailyNoteConfig",
+            "createDailyNote",
             "getWeatherSetAttrs"
           );
 
@@ -122,16 +119,6 @@ export default class DiaryTools implements SubPlugin {
           });
           showMessage("天气属性已插入当前文档属性", 2000);
         },
-      });
-    }
-
-    if (isMobile) {
-      menu.fullscreen();
-    } else {
-      menu.open({
-        x: rect.right,
-        y: rect.bottom,
-        isLeft: true,
       });
     }
   }

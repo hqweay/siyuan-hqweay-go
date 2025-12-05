@@ -22,6 +22,7 @@ export const pluginMetadata: PluginMetadata = {
     {
       type: "button",
       title: "选择图标",
+      description: "选择图标",
       key: "selectIcon",
       value: "选择图标",
     },

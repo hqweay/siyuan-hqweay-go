@@ -54,7 +54,7 @@
       pluginMeta.settings = pluginMeta.settings?.map((item) => {
         return {
           ...item, // 保留其他属性
-          value: settings.getBySpace(pluginMeta.name, item.key),
+          value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
         };
       });
       console.log(pluginMeta.settings);
@@ -279,7 +279,7 @@
           hasSetting: true,
         };
       }),
- 
+
       快捷添加属性: [
         {
           type: "textarea",

@@ -1,9 +1,9 @@
 import "./siyuan-block-attr/index.css";
 
-import { Dialog, Plugin } from "siyuan";
+import { Dialog, Menu, Plugin } from "siyuan";
 import SettingPannel from "@/setting.svelte";
 import { settings } from "./settings";
-import { plugin, setPlugin } from "./utils";
+import { isMobile, plugin, setPlugin } from "./utils";
 import { registerPlugin } from "@frostime/siyuan-plugin-kits";
 import { PluginRegistry } from "./plugin-registry";
 
@@ -66,14 +66,29 @@ export default class PluginGo extends Plugin {
 
   //App 准备好时加载
   async onLayoutReady() {
-    // const topBarElement = this.addTopBar({
-    //   icon: "iconBookmark",
-    //   title: "恐龙工具箱",
-    //   position: "right",
-    //   callback: () => {
-    //     // diaryTools handles its own menu display
-    //   },
-    // });
+    const topBarElement = this.addTopBar({
+      icon: "iconBookmark",
+      title: "恐龙工具箱",
+      position: "right",
+      callback: () => {
+        if (isMobile) {
+          this.addMenu();
+        } else {
+          let rect = topBarElement.getBoundingClientRect();
+          // 如果被隐藏，则使用更多按钮
+          if (rect.width === 0) {
+            rect = document.querySelector("#barMore").getBoundingClientRect();
+          }
+          if (rect.width === 0) {
+            rect = document
+              .querySelector("#barPlugins")
+              .getBoundingClientRect();
+          }
+          console.log("rect", rect);
+          this.addMenu(rect);
+        }
+      },
+    });
 
     // Call onLayoutReady for enabled plugins
     // console.log("onLayoutReady");
@@ -107,6 +122,31 @@ export default class PluginGo extends Plugin {
     }
   }
 
+  addMenu(rect?: DOMRect) {
+    const menu = new Menu("siyuan-hqweay-go");
+    const plugins = this.pluginRegistry.getAllPlugins();
+    for (const plugin of plugins) {
+      if (plugin.enabled && plugin.addMenuItem) {
+        try {
+          plugin.addMenuItem(menu);
+        } catch (error) {
+          console.error(
+            `Failed to call onLayoutReady for plugin ${plugin.name}:`,
+            error
+          );
+        }
+      }
+    }
+    if (isMobile) {
+      menu.fullscreen();
+    } else {
+      menu.open({
+        x: rect.right,
+        y: rect.bottom,
+        isLeft: true,
+      });
+    }
+  }
   // 在边栏上注入的图标在onLayoutReady执行；为了避免同步插件配置改变后会执行 unload 逻辑，因此 load 需要再执行一下。
   showMoreIconsOnBar() {
     // This method is now handled by individual plugins in their onload methods
