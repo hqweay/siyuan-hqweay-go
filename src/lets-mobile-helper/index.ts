@@ -234,11 +234,7 @@ export default class MobileHelper implements SubPlugin {
     button.innerHTML = `
       <span style="font-size: 20px; margin-bottom: 2px;">${icon}</span>
       <span style="font-size: 10px;">${label}</span>
-      ${
-        hasSubmenu
-          ? '<span style="position: absolute; top: 2px; right: 2px; font-size: 8px;">▾</span>'
-          : ""
-      }
+    
     `;
 
     if (hasSubmenu) {
