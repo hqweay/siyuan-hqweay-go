@@ -66,34 +66,43 @@ export default class PluginGo extends Plugin {
 
   //App 准备好时加载
   async onLayoutReady() {
-    const topBarElement = this.addTopBar({
-      icon: "iconBookmark",
-      title: "恐龙工具箱",
-      position: "right",
-      callback: () => {
-        if (isMobile) {
-          this.addMenu();
-        } else {
-          let rect = topBarElement.getBoundingClientRect();
-          // 如果被隐藏，则使用更多按钮
-          if (rect.width === 0) {
-            rect = document.querySelector("#barMore").getBoundingClientRect();
+    const plugins = this.pluginRegistry.getAllPlugins();
+    let needAddTopBar = false;
+    for (const plugin of plugins) {
+      if (plugin.enabled && plugin.addMenuItem) {
+        needAddTopBar = true;
+        break;
+      }
+    }
+
+    if (needAddTopBar) {
+      const topBarElement = this.addTopBar({
+        icon: this.myIcon,
+        title: "恐龙工具箱",
+        position: "right",
+        callback: () => {
+          if (isMobile) {
+            this.addMenu();
+          } else {
+            let rect = topBarElement.getBoundingClientRect();
+            // 如果被隐藏，则使用更多按钮
+            if (rect.width === 0) {
+              rect = document.querySelector("#barMore").getBoundingClientRect();
+            }
+            if (rect.width === 0) {
+              rect = document
+                .querySelector("#barPlugins")
+                .getBoundingClientRect();
+            }
+            //console.log("rect", rect);
+            this.addMenu(rect);
           }
-          if (rect.width === 0) {
-            rect = document
-              .querySelector("#barPlugins")
-              .getBoundingClientRect();
-          }
-          //console.log("rect", rect);
-          this.addMenu(rect);
-        }
-      },
-    });
+        },
+      });
+    }
 
     // Call onLayoutReady for enabled plugins
     // //console.log("onLayoutReady");
-
-    const plugins = this.pluginRegistry.getAllPlugins();
 
     // //console.log("onLayoutReady", plugins);
     for (const plugin of plugins) {
@@ -123,7 +132,7 @@ export default class PluginGo extends Plugin {
   }
 
   addMenu(rect?: DOMRect) {
-    const menu = new Menu("siyuan-hqweay-go");
+    const menu = new Menu("siyuan-hqweay-go-topbar");
     const plugins = this.pluginRegistry.getAllPlugins();
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.addMenuItem) {

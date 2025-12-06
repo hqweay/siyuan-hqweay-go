@@ -6,7 +6,7 @@
   // let groups: string[] = ["Default", "自动获取链接标题"];
   import { plugin } from "@/utils";
   import { selectIconDialog } from "./myscripts/utils";
-  import VoiceNotesPlugin from "./siyuan-voicenotes-sync";
+  import VoiceNotesPlugin from "./lets-voicenotes-sync";
   import { PluginRegistry } from "./plugin-registry";
 
   const initData = () => {
@@ -486,112 +486,7 @@ https://shibe.online/api/shibes?count=1`,
         },
       ],
 
-      "VoiceNotes 同步": [
-        {
-          type: "textinput",
-          title: "Token",
-          description: "token",
-          key: "token",
-          value: settings.getBySpace("voiceNotes", "token"),
-          placeholder: "12345|abcdefgh",
-        },
-        {
-          type: "textinput",
-          title: "思源笔记笔记本id",
-          description: "思源笔记笔记本id",
-          key: "notebook",
-          value: settings.getBySpace("voiceNotes", "notebook"),
-          placeholder: "20240330144726-gs2xey6",
-        },
-        {
-          type: "textinput",
-          title: "同步的目录",
-          description: "同步的目录",
-          key: "syncDirectory",
-          value: settings.getBySpace("voiceNotes", "syncDirectory"),
-          placeholder: "voicenotes",
-        },
-        {
-          type: "textinput",
-          title: "手动同步时获取最新多少页数据（1页10条）",
-          description:
-            "小于 0 时同步全量，大于 0 时会同步配置的前多少页【建议合理配置】",
-          key: "manualSyncPageCount",
-          value: settings.getBySpace("voiceNotes", "manualSyncPageCount"),
-          placeholder: "2",
-        },
-        {
-          type: "textinput",
-          title: "全量同步最新多少页数据（1页10条）",
-          description: "小于 0 时同步全量，大于 0 时会同步配置的前多少页",
-          key: "latestDataCountOfPage",
-          value: settings.getBySpace(
-            "voiceNotesConfig",
-            "latestDataCountOfPage"
-          ),
-          placeholder: "-1",
-        },
-        {
-          type: "button",
-          title: "全量同步一次",
-          description: "点击会尝试全量同步一次笔记",
-          key: "fullSyncVoiceNotes",
-          value: "确认",
-        },
-        {
-          type: "checkbox",
-          title: "同步时使用中英文排版优化格式化",
-          description: "同步时使用中英文排版优化格式化",
-          key: "formatContent",
-          value: settings.getBySpace("voiceNotes", "formatContent"),
-        },
-        {
-          type: "checkbox",
-          title: "换行是否新建块",
-          description: "否则当作行内换行处理",
-          key: "newLineNewBlock",
-          value: settings.getBySpace("voiceNotes", "newLineNewBlock"),
-        },
-        // {
-        //   type: "textinput",
-        //   title: "时间格式",
-        //   description: "时间格式",
-        //   key: "dateFormat",
-        //   placeholder: "YYYY-MM-DD HH:mm:ss",
-        // },
-        {
-          type: "textarea",
-          title: "排除标签",
-          description: "同步时排除该标签下的笔记",
-          key: "excludeTags",
-          value: settings.getBySpace("voiceNotes", "excludeTags"),
-          placeholder: "done,no",
-        },
-        // {
-        //   type: "textarea",
-        //   title: "frontmatterTemplate",
-        //   description: "",
-        //   key: "frontmatterTemplate",
-        //   value: settings.getBySpace("voiceNotes", "frontmatterTemplate"),
-        //   placeholder: "",
-        // },
-        {
-          type: "textarea",
-          title: "noteTemplate",
-          description: "",
-          key: "noteTemplate",
-          value: settings.getBySpace("voiceNotes", "noteTemplate"),
-          placeholder: "",
-        },
-        // {
-        //   type: "textarea",
-        //   title: "同步过的笔记id，一般别修改",
-        //   description: "",
-        //   key: "syncedRecordingIds",
-        //   value: settings.getBySpace("voiceNotes", "syncedRecordingIds"),
-        //   placeholder: "",
-        // },
-      ],
+
       "OCR 图片识别": [
         {
           type: "select",

@@ -7,6 +7,7 @@ import { fetchSyncPost, showMessage } from "siyuan";
 import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
 import VoiceNotesApi from "./voicenotes-api";
 import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
+import { SubPlugin } from "@/types/plugin";
 
 function getContentFromTranscriptToNextHeading(element) {
   let result = "";
@@ -43,7 +44,25 @@ function getContentFromTranscriptToNextHeading(element) {
   return result.trim();
 }
 
-export default class VoiceNotesPlugin extends AddIconThenClick {
+export default class VoiceNotesPlugin implements SubPlugin {
+  onload(): void {
+    if (this.vnApi) return;
+    this.vnApi = new VoiceNotesApi({
+      token: settings.getBySpace("voiceNotes", "token"),
+    });
+  }
+
+  onunload(): void {}
+  addMenuItem(menu) {
+    menu.addItem({
+      label: "同步至 VoiceNotes",
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" >${this.icon}</div>`,
+      click: async () => {
+        this.exec();
+      },
+    });
+  }
+
   id = "hqweay-voicenotes";
   label = "同步至 VoiceNotes";
   icon = `<svg t="1737813478703" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248" width="128" height="128"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
@@ -54,12 +73,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
   vnApi;
 
-  init() {
-    if (this.vnApi) return;
-    this.vnApi = new VoiceNotesApi({
-      token: settings.getBySpace("voiceNotesConfig", "token"),
-    });
-  }
+  init() {}
 
   public async editortitleiconEvent({ detail }: any) {
     detail.menu.addItem({
@@ -143,7 +157,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       await setBlockAttrs(nodeId, {
         [`custom-updatedat`]: formatDate(
           response.updated_at,
-          settings.getBySpace("voiceNotesConfig", "dateFormat")
+          settings.getBySpace("voiceNotes", "dateFormat")
         ),
       });
       showMessage(`该笔记已修改`);
@@ -159,7 +173,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
           [`custom-recordingid`]: response.recording.id,
           [`custom-createdat`]: formatDate(
             response.recording.created_at,
-            settings.getBySpace("voiceNotesConfig", "dateFormat")
+            settings.getBySpace("voiceNotes", "dateFormat")
           ),
         });
       } else {
@@ -168,7 +182,6 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
     }
   }
 
-  // 打开随机文档，编辑sql选定范围
   async exec(fullSync = false) {
     this.syncedNoteCount = 0;
     showMessage(`开始同步`);
@@ -212,8 +225,8 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         let nextPage = recordings.links.next;
         let pageCounter = 1; // 已经获取了一页数据，所以从1开始计数
         let syncPageCount = fullSync
-          ? settings.getBySpace("voiceNotesConfig", "latestDataCountOfPage")
-          : settings.getBySpace("voiceNotesConfig", "manualSyncPageCount");
+          ? settings.getBySpace("voiceNotes", "latestDataCountOfPage")
+          : settings.getBySpace("voiceNotes", "manualSyncPageCount");
 
         while (
           nextPage &&
@@ -236,7 +249,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       );
 
       const syncDirectory = settings.getBySpace(
-        "voiceNotesConfig",
+        "voiceNotes",
         "syncDirectory"
       );
       if (recordings) {
@@ -264,7 +277,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       );
 
       // settings.setBySpace(
-      //   "voiceNotesConfig",
+      //   "voiceNotes",
       //   "syncedRecordingIds",
       //   this.syncedRecordingIds.join(",")
       // );
@@ -334,9 +347,9 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       if (
         recording.tags &&
         recording.tags.some((tag) =>
-          settings.getBySpace("voiceNotesConfig", "excludeTags")
+          settings.getBySpace("voiceNotes", "excludeTags")
             ? settings
-                .getBySpace("voiceNotesConfig", "excludeTags")
+                .getBySpace("voiceNotes", "excludeTags")
                 .split(",")
                 .includes(tag.name)
             : false
@@ -358,7 +371,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            notebook: settings.getBySpace("voiceNotesConfig", "notebook"),
+            notebook: settings.getBySpace("voiceNotes", "notebook"),
             path: noteExists.path,
           }),
         });
@@ -367,8 +380,9 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       //
       // const title = recording.title + recording.created_at;
+      console.log(recording);
       let title = recording.title;
-      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+      if (settings.getBySpace("voiceNotes", "formatContent")) {
         title = formatUtil.formatContent(title);
         // 删除多余的空格
         title = formatUtil.deleteSpaces(title);
@@ -483,16 +497,16 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
         title: title,
         date: formatDate(
           recording.created_at,
-          settings.getBySpace("voiceNotesConfig", "dateFormat")
+          settings.getBySpace("voiceNotes", "dateFormat")
         ),
         // duration: formatDuration(recording.duration),
         // created_at: formatDate(
         //   recording.created_at,
-        //   settings.getBySpace("voiceNotesConfig", "dateFormat")
+        //   settings.getBySpace("voiceNotes", "dateFormat")
         // ),
         // updated_at: formatDate(
         //   recording.updated_at,
-        //   settings.getBySpace("voiceNotesConfig", "dateFormat")
+        //   settings.getBySpace("voiceNotes", "dateFormat")
         // ),
         transcript: cleanSpacesBetweenChineseCharacters(transcript),
         // audio_filename: audioFilenameMD,
@@ -528,17 +542,17 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
 
       // 渲染模板
       let note = jinja.render(
-        settings.getBySpace("voiceNotesConfig", "noteTemplate"),
+        settings.getBySpace("voiceNotes", "noteTemplate"),
         context
       );
 
-      if (settings.getBySpace("voiceNotesConfig", "newLineNewBlock")) {
+      if (settings.getBySpace("voiceNotes", "newLineNewBlock")) {
         note = convertHtmlToMarkdown(note).replace(/\n+\s+/g, "\n\n");
       } else {
         note = convertHtmlToMarkdown(note).replace(/\n{3,}/g, "\n\n");
       }
 
-      if (settings.getBySpace("voiceNotesConfig", "formatContent")) {
+      if (settings.getBySpace("voiceNotes", "formatContent")) {
         // console.log("0" + note);
         note = formatUtil.formatContent(note);
         // console.log("1" + note);
@@ -563,7 +577,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
       // let renderedFrontmatter = jinja
       //   .render(
       //     recordingIdTemplate +
-      //       settings.getBySpace("voiceNotesConfig", "frontmatterTemplate"),
+      //       settings.getBySpace("voiceNotes", "frontmatterTemplate"),
       //     context
       //   )
       //   .replace(/\n{3,}/g, "\n\n");
@@ -577,7 +591,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          notebook: settings.getBySpace("voiceNotesConfig", "notebook"),
+          notebook: settings.getBySpace("voiceNotes", "notebook"),
           path: recordingPath,
           markdown: note,
         }),
@@ -589,7 +603,7 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
           this.syncedNoteCount++;
           // this.syncedRecordingIds.push(recording.recording_id);
           // settings.setBySpace(
-          //   "voiceNotesConfig",
+          //   "voiceNotes",
           //   "syncedRecordingIds",
           //   this.syncedRecordingIds.join(",")
           // );
@@ -615,11 +629,11 @@ export default class VoiceNotesPlugin extends AddIconThenClick {
               "custom-duration": `${recording.duration}`,
               "custom-createdat": formatDate(
                 recording.created_at,
-                settings.getBySpace("voiceNotesConfig", "dateFormat")
+                settings.getBySpace("voiceNotes", "dateFormat")
               ),
               "custom-updatedat": formatDate(
                 recording.updated_at,
-                settings.getBySpace("voiceNotesConfig", "dateFormat")
+                settings.getBySpace("voiceNotes", "dateFormat")
               ),
               "custom-recordingid": recording.recording_id,
               //通过 creations length 判断是否需要更新
