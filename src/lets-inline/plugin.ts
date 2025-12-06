@@ -1,6 +1,6 @@
 export default {
   name: "extractInline",
-  displayName: "提取元素至新文档",
+  displayName: "提取行内元素至新文档",
   description: "文档菜单打开事件新增提取当前文档行内元素至新文档。",
   version: "1.0.0",
   author: "hqweay",

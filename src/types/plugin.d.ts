@@ -48,4 +48,5 @@ export interface PluginMetadata {
   enabled?: boolean;
   defaultConfig?: Record<string, any>;
   settings?: PluginSettingItem[];
+  reference?: string
 }

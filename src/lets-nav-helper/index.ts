@@ -140,6 +140,7 @@ export default class NavHelper implements SubPlugin {
       activeButtonColor:
         settings.getBySpace(pluginMetadata.name, "activeButtonColor") ||
         "#007aff",
+      notJustInMain: !settings.getBySpace(pluginMetadata.name, "navJustInMain"),
     };
 
     // 创建导航栏容器
@@ -156,7 +157,7 @@ export default class NavHelper implements SubPlugin {
       display: flex;
       align-items: center;
       justify-content: space-around;
-      z-index: 1000;
+      z-index: ${config.notJustInMain ? 0 : 9999};
       padding: 0 10px;
       box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     `;
@@ -250,18 +251,24 @@ export default class NavHelper implements SubPlugin {
         key: "showBackButton",
         icon: "←",
         label: "返回",
+        show: settings.getBySpace(pluginMetadata.name, "showBackButton"),
         action: () => navigation.goBack(),
       },
       {
         key: "showDailyNoteButton",
         icon: "📅",
         label: "今日",
+        show: settings.getBySpace(pluginMetadata.name, "showDailyNoteButton"),
         action: () => this.createDailyNote(),
       },
       {
         key: "showNavigationMenuButton",
         icon: "🧭",
         label: "导航",
+        show: settings.getBySpace(
+          pluginMetadata.name,
+          "showNavigationMenuButton"
+        ),
         action: () => this.showNavigationSubmenu(),
         hasSubmenu: true,
       },
@@ -269,12 +276,14 @@ export default class NavHelper implements SubPlugin {
         key: "showForwardButton",
         icon: "→",
         label: "前进",
+        show: settings.getBySpace(pluginMetadata.name, "showForwardButton"),
         action: () => navigation.goForward(),
       },
       {
         key: "showDashBoard",
         icon: "🏠",
         label: "首页",
+        show: settings.getBySpace(pluginMetadata.name, "showDashBoard"),
         action: () => navigation.goToHome(),
       },
       // {
@@ -288,6 +297,7 @@ export default class NavHelper implements SubPlugin {
         key: "showCustomLinksButton",
         icon: "🔗",
         label: "链接",
+        show: settings.getBySpace(pluginMetadata.name, "showCustomLinksButton"),
         action: () => this.showCustomLinksSubmenu(),
         hasSubmenu: true,
       },
@@ -300,9 +310,14 @@ export default class NavHelper implements SubPlugin {
       // },
     ];
 
-    buttons.forEach((btn) => {
-      if (settings.getBySpace(pluginMetadata.name, btn.key)) {
-        // console.log(btn.key);
+    buttons
+      .filter((btn) => {
+        if (isMobile && btn.show === "mobile") return true;
+        if (!isMobile && btn.show === "pc") return true;
+        if (btn.show === "both") return true;
+        return false;
+      })
+      .forEach((btn) => {
         if (isMobile) {
           this.createNavButton(btn.icon, btn.label, btn.action, btn.hasSubmenu);
         } else {
@@ -313,8 +328,7 @@ export default class NavHelper implements SubPlugin {
             btn.hasSubmenu
           );
         }
-      }
-    });
+      });
   }
 
   // 创建桌面端导航按钮 直接复用移动端

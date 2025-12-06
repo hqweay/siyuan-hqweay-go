@@ -5,7 +5,7 @@ export const pluginMetadata: PluginMetadata = {
   displayName: "侧边栏展示文档或块",
   description: "在侧边栏中展示指定的文档或块内容",
   version: "1.0.0",
-
+  reference: "@frotstime",
   settings: [
     {
       type: "number",

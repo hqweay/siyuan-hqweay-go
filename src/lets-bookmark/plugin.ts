@@ -1,10 +1,9 @@
-import { settings } from "@/settings";
 import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "quick-bookmark",
-  displayName: "快捷添加书签",
-  description: "块菜单新增添加到书签",
+  displayName: "书签",
+  description: "块菜单新增快捷添加到书签",
   version: "1.0.0",
   settings: [
     {
