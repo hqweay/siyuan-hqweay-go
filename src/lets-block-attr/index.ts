@@ -3,69 +3,25 @@ import InsertCSS from "@/myscripts/insertCSS";
 import { addProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
-let menus = [
-  {
-    name: "恢复转换效果",
-    key: "f",
-    value: "",
-    enabled: true,
-  },
-  {
-    name: "转换为表格",
-    key: "f",
-    value: "bg",
-    enabled: true,
-  },
-  {
-    name: "转换为导图",
-    key: "f",
-    value: "dt",
-    enabled: true,
-  },
-  {
-    name: "转换为时间线",
-    key: "f",
-    value: "timeline",
-    enabled: true,
-  },
-  {
-    name: "转换为看板",
-    key: "f",
-    value: "kb",
-    enabled: true,
-  },
-  {
-    name: "转换为Tab",
-    key: "f",
-    value: "list2tab",
-    enabled: true,
-  },
-  // { name: "格纹复古", value: "qsr", key: "f", enabled: true },
-  // { name: "浅色黄", value: "qsy", key: "f", enabled: true },
-  // { name: "浅色绿", value: "qsg", key: "f", enabled: true },
-  // { name: "浅色蓝", value: "qsb", key: "f", enabled: true },
-  // { name: "深色红", value: "ssr", key: "f", enabled: true },
-  // { name: "深色橙", value: "ssy", key: "f", enabled: true },
-  // { name: "深色绿", value: "ssg", key: "f", enabled: true },
-  // { name: "深色蓝", value: "ssb", key: "f", enabled: true },
-  // { name: "渐变黄", value: "jb", key: "f", enabled: true },
-  // { name: "棕顶栏", value: "ay", key: "f", enabled: true },
-  // { name: "金边", value: "ayx", key: "f", enabled: true },
-];
+
+import ShowCustomPropertiesUnderTitle from "./ShowCustomPropertiesUnderTitle";
+import pluginMetadata from "./plugin";
 
 function parseArrayString(str) {
-  if (str.trim() == "") return menus;
+  if (str.trim() == "") return [];
   try {
     return new Function(`return ${str}`)();
   } catch (error) {
     console.error("解析失败:", error);
-    return menus;
+    return [];
   }
 }
 
+let menus = [];
+
 export default class BlockAttr extends InsertCSS implements SubPlugin {
+  private showCustomPropertiesUnderTitle = new ShowCustomPropertiesUnderTitle();
   public blockIconEvent({ detail }: any) {
-    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
     detail.menu.addItem({
       iconHTML: "",
       label: "快捷添加属性",
@@ -82,6 +38,7 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
   }
 
   public onLayoutReady() {
+    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
     //初始化还是执行一下，监听就只用处理变动过的数据了
     initList2Tab();
     if (menus.find((menu) => menu.value === "list2tab" && menu.enabled)) {
@@ -91,6 +48,13 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
 
   onload(): void {
     this.loadSlashOfAttrs();
+    
+    settings.getBySpace("quickAttr", "customProperties") &&
+      this.showCustomPropertiesUnderTitle.onload();
+  }
+
+  onunload(): void {
+    this.showCustomPropertiesUnderTitle.onunload();
   }
 
   public loadSlashOfAttrs = () => {

@@ -2,14 +2,22 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "quickAttr",
-  displayName: "快捷添加属性",
+  displayName: "属性 Plus",
   description:
-    "快捷添加属性；默认支持转换列表为表格等视图；注册快捷添加至slash",
+    "一些属性增强。标题下展示属性；支持快捷添加属性；默认支持转换列表为表格等视图；注册快捷添加至slash",
   version: "1.0.0",
   settings: [
     {
       type: "textarea",
-      title: "配置",
+      title: "标题下展示属性配置",
+      description: "这里配置的属性的值会在标题下展示",
+      key: "customProperties",
+      value: `custom-createdAt|创建时间\ncustom-updatedAt`,
+      placeholder: `custom-createdAt|创建时间\ncustom-updatedAt`,
+    },
+    {
+      type: "textarea",
+      title: "快捷添加属性配置配置",
       description: "",
       key: "attrs",
       value: `[

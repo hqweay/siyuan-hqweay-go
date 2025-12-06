@@ -720,17 +720,7 @@ https://shibe.online/api/shibes?count=1`,
         },
       ],
       标题下展示文档自定义属性的值: [
-        {
-          type: "textarea",
-          title: "属性名配置",
-          description: "",
-          key: "customProperties",
-          value: settings.getBySpace(
-            "showCustomPropertiesUnderTitleConfig",
-            "customProperties"
-          ),
-          placeholder: `custom-createdAt|创建时间\ncustom-updatedAt`,
-        },
+        
       ],
 
       其它: [

@@ -6,7 +6,7 @@ export default class ShowCustomPropertiesUnderTitle extends InsertCSS {
 
   onload() {
     const customProperties = settings.getBySpace(
-      "showCustomPropertiesUnderTitleConfig",
+      "quickAttr",
       "customProperties"
     );
 
