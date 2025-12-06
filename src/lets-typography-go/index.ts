@@ -7,6 +7,7 @@ import { settings } from "@/settings";
 
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { SubPlugin } from "@/types/plugin";
+import { addProtyleSlash } from "@/myscripts/syUtils";
 
 // availableBlocks = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9"];
 const availableBlocks = ["NodeParagraph", "NodeHeading"];
@@ -119,7 +120,20 @@ export default class TypographyGo implements SubPlugin {
 
   customEvent;
 
-  onload(): void {}
+  onload(): void {
+    if (settings.getBySpace("typography", "slashFormat")) {
+      addProtyleSlash({
+        filter: ["fcb"],
+        html: "格式化当前块",
+        id: "format-current-block",
+        callback: async (event, node) => {
+          const protyle = event.protyle;
+          formateElement(node, protyle);
+          event.insert(window.Lute.Caret, false, false);
+        },
+      });
+    }
+  }
   onunload(): void {}
 
   addMenuItem(menu: Menu): void {

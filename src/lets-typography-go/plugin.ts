@@ -8,6 +8,13 @@ export default {
   settings: [
     {
       type: "checkbox",
+      title: "添加一个 slash，格式化当前块",
+      description: "",
+      key: "slashFormat",
+      value: false,
+    },
+    {
+      type: "checkbox",
       title: "文档格式化时插入空格？",
       description:
         "点击右上角机器人对文档格式化时调用思源的「排版优化」来自动插入空格",
