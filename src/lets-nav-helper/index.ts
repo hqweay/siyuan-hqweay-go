@@ -6,14 +6,14 @@ import { createDailynote } from "@frostime/siyuan-plugin-kits";
 // import MobileNavigation from "./components/MobileNavigation.svelte";
 import { navigation } from "./navigation";
 import { openByMobile } from "@/myscripts/utils";
-import { getCurrentDocId, isBlockID } from "@/myscripts/syUtils";
+import { getCurrentDocId, isBlockID, openBlockByID } from "@/myscripts/syUtils";
 import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
-import { getMobileCurrentDocId } from "@/myscripts/navUtil";
 import { goToRandomBlock } from "@/myscripts/randomDocCache";
 import { mobileUtils } from "./utils";
 import pluginMetadata from "./plugin";
 export default class NavHelper implements SubPlugin {
   private navigationElement: HTMLElement | null = null;
+  private desktopNavigationElement: HTMLElement | null = null;
   private isNavigationVisible = false;
   private submenuElement: HTMLElement | null = null;
 
@@ -23,16 +23,14 @@ export default class NavHelper implements SubPlugin {
   }
 
   async onLayoutReady(): Promise<void> {
-    // if (!isMobile) return;
-
-    console.log("移动端助手 - 初始化移动端功能");
+    console.log("导航助手 - 初始化导航功能");
 
     // 设置移动端全局变量
     this.setupMobileGlobals();
 
-    // 创建底部导航栏
+    // 创建底部导航栏（自适应设备类型）
     if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
-      this.createBottomNavigation();
+      this.createAdaptiveNavigation();
     }
 
     // 注册事件监听器
@@ -40,10 +38,16 @@ export default class NavHelper implements SubPlugin {
   }
 
   onunload(): void {
-    // 清理导航栏
+    // 清理移动端导航栏
     if (this.navigationElement) {
       this.navigationElement.remove();
       this.navigationElement = null;
+    }
+
+    // 清理桌面端导航栏
+    if (this.desktopNavigationElement) {
+      this.desktopNavigationElement.remove();
+      this.desktopNavigationElement = null;
     }
 
     // 清理子菜单和外部点击监听器
@@ -85,8 +89,22 @@ export default class NavHelper implements SubPlugin {
     };
   }
 
-  // 创建底部导航栏
-  private createBottomNavigation(): void {
+  // 创建自适应导航（根据设备类型选择移动端或桌面端）
+  private createAdaptiveNavigation(): void {
+    if (isMobile) {
+      this.createMobileNavigation();
+    } else {
+      this.createDesktopNavigation();
+    }
+  }
+
+  // 创建移动端底部导航栏
+  private createMobileNavigation(): void {
+    if (this.desktopNavigationElement) {
+      this.desktopNavigationElement.remove();
+      this.desktopNavigationElement = null;
+    }
+
     if (this.navigationElement) {
       this.navigationElement.remove();
     }
@@ -132,6 +150,77 @@ export default class NavHelper implements SubPlugin {
 
     // 调整页面底部padding以避免内容被遮挡
     this.adjustPagePadding();
+  }
+
+  // 创建桌面端悬浮导航栏
+  private createDesktopNavigation(): void {
+    if (this.navigationElement) {
+      this.navigationElement.remove();
+      this.navigationElement = null;
+    }
+
+    // 清理之前的桌面端导航
+    if (this.desktopNavigationElement) {
+      this.desktopNavigationElement.remove();
+    }
+
+    // 创建桌面端导航容器
+    this.desktopNavigationElement = document.createElement("div");
+    this.desktopNavigationElement.id = "desktop-helper-navigation";
+    this.desktopNavigationElement.style.cssText = `
+      position: fixed;
+      bottom: 30px;
+      right: calc(50% - 200px);
+      width: 280px;
+      height: 50px;
+      background: rgba(248, 249, 250, 0.95);
+      border-radius: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(233, 236, 239, 0.8);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 4px 3px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    `;
+
+    // 添加桌面端导航按钮
+    this.createDesktopNavButtons();
+
+    // 添加到页面
+    document.body.appendChild(this.desktopNavigationElement);
+    this.isNavigationVisible = true;
+
+    // 添加悬浮效果
+    this.addDesktopHoverEffects();
+
+    // 响应式调整
+    this.adjustDesktopNavigationForScreenSize();
+  }
+
+  // 根据屏幕尺寸调整桌面端导航
+  private adjustDesktopNavigationForScreenSize(): void {
+    const screenWidth = window.innerWidth;
+
+    if (screenWidth < 768) {
+      // 小屏幕隐藏桌面端导航
+      this.hideNavigation();
+    } else if (screenWidth < 1024) {
+      // 中等屏幕调整位置和大小
+      if (this.desktopNavigationElement) {
+        this.desktopNavigationElement.style.width = "240px";
+        this.desktopNavigationElement.style.right = "calc(50% - 180px)";
+      }
+    } else {
+      // 大屏幕保持默认设置
+      if (this.desktopNavigationElement) {
+        this.desktopNavigationElement.style.width = "280px";
+        this.desktopNavigationElement.style.right = "calc(50% - 200px)";
+      }
+    }
   }
 
   // 创建导航按钮
@@ -194,12 +283,102 @@ export default class NavHelper implements SubPlugin {
     buttons.forEach((btn) => {
       if (settings.getBySpace(pluginMetadata.name, btn.key)) {
         // console.log(btn.key);
-        this.createNavButton(btn.icon, btn.label, btn.action, btn.hasSubmenu);
+        if (isMobile) {
+          this.createNavButton(btn.icon, btn.label, btn.action, btn.hasSubmenu);
+        } else {
+          this.createDesktopNavButton(
+            btn.icon,
+            btn.label,
+            btn.action,
+            btn.hasSubmenu
+          );
+        }
       }
     });
   }
 
-  // 创建单个导航按钮
+  // 创建桌面端导航按钮 直接复用移动端
+  private createDesktopNavButtons(): void {
+    this.createNavButtons();
+  }
+
+  // 创建桌面端单个导航按钮
+  private createDesktopNavButton(
+    icon: string,
+    label: string,
+    action: () => void,
+    hasSubmenu: boolean = false
+  ): void {
+    const button = document.createElement("button");
+    button.style.cssText = `
+      background: transparent;
+      border: 1px solid rgba(89, 130, 246, 0.2);
+      color: #495057;
+      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      min-width: 45px;
+      min-height: 38px;
+    `;
+
+    button.innerHTML = `
+      <span style="font-size: 14px;">${icon}</span>
+      <span style="font-size: 10px; font-weight: 500; color: #6c757d;">${label}</span>
+    `;
+
+    if (hasSubmenu) {
+      button.addEventListener("click", (e) => {
+        e.stopPropagation();
+        action();
+      });
+    } else {
+      button.addEventListener("click", action);
+    }
+
+    button.addEventListener("mouseenter", () => {
+      button.style.background = "rgba(59, 130, 246, 0.12)";
+      button.style.borderColor = "rgba(59, 130, 246, 0.3)";
+      button.style.transform = "translateY(-1px)";
+      button.style.boxShadow = "0 2px 8px rgba(59, 130, 246, 0.2)";
+    });
+
+    button.addEventListener("mouseleave", () => {
+      button.style.background = "transparent";
+      button.style.borderColor = "rgba(89, 130, 246, 0.2)";
+      button.style.transform = "translateY(0)";
+      button.style.boxShadow = "none";
+    });
+
+    this.desktopNavigationElement?.appendChild(button);
+  }
+
+  // 添加桌面端悬浮效果
+  private addDesktopHoverEffects(): void {
+    if (!this.desktopNavigationElement) return;
+
+    // 添加主容器悬浮效果
+    this.desktopNavigationElement.addEventListener("mouseenter", () => {
+      this.desktopNavigationElement!.style.transform = "translateY(-2px)";
+      this.desktopNavigationElement!.style.boxShadow =
+        "0 6px 20px rgba(0, 0, 0, 0.15)";
+    });
+
+    this.desktopNavigationElement.addEventListener("mouseleave", () => {
+      this.desktopNavigationElement!.style.transform = "translateY(0)";
+      this.desktopNavigationElement!.style.boxShadow =
+        "0 4px 16px rgba(0, 0, 0, 0.1)";
+    });
+  }
+
+  // 创建单个导航按钮（移动端）
   private createNavButton(
     icon: string,
     label: string,
@@ -270,7 +449,7 @@ export default class NavHelper implements SubPlugin {
       );
 
       if (dailyNoteId) {
-        openMobileFileById(plugin.app, dailyNoteId);
+        openBlockByID(dailyNoteId);
         showMessage("今日笔记已创建并打开");
         mobileUtils.vibrate(50);
       } else {
@@ -286,17 +465,35 @@ export default class NavHelper implements SubPlugin {
 
   // 隐藏导航栏
   private hideNavigation(): void {
+    // 隐藏移动端导航
     if (this.navigationElement && this.isNavigationVisible) {
       this.navigationElement.style.transform = "translateY(100%)";
       this.navigationElement.style.transition = "transform 0.3s ease";
-      this.isNavigationVisible = false;
     }
+
+    // 隐藏桌面端导航
+    if (this.desktopNavigationElement && this.isNavigationVisible) {
+      this.desktopNavigationElement.style.opacity = "0";
+      this.desktopNavigationElement.style.transform =
+        "translateY(20px) scale(0.9)";
+      this.desktopNavigationElement.style.transition = "all 0.3s ease";
+    }
+
+    this.isNavigationVisible = false;
   }
 
   // 显示导航栏
   private showNavigation(): void {
+    // 显示移动端导航
     if (this.navigationElement && !this.isNavigationVisible) {
       this.navigationElement.style.transform = "translateY(0)";
+      this.isNavigationVisible = true;
+    }
+
+    // 显示桌面端导航
+    if (this.desktopNavigationElement && !this.isNavigationVisible) {
+      this.desktopNavigationElement.style.opacity = "1";
+      this.desktopNavigationElement.style.transform = "translateY(0) scale(1)";
       this.isNavigationVisible = true;
     }
   }
@@ -325,15 +522,39 @@ export default class NavHelper implements SubPlugin {
       }
     });
 
-    // 监听窗口大小变化
+    // 监听窗口大小变化（响应式处理）
+    let resizeTimeout: NodeJS.Timeout;
     window.addEventListener("resize", () => {
-      if (
-        this.navigationElement &&
-        settings.getBySpace(pluginMetadata.name, "enableBottomNav")
-      ) {
-        this.adjustPagePadding();
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        this.handleDeviceChange();
+      }, 300);
+    });
+
+    // 监听设置变化
+    plugin.eventBus.on("ws-main", (event) => {
+      if (event.detail.data?.data?.appData?.plugins) {
+        this.handleSettingsChange();
       }
     });
+  }
+
+  // 处理设备类型变化
+  private handleDeviceChange(): void {
+    // 重新创建导航以适应新的设备类型
+    if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
+      this.createAdaptiveNavigation();
+    }
+  }
+
+  // 处理设置变化
+  private handleSettingsChange(): void {
+    // 重新创建导航以应用新设置
+    if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
+      this.createAdaptiveNavigation();
+    } else {
+      this.hideNavigation();
+    }
   }
 
   // 注销事件监听器
@@ -361,14 +582,13 @@ export default class NavHelper implements SubPlugin {
     this.submenuElement.style.cssText = `
       position: fixed;
       bottom: 70px;
-      left: 10px;
-      right: 10px;
+      left: 60%;
+      transform: translateX(-50%);
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       z-index: 1001;
-      max-height: 300px;
-      overflow-y: auto;
+      min-width: 200px;
     `;
 
     // 创建子菜单内容

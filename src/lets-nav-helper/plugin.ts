@@ -11,7 +11,7 @@ const pluginMetadata: PluginMetadata = {
     enableBottomNav: true,
     showBackButton: true,
     navJustInMain: true,
-    noteBookID: "",
+    noteBookID: "20240330144726-gs2xey6",
     showForwardButton: false,
     showDashBoard: true,
     showRandomButton: true,

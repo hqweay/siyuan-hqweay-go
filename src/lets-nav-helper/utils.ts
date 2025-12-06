@@ -10,6 +10,11 @@ export const isMobile =
   getFrontend() === "mobile" || getFrontend() === "browser-mobile";
 
 /**
+ * PC端环境检测（桌面端）
+ */
+export const isDesktop = !isMobile;
+
+/**
  * 移动端工具类
  */
 class MobileUtils {

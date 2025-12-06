@@ -84,7 +84,7 @@ class MobileNavigation {
       }
 
       // 跳转到父文档
-      openMobileFileById(plugin.app, parentDoc.id);
+      openBlockByID(parentDoc.id);
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到父文档失败:", error);
@@ -114,7 +114,7 @@ class MobileNavigation {
       }
 
       // 跳转到第一个子文档
-      openMobileFileById(plugin.app, children[0].id);
+      openBlockByID(children[0].id);
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到子文档失败:", error);
@@ -159,7 +159,7 @@ class MobileNavigation {
       }
 
       // 跳转到目标兄弟文档
-      openMobileFileById(plugin.app, siblings[newIndex].id);
+      openBlockByID(siblings[newIndex].id);
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到兄弟文档失败:", error);
