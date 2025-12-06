@@ -1,4 +1,4 @@
-import { getRandomDocId } from "./../myscripts/randomDocCache";
+import { getRandomDocId } from "../myscripts/randomDocCache";
 import { getBlockByID, listDocsByPath, sql } from "@/api";
 import { plugin } from "@/utils";
 import { openMobileFileById, openTab, showMessage } from "siyuan";

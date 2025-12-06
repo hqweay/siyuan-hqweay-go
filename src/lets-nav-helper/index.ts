@@ -11,11 +11,8 @@ import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 import { getMobileCurrentDocId } from "@/myscripts/navUtil";
 import { goToRandomBlock } from "@/myscripts/randomDocCache";
 import { mobileUtils } from "./utils";
-
-export default class MobileHelper implements SubPlugin {
-  private id = "mobile-helper";
-  private label = "移动端助手";
-  private icon = "📱";
+import pluginMetadata from "./plugin";
+export default class NavHelper implements SubPlugin {
   private navigationElement: HTMLElement | null = null;
   private isNavigationVisible = false;
   private submenuElement: HTMLElement | null = null;
@@ -26,7 +23,7 @@ export default class MobileHelper implements SubPlugin {
   }
 
   async onLayoutReady(): Promise<void> {
-    if (!isMobile) return;
+    // if (!isMobile) return;
 
     console.log("移动端助手 - 初始化移动端功能");
 
@@ -34,7 +31,7 @@ export default class MobileHelper implements SubPlugin {
     this.setupMobileGlobals();
 
     // 创建底部导航栏
-    if (settings.getBySpace("mobile-helper", "enableBottomNav")) {
+    if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
       this.createBottomNavigation();
     }
 
@@ -70,7 +67,7 @@ export default class MobileHelper implements SubPlugin {
   mobilekeyboardhideEvent(eventData: any): void {
     console.log("移动端键盘隐藏", eventData);
     // 恢复底部导航栏
-    if (settings.getBySpace("mobile-helper", "enableBottomNav")) {
+    if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
       this.showNavigation();
     }
   }
@@ -95,13 +92,16 @@ export default class MobileHelper implements SubPlugin {
     }
 
     const config = {
-      height: settings.getBySpace("mobile-helper", "navBarHeight") || "60px",
+      height:
+        settings.getBySpace(pluginMetadata.name, "navBarHeight") || "60px",
       backgroundColor:
-        settings.getBySpace("mobile-helper", "backgroundColor") || "#ffffff",
+        settings.getBySpace(pluginMetadata.name, "backgroundColor") ||
+        "#ffffff",
       buttonColor:
-        settings.getBySpace("mobile-helper", "buttonColor") || "#333333",
+        settings.getBySpace(pluginMetadata.name, "buttonColor") || "#333333",
       activeButtonColor:
-        settings.getBySpace("mobile-helper", "activeButtonColor") || "#007aff",
+        settings.getBySpace(pluginMetadata.name, "activeButtonColor") ||
+        "#007aff",
     };
 
     // 创建导航栏容器
@@ -192,7 +192,7 @@ export default class MobileHelper implements SubPlugin {
     ];
 
     buttons.forEach((btn) => {
-      if (settings.getBySpace("mobile-helper", btn.key)) {
+      if (settings.getBySpace(pluginMetadata.name, btn.key)) {
         // console.log(btn.key);
         this.createNavButton(btn.icon, btn.label, btn.action, btn.hasSubmenu);
       }
@@ -211,7 +211,7 @@ export default class MobileHelper implements SubPlugin {
       background: none;
       border: none;
       color: ${
-        settings.getBySpace("mobile-helper", "buttonColor") || "#333333"
+        settings.getBySpace(pluginMetadata.name, "buttonColor") || "#333333"
       };
       font-size: 18px;
       padding: 8px;
@@ -242,13 +242,14 @@ export default class MobileHelper implements SubPlugin {
 
     button.addEventListener("touchstart", () => {
       button.style.color =
-        settings.getBySpace("mobile-helper", "activeButtonColor") || "#007aff";
+        settings.getBySpace(pluginMetadata.name, "activeButtonColor") ||
+        "#007aff";
       button.style.backgroundColor = "rgba(0, 122, 255, 0.1)";
     });
     button.addEventListener("touchend", () => {
       setTimeout(() => {
         button.style.color =
-          settings.getBySpace("mobile-helper", "buttonColor") || "#333333";
+          settings.getBySpace(pluginMetadata.name, "buttonColor") || "#333333";
         button.style.backgroundColor = "transparent";
       }, 150);
     });
@@ -259,7 +260,7 @@ export default class MobileHelper implements SubPlugin {
   // 创建今日笔记
   private async createDailyNote(): Promise<void> {
     try {
-      const noteBookID = settings.getBySpace("mobile-helper", "noteBookID");
+      const noteBookID = settings.getBySpace(pluginMetadata.name, "noteBookID");
       const today = new Date();
 
       // 使用frostime/siyuan-plugin-kits库创建今日笔记
@@ -303,7 +304,7 @@ export default class MobileHelper implements SubPlugin {
   // 调整页面底部padding
   private adjustPagePadding(): void {
     const navHeight = parseInt(
-      settings.getBySpace("mobile-helper", "navBarHeight") || "60px"
+      settings.getBySpace(pluginMetadata.name, "navBarHeight") || "60px"
     );
     const editor = document.querySelector("#editor");
     if (editor) {
@@ -318,7 +319,7 @@ export default class MobileHelper implements SubPlugin {
       if (document.hidden) {
         this.hideNavigation();
       } else {
-        if (settings.getBySpace("mobile-helper", "enableBottomNav")) {
+        if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
           this.showNavigation();
         }
       }
@@ -328,7 +329,7 @@ export default class MobileHelper implements SubPlugin {
     window.addEventListener("resize", () => {
       if (
         this.navigationElement &&
-        settings.getBySpace("mobile-helper", "enableBottomNav")
+        settings.getBySpace(pluginMetadata.name, "enableBottomNav")
       ) {
         this.adjustPagePadding();
       }
@@ -346,7 +347,7 @@ export default class MobileHelper implements SubPlugin {
     this.hideSubmenu(); // 先隐藏之前的子菜单
 
     const linksConfig =
-      settings.getBySpace("mobile-helper", "customLinks") || "";
+      settings.getBySpace(pluginMetadata.name, "customLinks") || "";
     const links = linksConfig.split("\n").filter((line) => line.trim());
 
     if (links.length === 0) {

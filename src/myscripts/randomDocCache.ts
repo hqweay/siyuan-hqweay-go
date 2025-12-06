@@ -6,9 +6,9 @@
 import { sql as executeSql } from "@/api";
 import { getCurrentDocId } from "./syUtils";
 import { openMobileFileById, openTab, showMessage } from "siyuan";
-import { mobileUtils } from "@/lets-mobile-helper/utils";
+import { mobileUtils } from "@/lets-nav-helper/utils";
 import { isMobile, plugin } from "@/utils";
-import { navigation } from "@/lets-mobile-helper/navigation";
+import { navigation } from "@/lets-nav-helper/navigation";
 
 interface CacheEntry {
   ids: string[];

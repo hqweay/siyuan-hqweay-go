@@ -1,8 +1,8 @@
 import { PluginMetadata } from "@/types/plugin";
 
 const pluginMetadata: PluginMetadata = {
-  name: "mobile-helper",
-  displayName: "移动端助手",
+  name: "nav-helper",
+  displayName: "导航助手",
   description: "提供移动端导航、键盘事件处理等功能的助手工具",
   version: "1.0.0",
   author: "hqweay",
