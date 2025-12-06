@@ -1,8 +1,13 @@
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 
-export default class ReadHelper {
+export default class ReadHelper implements SubPlugin {
+  onload(): void {}
+
+  onunload(): void {}
+
   updateProtyleToolbar(toolbar) {
-    settings.getBySpace("readHelperConfig", "markAndCopyRef") &&
+    settings.getBySpace("readHelper", "markAndCopyRef") &&
       toolbar.push({
         name: "markAndCopyRef",
         icon: "iconStar",
@@ -13,7 +18,7 @@ export default class ReadHelper {
         },
       });
 
-    settings.getBySpace("readHelperConfig", "markAndCopyTextRef") &&
+    settings.getBySpace("readHelper", "markAndCopyTextRef") &&
       toolbar.push({
         name: "markAndCopyTextRef",
         icon: "iconUp",
@@ -23,7 +28,7 @@ export default class ReadHelper {
           this.markAndCopyTextRef(protyle.protyle);
         },
       });
-    settings.getBySpace("readHelperConfig", "markAndCopyTextRefNoHighlight") &&
+    settings.getBySpace("readHelper", "markAndCopyTextRefNoHighlight") &&
       toolbar.push({
         name: "markAndCopyTextRefNoHighlight",
         icon: "iconDown",
