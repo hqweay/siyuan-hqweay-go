@@ -1,14 +1,20 @@
+import { createDocWithMd, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 import { showMessage } from "siyuan";
 
-export default class Read extends AddIconThenClick {
+export default class Read implements SubPlugin {
   regexOfHighLight = /==([^=]+?)==/g;
   // regexOfMemo = /\^\((.*?)\)\^|\^（(.*?)）\^/g;
   regexOfMemo = /(.*?)<sup>[(（](.*?)[)）]<\/sup>/g;
 
+  onload(): void {}
+
+  onunload(): void {}
+
   private async getHighLight({ detail, keepContext, extractPath, addRef }) {
-    const addOutline = settings.getBySpace("readConfig", "addOutline");
+    const addOutline = settings.getBySpace("extractInline", "addOutline");
 
     const docID = document
       .querySelector(
@@ -22,20 +28,19 @@ export default class Read extends AddIconThenClick {
 				OR (type = 'i' AND id in (SELECT parent_id FROM blocks WHERE path LIKE '%/${docID}.sy' 
 				AND type ='p' AND markdown LIKE '%==%==%' )) ORDER BY created`;
 
-    let res = await this.request("/api/query/sql", {
-      stmt: extractHighLightSQL,
-    });
+    let res = await sql(extractHighLightSQL);
 
-    const basicInfoResponse = await this.request("/api/query/sql", {
-      stmt: `select * from blocks where id = '${detail.data.id}'`,
-    });
+    const basicInfoResponse = await sql(
+      `select * from blocks where id = '${detail.data.id}'`
+    );
+
     //@ts-ignore
-    const basicInfo = basicInfoResponse.data[0];
+    const basicInfo = basicInfoResponse[0];
 
     let result = ``;
     if (res) {
       //@ts-ignore
-      res.data.forEach((element) => {
+      res.forEach((element) => {
         // console.log(element);
 
         if (keepContext) {
@@ -68,7 +73,7 @@ export default class Read extends AddIconThenClick {
   }
 
   private async getMemo({ detail, keepContext, extractPath, addRef }) {
-    const addOutline = settings.getBySpace("readConfig", "addOutline");
+    const addOutline = settings.getBySpace("extractInline", "addOutline");
     const docID = document
       .querySelector(
         ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
@@ -77,21 +82,18 @@ export default class Read extends AddIconThenClick {
 
     // const sql = `select * from blocks where root_id = '${docID}' and id in (select block_id from spans where type='textmark inline-memo') ORDER BY created`;
 
-    const sql = `select * from blocks join spans on blocks.id = spans.block_id where blocks.root_id = '${docID}' and spans.type='textmark inline-memo'`;
-    let res = await this.request("/api/query/sql", {
-      stmt: sql,
-    });
+    const sqlTemp = `select * from blocks join spans on blocks.id = spans.block_id where blocks.root_id = '${docID}' and spans.type='textmark inline-memo'`;
+    let res = await sql(sqlTemp);
 
-    const basicInfoResponse = await this.request("/api/query/sql", {
-      stmt: `select * from blocks where id = '${detail.data.id}'`,
-    });
+    const basicInfoResponse = await sql(
+      `select * from blocks where id = '${detail.data.id}'`
+    );
     //@ts-ignore
-    const basicInfo = basicInfoResponse.data[0];
+    const basicInfo = basicInfoResponse[0];
 
     let result = ``;
     if (res) {
-      //@ts-ignore
-      res.data.forEach(async (element) => {
+      res.forEach(async (element) => {
         // if (keepContext) {
         // result += `${element.markdown}\n\n`;
         let match;
@@ -135,13 +137,13 @@ export default class Read extends AddIconThenClick {
       addRef,
     });
 
-    await this.request("/api/filetree/createDocWithMd", {
-      notebook: detail.protyle.notebookId,
-      path: extractPath
+    await createDocWithMd(
+      detail.protyle.notebookId,
+      extractPath
         ? `${extractPath}/${result.basicInfo.content}`
         : `${result.basicInfo.hpath}/${result.basicInfo.content}`,
-      markdown: result.markdown,
-    });
+      result.markdown
+    );
   }
 
   private async extractMemo({ detail, keepContext, extractPath, addRef }) {
@@ -151,13 +153,14 @@ export default class Read extends AddIconThenClick {
       extractPath,
       addRef,
     });
-    await this.request("/api/filetree/createDocWithMd", {
-      notebook: detail.protyle.notebookId,
-      path: extractPath
+
+    await createDocWithMd(
+      detail.protyle.notebookId,
+      extractPath
         ? `${extractPath}/${result.basicInfo.content}`
         : `${result.basicInfo.hpath}/${result.basicInfo.content}`,
-      markdown: result.markdown,
-    });
+      result.markdown
+    );
   }
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
@@ -169,10 +172,10 @@ export default class Read extends AddIconThenClick {
           label: "提取标注和备注（含上下文）",
           click: async () => {
             const extractPath = settings.getBySpace(
-              "readConfig",
+              "extractInline",
               "extractPath"
             );
-            const addRef = settings.getBySpace("readConfig", "addRef");
+            const addRef = settings.getBySpace("extractInline", "addRef");
             const memoResult = await this.getMemo({
               detail,
               keepContext: true,
@@ -187,13 +190,13 @@ export default class Read extends AddIconThenClick {
               addRef,
             });
 
-            await this.request("/api/filetree/createDocWithMd", {
-              notebook: detail.protyle.notebookId,
-              path: extractPath
+            await createDocWithMd(
+              detail.protyle.notebookId,
+              extractPath
                 ? `${extractPath}/${memoResult.basicInfo.content}`
                 : `${memoResult.basicInfo.hpath}/${memoResult.basicInfo.content}`,
-              markdown: `${memoResult.markdown}\n\n${highLightResult.markdown}`,
-            });
+              `${memoResult.markdown}\n\n${highLightResult.markdown}`
+            );
           },
         },
         {
@@ -201,10 +204,10 @@ export default class Read extends AddIconThenClick {
           label: "提取标注和备注（无上下文）",
           click: async () => {
             const extractPath = settings.getBySpace(
-              "readConfig",
+              "extractInline",
               "extractPath"
             );
-            const addRef = settings.getBySpace("readConfig", "addRef");
+            const addRef = settings.getBySpace("extractInline", "addRef");
 
             const memoResult = await this.getMemo({
               detail,
@@ -220,13 +223,13 @@ export default class Read extends AddIconThenClick {
               addRef,
             });
 
-            await this.request("/api/filetree/createDocWithMd", {
-              notebook: detail.protyle.notebookId,
-              path: extractPath
+            await createDocWithMd(
+              detail.protyle.notebookId,
+              extractPath
                 ? `${extractPath}/${memoResult.basicInfo.content}`
                 : `${memoResult.basicInfo.hpath}/${memoResult.basicInfo.content}`,
-              markdown: `${memoResult.markdown}\n\n${highLightResult.markdown}`,
-            });
+              `${memoResult.markdown}\n\n${highLightResult.markdown}`
+            );
           },
         },
 
@@ -235,10 +238,10 @@ export default class Read extends AddIconThenClick {
           label: "提取标注（无上下文）",
           click: async () => {
             const extractPath = settings.getBySpace(
-              "readConfig",
+              "extractInline",
               "extractPath"
             );
-            const addRef = settings.getBySpace("readConfig", "addRef");
+            const addRef = settings.getBySpace("extractInline", "addRef");
             this.extractHighLight({
               detail,
               keepContext: false,
@@ -252,10 +255,10 @@ export default class Read extends AddIconThenClick {
           label: "提取标注（含上下文）",
           click: async () => {
             const extractPath = settings.getBySpace(
-              "readConfig",
+              "extractInline",
               "extractPath"
             );
-            // const addRef = settings.getBySpace("readConfig", "addRef");
+            // const addRef = settings.getBySpace("extractInline", "addRef");
             this.extractHighLight({
               detail,
               keepContext: true,
@@ -269,10 +272,10 @@ export default class Read extends AddIconThenClick {
           label: "提取备注",
           click: async () => {
             const extractPath = settings.getBySpace(
-              "readConfig",
+              "extractInline",
               "extractPath"
             );
-            const addRef = settings.getBySpace("readConfig", "addRef");
+            const addRef = settings.getBySpace("extractInline", "addRef");
             this.extractMemo({
               detail,
               keepContext: false,
@@ -286,10 +289,10 @@ export default class Read extends AddIconThenClick {
         //   label: "提取备注（含上下文）",
         //   click: async () => {
         //     const extractPath = settings.getBySpace(
-        //       "readConfig",
+        //       "extractInline",
         //       "extractPath"
         //     );
-        //     const addRef = settings.getBySpace("readConfig", "addRef");
+        //     const addRef = settings.getBySpace("extractInline", "addRef");
         //     this.extractMemo({
         //       detail,
         //       keepContext: true,
@@ -300,7 +303,7 @@ export default class Read extends AddIconThenClick {
         // },
       ],
     });
-    // const keepContext = settings.getBySpace("readConfig", "keepContext");
+    // const keepContext = settings.getBySpace("extractInline", "keepContext");
     // if (keepContext) {
     // detail.menu.addItem({});
     // }
