@@ -412,7 +412,8 @@ export default class MobileHelper implements SubPlugin {
           } else {
             isMobile ? openByMobile(url) : window.open(url, "_blank");
           }
-          this.hideSubmenu();
+          // 不隐藏，方便快速浏览
+          // this.hideSubmenu();
         });
 
         item.addEventListener("mouseenter", () => {
