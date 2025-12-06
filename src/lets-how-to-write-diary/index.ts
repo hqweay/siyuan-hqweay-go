@@ -4,6 +4,9 @@ import { isMobile, plugin } from "@/utils";
 import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
 import { quickNoteOnload } from "./quick-note/quickNote";
+import { addProtyleSlash } from "@/myscripts/syUtils";
+import { datePickerDialog } from "@/myscripts/dialog";
+import { createDailynote } from "@frostime/siyuan-plugin-kits";
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -28,6 +31,26 @@ export default class DiaryTools implements SubPlugin {
   // }
   onload(): void {
     settings.getBySpace("diaryTools", "quickInput") && quickNoteOnload();
+    if (settings.getBySpace("diaryTools", "slashDiaryNote")) {
+      addProtyleSlash({
+        filter: ["cdn"],
+        html: "创建日记引用",
+        id: "create-daily-note-ref",
+        callback: async (event, node) => {
+          datePickerDialog({
+            title: "选择日记",
+            confirm: async (choosedDate) => {
+              const config = settings.get("createDailyNoteConfig");
+              const dailyNoteId = await createDailynote(
+                config.noteBookID,
+                new Date(choosedDate)
+              );
+              event.insert(`((${dailyNoteId} "${choosedDate}"))`, false, false);
+            },
+          });
+        },
+      });
+    }
   }
   onunload(): void {}
 
