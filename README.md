@@ -4,11 +4,15 @@
 
 ## 更新
 
-实现了一版仪表盘功能，主要想为日记使用，也许可以作为一个回顾的工具。目前是概念验证阶段，还没提取配置项。效果如下：
+对插件进行一次较大版本的重构，功能和可维护性都大幅度增强。预计下个版本会提交。
 
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201004918-12x5wq7.png)
+但是由于数据结构变动，旧版本的数据无法兼容。
 
-![image](https://raw.githubusercontent.com/hqweay/picbed/master/img/image-20251201002550-weijk99.png)
+升级后需要在 配置-设置 里进行一次 合并数据 或 恢复/清理数据。
+
+此次更新主要是提醒一下。如果你是新用户，可以直接安装最新版本，无需担心数据问题。
+
+如果之前进行了比较复杂的配置，可以在 思源笔记工作目录SiYuan/data/storage/petal/siyuan-hqweay-go 里备份一下数据，升级后再手动迁移。
 
 ## 简要总结
 

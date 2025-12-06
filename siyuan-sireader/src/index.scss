@@ -1,0 +1,319 @@
+// ==================== Mixins ====================
+@mixin flex-center { display: flex; align-items: center; justify-content: center; }
+@mixin btn-base($w: 28px, $h: 28px) {
+  width: $w; height: $h; padding: 0; border: none; border-radius: 4px;
+  background: transparent; color: var(--b3-theme-on-surface); cursor: pointer;
+  @include flex-center; flex-shrink: 0; transition: all 0.15s;
+  &:hover { background: var(--b3-theme-background); transform: scale(1.05); }
+  &:active { transform: scale(0.95); }
+}
+@mixin card-base {
+  display: inline-flex; border-radius: 8px; border: 1px solid var(--b3-border-color);
+  background: var(--b3-theme-surface); box-shadow: 0 2px 8px #00000014;
+  transition: all 0.2s; cursor: pointer;
+  &:hover { box-shadow: 0 4px 16px #0000001f; transform: translateY(-2px); }
+}
+
+// ==================== Animations ====================
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes noteInputIn { from { opacity: 0; transform: scale(0.9) translateY(-10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes noteInputOut { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.9) translateY(-10px); } }
+
+// ==================== 核心容器 ====================
+.epub-reader, .epub-container { width: 100%; height: 100%; }
+.epub-reader { background: var(--b3-theme-background); position: relative; cursor: pointer; }
+.epub-container { transition: width 0.3s ease, margin-left 0.3s ease, margin-right 0.3s ease; }
+
+// ==================== 工具栏 ====================
+.epub-toolbar, .epub-selection-menu {
+  display: flex; gap: 2px; padding: 3px; background: var(--b3-theme-surface);
+  border: 1px solid var(--b3-border-color); border-radius: 6px;
+  box-shadow: 0 2px 8px #0000001f;
+}
+.epub-toolbar {
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  z-index: 1000; opacity: 0.3; transition: opacity 0.2s;
+  &:hover { opacity: 1; }
+}
+.epub-selection-menu { position: fixed; box-shadow: 0 4px 12px #00000026; z-index: 1001; }
+
+.toolbar-btn { @include btn-base(28px, 28px); svg { width: 14px; height: 14px; } }
+.menu-btn { @include btn-base(32px, 32px); svg { width: 16px; height: 16px; } }
+.toc-btn { @include btn-base(28px, 28px); svg { width: 14px; height: 14px; } &.active { color: var(--b3-theme-primary); background: var(--b3-theme-primary-lighter); } }
+
+// ==================== 颜色选择器（统一样式）====================
+.menu-btn-wrapper { 
+  position: relative; display: inline-block;
+  // 扩大触发区域：在按钮和选择器之间添加桥接区
+  &::before {
+    content: ''; position: absolute; 
+    left: 50%; transform: translateX(-50%); 
+    top: 100%; width: 100%; height: 8px;
+    pointer-events: auto; z-index: 9;
+  }
+}
+.color-picker {
+  position: absolute; top: calc(100% + 2px); left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; padding: 8px 10px; background: var(--b3-theme-surface);
+  border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 10;
+  animation: fadeInDown 0.15s ease;
+}
+.b3-list-item .color-picker { 
+  position: absolute; top: 36px; right: 0; left: auto; transform: none;
+  animation: fadeInRight 0.15s ease;
+}
+.color-btn {
+  width: 28px; height: 28px; border: 2px solid transparent; border-radius: 50%; cursor: pointer;
+  transition: all 0.2s; 
+  &:hover { transform: scale(1.15); }
+  &.active { border-color: var(--b3-theme-on-surface); box-shadow: 0 0 0 2px var(--b3-theme-surface); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: scale(0.9) translateX(8px); }
+  to { opacity: 1; transform: scale(1) translateX(0); }
+}
+
+// ==================== 阅读界面编辑按钮 ====================
+.epub-edit-btn {
+  position: absolute; top: -2px; right: -2px; width: 18px; height: 18px;
+  border: none; border-radius: 50%; cursor: pointer; font-size: 11px;
+  background: var(--b3-theme-primary); color: white; display: flex;
+  align-items: center; justify-content: center; padding: 0; line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15); transition: all 0.2s;
+  z-index: 100; opacity: 0.9;
+  &:hover { transform: scale(1.15); opacity: 1; }
+}
+
+// ==================== 加载状态 ====================
+.epub-loading, .epub-loading-next {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  color: var(--b3-theme-on-surface);
+}
+.epub-loading { top: 50%; transform: translate(-50%, -50%); text-align: center; font-size: 14px; }
+.epub-loading-next {
+  position: fixed; bottom: 80px; @include flex-center; gap: 8px; padding: 8px 16px;
+  background: var(--b3-theme-surface); border: 1px solid var(--b3-border-color);
+  border-radius: 20px; box-shadow: 0 2px 8px #0000001a; font-size: 13px; z-index: 999;
+}
+.loading-spinner {
+  width: 40px; height: 40px; margin: 0 auto 16px; border: 3px solid var(--b3-border-color);
+  border-top-color: var(--b3-theme-primary); border-radius: 50%; animation: spin 1s linear infinite;
+  &-small { width: 16px; height: 16px; border-width: 2px; margin: 0; }
+}
+
+// ==================== EPUB 块视图样式 ====================
+// 共享基础样式
+@mixin epub-view-base { cursor: pointer; position: relative; }
+@mixin epub-cover($ratio: 3/4) {
+  content: ''; display: block; width: 100%; aspect-ratio: $ratio;
+  background: var(--b3-theme-background) center/cover;
+  background-image: var(--epub-cover, none);
+  border-radius: 8px; border: 1px solid var(--b3-border-color);
+}
+@mixin epub-overlay {
+  content: var(--epub-info); white-space: pre; position: absolute;
+  bottom: 0; left: 0; right: 0; color: white; border-radius: 0 0 8px 8px;
+}
+
+// 边框视图
+[custom-epub-view="border"] {
+  @include epub-view-base; display: inline-block; padding: 8px 12px;
+  border: 2px solid var(--b3-theme-primary); border-radius: 6px;
+  background: var(--b3-theme-surface); transition: all 0.2s;
+  &:hover { transform: translateY(-1px); box-shadow: 0 2px 8px #00000026; }
+  span[data-type="a"] { font-weight: 600; color: var(--b3-theme-primary); }
+}
+
+// 卡片视图
+[custom-epub-view="card"] {
+  @include card-base; @include epub-view-base; gap: 12px; padding: 12px;
+  min-height: 160px; width: var(--epub-width, 400px); max-width: 100%;
+  box-sizing: border-box;
+  span[data-type="a"], a[href] { display: none; }
+  &::before { @include epub-cover(7/5); width: 100px; height: 140px; flex-shrink: 0; }
+  &::after {
+    content: var(--epub-info); white-space: pre; font-size: 13px; line-height: 1.8;
+    color: var(--b3-theme-on-surface); flex: 1; min-width: 0; overflow: hidden;
+    text-overflow: ellipsis; position: static; background: none;
+  }
+}
+
+// 缩略图视图
+[custom-epub-view="thumb"] {
+  @include epub-view-base; display: inline-block; width: var(--epub-width, 12.5vw);
+  span[data-type="a"], a[href] { display: none; }
+  &::before {
+    @include epub-cover; box-shadow: 0 4px 16px #0000001a; transition: all 0.3s;
+  }
+  &:hover::before { transform: scale(1.02); box-shadow: 0 8px 24px #00000026; }
+  &::after {
+    @include epub-overlay; padding: 12px;
+    background: linear-gradient(to top, #000c, transparent);
+    font-size: 12px; line-height: 1.6;
+  }
+}
+
+// 阅读器视图
+[custom-epub-view="reader"] {
+  @include epub-view-base; display: inline-block; width: var(--epub-width, 12.5vw);
+  span[data-type="a"], a[href] { display: none; }
+  &::before {
+    @include epub-cover; @include flex-center; content: '📖';
+    font-size: 48px; text-shadow: 0 2px 8px #0000004d;
+  }
+  &:has(.epub-embedded-reader)::before,
+  &:has(.epub-embedded-reader)::after { display: none; }
+  &::after {
+    @include epub-overlay; padding: 16px;
+    background: linear-gradient(to top, #000e, transparent);
+    font-size: 13px; line-height: 1.8;
+  }
+}
+
+// 嵌入式阅读器
+.epub-embedded-reader { position: relative; width: 100%; height: 100%; }
+.epub-embedded-container {
+  position: relative; aspect-ratio: 3/4; background: var(--b3-theme-background);
+  border-radius: 8px; overflow: hidden; border: 1px solid var(--b3-border-color);
+  width: var(--epub-width, 12.5vw);
+  .epub-toolbar { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 1000; pointer-events: auto; }
+  .epub-progress-fill { pointer-events: none; }
+  .epub-embedded-viewer { z-index: 1; }
+}
+.epub-embedded-viewer { width: 100%; height: 100%; iframe { border: none; } }
+.epub-reader-loading { @include flex-center; flex-direction: column; height: 100%; gap: 12px; color: var(--b3-theme-on-surface); }
+.epub-progress-fill { position: absolute; bottom: 0; left: 0; height: 2px; background: var(--b3-theme-primary); transition: width 0.3s; z-index: 2; }
+
+// ==================== 阅读器布局 ====================
+.epub-reader-wrap { position: relative; width: 100%; height: 100%; display: flex; }
+
+// ==================== 目录面板 ====================
+@keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+.epub-toc-overlay { position: absolute; inset: 0; background: #0000001a; z-index: 9; }
+.epub-toc-panel {
+  position: absolute; top: 0; bottom: 0; width: 360px;
+  background: var(--b3-theme-background); border: 1px solid var(--b3-border-color);
+  display: flex; flex-direction: column; z-index: 10;
+  box-shadow: 0 4px 16px #0000001a; animation: slideIn 0.2s ease;
+  &--left { left: 0; border-left: none; }
+  &--right { right: 0; border-right: none; animation-name: slideInRight; }
+}
+
+// 目录头部
+.toc-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 8px 12px; border-bottom: 1px solid var(--b3-border-color);
+  background: var(--b3-theme-surface);
+}
+.toc-modes { display: flex; gap: 4px; flex: 1; }
+.toc-mode-btn {
+  @include btn-base(32px, 32px); svg { width: 16px; height: 16px; }
+  &.active { color: var(--b3-theme-primary); background: var(--b3-theme-primary-lighter); }
+}
+.toc-tools, .toc-extra-btns { display: flex; gap: 4px; }
+.toc-search { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-bottom: 1px solid var(--b3-border-color); input { flex: 1; } }
+
+// 目录主体
+.toc-body {
+  flex: 1; overflow-y: auto; padding: 4px 0; display: flex; flex-direction: column;
+  &--reverse { flex-direction: column-reverse; }
+}
+.toc-state { @include flex-center; padding: 40px 20px; color: var(--b3-theme-on-surface-light); opacity: 0.6; text-align: center; }
+
+// 目录项 - 限定作用域，不影响全局 .b3-list-item
+.epub-toc-panel {
+  .toc-expand-btn, .toc-bookmark-btn, .toc-delete-btn {
+    @include btn-base(20px, 20px); opacity: 0; transition: opacity 0.2s, transform 0.15s;
+    &:hover { opacity: 1; transform: scale(1.1); }
+  }
+  .b3-list-item {
+    position: relative; display: flex; align-items: center; gap: 4px;
+    padding: 6px 12px; cursor: pointer; transition: background 0.15s; margin: 0; border-radius: 0;
+    &:hover {
+      background: var(--b3-list-hover);
+      .toc-bookmark-btn, .toc-delete-btn { opacity: 0.6; }
+    }
+    &--focus { background: var(--b3-theme-primary-lighter); font-weight: 500; }
+    &[data-cfi], &[data-href]:not([data-wrap] &) { 
+      margin: 6px 8px; border-radius: 4px; padding: 8px 12px; 
+    }
+  }
+  .toc-subitems { transition: none; }
+  .toc-item-content { 
+    flex: 1; word-break: break-word; line-height: 1.6; padding-right: 64px; min-width: 0;
+  }
+  .toc-note-text { font-weight: 600; margin-bottom: 4px; }
+  .toc-note-excerpt { font-size: 12px; opacity: 0.65; }
+  .toc-chapter { font-size: 11px; opacity: 0.6; margin-top: 4px; color: var(--b3-theme-on-surface-light); }
+}
+
+// ==================== 设置页面 ====================
+.toc-settings {
+  padding: 16px; display: flex; flex-direction: column; gap: 20px;
+}
+.toc-settings-group {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.toc-settings-label {
+  font-size: 13px; font-weight: 600; color: var(--b3-theme-primary); margin-bottom: 6px;
+}
+.toc-settings-current {
+  padding: 12px; background: var(--b3-theme-surface); border-radius: 6px;
+  border: 1px solid var(--b3-border-color);
+}
+.toc-doc-name {
+  font-weight: 500; margin-bottom: 4px;
+}
+.toc-doc-id {
+  font-size: 12px; opacity: 0.65; font-family: monospace;
+}
+.toc-settings-results {
+  max-height: 250px; overflow-y: auto; margin-top: 8px;
+  background: var(--b3-theme-surface); border: 1px solid var(--b3-border-color);
+  border-radius: 6px;
+}
+.toc-empty {
+  padding: 20px; text-align: center; color: var(--b3-theme-on-surface-light); opacity: 0.6;
+}
+.toc-doc-item {
+  padding: 10px 12px; cursor: pointer; transition: background 0.15s;
+  border-bottom: 1px solid var(--b3-border-color);
+  &:last-child { border-bottom: none; }
+  &:hover { background: var(--b3-list-hover); }
+}
+
+// ==================== 笔记输入框 ====================
+.epub-note-input {
+  position: fixed; width: 320px; min-height: 80px; max-height: 200px; z-index: 9999;
+  border: 2px solid var(--b3-theme-primary-lighter); border-radius: 12px; padding: 16px;
+  background: var(--b3-theme-background); color: var(--b3-theme-text);
+  font: 14px/1.5 var(--b3-font-family); resize: vertical; outline: none;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12); 
+  animation: noteInputIn 0.2s ease;
+  &--out { animation: noteInputOut 0.2s ease forwards; }
+}
+
+
+// ==================== 操作按钮（统一样式）====================
+.toc-actions {
+  position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.b3-list-item:hover .toc-actions { opacity: 1; }
+.toc-action-btn {
+  width: 28px; height: 28px; border: none; border-radius: 6px; cursor: pointer;
+  background: transparent; color: var(--b3-theme-on-surface); display: flex; align-items: center;
+  justify-content: center; transition: all 0.2s ease; opacity: 0.7;
+  svg { width: 14px; height: 14px; }
+  &:hover { opacity: 1; }
+  &[data-action*="edit"]:hover { color: var(--b3-theme-primary); background: rgba(33,150,243,0.08); }
+  &[data-action*="remove"]:hover { color: var(--b3-theme-error); background: rgba(244,67,54,0.08); }
+}
