@@ -20,8 +20,18 @@ const docks = [
 export default class DashBoard implements SubPlugin {
   private id = "hqweay-diary-tools";
   private label = "获取天气并插入当前文档属性";
-  private icon = `📝`;
+  private icon = `<svg t="1765029926763" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4692" width="128" height="128"><path d="M961.60872 479.928a501.152 501.152 0 0 0-266.304-266.344 497.48 497.48 0 0 0-194.816-39.328 498.448 498.448 0 0 0-194.856 39.376 501.28 501.28 0 0 0-159.112 107.184A494.544 494.544 0 0 0 39.32872 479.968 497.52 497.52 0 0 0 0.00072 674.704h56.6c0-244.736 199.112-443.848 443.896-443.848 244.776 0 443.888 199.112 443.888 443.848h56.592a498.336 498.336 0 0 0-39.368-194.776zM122.83272 883.448h752.984v56.6H122.83272z" fill="#7BC6EF" p-id="4693"></path><path d="M477.96872 804.032l108.568 0.752-0.752-108.52-282.072-174.128 174.256 281.944v-0.048z m51.552-56.216l-19.808-0.12-31.696-51.424 51.384 31.696 0.12 19.848z" fill="#58BB9A" p-id="4694"></path><path d="M106.31272 726.128h78.784v56.64h-78.784zM176.00872 471.296l40.04-40.04 55.68 55.72-40.048 40.04-55.672-55.68zM728.08872 486.976l55.68-55.68 40.04 40.04-55.72 55.68-40.04-40.04zM471.96072 282.032h56.6v78.496h-56.6zM815.29672 726.168h78.744v56.6h-78.744z" fill="#EC6329" p-id="4695"></path></svg>`;
   private thisElement: HTMLElement | null = null;
+
+  addMenuItem(menu) {
+    menu.addItem({
+      label: "打开仪表盘",
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" >${this.icon}</div>`,
+      click: async () => {
+        this.openDashBoard();
+      },
+    });
+  }
 
   addDock() {
     const addToDock = settings.getBySpace("diaryTools", "addToDock");
@@ -60,12 +70,47 @@ export default class DashBoard implements SubPlugin {
   async onLayoutReady() {
     //console.log("diary-tools onload");
     // Add icon to toolbar
-    this.addIconToToolbar();
+    // this.addIconToToolbar();
 
     // Add dock if configured
     this.addDock();
 
     // Setup menu for mobile or desktop
+    // if (isMobile) {
+    //   let dialog = new Dialog({
+    //     title: "仪表盘",
+    //     content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+    //     width: "400px",
+    //     destroyCallback: (options) => {
+    //       pannel.$destroy();
+    //     },
+    //   });
+
+    //   let pannel = new DashboardComponent({
+    //     target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+    //     props: {},
+    //   });
+    // }
+  }
+
+  private addIconToToolbar() {
+    this.showMenu();
+  }
+
+  private showMenu() {
+    //console.log("showMenu");
+    this.thisElement = plugin.addTopBar({
+      icon: "iconBookmark",
+      title: "恐龙工具箱",
+      position: "right",
+      callback: () => {
+        // diaryTools handles its own menu display
+        this.openDashBoard();
+      },
+    });
+  }
+
+  private openDashBoard() {
     if (isMobile) {
       let dialog = new Dialog({
         title: "仪表盘",
@@ -80,71 +125,38 @@ export default class DashBoard implements SubPlugin {
         target: dialog.element.querySelector("#hqweay-diary-dashboard"),
         props: {},
       });
-    }
-  }
-
-  private addIconToToolbar() {
-    this.showMenu();
-  }
-
-  private showMenu() {
-    //console.log("showMenu");
-    this.thisElement = plugin.addTopBar({
-      icon: "iconBookmark",
-      title: "恐龙工具箱",
-      position: "right",
-      callback: () => {
-        if (isMobile) {
-          let dialog = new Dialog({
+    } else {
+      let rect = this.thisElement?.getBoundingClientRect();
+      if (!rect || rect.width === 0) {
+        rect = document.querySelector("#barMore")?.getBoundingClientRect();
+      }
+      if (!rect || rect.width === 0) {
+        rect = document.querySelector("#barPlugins")?.getBoundingClientRect();
+      }
+      if (rect) {
+        let tabDiv = document.createElement("div");
+        tabDiv.setAttribute("id", "hqweay-diary-dashboard");
+        new DashboardComponent({
+          target: tabDiv,
+          props: {},
+        });
+        plugin.addTab({
+          type: TAB_TYPE,
+          init() {
+            this.element.appendChild(tabDiv);
+          },
+        });
+        openTab({
+          app: plugin.app,
+          custom: {
+            icon: "",
             title: "仪表盘",
-            content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-            width: "400px",
-            destroyCallback: (options) => {
-              pannel.$destroy();
-            },
-          });
-
-          let pannel = new DashboardComponent({
-            target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-            props: {},
-          });
-        } else {
-          let rect = this.thisElement?.getBoundingClientRect();
-          if (!rect || rect.width === 0) {
-            rect = document.querySelector("#barMore")?.getBoundingClientRect();
-          }
-          if (!rect || rect.width === 0) {
-            rect = document
-              .querySelector("#barPlugins")
-              ?.getBoundingClientRect();
-          }
-          if (rect) {
-            let tabDiv = document.createElement("div");
-            tabDiv.setAttribute("id", "hqweay-diary-dashboard");
-            new DashboardComponent({
-              target: tabDiv,
-              props: {},
-            });
-            plugin.addTab({
-              type: TAB_TYPE,
-              init() {
-                this.element.appendChild(tabDiv);
-              },
-            });
-            openTab({
-              app: plugin.app,
-              custom: {
-                icon: "",
-                title: "仪表盘",
-                data: {},
-                id: plugin.name + TAB_TYPE,
-              },
-            });
-          }
-        }
-        // diaryTools handles its own menu display
-      },
-    });
+            data: {},
+            id: plugin.name + TAB_TYPE,
+          },
+        });
+      }
+    }
   }
 
   onunload(): void {
