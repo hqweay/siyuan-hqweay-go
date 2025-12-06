@@ -25,7 +25,7 @@ export default class AddIconThenClick {
     if (document.getElementById(this.id)) {
       return;
     }
-
+    console.log("addIconThenClick", this.id, this.label, this.icon, this.type);
     if ("barMode" === this.type) {
       // 添加一个按钮
       this.addBarMode();
@@ -39,7 +39,9 @@ export default class AddIconThenClick {
   private addDockLeft() {}
 
   private addBarMode() {
+    console.log("addBarMode");
     const barMode = document.getElementById("barMode");
+    console.log("barMode", barMode);
     if (!barMode) {
       return;
     }
@@ -60,27 +62,5 @@ export default class AddIconThenClick {
       },
       true
     );
-  }
-
-  // 请求函数
-  request(url, data = null, method = "POST") {
-    return new Promise((resolve, reject) => {
-      if (method.toUpperCase() == "POST") {
-        fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        })
-          .then(
-            (data) => resolve(data.json()),
-            (error) => {
-              reject(error);
-            }
-          )
-          .catch((err) => {
-            console.error("请求失败:", err);
-          });
-      }
-    });
   }
 }

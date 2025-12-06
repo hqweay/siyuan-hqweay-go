@@ -26,7 +26,7 @@ export default class DashBoard implements SubPlugin {
   addDock() {
     const addToDock = settings.getBySpace("diaryTools", "addToDock");
 
-    console.log("addToDock", addToDock);
+    //console.log("addToDock", addToDock);
     if (docks.includes(addToDock)) {
       plugin.addDock({
         config: {
@@ -39,10 +39,10 @@ export default class DashBoard implements SubPlugin {
         data: { text: "This is my custom dock" },
         type: DOCK_TYPE + "aaa",
         resize() {
-          console.log(DOCK_TYPE + " resize");
+          //console.log(DOCK_TYPE + " resize");
         },
         update() {
-          console.log(DOCK_TYPE + " update");
+          //console.log(DOCK_TYPE + " update");
         },
         init: (dock) => {
           new DashboardComponent({
@@ -50,7 +50,7 @@ export default class DashBoard implements SubPlugin {
           });
         },
         destroy() {
-          console.log("destroy dock:", DOCK_TYPE);
+          //console.log("destroy dock:", DOCK_TYPE);
         },
       });
     }
@@ -58,7 +58,7 @@ export default class DashBoard implements SubPlugin {
 
   onload(): void {}
   async onLayoutReady() {
-    console.log("diary-tools onload");
+    //console.log("diary-tools onload");
     // Add icon to toolbar
     this.addIconToToolbar();
 
@@ -76,7 +76,7 @@ export default class DashBoard implements SubPlugin {
   }
 
   private showMenu() {
-    console.log("showMenu");
+    //console.log("showMenu");
     this.thisElement = plugin.addTopBar({
       icon: "iconBookmark",
       title: "恐龙工具箱",

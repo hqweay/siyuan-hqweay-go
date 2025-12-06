@@ -7,7 +7,7 @@ export default {
   author: "hqweay",
   defaultConfig: {
     enabled: false,
-    rangeSQL: "SELECT root_id FROM blocks",
+    rangeSQL: "SELECT id FROM blocks WHERE type = 'd'",
     limitNum: 30,
   },
   settings: [

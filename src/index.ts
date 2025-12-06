@@ -84,21 +84,21 @@ export default class PluginGo extends Plugin {
               .querySelector("#barPlugins")
               .getBoundingClientRect();
           }
-          console.log("rect", rect);
+          //console.log("rect", rect);
           this.addMenu(rect);
         }
       },
     });
 
     // Call onLayoutReady for enabled plugins
-    // console.log("onLayoutReady");
+    // //console.log("onLayoutReady");
 
     const plugins = this.pluginRegistry.getAllPlugins();
 
-    // console.log("onLayoutReady", plugins);
+    // //console.log("onLayoutReady", plugins);
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.onLayoutReady) {
-        // console.log("onLayoutReady", plugin.name);
+        // //console.log("onLayoutReady", plugin.name);
         try {
           await plugin.onLayoutReady();
         } catch (error) {
@@ -158,11 +158,11 @@ export default class PluginGo extends Plugin {
   async onload() {
     this.init();
 
-    console.log("onload");
+    //console.log("onload");
     //载入配置
     await settings.load();
 
-    console.log("initData", plugin.data);
+    //console.log("initData", plugin.data);
 
     // Scan and load all plugins
     await this.pluginRegistry.scanPlugins();
@@ -202,7 +202,7 @@ export default class PluginGo extends Plugin {
   }
 
   async onDataChanged() {
-    console.log("onDataChanged");
+    //console.log("onDataChanged");
 
     // Handle plugin enable/disable changes
     await this.pluginRegistry.initializeEnabledPlugins();
@@ -271,7 +271,7 @@ export default class PluginGo extends Plugin {
       content: `<div id="hqweay-setting-pannel" style="height: 600px;"></div>`,
       width: "800px",
       destroyCallback: (options) => {
-        console.log("destroyCallback", options);
+        //console.log("destroyCallback", options);
         pannel.$destroy();
       },
     });
@@ -284,7 +284,7 @@ export default class PluginGo extends Plugin {
   updateProtyleToolbar(toolbar: Array<string | any>) {
     const plugins = this.pluginRegistry?.getAllPlugins();
     if (!plugins) return toolbar;
-    // console.log("updateProtyleToolbar", plugins);
+    // //console.log("updateProtyleToolbar", plugins);
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.updateProtyleToolbar) {
         try {

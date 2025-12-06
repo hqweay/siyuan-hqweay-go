@@ -19,7 +19,7 @@ class DockyPlugin implements SubPlugin {
       return;
     }
     const lines = rules.split("\n");
-    console.log(lines);
+    //console.log(lines);
     lines.forEach((line: string) => {
       line = line.trim();
       let block = this.parseProtyle(line);
@@ -77,7 +77,7 @@ class DockyPlugin implements SubPlugin {
     protyleContainer.dataset.nodeId = id;
     protyleContainer.style.height = "100%";
     protyleContainer.style.width = "100%";
-    console.log("initDockPanel", id, ele);
+    //console.log("initDockPanel", id, ele);
     new Protyle(plugin.app, protyleContainer, {
       blockId: id,
       action: ["cb-get-all"],
@@ -115,8 +115,8 @@ class DockyPlugin implements SubPlugin {
         plugin: this,
       },
       init: (dockEle) => {
-        console.log("init", this);
-        console.log("init", dock);
+        //console.log("init", this);
+        //console.log("init", dock);
         // initDockPanel will be called with the correct element
 
         this.initDockPanel(dock, (dockEle as any).element); 

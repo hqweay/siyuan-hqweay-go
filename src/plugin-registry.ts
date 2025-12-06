@@ -117,7 +117,7 @@ export class PluginRegistry {
       // Register plugin
       this.registerPlugin(pluginInstance);
 
-      // console.log(`Loaded plugin: ${name}`);
+      // //console.log(`Loaded plugin: ${name}`);
     } catch (error) {
       console.warn(`Failed to load plugin ${name}:`, error);
     }
@@ -154,7 +154,7 @@ export class PluginRegistry {
   beginPlugin(key: string) {
     const plugin = this.getPlugin(key);
     if (plugin) {
-      console.log("loadPlugin", key);
+      //console.log("loadPlugin", key);
       plugin.onload();
       plugin.onLayoutReady?.();
     }

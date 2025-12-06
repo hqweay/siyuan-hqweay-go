@@ -21,7 +21,7 @@ function generateDefaultConfig(pluginRegistry: PluginRegistry) {
   // 从插件注册表获取所有插件配置
   const pluginConfigs = pluginRegistry.getPluginConfigs();
 
-  console.log("pluginConfigs", pluginConfigs);
+  //console.log("pluginConfigs", pluginConfigs);
 
   // 为每个插件添加默认配置
   for (const pluginMeta of pluginConfigs) {
@@ -305,7 +305,7 @@ function generateDefaultConfig(pluginRegistry: PluginRegistry) {
     rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
   };
 
-  console.log("config", config);
+  //console.log("config", config);
 
   return config;
 }
@@ -335,11 +335,11 @@ class Settings {
 
     //插件加载时 merge
     if (!mergedFlag) {
-      console.log("mergeData", plugin.data[CONFIG]);
+      //console.log("mergeData", plugin.data[CONFIG]);
       await this.mergeData();
       mergedFlag = true;
     } else {
-      // console.log("loadData", plugin.data[CONFIG]);
+      // //console.log("loadData", plugin.data[CONFIG]);
       await this.load();
     }
   }
@@ -352,10 +352,10 @@ class Settings {
   async mergeData() {
     const DEFAULT_CONFIG = this.getDefaultConfig();
 
-    // console.log("mergeData", plugin.data[CONFIG]);
-    // console.log("mergeData", DEFAULT_CONFIG);
+    // //console.log("mergeData", plugin.data[CONFIG]);
+    // //console.log("mergeData", DEFAULT_CONFIG);
     deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);
-    // console.log("mergeData", DEFAULT_CONFIG);
+    // //console.log("mergeData", DEFAULT_CONFIG);
     await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     await this.load();
   }
@@ -372,8 +372,8 @@ class Settings {
   }
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {
-    console.log("setBySpace", space, key, value, config);
-    console.log("plugin.data[config]", plugin.data[config]);
+    //console.log("setBySpace", space, key, value, config);
+    //console.log("plugin.data[config]", plugin.data[config]);
     plugin.data[config][space][key] = value;
   }
   getBySpace(space: any, key: any, config = CONFIG) {
@@ -393,7 +393,7 @@ class Settings {
   }
 
   async save(config = CONFIG) {
-    console.log("save", plugin.data[config]);
+    //console.log("save", plugin.data[config]);
     await plugin.saveData(config, plugin.data[config]);
     await this.load();
   }

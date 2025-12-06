@@ -24,7 +24,7 @@ class RandomHeaderImagePlugin implements SubPlugin {
 
   onProtyleLoaded(event) {
     this.customEvent = event;
-    console.log("onProtyleLoaded", event);
+    //console.log("onProtyleLoaded", event);
   }
 
   async changeImage(event, ele?) {

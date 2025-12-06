@@ -34,8 +34,8 @@
       ],
     };
 
-    console.log("pluginConfigs");
-    console.log(pluginConfigs);
+    //console.log("pluginConfigs");
+    //console.log(pluginConfigs);
 
     // Add plugin flags
     for (const pluginMeta of pluginConfigs) {
@@ -48,16 +48,16 @@
         hasSetting: pluginMeta.settings ? true : false,
       });
 
-      console.log(pluginMeta.name);
-      console.log("pluginMeta.settings");
-      console.log(pluginMeta.settings);
+      //console.log(pluginMeta.name);
+      //console.log("pluginMeta.settings");
+      //console.log(pluginMeta.settings);
       pluginMeta.settings = pluginMeta.settings?.map((item) => {
         return {
           ...item, // 保留其他属性
           value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
         };
       });
-      console.log(pluginMeta.settings);
+      //console.log(pluginMeta.settings);
       // Add plugin settings
       if (pluginMeta.settings) {
         dynamicSettings[pluginMeta.displayName] = pluginMeta.settings;
@@ -72,8 +72,8 @@
       }
     }
 
-    console.log("dynamicSettings");
-    console.log(dynamicSettings);
+    //console.log("dynamicSettings");
+    //console.log(dynamicSettings);
     return dynamicSettings;
     return {
       开关: [
@@ -998,11 +998,11 @@ https://shibe.online/api/shibes?count=1`,
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
     if (detail.group === "开关") {
       // Update plugin's enabled status in its config
-      console.log(detail);
+      //console.log(detail);
       settings.setBySpace(detail.key, "enabled", detail.value);
 
-      console.log(detail);
-      console.log();
+      //console.log(detail);
+      //console.log();
       if (!detail.value) {
         PluginRegistry.getInstance().unloadPlugin(detail.key);
       } else {
@@ -1016,12 +1016,12 @@ https://shibe.online/api/shibes?count=1`,
         plugin.insertCss.onunloadCSSByID(detail.key);
       }
     } else {
-      console.log(detail);
-      console.log(SettingItems);
+      //console.log(detail);
+      //console.log(SettingItems);
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;
       });
-      console.log(opItem);
+      //console.log(opItem);
       settings.setBySpace(opItem[0].key, detail.key, detail.value);
     }
 
@@ -1036,7 +1036,7 @@ https://shibe.online/api/shibes?count=1`,
 
   onDestroy(async () => {
     await settings.save();
-    console.log("onDestroy");
+    //console.log("onDestroy");
   });
 
   const lreload = () => {
@@ -1055,8 +1055,8 @@ https://shibe.online/api/shibes?count=1`,
         on:click={() => {
           focusGroup = group;
           settings.save();
-          console.log("focusGroup", focusGroup);
-          console.log("SettingItems", SettingItems);
+          //console.log("focusGroup", focusGroup);
+          //console.log("SettingItems", SettingItems);
         }}
         on:keydown={() => {}}
       >
