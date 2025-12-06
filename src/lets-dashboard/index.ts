@@ -67,7 +67,19 @@ export default class DashBoard implements SubPlugin {
 
     // Setup menu for mobile or desktop
     if (isMobile) {
-      this.addMenu();
+      let dialog = new Dialog({
+        title: "仪表盘",
+        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+        width: "400px",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
+
+      let pannel = new DashboardComponent({
+        target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+        props: {},
+      });
     }
   }
 
