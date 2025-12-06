@@ -3,8 +3,10 @@ import { settings } from "@/settings";
 import { getFileContent, plugin } from "@/utils";
 import { fetchSyncPost } from "siyuan";
 import { snippets } from "./snippets";
-
-export default class InsertCSS {
+import { SubPlugin } from "@/types/plugin";
+import { PluginRegistry } from "@/plugin-registry";
+import pluginMetadata from "./plugin";
+export default class FetchCodeSnippets implements SubPlugin {
   codeSnippets = [];
   onunload() {
     // 获取所有的 style 元素
@@ -19,15 +21,35 @@ export default class InsertCSS {
     });
   }
 
-  //App 准备好时加载
-  async onLayoutReady() {
+  async onload() {
     //这里注入CSS和JS - 需要保留代码片段功能
 
+		console.log("FetchCodeSnippets onload");
     await this.getCodeSnippets();
+    PluginRegistry.getInstance().getPluginConfig(pluginMetadata.name).settings =
+      this.codeSnippets.map((ele) => {
+        return {
+          type: "checkbox",
+          title: `${ele.title} - ${
+            ele.author && ele.link
+              ? `@<a href= '${ele.link}'>${ele.author}</a>`
+              : ""
+          }`,
+          description: `${ele.description}`,
+          key: `${ele.id}`,
+          value: settings.getBySpace(pluginMetadata.name, `${ele.id}`),
+          hasSetting: true,
+        };
+      });
+  }
+
+  //App 准备好时加载
+  async onLayoutReady() {
+		console.log("FetchCodeSnippets onLayoutReady");
     // TODO: Handle code snippets injection
 
     this.codeSnippets.forEach((ele) => {
-      settings.getBySpace("codeSnippets", `${ele.id}`) &&
+      settings.getBySpace(pluginMetadata.name, `${ele.id}`) &&
         this.insertSingleCSSByID(`${ele.id}`);
     });
   }
@@ -108,7 +130,7 @@ export default class InsertCSS {
     styleElement.textContent += cssConfig.code;
     document.head.appendChild(styleElement);
   }
-  
+
   async onunloadCSSByID(id) {
     console.log("onunload");
     console.log(id);

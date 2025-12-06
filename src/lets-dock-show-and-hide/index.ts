@@ -4,9 +4,7 @@ import { SubPlugin } from "@/types/plugin";
 import { isMobile } from "@/utils";
 
 export default class DockShowAndHide implements SubPlugin {
-  onunload(): void {
-    throw new Error("Method not implemented.");
-  }
+  onunload(): void {}
 
   leftWidthRegex = /left\[(.*?)\]/;
   rightWidthRegex = /right\[(.*?)\]/;

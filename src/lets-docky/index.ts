@@ -5,12 +5,17 @@ import { SubPlugin } from "@/types/plugin";
 import { plugin } from "@/utils";
 
 class DockyPlugin implements SubPlugin {
-  async onload() {
+  onload() {
     this.loadDocky();
   }
 
-  async onunload() {
+  onunload() {
     this.unloadDocky();
+    document
+      .querySelectorAll('*[data-type^="siyuan-hqweay-go_docky_"]')
+      .forEach((el) => {
+        el.remove();
+      });
   }
 
   private loadDocky() {
@@ -19,7 +24,7 @@ class DockyPlugin implements SubPlugin {
       return;
     }
     const lines = rules.split("\n");
-    //console.log(lines);
+    console.log(lines);
     lines.forEach((line: string) => {
       line = line.trim();
       let block = this.parseProtyle(line);
@@ -98,6 +103,10 @@ class DockyPlugin implements SubPlugin {
   }
 
   private addToDock(dock: any) {
+    console.log("addToDock", dock);
+    // document
+    //   .querySelector(`[data-type="siyuan-hqweay-go_docky_${dock.id}"]`)
+    //   ?.remove();
     plugin.addDock({
       type: "_docky_" + dock.id,
       config: {
@@ -110,16 +119,13 @@ class DockyPlugin implements SubPlugin {
         title: dock.name || "Docky:" + dock.id,
         hotkey: dock.hotkey || undefined,
       },
-      data: {
-        blockId: dock.id,
-        plugin: this,
-      },
+      data: {},
       init: (dockEle) => {
-        //console.log("init", this);
-        //console.log("init", dock);
+        console.log("init", dockEle);
+        console.log("init", dock);
         // initDockPanel will be called with the correct element
 
-        this.initDockPanel(dock, (dockEle as any).element); 
+        this.initDockPanel(dock, (dockEle as any).element);
       },
     });
   }

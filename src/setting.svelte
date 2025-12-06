@@ -4,10 +4,11 @@
   import { onDestroy } from "svelte";
   import SettingPanel from "./libs/setting-panel.svelte";
   // let groups: string[] = ["Default", "自动获取链接标题"];
-  import { plugin } from "@/utils";
-  import { selectIconDialog } from "./myscripts/utils";
+  import FetchCodeSnippets from "./lets-fetch-code-snippets";
   import VoiceNotesPlugin from "./lets-voicenotes-sync";
+  import { selectIconDialog } from "./myscripts/utils";
   import { PluginRegistry } from "./plugin-registry";
+  import { plugin } from "./utils";
 
   const initData = () => {
     const pluginRegistry = PluginRegistry.getInstance();
@@ -66,442 +67,6 @@
     //console.log("dynamicSettings");
     //console.log(dynamicSettings);
     return dynamicSettings;
-    return {
-      开关: [
-        {
-          type: "checkbox",
-          title: "代码片段合集",
-          description:
-            "一些收集的代码片段；见 https://github.com/hqweay/siyuan-hqweay-go/issues/4。目标是支持托管与本地管理。目前只支持启用在 issue 里评论的代码片段。",
-          key: "codeSnippets",
-          value: settings.getFlag("codeSnippets"),
-          hasSetting: true,
-        },
-
-        {
-          type: "checkbox",
-          title: "日记相关工具",
-          description: `slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引；快捷小窗录入日记（默认快捷键F10）`,
-          key: "createDailyNote",
-          value: settings.getFlag("createDailyNote"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "仪表盘",
-          description: `提供一个展示文档信息的面板，为 Journal 设计`,
-          key: "diaryTools",
-          value: settings.getFlag("diaryTools"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "侧边栏展示文档或块",
-          description: `docky`,
-          key: "docky",
-          value: settings.getFlag("docky"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "快捷添加属性",
-          description: `快捷添加属性；默认支持转换列表为表格等视图`,
-          key: "quickAttr",
-          value: settings.getFlag("quickAttr"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "VoiceNotes 同步",
-          description: "同步 VoiceNotes 的笔记：https://voicenotes.com",
-          key: "voiceNotes",
-          value: settings.getFlag("voiceNotes"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "标题下展示文档自定义属性的值",
-          description: "标题下展示文档自定义属性的值",
-          key: "showCustomPropertiesUnderTitle",
-          value: settings.getFlag("showCustomPropertiesUnderTitle"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "调整标题",
-          description: "块菜单/文档菜单打开事件增加标题层级转换",
-          key: "adjustTitleLevel",
-          value: settings.getFlag("adjustTitleLevel"),
-          hasSetting: false,
-        },
-        {
-          type: "checkbox",
-          title: "随机浏览",
-          description:
-            "在界面右上角生成一个随机图标，点击可跳转指定 id 条目；由于跳转通过 SQL 配置，你也可以配置固定跳转到某个块或文档。",
-          key: "randomNote",
-          value: settings.getFlag("randomNote"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "随机题头图",
-          description: "支持配置本地文件夹/自定义 URL",
-          key: "randomHeaderImage",
-          value: settings.getFlag("randomHeaderImage"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "粘贴时对数据预处理",
-          description: "获取链接标题；矩形标注粘贴优化；",
-          key: "doOnPaste",
-          value: settings.getFlag("doOnPaste"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "中文排版",
-          description:
-            "右上角增加机器人图标/块菜单打开事件增加格式化文档的功能；注意有损坏数据风险。",
-          key: "typography",
-          value: settings.getFlag("typography"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "行内元素转换",
-          description: "块菜单/文档菜单打开事件增加行内元素转换的功能",
-          key: "convert",
-          value: settings.getFlag("convert"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "发送到",
-          description:
-            "块菜单事件提供将选中内容进行分享（现在支持生成卡片分享、发送到配置链接）",
-          key: "sendTo",
-          value: settings.getFlag("sendTo"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "碎碎念",
-          description: "配置 ID，该 ID 引用下的子节点将在右上角展示创建时间",
-          key: "memo",
-          value: settings.getFlag("memo"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "左上边栏扩充",
-          description: "在左上边栏新增图标固定打开链接或文档（块）",
-          key: "dockLeft",
-          value: settings.getFlag("dockLeft"),
-          hasSetting: true,
-        },
-
-        {
-          type: "checkbox",
-          title: "阅读帮助",
-          description: "toolbar 新增 标注并复制块引",
-          key: "readHelper",
-          value: settings.getFlag("readHelper"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "快捷添加书签",
-          description: "块菜单新增添加到书签",
-          key: "bookmark",
-          value: settings.getFlag("bookmark"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "边栏自动打开、关闭",
-          description: "配置打开文档时边栏自动展开/隐藏",
-          key: "dockShowAndHide",
-          value: settings.getFlag("dockShowAndHide"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "移动端助手",
-          description:
-            "在移动端页面底部添加导航栏，支持前进、后退、随机跳转等功能",
-          key: "mobileHelper",
-          value: settings.getFlag("mobileHelper"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "OCR 图片识别",
-          description: "批量 OCR 识别图片中的文字",
-          key: "ocr",
-          value: settings.getFlag("ocr"),
-          hasSetting: true,
-        },
-        {
-          type: "checkbox",
-          title: "其它",
-          description:
-            "一些自用项目，没有或者比较难拆分为配置，感兴趣的可以自己扒源码用……",
-          key: "other",
-          value: settings.getFlag("other"),
-          hasSetting: true,
-        },
-      ],
-      代码片段合集: plugin.codeSnippets.map((ele) => {
-        return {
-          type: "checkbox",
-          title: `${ele.title} - ${ele.author && ele.link ? `@<a href= '${ele.link}'>${ele.author}</a>` : ""}`,
-          description: `${ele.description}`,
-          key: `${ele.id}`,
-          value: settings.getBySpace("codeSnippets", `${ele.id}`),
-          hasSetting: true,
-        };
-      }),
-
-      仪表盘: [
-        {
-          type: "textinput",
-          title: "添加到 Dock",
-          description:
-            "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
-          key: "addToDock",
-          value: settings.getBySpace("diaryTools", "addToDock"),
-          placeholder: "为空不添加",
-        },
-        {
-          type: "textarea",
-          title: "仪表盘配置",
-          description: "参考默认配置……",
-          key: "configs",
-          value: settings.getBySpace("diaryTools", "configs"),
-          placeholder: "参考默认配置……",
-        },
-      ],
-      日记相关工具: [
-        {
-          type: "textinput",
-          title: "创建日记的笔记本id",
-          description: "",
-          key: "noteBookID",
-          value: settings.getBySpace("createDailyNote", "noteBookID"),
-          placeholder: "20240330144726-gs2xey6",
-        },
-        {
-          type: "checkbox",
-          title:
-            "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
-          description: "",
-          key: "slashDiaryNote",
-          value: settings.getBySpace("createDailyNote", "slashDiaryNote"),
-        },
-        {
-          type: "checkbox",
-          title: "快捷小窗录入日记（默认快捷键F10）",
-          description: "",
-          key: "quickInput",
-          value: settings.getBySpace("createDailyNote", "quickInput"),
-        },
-        {
-          type: "checkbox",
-          title: "顶栏按钮快捷操作",
-          description: "",
-          key: "topBar",
-          value: settings.getBySpace("createDailyNote", "topBar"),
-        },
-        {
-          type: "textinput",
-          title: "顶栏-获取天气并插入当前文档属性",
-          description: "https://www.sojson.com/blog/305.html",
-          placeholder: "配置城市代码，如：101270101",
-          key: "getWeatherSetAttrs",
-          value: settings.getBySpace(
-            "createDailyNoteConfig",
-            "getWeatherSetAttrs"
-          ),
-        },
-      ],
-
-      随机题头图: [
-        {
-          type: "checkbox",
-          title: "本地图片进入缓存？",
-          description:
-            "如果打开，会减少从文件夹遍历获取图片，但新添加到文件夹的图片不会及时生效。",
-          key: "isCached",
-          value: settings.getBySpace("randomHeaderImage", "isCached"),
-        },
-        {
-          type: "checkbox",
-          title: "必应",
-          description:
-            "使用 https://bing.img.run/api.html 的 API 获取历史随机壁纸",
-          key: "bing",
-          value: settings.getBySpace("randomHeaderImage", "bing"),
-        },
-        {
-          type: "checkbox",
-          title: "岁月小筑",
-          description:
-            "使用 https://img.xjh.me/random_img.php 的 API 获取随机图片",
-          key: "xjh",
-          value: settings.getBySpace("randomHeaderImage", "xjh"),
-        },
-        {
-          type: "textarea",
-          title: "本地文件夹/自定义 URL",
-          description: `0️⃣可配置本地文件夹或能返回图片地址的 URL（返回值包含图片地址即可）<br/>
-            1️⃣可配置多个路径，以换行分隔；<br/>
-            2️⃣本地文件夹路径需配置为绝对路径；<br/>
-            3️⃣本地文件夹需在 Siyuan 工作目录（Siyuan/data/**/）下，比如 Siyuan/data/assets/images；<br/>
-            4️⃣本地文件夹可使用软链接引用 Siyuan 工作目录外的文件夹。<br/>
-            5️⃣使用：1）配置；2️）在文档点击「随机题头图」；3️）右键点击「随机」。（详情见 https://ld246.com/article/1694612740828 03 开始用吧）`,
-          key: "folderPaths",
-          value: settings.getBySpace("randomHeaderImage", "folderPaths"),
-          placeholder: `/Users/hqweay/SiYuan/data/assets/images
-https://shibe.online/api/shibes?count=1`,
-        },
-      ],
-      随机浏览: [
-        {
-          type: "textarea",
-          title: "随机浏览的范围，通过 SQL 限定",
-          description: "",
-          key: "rangeSQL",
-          value: settings.getBySpace("randomNote", "rangeSQL"),
-          placeholder: "SELECT id FROM blocks WHERE type = 'd'",
-        },
-        {
-          type: "number",
-          title: "缓存数量",
-          description: "",
-          key: "limitNum",
-          value: settings.getBySpace("randomNote", "limitNum"),
-          placeholder: "默认一次查询 30 条缓存",
-        },
-      ],
-      设置: [
-        {
-          type: "button",
-          title: "合并数据",
-          description: "若某些功能无法正常使用，尝试使用此选项。",
-          key: "mergeData",
-          value: "确认",
-        },
-        {
-          type: "button",
-          title: "恢复/清理数据",
-          description: "若合并数据后仍有问题，尝试使用此选项。",
-          key: "resetData",
-          value: "确认",
-        },
-      ],
-      行内元素转换: [
-        {
-          type: "checkbox",
-          title: "样式嵌套仍转换？",
-          description:
-            "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
-          key: "styleNesting",
-          value: settings.getBySpace("convert", "styleNesting"),
-        },
-      ],
-
- 
-      阅读帮助: [
-        {
-          type: "checkbox",
-          title: "toolbar 新增标注并复制块引",
-          description: "toolbar 新增标注并复制块引",
-          key: "markAndCopyRef",
-          value: settings.getBySpace("readHelper", "markAndCopyRef"),
-        },
-        {
-          type: "checkbox",
-          title: "toolbar 新增标注并复制 Text* 格式块引",
-          description: "toolbar 新增标注并复制块引",
-          key: "markAndCopyTextRef",
-          value: settings.getBySpace("readHelper", "markAndCopyTextRef"),
-        },
-        {
-          type: "checkbox",
-          title: "toolbar 新增标注并复制 * 格式块引",
-          description: "toolbar 新增标注并复制块引",
-          key: "markAndCopyTextRefNoHighlight",
-          value: settings.getBySpace(
-            "readHelperConfig",
-            "markAndCopyTextRefNoHighlight"
-          ),
-        },
-      ],
-
-     
-
-
-      "OCR 图片识别": [
-        {
-          type: "select",
-          title: "方案",
-          description: "方案",
-          key: "ocrMethod",
-          value: settings.getBySpace("ocr", "ocrMethod"),
-          options: {
-            macOSVision: "使用 MacOS Vision OCR",
-            umi: "使用 umi OCR",
-            tesseract: "使用 tesseract OCR",
-          },
-        },
-        {
-          type: "textarea",
-          title: "umi-ocr 服务地址",
-          description: "umi-ocr 服务地址",
-          key: "umiOCRServer",
-          value: settings.getBySpace("ocr", "umiOCRServer"),
-          placeholder: "",
-        },
-        {
-          type: "checkbox",
-          title: "自动移除换行",
-          description: "通过每行结尾是否存在标点自动判断移除换行",
-          key: "autoRemoveLineBreaks",
-          value: settings.getBySpace("ocr", "autoRemoveLineBreaks"),
-        },
-        {
-          type: "checkbox",
-          title: "移除换行符",
-          description: "OCR 识别后是否移除文本中的换行符",
-          key: "removeLineBreaks",
-          value: settings.getBySpace("ocr", "removeLineBreaks"),
-        },
-        {
-          type: "checkbox",
-          title: "移除中文内的空格",
-          description: "移除中文内的空格",
-          key: "removeBlankInChinese",
-          value: settings.getBySpace("ocr", "removeBlankInChinese"),
-        },
-        {
-          type: "checkbox",
-          title: "调用 pangu 格式化",
-          description: "调用 pangu 格式化",
-          key: "formatWithPangu",
-          value: settings.getBySpace("ocr", "formatWithPangu"),
-        },
-      ],
-
-      其它: [
-        {
-          type: "detail",
-          title: "一些 slash",
-          description: "格式化当前块；快捷创建某天日记并插入块引",
-        },
-      ],
-    };
   };
 
   let SettingItems = initData();
@@ -546,34 +111,43 @@ https://shibe.online/api/shibes?count=1`,
     }
   };
 
-  const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
+  const onChanged = async ({ detail }: CustomEvent<ChangeEvent>) => {
     if (detail.group === "开关") {
-      // Update plugin's enabled status in its config
-      //console.log(detail);
       settings.setBySpace(detail.key, "enabled", detail.value);
 
-      //console.log(detail);
-      //console.log();
       if (!detail.value) {
+        //卸载自己就行了
         PluginRegistry.getInstance().unloadPlugin(detail.key);
       } else {
-        PluginRegistry.getInstance().beginPlugin(detail.key);
+        //动态加载; addDock 有点问题，目前不能实时切换
+        await PluginRegistry.getInstance().beginPlugin(detail.key);
+        //应对动态生成设置项的情况，比如 代码片段托管v
+        SettingItems = initData();
       }
-    } else if (detail.group === "代码片段合集") {
-      settings.setBySpace("codeSnippetsConfig", detail.key, detail.value);
+    } else if (detail.group === "代码片段托管") {
+      settings.setBySpace("codeSnippets", detail.key, detail.value);
+
       if (detail.value) {
-        plugin.insertCss.insertSingleCSSByID(detail.key);
+        (
+          PluginRegistry.getInstance().getPlugin(
+            "fetch-code-snippets"
+          ) as FetchCodeSnippets
+        ).insertSingleCSSByID(detail.key);
       } else {
-        plugin.insertCss.onunloadCSSByID(detail.key);
+        (
+          PluginRegistry.getInstance().getPlugin(
+            "fetch-code-snippets"
+          ) as FetchCodeSnippets
+        ).onunloadCSSByID(detail.key);
       }
     } else {
-      //console.log(detail);
-      //console.log(SettingItems);
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;
       });
-      //console.log(opItem);
+      console.log("opItem", opItem);
       settings.setBySpace(opItem[0].key, detail.key, detail.value);
+      // 子组件的配置修改了，立马刷新
+      await PluginRegistry.getInstance().beginPlugin(opItem[0].key);
     }
 
     for (let index = 0; index < SettingItems[focusGroup].length; index++) {

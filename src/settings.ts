@@ -83,15 +83,18 @@ class Settings {
     await this.load();
   }
 
-  setFlag(key: any, value: any, config = CONFIG) {
-    this.setBySpace(key, "enabled", value, config);
-  }
+  // setFlag(key: any, value: any, config = CONFIG) {
+  //   this.setBySpace(key, "enabled", value, config);
+  // }
 
-  getFlag(key: any, config = CONFIG) {
-    return this.getBySpace(key, "enabled", config);
-  }
+  // getFlag(key: any, config = CONFIG) {
+  //   return this.getBySpace(key, "enabled", config);
+  // }
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {
+    if (!plugin.data[config][space]) {
+      plugin.data[config][space] = {};
+    }
     plugin.data[config][space][key] = value;
   }
   getBySpace(space: any, key: any, config = CONFIG) {

@@ -65,15 +65,18 @@ export default class PluginGo extends Plugin {
   }
 
   //App 准备好时加载
-  async onLayoutReady() {
+  public async onLayoutReady() {
+    console.log("onLayoutReady");
     const plugins = this.pluginRegistry.getAllPlugins();
-    let needAddTopBar = false;
-    for (const plugin of plugins) {
-      if (plugin.enabled && plugin.addMenuItem) {
-        needAddTopBar = true;
-        break;
-      }
-    }
+    console.log("plugins", plugins);
+    // 默认添加 topBar，方便实时加载
+    let needAddTopBar = true;
+    // for (const plugin of plugins) {
+    //   if (plugin.enabled && plugin.addMenuItem) {
+    //     needAddTopBar = true;
+    //     break;
+    //   }
+    // }
 
     if (needAddTopBar) {
       const topBarElement = this.addTopBar({
@@ -158,7 +161,7 @@ export default class PluginGo extends Plugin {
   }
 
   //App 启动时加载
-  async onload() {
+  public async onload() {
     this.init();
 
     //console.log("onload");
@@ -233,30 +236,35 @@ export default class PluginGo extends Plugin {
     const plugins = this.pluginRegistry.getAllPlugins();
     for (const plugin of plugins) {
       try {
-        await plugin?.onunload();
+        if (!settings.getBySpace(plugin.name, "enabled")) {
+          await plugin?.onunload();
+          // Clean up global event listeners
+          this.eventBus.off("click-blockicon", (event) =>
+            this.blockIconEvent(event)
+          );
+          this.eventBus.off("switch-protyle", (event) =>
+            this.switchProtyleEvent(event)
+          );
+          this.eventBus.off("click-editortitleicon", (event) =>
+            this.editortitleiconEvent(event)
+          );
+          this.eventBus.off("mobile-keyboard-show", (event) =>
+            this.mobilekeyboardshowEvent(event)
+          );
+          this.eventBus.off("mobile-keyboard-hide", (event) =>
+            this.mobilekeyboardhideEvent(event)
+          );
+          this.eventBus.off("open-siyuan-url-plugin", (event) =>
+            this.openSiyuanUrlPluginEvent(event)
+          );
+          this.eventBus.off("open-menu-image", (event) =>
+            this.imageMenuEvent(event)
+          );
+        }
       } catch (error) {
         console.error(`Error in onunload for plugin ${plugin.name}:`, error);
       }
     }
-
-    // Clean up global event listeners
-    this.eventBus.off("click-blockicon", (event) => this.blockIconEvent(event));
-    this.eventBus.off("switch-protyle", (event) =>
-      this.switchProtyleEvent(event)
-    );
-    this.eventBus.off("click-editortitleicon", (event) =>
-      this.editortitleiconEvent(event)
-    );
-    this.eventBus.off("mobile-keyboard-show", (event) =>
-      this.mobilekeyboardshowEvent(event)
-    );
-    this.eventBus.off("mobile-keyboard-hide", (event) =>
-      this.mobilekeyboardhideEvent(event)
-    );
-    this.eventBus.off("open-siyuan-url-plugin", (event) =>
-      this.openSiyuanUrlPluginEvent(event)
-    );
-    this.eventBus.off("open-menu-image", (event) => this.imageMenuEvent(event));
   }
 
   // 图片右键菜单事件

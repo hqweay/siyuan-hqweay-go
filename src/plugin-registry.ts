@@ -160,12 +160,12 @@ export class PluginRegistry {
     }
   }
 
-  beginPlugin(key: string) {
+  async beginPlugin(key: string) {
+    console.log("beginPlugin", key);
     const plugin = this.getPlugin(key);
     if (plugin) {
-      //console.log("loadPlugin", key);
-      plugin.onload();
-      plugin.onLayoutReady?.();
+      await plugin.onload();
+      await plugin.onLayoutReady?.();
     }
   }
 
@@ -195,6 +195,10 @@ export class PluginRegistry {
 
   getPluginConfigs(): PluginMetadata[] {
     return Array.from(this.pluginConfigs.values());
+  }
+
+  getPluginConfig(name: string): PluginMetadata | undefined {
+    return this.pluginConfigs.get(name);
   }
 
   isPluginEnabled(name: string): boolean {
