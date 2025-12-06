@@ -1,6 +1,10 @@
 import { request, sql } from "@/api";
-import { showMessage } from "siyuan";
-export default class AdjustTitleLevel {
+import { SubPlugin } from "@/types/plugin";
+import { IOperation, showMessage } from "siyuan";
+export default class AdjustTitleLevel implements SubPlugin {
+  onload(): void {}
+  onunload(): void {}
+
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
   maxTitleLevel = 6;
@@ -214,27 +218,5 @@ export default class AdjustTitleLevel {
         preview: false,
       }));
     showMessage(`调整标题完成！`);
-  }
-
-  private adjustOriginTitleToByDom(detail, originTitleLevel, toTitleLevel) {
-    const doOperations: IOperation[] = [];
-
-    const editElements = detail.protyle.wysiwyg.element.querySelectorAll(
-      `[data-type="NodeHeading"][data-subtype="h${originTitleLevel}"]`
-    );
-
-    editElements.forEach((item: HTMLElement) => {
-      item.setAttribute("data-subtype", `h${toTitleLevel}`);
-      item.setAttribute("class", `h${toTitleLevel}`);
-
-      doOperations.push({
-        id: item.dataset.nodeId,
-        data: item.outerHTML,
-        action: "update",
-      });
-    });
-
-    doOperations.length > 0 &&
-      detail.protyle.getInstance().transaction(doOperations);
   }
 }
