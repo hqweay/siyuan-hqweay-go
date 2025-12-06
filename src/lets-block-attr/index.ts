@@ -2,6 +2,7 @@ import { setBlockAttrs } from "@/api";
 import InsertCSS from "@/myscripts/insertCSS";
 import { addProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 let menus = [
   {
     name: "恢复转换效果",
@@ -62,9 +63,9 @@ function parseArrayString(str) {
   }
 }
 
-export default class BlockAttr extends InsertCSS {
+export default class BlockAttr extends InsertCSS implements SubPlugin {
   public blockIconEvent({ detail }: any) {
-    menus = parseArrayString(settings.get("quickAttrConfig")["attrs"]);
+    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
     detail.menu.addItem({
       iconHTML: "",
       label: "快捷添加属性",
@@ -88,9 +89,13 @@ export default class BlockAttr extends InsertCSS {
     }
   }
 
+  onload(): void {
+    this.loadSlashOfAttrs();
+  }
+
   public loadSlashOfAttrs = () => {
     console.log("加载块属性快捷设置 Slash");
-    menus = parseArrayString(settings.get("quickAttrConfig")["attrs"]);
+    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
     menus
       .filter((menu) => menu.enabled && menu.name.startsWith("@"))
       .forEach((menu) => {
