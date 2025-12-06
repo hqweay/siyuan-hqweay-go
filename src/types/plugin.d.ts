@@ -36,6 +36,7 @@ export interface SubPlugin {
   blockIconEvent?(detail: any): void;
   imageMenuEvent?(detail: any): void;
   updateProtyleToolbar?(toolbar: any[]): any[];
+  onProtyleLoaded?(event): void;
 }
 
 export interface PluginMetadata {

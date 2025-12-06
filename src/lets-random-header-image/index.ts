@@ -6,8 +6,6 @@ const fs = require("fs");
 const path = require("path");
 
 class RandomHeaderImagePlugin implements SubPlugin {
-  private _isEnabled = false;
-
   changeImageBindThis = this.changeImage.bind(this);
   customEvent;
   cachedImages = {};
@@ -17,21 +15,16 @@ class RandomHeaderImagePlugin implements SubPlugin {
   }
 
   async onload() {
-    this._isEnabled = true;
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
   async onunload() {
-    this._isEnabled = false;
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
-  async onLayoutReady() {
-    // Already handled in onload
-  }
-
-  setEvent(event) {
+  onProtyleLoaded(event) {
     this.customEvent = event;
+    console.log("onProtyleLoaded", event);
   }
 
   async changeImage(event, ele?) {
