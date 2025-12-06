@@ -16,8 +16,8 @@ export const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "矩形标注粘贴时转为",
-      description: "粘贴OCR文本需要配合 OCR 图片识别 功能使用",
+      title: "矩形标注粘贴时转为：支持 OCR 粘贴文本",
+      description: "粘贴 OCR 文本需要配合 OCR 图片识别 功能使用",
       key: "recAnno",
       value: "ocrTextPin",
       options: {
