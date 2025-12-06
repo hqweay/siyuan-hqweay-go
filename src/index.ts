@@ -123,12 +123,6 @@ export default class PluginGo extends Plugin {
       // Delegate to plugins that handle protyle events
       this.delegateEvent("onProtyleLoaded", event);
     });
-
-    //这里注入CSS和JS - 需要保留代码片段功能
-    if (settings.getFlag("codeSnippets")) {
-      await this.getCodeSnippets();
-      // TODO: Handle code snippets injection
-    }
   }
 
   addMenu(rect?: DOMRect) {
@@ -307,53 +301,5 @@ export default class PluginGo extends Plugin {
       }
     }
     return toolbar;
-  }
-
-  async getCodeSnippets() {
-    // if (this.codeSnippets.length !== 0) {
-    //   return this.codeSnippets;
-    // }
-    return fetch(
-      "https://api.github.com/repos/hqweay/siyuan-hqweay-go/issues/4/comments?per_page=100&page=0",
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    )
-      .then((response) => {
-        if (response.ok) {
-          if (response.ok) {
-            return response.json().then((snippets) => {
-              // let resultObj = JSON.parse(snippets);
-              this.codeSnippets = snippets.map((ele) => {
-                const body = ele.body;
-                if (body.startsWith("```")) {
-                  let metaInfos = body.split(/\r?\n/)[0].split("#");
-                  return {
-                    id: ele.node_id,
-                    type: metaInfos[1] ? metaInfos[1] : "未知",
-                    category: metaInfos[2] ? metaInfos[2] : "未知",
-                    title: metaInfos[3] ? metaInfos[3] : "未知",
-                    author: metaInfos[4] ? metaInfos[4] : "未知",
-                    description: metaInfos[5] ? metaInfos[5] : "未知",
-                    link: metaInfos[6] ? metaInfos[6] : "未知",
-                    code: body.split(/\r?\n/).slice(1, -1).join("\r\n"),
-                  };
-                }
-              });
-              return this.codeSnippets;
-            });
-          } else {
-            throw new Error("Failed to get file content");
-          }
-        } else {
-          throw new Error("Failed to get file content");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   }
 }

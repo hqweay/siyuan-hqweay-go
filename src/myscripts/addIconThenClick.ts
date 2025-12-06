@@ -1,6 +1,8 @@
 // export default AddIconThenClick;
 
-export default class AddIconThenClick {
+import { SubPlugin } from "@/types/plugin";
+
+export default class AddIconThenClick implements SubPlugin {
   id: string = "";
   label: string = "";
   icon: string = "";
@@ -11,8 +13,9 @@ export default class AddIconThenClick {
   onunload() {
     this.thisElement && this.thisElement.remove();
   }
-
-  onload() {
+  onload(): void {}
+  
+  onLayoutReady() {
     if (document.getElementById(this.id) || this.thisElement) {
       return;
     }

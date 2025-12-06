@@ -1,6 +1,8 @@
 import { request } from "@/api";
 import { isMobile, plugin } from "@/utils";
-import { getFrontend, openMobileFileById, openTab } from "siyuan";
+import { getFrontend, openMobileFileById, openTab, showMessage } from "siyuan";
+import { goToRandomBlock } from "./randomDocCache";
+import { openByMobile } from "./utils";
 /**
  * 获取笔记本的日记模板路径
  */
@@ -119,5 +121,23 @@ export function openBlockByID(id: string) {
         id: id,
       },
     });
+  }
+}
+
+export function openByUrl(url) {
+  url = url.trim();
+  if (!url) {
+    showMessage("url为空");
+    return;
+  } else if (url.toLowerCase().startsWith("select ")) {
+    goToRandomBlock(url);
+  } else if (isBlockID(url)) {
+    isMobile
+      ? openMobileFileById(plugin.app, url)
+      : window.open(`siyuan://blocks/${url}`, "_blank");
+  } else if (url.toLowerCase().startsWith("siyuan://")) {
+    plugin.eventBus.emit("open-siyuan-url-plugin", { url });
+  } else {
+    isMobile ? openByMobile(url) : window.open(url, "_blank");
   }
 }

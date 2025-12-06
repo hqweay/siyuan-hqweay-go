@@ -412,18 +412,7 @@ https://shibe.online/api/shibes?count=1`,
         },
       ],
 
-      左上边栏扩充: [
-        {
-          type: "textarea",
-          title: "在左上边栏新增图标固定打开链接或文档（块）",
-          description: `换行配置多条；<br/>格式：图标====链接/文档或块id<br/>`,
-          key: "ids",
-          placeholder: `🥹====20240330144736-irg5pfz
-😉====20240416195915-sod1ftd
-🌁====siyuan://plugins/sy-docs-flow/open-rule?ruleType=SQL&ruleInput=select+B.*+from+blocks+as+B+join+attributes+as+A%0Aon+B.id+%3D+A.block_id%0Awhere+A.name+like+%27custom-dailynote%25%27%0Aorder+by+A.value+desc%3B&ruleTitle=%F0%9F%98%80%F0%9F%98%80+Daily+Notes&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A15%2C%22shift%22%3A10%7D%7D`,
-          value: settings.getBySpace("dockLeft", "ids"),
-        },
-      ],
+ 
       阅读帮助: [
         {
           type: "checkbox",

@@ -6,7 +6,12 @@ import { createDailynote } from "@frostime/siyuan-plugin-kits";
 // import MobileNavigation from "./components/MobileNavigation.svelte";
 import { navigation } from "./navigation";
 import { openByMobile } from "@/myscripts/utils";
-import { getCurrentDocId, isBlockID, openBlockByID } from "@/myscripts/syUtils";
+import {
+  getCurrentDocId,
+  isBlockID,
+  openBlockByID,
+  openByUrl,
+} from "@/myscripts/syUtils";
 import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 import { goToRandomBlock } from "@/myscripts/randomDocCache";
 import { mobileUtils } from "./utils";
@@ -637,17 +642,10 @@ export default class NavHelper implements SubPlugin {
             } catch (error) {
               console.error("初始化或操作失败:", error);
             }
-          } else if (url.toLowerCase().startsWith("select ")) {
-            goToRandomBlock(url);
-          } else if (isBlockID(url)) {
-            isMobile
-              ? openMobileFileById(plugin.app, url)
-              : window.open(`siyuan://blocks/${url}`, "_blank");
-          } else if (url.toLowerCase().startsWith("siyuan://")) {
-            plugin.eventBus.emit("open-siyuan-url-plugin", { url });
           } else {
-            isMobile ? openByMobile(url) : window.open(url, "_blank");
+            openByUrl(url);
           }
+
           // 不隐藏，方便快速浏览
           // this.hideSubmenu();
         });
