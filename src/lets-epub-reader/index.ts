@@ -1,6 +1,6 @@
 import { Plugin, showMessage, fetchSyncPost, Menu, openTab } from "siyuan";
 import { settings } from "@/settings";
-import AddIconThenClick from "@/myscripts/addIconThenClick";
+
 import { SubPlugin } from "@/types/plugin";
 
 import Reader from "./Reader.svelte";
@@ -8,7 +8,7 @@ import EpubReader from "./Reader.svelte"; // Alias for backward compatibility
 
 import { plugin } from "@/utils";
 
-export default class EpubReaderPlugin extends AddIconThenClick implements SubPlugin {
+export default class EpubReaderPlugin implements SubPlugin {
   private _isEnabled = false;
 
   id = "hqweay-epub-reader";
@@ -19,7 +19,6 @@ export default class EpubReaderPlugin extends AddIconThenClick implements SubPlu
   private epubReaderInstance: any = null;
 
   constructor() {
-    super();
     this.id = "hqweay-epub-reader";
     this.label = "EPUB 阅读器";
     this.icon = "📖";

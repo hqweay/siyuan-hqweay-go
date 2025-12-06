@@ -1,26 +1,38 @@
-import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { openByUrl } from "@/myscripts/syUtils";
+import { SubPlugin } from "@/types/plugin";
 
-export default class DockPlugin extends AddIconThenClick {
-  id = "";
-  label = "";
-  icon = `😝`;
-  defaultIcon = `😝`;
+export default class DockPlugin implements SubPlugin {
   location = "dockLeft-top";
-  type = "dock";
+  icon = `😝`;
+  id = "";
 
-  constructor(location: string, icon: string, id: string) {
-    super();
+  label = "";
+  defaultIcon = `😝`;
+  thisElement;
+
+  constructor(location: string, icon: string, id: string, label: string) {
     this.location = location;
     this.icon = icon;
     this.id = id;
+    this.label = label;
   }
 
+  onload(): void {}
+  onunload() {
+    this.thisElement && this.thisElement.remove();
+  }
+  onLayoutReady() {
+    if (document.getElementById(this.id) || this.thisElement) {
+      return;
+    }
+
+    this.addIconThenClick();
+  }
   async exec() {
     openByUrl(this.id);
   }
 
-  addIcon = () => {
+  addIconThenClick = () => {
     const [x, y] = this.location.split("-");
 
     const dockEles = document.getElementById(`${x}`);
@@ -38,7 +50,8 @@ export default class DockPlugin extends AddIconThenClick {
       //获取第四个元素
       dockEle = dockEles.children[3];
     } else if (y === "right") {
-      dockEle = dockEles.lastChild;
+      //右上角 取 barMode
+      dockEle = document.getElementById(`barMode`);
     } else {
       return;
     }
@@ -60,8 +73,8 @@ export default class DockPlugin extends AddIconThenClick {
         `class`,
         `dock-plugin-hqweay ariaLabel toolbar__item`
       );
-      // 将元素插在当前元素后面
-      dockEle.insertAdjacentElement("afterend", childElement);
+      // 将元素插在当前元素前面
+      dockEle.insertAdjacentElement("beforebegin", childElement);
     } else {
       childElement.setAttribute(
         `class`,

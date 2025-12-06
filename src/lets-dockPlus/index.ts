@@ -13,9 +13,9 @@ export default class DockPlugins implements SubPlugin {
       return;
     }
     docks.split("\n").forEach((dock) => {
-      const [location, icon, id] = dock.split(",");
+      const [location, icon, id, label] = dock.split(",");
 
-      this.dockPlugins.push(new DockPlugin(location, icon, id));
+      this.dockPlugins.push(new DockPlugin(location, icon, id, label));
     });
   }
 
