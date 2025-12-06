@@ -527,16 +527,7 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("read", "addOutline"),
         },
       ],
-      快捷添加书签: [
-        {
-          type: "textarea",
-          title: "书签",
-          description: "快捷添加的书签名<br/>多个书签以换行分隔",
-          key: "items",
-          value: settings.getBySpace("bookmark", "items"),
-          placeholder: "读到这里啦",
-        },
-      ],
+
       中文排版: [
         {
           type: "checkbox",

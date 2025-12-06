@@ -1,14 +1,17 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
+import { IOperation } from "siyuan";
 
-export default class Bookmark extends AddIconThenClick {
+export default class Bookmark implements SubPlugin {
+  onload(): void {}
+  onunload(): void {}
   regexOfHighLight = /==([^=]+)==/;
 
   private async addTo({ detail, bookmarkName }) {
     const doOperations: IOperation[] = [];
 
     detail.blockElements.forEach((item: HTMLElement) => {
-      // console.log(item);
       item.setAttribute("bookmark", bookmarkName);
 
       doOperations.push({
@@ -21,7 +24,7 @@ export default class Bookmark extends AddIconThenClick {
     detail.protyle.getInstance().transaction(doOperations);
   }
   public blockIconEvent({ detail }) {
-    const items = settings.getBySpace("bookmarkConfig", "items");
+    const items = settings.getBySpace("quick-bookmark", "items");
 
     if (!items || items.length <= 0) {
       return;
