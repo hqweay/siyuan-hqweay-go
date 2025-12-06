@@ -14,13 +14,13 @@ export default {
       value: "SELECT id FROM blocks WHERE type = 'd'",
       placeholder: "SELECT id FROM blocks WHERE type = 'd'",
     },
-    {
-      type: "number",
-      title: "缓存数量",
-      description: "",
-      key: "limitNum",
-      value: 30,
-      placeholder: "默认一次查询 30 条缓存",
-    },
+    // {
+    //   type: "number",
+    //   title: "缓存数量",
+    //   description: "",
+    //   key: "limitNum",
+    //   value: 30,
+    //   placeholder: "默认一次查询 30 条缓存",
+    // },
   ],
 };

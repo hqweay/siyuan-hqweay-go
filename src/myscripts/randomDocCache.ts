@@ -45,7 +45,9 @@ export class RandomDocCache {
    * @param sql 原始SQL查询语句
    * @returns 随机文档ID，如果缓存为空则返回null
    */
-  async getRandomDocId(sql: string): Promise<string | null> {
+  async getRandomDocId(
+    sql: string = "SELECT id FROM blocks WHERE type = 'd'"
+  ): Promise<string | null> {
     const cacheKey = this.normalizeSql(sql);
     let cacheEntry = this.cache.get(cacheKey);
 
