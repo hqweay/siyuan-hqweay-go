@@ -1,4 +1,3 @@
-
 /**
  * 思源笔记数据库工具类
  * 提供绑定块到数据库的相关操作
@@ -52,8 +51,10 @@ class SiyuanAVHelper {
       console.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
       return;
     }
-
+    console.log("addBlocks");
+    console.log(blockIds);
     blockIds = typeof blockIds === "string" ? [blockIds] : blockIds;
+
     const srcs = blockIds.map((blockId) => ({
       id: blockId,
       itemID: this._getRowIdByBlockId(blockId),

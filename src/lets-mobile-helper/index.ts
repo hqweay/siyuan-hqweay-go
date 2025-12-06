@@ -5,6 +5,10 @@ import { SubPlugin } from "@/types/plugin";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
 // import MobileNavigation from "./components/MobileNavigation.svelte";
 import { navigation, mobileUtils, isMobile } from "./navigation";
+import { openByMobile } from "@/myscripts/utils";
+import { getCurrentDocId, isBlockID } from "@/myscripts/syUtils";
+import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
+import { getMobileCurrentDocId } from "@/myscripts/navUtil";
 
 export default class MobileHelper implements SubPlugin {
   private id = "mobile-helper";
@@ -386,11 +390,24 @@ export default class MobileHelper implements SubPlugin {
           <span style="font-size: 12px; color: #666;">→</span>
         `;
 
-        item.addEventListener("click", () => {
-          if (url.startsWith("siyuan://")) {
-            window.open(url);
+        item.addEventListener("click", async () => {
+          if (title.startsWith("💾") || title.includes("数据库")) {
+            try {
+              const avHelper = await createSiyuanAVHelper(url);
+              await avHelper.addBlocks([getCurrentDocId()]);
+            } catch (error) {
+              console.error("初始化或操作失败:", error);
+            }
+          } else if (url.toLowerCase().startsWith("select ")) {
+            navigation.goToRandom(url);
+          } else if (isBlockID(url)) {
+            isMobile
+              ? openMobileFileById(plugin.app, url)
+              : window.open(`siyuan://blocks/${url}`, "_blank");
+          } else if (url.toLowerCase().startsWith("siyuan://")) {
+            plugin.eventBus.emit("open-siyuan-url-plugin", { url });
           } else {
-            window.open(url, "_blank");
+            isMobile ? openByMobile(url) : window.open(url, "_blank");
           }
           this.hideSubmenu();
         });

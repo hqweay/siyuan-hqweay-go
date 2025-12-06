@@ -1,5 +1,6 @@
 import { request } from "@/api";
-import { plugin } from "@/utils";
+import { isMobile, plugin } from "@/utils";
+import { getFrontend } from "siyuan";
 /**
  * 获取笔记本的日记模板路径
  */
@@ -72,4 +73,35 @@ export async function addProtyleSlash(slash: any) {
     }
   }
   plugin.protyleSlash.push(slash);
+}
+
+const BlockIDPattern = /^\d{14,}-\w{7}$/;
+export function isBlockID(id: string): boolean {
+  return BlockIDPattern.test(id);
+}
+
+export function isNotebookID(id: string): boolean {
+  return id.startsWith("20") && id.length === 14;
+}
+
+export function isAssetID(id: string): boolean {
+  return id.startsWith("assets/");
+}
+
+export function isFileAnnotationID(id: string): boolean {
+  return id.startsWith("fileannotation-");
+}
+
+export function isFileAnnotationBlockID(id: string): boolean {
+  return id.startsWith("fileannotation-block_");
+}
+
+export function getCurrentDocId() {
+  return isMobile
+    ? window.siyuan.mobile.editor.protyle.block.id
+    : document
+        .querySelector(
+          ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
+        )
+        ?.getAttribute("data-node-id");
 }

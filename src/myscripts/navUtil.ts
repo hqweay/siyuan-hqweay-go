@@ -121,10 +121,4 @@ export const goToChild = async () => {
   // postAction();
 };
 
-export function getMobileCurrentDocId() {
-  // const editor = document.querySelector("#editor");
-  // if (!editor) return;
-  // const eleTitle = editor.querySelector(".protyle-content .protyle-title");
-  // return eleTitle?.getAttribute("data-node-id");
-  return window.siyuan.mobile.editor.protyle.block.id;
-}
+

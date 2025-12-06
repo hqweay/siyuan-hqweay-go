@@ -1,4 +1,4 @@
-import { getBlockByID, listDocsByPath } from "@/api";
+import { getBlockByID, listDocsByPath, sql } from "@/api";
 import { plugin } from "@/utils";
 import { openMobileFileById, openTab, showMessage } from "siyuan";
 import { mobileUtils, isMobile } from "./utils";
@@ -223,26 +223,15 @@ class MobileNavigation {
   /**
    * 跳转到随机文档
    */
-  async goToRandom(): Promise<void> {
+  async goToRandom(
+    sqlParam = "SELECT * FROM blocks WHERE type = 'd'"
+  ): Promise<void> {
     try {
-      const sql =
-        "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1";
+      sqlParam = `SELECT id FROM (${sqlParam}) ORDER BY RANDOM() LIMIT 1`;
+      const data = await sql(sqlParam);
 
-      const response = await fetch("/api/query/sql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ stmt: sql }),
-      });
-
-      if (!response.ok) {
-        throw new Error("SQL查询失败");
-      }
-
-      const result = await response.json();
-      if (result.data && result.data.length > 0) {
-        const randomDocId = result.data[0].id;
+      if (data && data.length > 0) {
+        const randomDocId = data[0].id;
 
         // 添加到历史记录
         const currentDocId = this.getCurrentDocId();
