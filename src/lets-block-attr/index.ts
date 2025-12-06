@@ -13,7 +13,7 @@ function parseArrayString(str) {
     return new Function(`return ${str}`)();
   } catch (error) {
     console.error("解析失败:", error);
-    return [];
+    return []; 
   }
 }
 
@@ -38,7 +38,7 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
   }
 
   public onLayoutReady() {
-    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
+    menus = parseArrayString(settings.getBySpace(pluginMetadata.name, "attrs"));
     //初始化还是执行一下，监听就只用处理变动过的数据了
     initList2Tab();
     if (menus.find((menu) => menu.value === "list2tab" && menu.enabled)) {
@@ -48,8 +48,8 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
 
   onload(): void {
     this.loadSlashOfAttrs();
-    
-    settings.getBySpace("quickAttr", "customProperties") &&
+
+    settings.getBySpace(pluginMetadata.name, "customProperties") &&
       this.showCustomPropertiesUnderTitle.onload();
   }
 
@@ -59,7 +59,7 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
 
   public loadSlashOfAttrs = () => {
     console.log("加载块属性快捷设置 Slash");
-    menus = parseArrayString(settings.get("quickAttr")["attrs"]);
+    menus = parseArrayString(settings.getBySpace(pluginMetadata.name, "attrs"));
     menus
       .filter((menu) => menu.enabled && menu.name.startsWith("@"))
       .forEach((menu) => {

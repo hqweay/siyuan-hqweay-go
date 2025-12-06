@@ -1,12 +1,12 @@
 import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
-
+import pluginMetadata from "./plugin";
 export default class ShowCustomPropertiesUnderTitle extends InsertCSS {
   id = "snippetCSS-hqweay-show-custom-properties-under-title";
 
   onload() {
     const customProperties = settings.getBySpace(
-      "quickAttr",
+      pluginMetadata.name,
       "customProperties"
     );
 
