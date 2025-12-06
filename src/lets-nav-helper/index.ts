@@ -71,7 +71,9 @@ export default class NavHelper implements SubPlugin {
   mobilekeyboardhideEvent(eventData: any): void {
     console.log("移动端键盘隐藏", eventData);
     // 恢复底部导航栏
-    if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
+    if (
+      settings.getBySpace(pluginMetadata.name, "enableBottomNav") === "mobile"
+    ) {
       this.showNavigation();
     }
   }
@@ -89,11 +91,24 @@ export default class NavHelper implements SubPlugin {
     };
   }
 
+  private showInMobile(): boolean {
+    return (
+      settings.getBySpace(pluginMetadata.name, "enableBottomNav") ===
+        "mobile" ||
+      settings.getBySpace(pluginMetadata.name, "enableBottomNav") === "both"
+    );
+  }
+  private showInPC(): boolean {
+    return (
+      settings.getBySpace(pluginMetadata.name, "enableBottomNav") === "pc" ||
+      settings.getBySpace(pluginMetadata.name, "enableBottomNav") === "both"
+    );
+  }
   // 创建自适应导航（根据设备类型选择移动端或桌面端）
   private createAdaptiveNavigation(): void {
-    if (isMobile) {
+    if (isMobile && this.showInMobile()) {
       this.createMobileNavigation();
-    } else {
+    } else if (this.showInPC()) {
       this.createDesktopNavigation();
     }
   }

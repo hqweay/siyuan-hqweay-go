@@ -8,7 +8,7 @@ const pluginMetadata: PluginMetadata = {
   author: "hqweay",
   defaultConfig: {
     enabled: false,
-    enableBottomNav: true,
+    enableBottomNav: "both",
     showBackButton: true,
     navJustInMain: true,
     noteBookID: "20240330144726-gs2xey6",
@@ -30,11 +30,16 @@ const pluginMetadata: PluginMetadata = {
   },
   settings: [
     {
-      type: "checkbox",
+      type: "select",
       title: "启用底部导航栏",
-      description: "在移动端显示底部导航栏",
+      description: "移动端、PC 端",
       key: "enableBottomNav",
-      value: true,
+      value: "both",
+      options: {
+        mobile: "移动端",
+        pc: "PC 端",
+        both: "移动端、PC 端",
+      },
     },
     {
       type: "checkbox",
