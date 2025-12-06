@@ -70,13 +70,13 @@ export default class PluginGo extends Plugin {
     const plugins = this.pluginRegistry.getAllPlugins();
     console.log("plugins", plugins);
     // 默认添加 topBar，方便实时加载
-    let needAddTopBar = true;
-    // for (const plugin of plugins) {
-    //   if (plugin.enabled && plugin.addMenuItem) {
-    //     needAddTopBar = true;
-    //     break;
-    //   }
-    // }
+    let needAddTopBar = false;
+    for (const plugin of plugins) {
+      if (plugin.enabled && plugin.addMenuItem) {
+        needAddTopBar = true;
+        break;
+      }
+    }
 
     if (needAddTopBar) {
       const topBarElement = this.addTopBar({
