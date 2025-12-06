@@ -1,11 +1,9 @@
-import { settings } from "@/settings";
-
-import { getFileContent, plugin } from "@/utils";
-import { fetchSyncPost } from "siyuan";
-import { snippets } from "./snippets";
-import { SubPlugin } from "@/types/plugin";
 import { PluginRegistry } from "@/plugin-registry";
+import { SubPlugin } from "@/types/plugin";
+import { getFileContent } from "@/utils";
+import { fetchSyncPost } from "siyuan";
 import pluginMetadata from "./plugin";
+import { settings } from "@/settings";
 export default class FetchCodeSnippets implements SubPlugin {
   codeSnippets = [];
   onunload() {
@@ -24,28 +22,33 @@ export default class FetchCodeSnippets implements SubPlugin {
   async onload() {
     //这里注入CSS和JS - 需要保留代码片段功能
 
-		console.log("FetchCodeSnippets onload");
+    console.log("FetchCodeSnippets onload");
     await this.getCodeSnippets();
+    let codeSettings = this.codeSnippets.map((ele) => {
+      return {
+        type: "checkbox",
+        title: `${ele.title} - ${
+          ele.author && ele.link
+            ? `@<a href= '${ele.link}'>${ele.author}</a>`
+            : ""
+        }`,
+        description: `${ele.description}`,
+        key: `${ele.id}`,
+        value: settings.getBySpace(pluginMetadata.name, `${ele.id}`),
+        hasSetting: true,
+      };
+    });
+
     PluginRegistry.getInstance().getPluginConfig(pluginMetadata.name).settings =
-      this.codeSnippets.map((ele) => {
-        return {
-          type: "checkbox",
-          title: `${ele.title} - ${
-            ele.author && ele.link
-              ? `@<a href= '${ele.link}'>${ele.author}</a>`
-              : ""
-          }`,
-          description: `${ele.description}`,
-          key: `${ele.id}`,
-          value: settings.getBySpace(pluginMetadata.name, `${ele.id}`),
-          hasSetting: true,
-        };
-      });
+      (
+        PluginRegistry.getInstance().getPluginConfig(pluginMetadata.name)
+          .settings as any
+      ).concat(codeSettings);
   }
 
   //App 准备好时加载
   async onLayoutReady() {
-		console.log("FetchCodeSnippets onLayoutReady");
+    console.log("FetchCodeSnippets onLayoutReady");
     // TODO: Handle code snippets injection
 
     this.codeSnippets.forEach((ele) => {
@@ -55,9 +58,18 @@ export default class FetchCodeSnippets implements SubPlugin {
   }
 
   async getCodeSnippets() {
-    // if (this.codeSnippets.length !== 0) {
-    //   return this.codeSnippets;
-    // }
+    const rules = settings.getBySpace(pluginMetadata.name, "rules").split("\n");
+
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+      await this.getCodeSnippetsFromGithubIssue(rule);
+    }
+  }
+
+  async getCodeSnippetsFromGithubIssue(url) {
+    if (!url.startsWith("https://api.github.com")) {
+      return [];
+    }
     return fetch(
       "https://api.github.com/repos/hqweay/siyuan-hqweay-go/issues/4/comments?per_page=100&page=0",
       {
@@ -72,7 +84,7 @@ export default class FetchCodeSnippets implements SubPlugin {
           if (response.ok) {
             return response.json().then((snippets) => {
               // let resultObj = JSON.parse(snippets);
-              this.codeSnippets = snippets.map((ele) => {
+              const codeSnippets = snippets.map((ele) => {
                 const body = ele.body;
                 if (body.startsWith("```")) {
                   let metaInfos = body.split(/\r?\n/)[0].split("#");
@@ -88,6 +100,7 @@ export default class FetchCodeSnippets implements SubPlugin {
                   };
                 }
               });
+              this.codeSnippets.push(...codeSnippets);
               return this.codeSnippets;
             });
           } else {
