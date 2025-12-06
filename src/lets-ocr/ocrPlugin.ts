@@ -4,7 +4,7 @@ import {
   executeTransaction,
 } from "@/myscripts/utils";
 import { settings } from "@/settings";
-import { formatUtil } from "@/siyuan-typography-go/utils";
+import { formatUtil } from "@/lets-typography-go/utils";
 import { html2ele } from "@frostime/siyuan-plugin-kits";
 import { fetchSyncPost, IOperation, Menu, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";

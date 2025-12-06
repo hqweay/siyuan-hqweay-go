@@ -451,40 +451,7 @@ https://shibe.online/api/shibes?count=1`,
         },
       ],
 
-      中文排版: [
-        {
-          type: "checkbox",
-          title: "文档格式化时插入空格？",
-          description:
-            "点击右上角机器人对文档格式化时调用思源的「排版优化」来自动插入空格",
-          key: "autoSpace",
-          value: settings.getBySpace("typography", "autoSpace"),
-        },
-        {
-          type: "checkbox",
-          title: "文档格式化时网络资源文件转换本地？",
-          description:
-            "点击右上角机器人对文档格式化时调用思源的「网络资源文件转换本地」",
-          key: "netImg2LocalAssets",
-          value: settings.getBySpace("typography", "netImg2LocalAssets"),
-        },
-        {
-          type: "checkbox",
-          title: "关闭提示？",
-          description:
-            "点击右上角机器人对文档格式化时会有损坏数据的风险，如果你确认风险可以打开开关，关闭每次操作前的提示。",
-          key: "closeTip",
-          value: settings.getBySpace("typography", "closeTip"),
-        },
-        {
-          type: "number",
-          title: "图片居中？",
-          description:
-            "为 10-100 的值则居中并按百分比数值缩放；其它值则不居中。",
-          key: "imageCenter",
-          value: settings.getBySpace("typography", "imageCenter"),
-        },
-      ],
+     
 
 
       "OCR 图片识别": [

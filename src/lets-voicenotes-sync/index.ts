@@ -1,7 +1,7 @@
 import { setBlockAttrs, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
-import { formatUtil } from "@/siyuan-typography-go/utils";
+import { formatUtil } from "@/lets-typography-go/utils";
 import * as jinja from "jinja-js";
 import { fetchSyncPost, showMessage } from "siyuan";
 import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
