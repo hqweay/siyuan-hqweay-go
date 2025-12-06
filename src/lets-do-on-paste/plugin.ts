@@ -9,7 +9,7 @@ export const pluginMetadata: PluginMetadata = {
   defaultConfig: {
     enabled: false,
     title: true,
-    recAnno: false,
+    recAnno: "ocrTextPin",
     resizeAndCenterImg: false,
   },
   settings: [
@@ -17,7 +17,7 @@ export const pluginMetadata: PluginMetadata = {
       type: "checkbox",
       title: "自动获取标题链接",
       description: "",
-      key: "title",
+      key: "titleLink",
       value: false,
     },
     {
@@ -39,7 +39,7 @@ export const pluginMetadata: PluginMetadata = {
       title: "![]()格式的图片自动缩小为 50%",
       description: "![]()格式的图片自动缩小为 50%",
       key: "resizeAndCenterImg",
-      value: true,
+      value: false,
     },
   ],
 };

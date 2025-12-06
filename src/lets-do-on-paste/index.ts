@@ -6,7 +6,8 @@ import { showMessage } from "siyuan";
 import { ocrAssetsUrl } from "@/lets-ocr/ocrPlugin";
 export default class doOnPaste {
   onunload() {
-    plugin.eventBus.off("paste", () => {});
+    // 主方法自动执行
+    // plugin.eventBus.off("paste", () => {});
   }
 
   public async onload() {
