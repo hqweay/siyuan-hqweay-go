@@ -1,13 +1,14 @@
 import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
-
+import pluginMetadata from "./plugin";
 export default class Memo extends InsertCSS {
   id = "snippetCSS-hqweay-memo";
 
   onload() {
-    const dataID = settings.getBySpace("memoConfig", "id");
+    console.log("memo onload");
+    const memoIds = settings.getBySpace(pluginMetadata.name, "memoIds");
 
-    const ids = dataID.trim().split("\n");
+    const ids = memoIds.trim().split("\n");
     let result = ``;
 
     if (ids.length <= 0) {
@@ -49,7 +50,7 @@ overflow: hidden;
 
 `;
 
-    const activeDoc = settings.getBySpace("memoConfig", "activeDoc");
+    const activeDoc = settings.getBySpace(pluginMetadata.name, "activeDoc");
 
     if (activeDoc) {
       let docResult = ``;

@@ -51,25 +51,15 @@
       //console.log(pluginMeta.name);
       //console.log("pluginMeta.settings");
       //console.log(pluginMeta.settings);
-      pluginMeta.settings = pluginMeta.settings?.map((item) => {
-        return {
-          ...item, // 保留其他属性
-          // 如果 item.value 是一个对象，则需要深拷贝
-          value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
-        };
-      });
-      //console.log(pluginMeta.settings);
-      // Add plugin settings
-      if (pluginMeta.settings) {
-        dynamicSettings[pluginMeta.displayName] = pluginMeta.settings;
-        // for (const [groupName, settings] of Object.entries(
-        //   pluginMeta.settings
-        // )) {
-        //   if (!dynamicSettings[groupName]) {
-        //     dynamicSettings[groupName] = [];
-        //   }
-        //  .push(...settings);
-        // }
+      // 创建新的设置数组，但不修改原对象
+      const newSettings = pluginMeta.settings?.map((item) => ({
+        ...item,
+        value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
+      }));
+
+      // 添加到 dynamicSettings
+      if (newSettings?.length) {
+        dynamicSettings[pluginMeta.displayName] = newSettings;
       }
     }
 
@@ -281,7 +271,6 @@
         };
       }),
 
-
       仪表盘: [
         {
           type: "textinput",
@@ -429,26 +418,7 @@ https://shibe.online/api/shibes?count=1`,
           value: settings.getBySpace("convert", "styleNesting"),
         },
       ],
-      碎碎念: [
-        {
-          type: "checkbox",
-          title: "该文档下的元素也展示创建时间？",
-          description:
-            "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
-          key: "activeDoc",
-          value: settings.getBySpace("memo", "activeDoc"),
-        },
-        {
-          type: "textarea",
-          title: "配置块/文档 ID",
-          description: `多个 ID 换行分隔<br/>如下配置 memo 的 ID 后，hello 的右上角将展示（由块 ID 截取生成的）创建时间【若展示有误烦请反馈】<br/>
-              - [[memo]]<br/>
-              - - hello`,
-          key: "id",
-          placeholder: `20240406015842-137jie3`,
-          value: settings.getBySpace("memo", "id"),
-        },
-      ],
+
       左上边栏扩充: [
         {
           type: "textarea",
@@ -718,9 +688,6 @@ https://shibe.online/api/shibes?count=1`,
           key: "formatWithPangu",
           value: settings.getBySpace("ocr", "formatWithPangu"),
         },
-      ],
-      标题下展示文档自定义属性的值: [
-        
       ],
 
       其它: [

@@ -69,6 +69,24 @@ export const pluginMetadata: PluginMetadata = {
 ]`,
       placeholder: ``,
     },
+    {
+      type: "textarea",
+      title: "碎碎念-配置块/文档 ID",
+      description: `多个 ID 换行分隔<br/>如下配置 memo 的 ID 后，hello 的右上角将展示（由块 ID 截取生成的）创建时间【若展示有误烦请反馈】<br/>
+              - [[memo]]<br/>
+              - - hello`,
+      key: "memoIds",
+      placeholder: `20250126213235-a3tnoqb`,
+      value: `20250126213235-a3tnoqb`,
+    }, 
+    {
+      type: "checkbox",
+      title: "碎碎念-该文档下的元素也展示创建时间？",
+      description:
+        "例如：A 同时为标注和粗体，当使用转换标注为文本时，将清除标注样式，保留粗体样式",
+      key: "activeDoc",
+      value: true,
+    },
   ],
 };
 

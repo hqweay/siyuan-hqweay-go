@@ -48,7 +48,16 @@ export class PluginRegistry {
     return PluginRegistry.instance;
   }
 
+  async reScanPlugins() {
+    this.plugins.clear();
+    this.pluginConfigs.clear();
+    console.log("重新扫描插件");
+    console.log("this.plugins", this.pluginConfigs);
+    await this.scanPlugins();
+  }
+
   async scanPlugins() {
+    console.log("开始扫描插件");
     // 读取所有符合模式的文件
     const pluginFiles = import.meta.glob(
       ["./lets-*/index.ts", "./lets-*/plugin.ts"],

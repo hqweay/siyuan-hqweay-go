@@ -5,6 +5,7 @@ import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
 
 import ShowCustomPropertiesUnderTitle from "./ShowCustomPropertiesUnderTitle";
+import Memo from "./Memo";
 import pluginMetadata from "./plugin";
 
 function parseArrayString(str) {
@@ -13,14 +14,16 @@ function parseArrayString(str) {
     return new Function(`return ${str}`)();
   } catch (error) {
     console.error("解析失败:", error);
-    return []; 
+    return [];
   }
 }
 
 let menus = [];
 
 export default class BlockAttr extends InsertCSS implements SubPlugin {
-  private showCustomPropertiesUnderTitle = new ShowCustomPropertiesUnderTitle();
+  private showCustomPropertiesUnderTitlePlugin =
+    new ShowCustomPropertiesUnderTitle();
+  private memoPlugin = new Memo();
   public blockIconEvent({ detail }: any) {
     detail.menu.addItem({
       iconHTML: "",
@@ -50,11 +53,18 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
     this.loadSlashOfAttrs();
 
     settings.getBySpace(pluginMetadata.name, "customProperties") &&
-      this.showCustomPropertiesUnderTitle.onload();
+      this.showCustomPropertiesUnderTitlePlugin.onload();
+
+      console.log('sss');
+      console.log(settings.get(pluginMetadata.name));
+    console.log(settings.getBySpace(pluginMetadata.name, "memoIds"));
+    settings.getBySpace(pluginMetadata.name, "memoIds") &&
+      this.memoPlugin.onload();
   }
 
   onunload(): void {
-    this.showCustomPropertiesUnderTitle.onunload();
+    this.showCustomPropertiesUnderTitlePlugin.onunload();
+    this.memoPlugin.onunload();
   }
 
   public loadSlashOfAttrs = () => {
