@@ -1,14 +1,16 @@
 import { settings } from "@/settings";
-import { plugin } from "@/utils";
+import { isMobile, plugin } from "@/utils";
 import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
 // import MobileNavigation from "./components/MobileNavigation.svelte";
-import { navigation, mobileUtils, isMobile } from "./navigation";
+import { navigation } from "./navigation";
 import { openByMobile } from "@/myscripts/utils";
 import { getCurrentDocId, isBlockID } from "@/myscripts/syUtils";
 import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 import { getMobileCurrentDocId } from "@/myscripts/navUtil";
+import { goToRandomBlock } from "@/myscripts/randomDocCache";
+import { mobileUtils } from "./utils";
 
 export default class MobileHelper implements SubPlugin {
   private id = "mobile-helper";
@@ -166,12 +168,13 @@ export default class MobileHelper implements SubPlugin {
         label: "首页",
         action: () => navigation.goToHome(),
       },
-      {
-        key: "showRandomButton",
-        icon: "🎲",
-        label: "随机",
-        action: () => navigation.goToRandom(),
-      },
+      // {
+      //   key: "showRandomButton",
+      //   icon: "🎲",
+      //   label: "随机",
+      //   action: async () =>
+      //     goToRandomBlock("SELECT * FROM blocks WHERE type = 'd'"),
+      // },
       {
         key: "showCustomLinksButton",
         icon: "🔗",
@@ -399,7 +402,7 @@ export default class MobileHelper implements SubPlugin {
               console.error("初始化或操作失败:", error);
             }
           } else if (url.toLowerCase().startsWith("select ")) {
-            navigation.goToRandom(url);
+            goToRandomBlock(url);
           } else if (isBlockID(url)) {
             isMobile
               ? openMobileFileById(plugin.app, url)
@@ -473,6 +476,13 @@ export default class MobileHelper implements SubPlugin {
           await navigation.goToSibling(-1);
           // this.hideSubmenu();
         },
+      },
+      {
+        key: "showRandomButton",
+        icon: "🎲",
+        label: "随机",
+        action: async () =>
+          goToRandomBlock("SELECT * FROM blocks WHERE type = 'd'"),
       },
       {
         icon: "⤵️",

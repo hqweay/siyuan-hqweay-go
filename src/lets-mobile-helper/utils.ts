@@ -1,11 +1,13 @@
 import { getFrontend } from "siyuan";
 import { getBlockByID } from "@/api";
 import { plugin } from "@/utils";
+import { getCurrentDocId } from "@/myscripts/syUtils";
 
 /**
  * 移动端环境检测
  */
-export const isMobile = getFrontend() === "mobile" || getFrontend() === "browser-mobile";
+export const isMobile =
+  getFrontend() === "mobile" || getFrontend() === "browser-mobile";
 
 /**
  * 移动端工具类
@@ -94,18 +96,18 @@ class MobileUtils {
     });
 
     // 监听网络状态变化
-    if ('navigator' in window && 'onLine' in navigator) {
-      window.addEventListener('online', () => {
+    if ("navigator" in window && "onLine" in navigator) {
+      window.addEventListener("online", () => {
         console.log("网络连接恢复");
       });
 
-      window.addEventListener('offline', () => {
+      window.addEventListener("offline", () => {
         console.log("网络连接断开");
       });
     }
 
     // 监听设备方向变化
-    window.addEventListener('orientationchange', () => {
+    window.addEventListener("orientationchange", () => {
       setTimeout(() => {
         this.handleOrientationChange();
       }, 100);
@@ -128,25 +130,10 @@ class MobileUtils {
   }
 
   /**
-   * 获取当前文档ID
-   */
-  getCurrentDocId(): string | null {
-    try {
-      if (window.siyuan?.mobile?.editor?.protyle?.block?.id) {
-        return window.siyuan.mobile.editor.protyle.block.id;
-      }
-      return null;
-    } catch (error) {
-      console.error("获取当前文档ID失败:", error);
-      return null;
-    }
-  }
-
-  /**
    * 获取当前文档信息
    */
   async getCurrentDoc(): Promise<any> {
-    const docId = this.getCurrentDocId();
+    const docId = getCurrentDocId();
     if (!docId) {
       throw new Error("无法获取当前文档ID");
     }
@@ -165,9 +152,11 @@ class MobileUtils {
   isInMainDocument(): boolean {
     try {
       const currentPath = window.location.pathname;
-      return currentPath.includes("/mobile/") || 
-             currentPath.includes("/editor/") || 
-             isMobile;
+      return (
+        currentPath.includes("/mobile/") ||
+        currentPath.includes("/editor/") ||
+        isMobile
+      );
     } catch (error) {
       console.error("检查主文档界面失败:", error);
       return false;
@@ -177,7 +166,10 @@ class MobileUtils {
   /**
    * 显示移动端提示消息
    */
-  showMobileMessage(message: string, type: "info" | "success" | "error" = "info"): void {
+  showMobileMessage(
+    message: string,
+    type: "info" | "success" | "error" = "info"
+  ): void {
     if ((window as any).showMessage) {
       (window as any).showMessage(message);
     } else {
@@ -190,7 +182,7 @@ class MobileUtils {
    * 振动反馈
    */
   vibrate(pattern: number | number[] = 100): void {
-    if ('vibrate' in navigator) {
+    if ("vibrate" in navigator) {
       try {
         navigator.vibrate(pattern);
       } catch (error) {
@@ -219,18 +211,24 @@ class MobileUtils {
    * 检测触摸设备
    */
   isTouchDevice(): boolean {
-    return 'ontouchstart' in window || 
-           navigator.maxTouchPoints > 0 || 
-           (navigator as any).msMaxTouchPoints > 0;
+    return (
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      (navigator as any).msMaxTouchPoints > 0
+    );
   }
 
   /**
    * 获取设备信息
    */
-  getDeviceInfo(): { isMobile: boolean; isTablet: boolean; isDesktop: boolean } {
+  getDeviceInfo(): {
+    isMobile: boolean;
+    isTablet: boolean;
+    isDesktop: boolean;
+  } {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    
+
     return {
       isMobile: width < 768,
       isTablet: width >= 768 && width < 1024,
@@ -267,7 +265,7 @@ class MobileUtils {
     let lastExecTime = 0;
     return (...args: any[]) => {
       const currentTime = Date.now();
-      
+
       if (currentTime - lastExecTime > delay) {
         func.apply(null, args);
         lastExecTime = currentTime;

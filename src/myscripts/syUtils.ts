@@ -1,6 +1,6 @@
 import { request } from "@/api";
 import { isMobile, plugin } from "@/utils";
-import { getFrontend } from "siyuan";
+import { getFrontend, openMobileFileById, openTab } from "siyuan";
 /**
  * 获取笔记本的日记模板路径
  */
@@ -96,7 +96,7 @@ export function isFileAnnotationBlockID(id: string): boolean {
   return id.startsWith("fileannotation-block_");
 }
 
-export function getCurrentDocId() {
+export function getCurrentDocId(): string {
   return isMobile
     ? window.siyuan.mobile.editor.protyle.block.id
     : document
@@ -104,4 +104,20 @@ export function getCurrentDocId() {
           ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
         )
         ?.getAttribute("data-node-id");
+}
+
+export function openBlockByID(id: string) {
+  if (!isBlockID(id)) {
+    return;
+  }
+  if (isMobile) {
+    openMobileFileById(plugin.app, id);
+  } else {
+    openTab({
+      app: plugin.app, //plugin 是你插件的 this 对象
+      doc: {
+        id: id,
+      },
+    });
+  }
 }

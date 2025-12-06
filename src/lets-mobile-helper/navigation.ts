@@ -1,29 +1,17 @@
+import { getRandomDocId } from "./../myscripts/randomDocCache";
 import { getBlockByID, listDocsByPath, sql } from "@/api";
 import { plugin } from "@/utils";
 import { openMobileFileById, openTab, showMessage } from "siyuan";
 import { mobileUtils, isMobile } from "./utils";
 import { PluginRegistry } from "@/plugin-registry";
-
-/**
- * 导航历史记录
- */
-interface NavigationHistory {
-  current: string | null;
-  backStack: string[];
-  forwardStack: string[];
-}
+import { getCurrentDocId, openBlockByID } from "@/myscripts/syUtils";
 
 /**
  * 移动端导航类
  */
 class MobileNavigation {
-  private history: NavigationHistory = {
-    current: null,
-    backStack: [],
-    forwardStack: [],
-  };
   private historyInitialized = false;
-
+  private forwardStack: string[] = [];
   /**
    * 初始化导航历史
    */
@@ -33,9 +21,6 @@ class MobileNavigation {
     console.log("移动端导航初始化");
     this.historyInitialized = true;
 
-    // 初始化当前文档ID
-    this.history.current = mobileUtils.getCurrentDocId();
-
     // 监听文档切换事件
     this.setupNavigationListeners();
   }
@@ -44,12 +29,6 @@ class MobileNavigation {
    * 设置导航事件监听
    */
   private setupNavigationListeners(): void {
-    // 监听页面加载完成事件
-    if (window.siyuan) {
-      window.siyuan.mobile?.editor?.protyle?.block?.id &&
-        this.updateCurrentDoc();
-    }
-
     // 监听键盘事件
     window.addEventListener("keydown", (e) => {
       if (!isMobile) return;
@@ -78,28 +57,6 @@ class MobileNavigation {
   }
 
   /**
-   * 更新当前文档
-   */
-  private updateCurrentDoc(): void {
-    const currentDocId = mobileUtils.getCurrentDocId();
-    if (currentDocId && currentDocId !== this.history.current) {
-      // 添加到历史记录
-      if (this.history.current) {
-        this.history.backStack.push(this.history.current);
-      }
-      this.history.current = currentDocId;
-      this.history.forwardStack = []; // 清空前进栈
-    }
-  }
-
-  /**
-   * 获取当前文档ID
-   */
-  getCurrentDocId(): string | null {
-    return mobileUtils.getCurrentDocId();
-  }
-
-  /**
    * 获取当前文档
    */
   async getCurrentDoc(): Promise<any> {
@@ -111,7 +68,7 @@ class MobileNavigation {
    */
   async goToParent(): Promise<void> {
     try {
-      const currentDocId = mobileUtils.getCurrentDocId();
+      const currentDocId = getCurrentDocId();
       if (!currentDocId) {
         showMessage("无法获取当前文档ID");
         return;
@@ -125,9 +82,6 @@ class MobileNavigation {
         mobileUtils.vibrate([100, 50, 100]);
         return;
       }
-
-      // 添加到历史记录
-      this.addToHistory(currentDocId);
 
       // 跳转到父文档
       openMobileFileById(plugin.app, parentDoc.id);
@@ -144,7 +98,7 @@ class MobileNavigation {
    */
   async goToChild(): Promise<void> {
     try {
-      const currentDocId = mobileUtils.getCurrentDocId();
+      const currentDocId = getCurrentDocId();
       if (!currentDocId) {
         showMessage("无法获取当前文档ID");
         return;
@@ -158,9 +112,6 @@ class MobileNavigation {
         mobileUtils.vibrate([100, 50, 100]);
         return;
       }
-
-      // 添加到历史记录
-      this.addToHistory(currentDocId);
 
       // 跳转到第一个子文档
       openMobileFileById(plugin.app, children[0].id);
@@ -177,7 +128,7 @@ class MobileNavigation {
    */
   async goToSibling(delta: -1 | 1): Promise<void> {
     try {
-      const currentDocId = mobileUtils.getCurrentDocId();
+      const currentDocId = getCurrentDocId();
       if (!currentDocId) {
         showMessage("无法获取当前文档ID");
         return;
@@ -207,9 +158,6 @@ class MobileNavigation {
         showMessage(`跳转到${direction}文档`);
       }
 
-      // 添加到历史记录
-      this.addToHistory(currentDocId);
-
       // 跳转到目标兄弟文档
       openMobileFileById(plugin.app, siblings[newIndex].id);
       mobileUtils.vibrate(50);
@@ -221,60 +169,16 @@ class MobileNavigation {
   }
 
   /**
-   * 跳转到随机文档
-   */
-  async goToRandom(
-    sqlParam = "SELECT * FROM blocks WHERE type = 'd'"
-  ): Promise<void> {
-    try {
-      sqlParam = `SELECT id FROM (${sqlParam}) ORDER BY RANDOM() LIMIT 1`;
-      const data = await sql(sqlParam);
-
-      if (data && data.length > 0) {
-        const randomDocId = data[0].id;
-
-        // 添加到历史记录
-        const currentDocId = this.getCurrentDocId();
-        if (currentDocId) {
-          this.addToHistory(currentDocId);
-        }
-
-        openMobileFileById(plugin.app, randomDocId);
-        showMessage("已跳转到随机文档");
-        mobileUtils.vibrate(50);
-      } else {
-        showMessage("没有找到可跳转的文档");
-        mobileUtils.vibrate([100, 50, 100]);
-      }
-    } catch (error) {
-      console.error("跳转到随机文档失败:", error);
-      showMessage("跳转到随机文档失败");
-      mobileUtils.vibrate([100, 50, 100]);
-    }
-  }
-
-  /**
    * 回到上一个文档
    */
   goBack(): void {
-    if (this.history.backStack.length === 0) {
-      showMessage("没有可返回的文档");
+    if (window.siyuan?.backStack?.length <= 0) {
+      showMessage("已到达最顶层文档");
       mobileUtils.vibrate([100, 50, 100]);
       return;
     }
-
-    const prevDocId = this.history.backStack.pop()!;
-
-    // 添加到前进栈
-    const currentDocId = this.getCurrentDocId();
-    if (currentDocId) {
-      this.history.forwardStack.push(currentDocId);
-    }
-
-    // 跳转
-    openMobileFileById(plugin.app, prevDocId);
-    this.history.current = prevDocId;
-
+    this.forwardStack.push(getCurrentDocId());
+    (window as any).goBack();
     showMessage("已返回上一页");
     mobileUtils.vibrate(50);
   }
@@ -283,24 +187,16 @@ class MobileNavigation {
    * 前进到下一个文档
    */
   goForward(): void {
-    if (this.history.forwardStack.length === 0) {
-      showMessage("没有可前进的文档");
+    if (this.forwardStack.length <= 0) {
+      showMessage("已到达最新文档");
       mobileUtils.vibrate([100, 50, 100]);
       return;
     }
 
-    const nextDocId = this.history.forwardStack.pop()!;
-
-    // 添加到返回栈
-    const currentDocId = this.getCurrentDocId();
-    if (currentDocId) {
-      this.history.backStack.push(currentDocId);
+    const nextId = this.forwardStack.pop();
+    if (nextId) {
+      openBlockByID(nextId);
     }
-
-    // 跳转
-    openMobileFileById(plugin.app, nextDocId);
-    this.history.current = nextDocId;
-
     showMessage("已前进到下一页");
     mobileUtils.vibrate(50);
   }
@@ -381,47 +277,7 @@ class MobileNavigation {
       return null;
     }
   }
-
-  /**
-   * 添加到历史记录
-   */
-  private addToHistory(docId: string): void {
-    if (this.history.current && this.history.current !== docId) {
-      this.history.backStack.push(this.history.current);
-    }
-    this.history.current = docId;
-    this.history.forwardStack = []; // 清空前进栈
-  }
-
-  /**
-   * 获取导航历史信息
-   */
-  getHistoryInfo(): {
-    backCount: number;
-    forwardCount: number;
-    current: string | null;
-  } {
-    return {
-      backCount: this.history.backStack.length,
-      forwardCount: this.history.forwardStack.length,
-      current: this.history.current,
-    };
-  }
-
-  /**
-   * 清空历史记录
-   */
-  clearHistory(): void {
-    this.history.backStack = [];
-    this.history.forwardStack = [];
-    this.history.current = mobileUtils.getCurrentDocId();
-    showMessage("导航历史已清空");
-  }
 }
 
 // 创建全局实例
 export const navigation = new MobileNavigation();
-
-// 导出导航类和工具变量
-export { MobileNavigation };
-export { mobileUtils, isMobile } from "./utils";

@@ -45,7 +45,7 @@ export interface NavigationHistory {
 export interface CustomLink {
   title: string;
   url: string;
-  type: 'siyuan' | 'external';
+  type: "siyuan" | "external";
 }
 
 export interface MobileHelperAPI {
@@ -54,29 +54,35 @@ export interface MobileHelperAPI {
     goToParent(): Promise<void>;
     goToChild(): Promise<void>;
     goToSibling(delta: -1 | 1): Promise<void>;
-    goToRandom(): Promise<void>;
     goBack(): void;
     goForward(): void;
     goToHome(): void;
-    getHistoryInfo(): { backCount: number; forwardCount: number; current: string | null };
+    getHistoryInfo(): {
+      backCount: number;
+      forwardCount: number;
+      current: string | null;
+    };
   };
   utils: {
     getCurrentDocId(): string | null;
     isMobile: boolean;
     getDeviceInfo(): DeviceInfo;
     vibrate(pattern: number | number[]): void;
-    showMobileMessage(message: string, type?: 'info' | 'success' | 'error'): void;
+    showMobileMessage(
+      message: string,
+      type?: "info" | "success" | "error"
+    ): void;
   };
 }
 
 /**
  * 移动端事件类型
  */
-export type MobileEventType = 
-  | 'mobile-keyboard-show'
-  | 'mobile-keyboard-hide'
-  | 'orientation-change'
-  | 'visibility-change';
+export type MobileEventType =
+  | "mobile-keyboard-show"
+  | "mobile-keyboard-hide"
+  | "orientation-change"
+  | "visibility-change";
 
 /**
  * 移动端事件数据
@@ -90,7 +96,7 @@ export interface MobileEventData {
  * 设置项类型
  */
 export interface SettingItem {
-  type: 'checkbox' | 'textinput' | 'textarea' | 'select' | 'button' | 'number';
+  type: "checkbox" | "textinput" | "textarea" | "select" | "button" | "number";
   title: string;
   description: string;
   key: string;
@@ -114,17 +120,17 @@ export interface NavTheme {
 /**
  * 快速操作类型
  */
-export type QuickAction = 
-  | 'back'
-  | 'forward'
-  | 'parent'
-  | 'child'
-  | 'sibling-prev'
-  | 'sibling-next'
-  | 'random'
-  | 'home'
-  | 'refresh'
-  | 'settings';
+export type QuickAction =
+  | "back"
+  | "forward"
+  | "parent"
+  | "child"
+  | "sibling-prev"
+  | "sibling-next"
+  | "random"
+  | "home"
+  | "refresh"
+  | "settings";
 
 /**
  * 快速操作配置

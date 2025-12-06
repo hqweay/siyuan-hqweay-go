@@ -23,7 +23,8 @@ const pluginMetadata: PluginMetadata = {
     backgroundColor: "#ffffff",
     buttonColor: "#333333",
     activeButtonColor: "#007aff",
-    randomSql: "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
+    randomSql:
+      "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
     customLinks:
       "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D\n养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n添加到写作数据库====20250914152149-1emaqok",
   },
@@ -138,20 +139,21 @@ const pluginMetadata: PluginMetadata = {
       value: "#007aff",
       placeholder: "#007aff",
     },
-    {
-      type: "textarea",
-      title: "随机SQL",
-      description: "用于随机选择文档的SQL语句",
-      key: "randomSql",
-      value: "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
-      placeholder: "SELECT id FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 1",
-    },
+    // {
+    //   type: "textarea",
+    //   title: "随机SQL",
+    //   description: "用于随机选择文档的SQL语句",
+    //   key: "randomSql",
+    //   value: "SELECT id FROM blocks WHERE type = 'd'",
+    //   placeholder: "SELECT id FROM blocks WHERE type = 'd'",
+    // },
     {
       type: "textarea",
       title: "自定义链接",
       description: "自定义链接配置，每行一个，格式：标题====链接",
       key: "customLinks",
-      value: "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D",
+      value:
+        "Daily Notes====siyuan://plugins/sy-docs-flow/open-rule?ruleType=DailyNote&ruleInput=20240330144726-gs2xey6&ruleTitle=%E6%81%90%E9%BE%99%E4%BC%9A%E9%A3%9E%F0%9F%A6%95&ruleConfig=%7B%22scroll%22%3Afalse%2C%22breadcrumb%22%3Afalse%2C%22protyleTitle%22%3Atrue%2C%22readonly%22%3Afalse%2C%22dynamicLoading%22%3A%7B%22enabled%22%3Atrue%2C%22capacity%22%3A20%2C%22shift%22%3A10%7D%7D",
       placeholder: "标题1====链接1\n标题2====链接2",
     },
   ],
