@@ -2,6 +2,7 @@ import { getBlockByID, listDocsByPath } from "@/api";
 import { plugin } from "@/utils";
 import { openMobileFileById, openTab, showMessage } from "siyuan";
 import { mobileUtils, isMobile } from "./utils";
+import { PluginRegistry } from "@/plugin-registry";
 
 /**
  * 导航历史记录
@@ -321,12 +322,13 @@ class MobileNavigation {
   goToHome(): void {
     try {
       // 尝试打开仪表盘
-      // PluginRegistry.getInstance()
-      //   .getPlugin("dashBoard")
-      //   .openSiyuanUrlPluginEvent("siyuan://plugins/hqweay-diary-tools/open");
-      plugin.eventBus.emit("open-siyuan-url-plugin", {
-        url: "siyuan://plugins/hqweay-diary-tools/open",
-      });
+      PluginRegistry.getInstance()
+        .getPlugin("dashBoard")
+        .openSiyuanUrlPluginEvent({
+          detail: {
+            url: "siyuan://plugins/hqweay-diary-tools/open",
+          },
+        });
     } catch (error) {
       console.error("打开仪表盘失败:", error);
       showMessage("打开仪表盘失败");

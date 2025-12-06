@@ -69,19 +69,6 @@ export default class MobileHelper implements SubPlugin {
     }
   }
 
-  // 添加菜单项
-  addMenuItem(menu: Menu): void {
-    if (!isMobile) return;
-
-    menu.addItem({
-      icon: "iconHelp",
-      label: "移动端助手",
-      click: () => {
-        this.showMobileHelperDialog();
-      },
-    });
-  }
-
   // 设置移动端全局变量
   private setupMobileGlobals(): void {
     // 设置全局移动端工具对象
@@ -289,99 +276,6 @@ export default class MobileHelper implements SubPlugin {
     }
   }
 
-  // 显示自定义链接
-  private showCustomLinks(): void {
-    const linksConfig =
-      settings.getBySpace("mobile-helper", "customLinks") || "";
-    const links = linksConfig.split("\n").filter((line) => line.trim());
-
-    if (links.length === 0) {
-      showMessage("暂无自定义链接配置");
-      return;
-    }
-
-    const menu = new Menu("mobile-helper-custom-links");
-
-    links.forEach((link) => {
-      const [title, url] = link.split("====");
-      if (title && url) {
-        menu.addItem({
-          icon: "iconLink",
-          label: title.trim(),
-          click: () => {
-            if (url.startsWith("siyuan://")) {
-              // 处理思源自定义协议
-              window.open(url);
-            } else {
-              // 处理外部链接
-              window.open(url, "_blank");
-            }
-          },
-        });
-      }
-    });
-
-    menu.open({
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      isLeft: true,
-    });
-  }
-
-  // 显示上下文菜单
-  private showContextMenu(): void {
-    const menu = new Menu("mobile-helper-context");
-
-    menu.addItem({
-      icon: "iconRefresh",
-      label: "刷新当前文档",
-      click: () => {
-        const currentDocId = navigation.getCurrentDocId();
-        if (currentDocId) {
-          openMobileFileById(plugin.app, currentDocId);
-        }
-      },
-    });
-
-    menu.addItem({
-      icon: "iconSettings",
-      label: "移动端助手设置",
-      click: () => {
-        plugin.openGlobalSetting();
-      },
-    });
-
-    menu.open({
-      x: window.innerWidth - 100,
-      y: window.innerHeight - 200,
-      isLeft: true,
-    });
-  }
-
-  // 显示移动端助手对话框
-  private showMobileHelperDialog(): void {
-    const dialog = new Dialog({
-      title: "移动端助手",
-      content: `<div id="mobile-helper-dialog" style="height: 400px; padding: 20px;">
-        <h3>移动端助手功能</h3>
-        <p>此功能正在开发中...</p>
-        <button onclick="window.mobileHelper.plugin.openGlobalSetting()">打开设置</button>
-      </div>`,
-      width: "350px",
-    });
-
-    // TODO: 启用 Svelte 组件
-    // const container = dialog.element.querySelector("#mobile-helper-dialog");
-    // if (container) {
-    //   new MobileNavigation({
-    //     target: container,
-    //     props: {
-    //       onClose: () => dialog.destroy(),
-    //     },
-    //   });
-    // }
-  }
-
   // 隐藏导航栏
   private hideNavigation(): void {
     if (this.navigationElement && this.isNavigationVisible) {
@@ -544,14 +438,31 @@ export default class MobileHelper implements SubPlugin {
     const content = document.createElement("div");
     content.style.cssText = "padding: 10px;";
 
-    // 添加导航操作项
+    // 添加导航操作项；点击后不隐藏，方便快速浏览
     const navItems = [
       {
         icon: "⬆️",
         label: "跳转到父文档",
         action: async () => {
           await navigation.goToParent();
-          this.hideSubmenu();
+          // this.hideSubmenu();
+        },
+      },
+
+      {
+        icon: "⤴️",
+        label: "跳转到上一个文档",
+        action: async () => {
+          await navigation.goToSibling(-1);
+          // this.hideSubmenu();
+        },
+      },
+      {
+        icon: "⤵️",
+        label: "跳转到下一个文档",
+        action: async () => {
+          await navigation.goToSibling(1);
+          // this.hideSubmenu();
         },
       },
       {
@@ -559,23 +470,7 @@ export default class MobileHelper implements SubPlugin {
         label: "跳转到子文档",
         action: async () => {
           await navigation.goToChild();
-          this.hideSubmenu();
-        },
-      },
-      {
-        icon: "⤴️",
-        label: "跳转到兄（上一个）文档",
-        action: async () => {
-          await navigation.goToSibling(-1);
-          this.hideSubmenu();
-        },
-      },
-      {
-        icon: "⤵️",
-        label: "跳转到弟（下一个）文档",
-        action: async () => {
-          await navigation.goToSibling(1);
-          this.hideSubmenu();
+          // this.hideSubmenu();
         },
       },
     ];
@@ -588,143 +483,6 @@ export default class MobileHelper implements SubPlugin {
       );
       content.appendChild(menuItem);
     });
-
-    this.submenuElement.appendChild(content);
-    document.body.appendChild(this.submenuElement);
-
-    // 点击其他地方关闭子菜单
-    setTimeout(() => {
-      document.addEventListener("click", this.handleOutsideClick);
-    }, 0);
-  }
-
-  // 显示上下文导航子菜单
-  private showContextNavigationSubmenu(): void {
-    this.hideSubmenu(); // 先隐藏之前的子菜单
-
-    // 创建子菜单元素
-    this.submenuElement = document.createElement("div");
-    this.submenuElement.id = "mobile-helper-submenu";
-    this.submenuElement.style.cssText = `
-      position: fixed;
-      bottom: 70px;
-      right: 10px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      z-index: 1001;
-      min-width: 180px;
-    `;
-
-    // 创建子菜单内容
-    const content = document.createElement("div");
-    content.style.cssText = "padding: 10px;";
-
-    // 添加导航操作项
-    const navItems = [
-      {
-        icon: "🔄",
-        label: "刷新当前文档",
-        action: () => {
-          const currentDocId = navigation.getCurrentDocId();
-          if (currentDocId) {
-            openMobileFileById(plugin.app, currentDocId);
-          }
-          this.hideSubmenu();
-        },
-      },
-      {
-        icon: "📋",
-        label: "复制文档链接",
-        action: () => {
-          const currentDocId = navigation.getCurrentDocId();
-          if (currentDocId) {
-            const url = `siyuan://blocks/${currentDocId}`;
-            if (navigator.clipboard) {
-              navigator.clipboard.writeText(url).then(() => {
-                showMessage("文档链接已复制到剪贴板");
-              });
-            } else {
-              // 降级方案
-              const textArea = document.createElement("textarea");
-              textArea.value = url;
-              document.body.appendChild(textArea);
-              textArea.select();
-              document.execCommand("copy");
-              document.body.removeChild(textArea);
-              showMessage("文档链接已复制到剪贴板");
-            }
-          }
-          this.hideSubmenu();
-        },
-      },
-      {
-        icon: "⚙️",
-        label: "移动端助手设置",
-        action: () => {
-          plugin.openGlobalSetting();
-          this.hideSubmenu();
-        },
-      },
-    ];
-
-    navItems.forEach((item) => {
-      const menuItem = this.createSubmenuItem(
-        item.icon,
-        item.label,
-        item.action
-      );
-      content.appendChild(menuItem);
-    });
-
-    this.submenuElement.appendChild(content);
-    document.body.appendChild(this.submenuElement);
-
-    // 点击其他地方关闭子菜单
-    setTimeout(() => {
-      document.addEventListener("click", this.handleOutsideClick);
-    }, 0);
-  }
-
-  // 显示上下文子菜单
-  private showContextSubmenu(): void {
-    this.hideSubmenu(); // 先隐藏之前的子菜单
-
-    // 创建子菜单元素
-    this.submenuElement = document.createElement("div");
-    this.submenuElement.id = "mobile-helper-submenu";
-    this.submenuElement.style.cssText = `
-      position: fixed;
-      bottom: 70px;
-      right: 10px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      z-index: 1001;
-      min-width: 180px;
-    `;
-
-    // 创建子菜单内容
-    const content = document.createElement("div");
-    content.style.cssText = "padding: 10px;";
-
-    // 添加刷新按钮
-    const refreshItem = this.createSubmenuItem("🔄", "刷新当前文档", () => {
-      const currentDocId = navigation.getCurrentDocId();
-      if (currentDocId) {
-        openMobileFileById(plugin.app, currentDocId);
-      }
-      this.hideSubmenu();
-    });
-
-    // 添加设置按钮
-    const settingsItem = this.createSubmenuItem("⚙️", "移动端助手设置", () => {
-      plugin.openGlobalSetting();
-      this.hideSubmenu();
-    });
-
-    content.appendChild(refreshItem);
-    content.appendChild(settingsItem);
 
     this.submenuElement.appendChild(content);
     document.body.appendChild(this.submenuElement);
