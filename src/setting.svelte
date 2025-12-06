@@ -54,6 +54,7 @@
       pluginMeta.settings = pluginMeta.settings?.map((item) => {
         return {
           ...item, // 保留其他属性
+          // 如果 item.value 是一个对象，则需要深拷贝
           value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
         };
       });
@@ -399,32 +400,6 @@
         },
       ],
 
-      发送到: [
-        {
-          type: "checkbox",
-          title: "写入剪贴板？",
-          description: "",
-          key: "isToClipboard",
-          value: settings.getBySpace("sendTo", "isToClipboard"),
-        },
-        {
-          type: "textinput",
-          title: "多行内容分隔符",
-          description: "",
-          key: "separator",
-          value: settings.getBySpace("sendTo", "separator"),
-          placeholder: "====",
-        },
-        {
-          type: "textarea",
-          title: "自定义链接",
-          description: "",
-          key: "inputArea",
-          value: settings.getBySpace("sendTo", "inputArea"),
-          placeholder:
-            "以 名称====链接 配置；换行分隔。${content} 将会替换为选中的内容",
-        },
-      ],
       随机题头图: [
         {
           type: "checkbox",

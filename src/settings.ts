@@ -323,14 +323,14 @@ class Settings {
   }
 
   //初始化配置文件
-  async initData() {
+  async initData(config = CONFIG) {
     //配置不存在则按照默认值建立配置文件
     if (
-      plugin.data[CONFIG] === "" ||
-      plugin.data[CONFIG] === undefined ||
-      plugin.data[CONFIG] === null
+      plugin.data[config] === "" ||
+      plugin.data[config] === undefined ||
+      plugin.data[config] === null
     ) {
-      await plugin.saveData(CONFIG, JSON.stringify(this.getDefaultConfig()));
+      await plugin.saveData(config, JSON.stringify(this.getDefaultConfig()));
     }
 
     //插件加载时 merge
@@ -351,29 +351,20 @@ class Settings {
 
   async mergeData() {
     const DEFAULT_CONFIG = this.getDefaultConfig();
-
-    // //console.log("mergeData", plugin.data[CONFIG]);
-    // //console.log("mergeData", DEFAULT_CONFIG);
     deepMerge(DEFAULT_CONFIG, plugin.data[CONFIG]);
-    // //console.log("mergeData", DEFAULT_CONFIG);
     await plugin.saveData(CONFIG, JSON.stringify(DEFAULT_CONFIG));
     await this.load();
   }
 
-  // Legacy method for backward compatibility
   setFlag(key: any, value: any, config = CONFIG) {
-    // Redirect to plugin's enabled config
     this.setBySpace(key, "enabled", value, config);
   }
 
   getFlag(key: any, config = CONFIG) {
-    // Redirect to plugin's enabled config
     return this.getBySpace(key, "enabled", config);
   }
 
   setBySpace(space: any, key: any, value: any, config = CONFIG) {
-    //console.log("setBySpace", space, key, value, config);
-    //console.log("plugin.data[config]", plugin.data[config]);
     plugin.data[config][space][key] = value;
   }
   getBySpace(space: any, key: any, config = CONFIG) {
@@ -393,13 +384,8 @@ class Settings {
   }
 
   async save(config = CONFIG) {
-    //console.log("save", plugin.data[config]);
     await plugin.saveData(config, plugin.data[config]);
     await this.load();
-  }
-
-  async saveCopy(config = CONFIG) {
-    await plugin.saveData(config, plugin.data[CONFIG]);
   }
 
   async saveTo(config: string) {

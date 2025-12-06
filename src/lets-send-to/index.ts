@@ -2,23 +2,15 @@ import { showMessage, Dialog } from "siyuan";
 import { plugin } from "@/utils";
 import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
-
+import CardView from "./pages/card.svelte";
 export default class SendToPlugin implements SubPlugin {
-  private _isEnabled = false;
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
-  async onload() {
-    this._isEnabled = true;
-  }
+  async onload() {}
 
-  async onunload() {
-    this._isEnabled = false;
-  }
+  async onunload() {}
 
   public blockIconEvent({ detail }) {
-    if (!this._isEnabled) {
-      return;
-    }
     let resultText = this.getContent(detail);
 
     const blockURL = detail.blockElements
@@ -34,11 +26,11 @@ export default class SendToPlugin implements SubPlugin {
       label: plugin.i18n.menuByURL,
       submenu: this.initMenuByURL(resultText, blockURL),
     });
-    detail.menu.addItem({
-      iconHTML: "",
-      label: plugin.i18n.menuByScript,
-      submenu: this.initMenuByScript(resultText, detail),
-    });
+    // detail.menu.addItem({
+    //   iconHTML: "",
+    //   label: plugin.i18n.menuByScript,
+    //   submenu: this.initMenuByScript(resultText, detail),
+    // });
   }
 
   //@todo 可以自定义内容获取逻辑
@@ -165,14 +157,14 @@ export default class SendToPlugin implements SubPlugin {
       cardPanel.style.margin = "0 auto";
       // console.log(resultText);
       // TODO: Implement CardView component
-      // let pannel = new CardView({
-      //   props: {
-      //     content: resultText,
-      //     // originBlockElements: detail.blockElements,
-      //     originDetail: detail,
-      //   },
-      //   target: cardPanel,
-      // });
+      let pannel = new CardView({
+        props: {
+          content: resultText,
+          // originBlockElements: detail.blockElements,
+          originDetail: detail,
+        },
+        target: cardPanel,
+      });
     }
   }
 }

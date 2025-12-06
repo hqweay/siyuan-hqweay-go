@@ -14,6 +14,44 @@ ChatGPT 总结====https://chat.openai.com/chat?q=请帮我总结：\${content}
 Google 搜索====https://www.google.com/search?q=\${content}`,
     isToClipboard: true,
     separator: "",
+    card: {
+      template: "default",
+      hideLi: false,
+      pLineHeight: -1,
+      addDOCTitle: "none",
+      templates: {
+        default: {
+          name: "默认",
+          css: "",
+        },
+      },
+    },
   },
+  settings: [
+    {
+      type: "checkbox",
+      title: "写入剪贴板？",
+      description: "",
+      key: "isToClipboard",
+      value: false,
+    },
+    {
+      type: "textinput",
+      title: "多行内容分隔符",
+      description: "",
+      key: "separator",
+      value: ``,
+      placeholder: "====",
+    },
+    {
+      type: "textarea",
+      title: "自定义链接",
+      description: "",
+      key: "inputArea",
+      value: ``,
+      placeholder:
+        "以 名称====链接 配置；换行分隔。${content} 将会替换为选中的内容",
+    },
+  ],
 };
 export default pluginMetadata;

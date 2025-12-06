@@ -1,6 +1,7 @@
 <script lang="ts">
   import SettingPanel from "@/libs/setting-panel.svelte";
   import { settings } from "@/settings";
+  import { plugin } from "@/utils";
   import html2canvas from "html2canvas-pro";
   import { showMessage } from "siyuan";
   import { onMount } from "svelte";
@@ -150,10 +151,10 @@
       title: "切换模板",
       description: "",
       key: "template",
-      value: settings.getBySpace("card", "template"),
+      value: settings.getBySpaceSub("sendTo", "card", "template"),
       ignore: true,
       options: Object.entries(
-        settings.getBySpace("card", "templates")
+        settings.getBySpaceSub("sendTo", "card", "templates")
       ).reduce((acc, [key, value]) => {
         // console.log(acc);
         acc[key] = key;
@@ -165,21 +166,21 @@
       title: "隐藏大纲元素前面的小点",
       description: "",
       key: "hideLi",
-      value: settings.getBySpace("card", "hideLi"),
+      value: settings.getBySpaceSub("sendTo", "card", "hideLi"),
     },
     pLineHeight: {
       type: "number",
       title: "调整段落间距",
       description: "大于等于 0 则清除段落默认间距并以新的数字调整间距",
       key: "pLineHeight",
-      value: settings.getBySpace("card", "pLineHeight"),
+      value: settings.getBySpaceSub("sendTo", "card", "pLineHeight"),
     },
     addDOCTitle: {
       type: "select",
       title: "添加文档标题",
       description: "",
       key: "addDOCTitle",
-      value: settings.getBySpace("card", "addDOCTitle"),
+      value: settings.getBySpaceSub("sendTo", "card", "addDOCTitle"),
       options: {
         none: "无",
         center: "居中",
@@ -191,14 +192,14 @@
       title: "添加一个作者名",
       description: "",
       key: "author",
-      value: settings.getBySpace("card", "author"),
+      value: settings.getBySpaceSub("sendTo", "card", "author"),
     },
     addTime: {
       type: "select",
       title: "添加一个时间",
       description: "",
       key: "addTime",
-      value: settings.getBySpace("card", "addTime"),
+      value: settings.getBySpaceSub("sendTo", "card", "addTime"),
       options: {
         byCreated: "当前时间",
         none: "无",
@@ -209,28 +210,28 @@
       title: "卡片颜色",
       description: "",
       key: "cardBackgroundColor",
-      value: settings.getBySpace("card", "cardBackgroundColor"),
+      value: settings.getBySpaceSub("sendTo", "card", "cardBackgroundColor"),
     },
     innerBackgroundColor: {
       type: "textinput",
       title: "内容块颜色",
       description: "",
       key: "innerBackgroundColor",
-      value: settings.getBySpace("card", "innerBackgroundColor"),
+      value: settings.getBySpaceSub("sendTo", "card", "innerBackgroundColor"),
     },
     fontColor: {
       type: "textinput",
       title: "内容字体颜色",
       description: "",
       key: "fontColor",
-      value: settings.getBySpace("card", "fontColor"),
+      value: settings.getBySpaceSub("sendTo", "card", "fontColor"),
     },
     hfColor: {
       type: "textinput",
       title: "头尾字体颜色",
       description: "",
       key: "hfColor",
-      value: settings.getBySpace("card", "hfColor"),
+      value: settings.getBySpaceSub("sendTo", "card", "hfColor"),
     },
 
     saveTemplate: {
@@ -280,24 +281,26 @@
   }
   let SettingItems = [];
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
-    // console.log(settings.getBySpace("card", "templates"));
+    // console.log(settings.getBySpaceSub("sendTo", "card", "templates"));
     if (detail.key === "template") {
       settingConfig.templateName.value = detail.value;
 
       for (let key in settingConfig) {
         if (
-          settings.getBySpace("card", "templates")[detail.value] &&
-          settings.getBySpace("card", "templates")[detail.value][
+          settings.getBySpaceSub("sendTo", "card", "templates")[detail.value] &&
+          settings.getBySpaceSub("sendTo", "card", "templates")[detail.value][
             settingConfig[key].key
           ] !== undefined
         ) {
-          settingConfig[key].value = settings.getBySpace(
-            "cardConfig",
+          settingConfig[key].value = settings.getBySpaceSub(
+            "sendTo",
+            "card",
             "templates"
           )[detail.value][settingConfig[key].key];
 
-          settings.setBySpace(
-            "cardConfig",
+          settings.setBySpaceSub(
+            "sendTo",
+            "card",
             settingConfig[key].key,
             settingConfig[key].value
           );
@@ -307,12 +310,12 @@
       //@todo
       // SettingItems.forEach((oldEle) => {
       //   if (
-      //     settings.getBySpace("card", "templates")[detail.value] &&
-      //     settings.getBySpace("card", "templates")[detail.value][
+      //     settings.getBySpaceSub("sendTo", "card", "templates")[detail.value] &&
+      //     settings.getBySpaceSub("sendTo", "card", "templates")[detail.value][
       //       oldEle.key
       //     ] !== undefined
       //   ) {
-      //     oldEle.value = settings.getBySpace("card", "templates")[
+      //     oldEle.value = settings.getBySpaceSub("sendTo", "card", "templates")[
       //       detail.value
       //     ][oldEle.key];
       //   }
@@ -331,7 +334,7 @@
     if (detail.key === "templateName") {
     } else {
       console.log("save");
-      settings.setBySpace("cardConfig", detail.key, detail.value);
+      settings.setBySpaceSub("sendTo", "card", detail.key, detail.value);
 
       settings.save();
     }
@@ -347,7 +350,7 @@
 
       settingConfig.template.value = templateKey;
 
-      settings.getBySpace("card", "templates")[`${templateKey}`] =
+      settings.getBySpaceSub("sendTo", "card", "templates")[`${templateKey}`] =
         SettingItems.filter((ele) => {
           return !ele.ignore;
         }).reduce((acc, obj) => {
@@ -358,7 +361,7 @@
       settings.save();
 
       settingConfig.template.options = Object.entries(
-        settings.getBySpace("card", "templates")
+        settings.getBySpaceSub("sendTo", "card", "templates")
       ).reduce((acc, [key, value]) => {
         acc[key] = key;
         return acc;
@@ -369,12 +372,12 @@
         return;
       }
 
-      delete settings.getBySpace("card", "templates")[
+      delete settings.getBySpaceSub("sendTo", "card", "templates")[
         settingConfig.template.value
       ];
       settings.save();
       settingConfig.template.options = Object.entries(
-        settings.getBySpace("card", "templates")
+        settings.getBySpaceSub("sendTo", "card", "templates")
       ).reduce((acc, [key, value]) => {
         acc[key] = key;
         return acc;
@@ -480,9 +483,9 @@
       <!-- <div bind:this={originDetail.blockElements}></div> -->
     </div>
     <div class="footer">
-      {#if settings.getBySpace("card", "author")}
+      {#if settings.getBySpaceSub("sendTo", "card", "author")}
         <div contenteditable="true" class="author">
-          @{settings.getBySpace("card", "author")}
+          @{settings.getBySpaceSub("sendTo", "card", "author")}
         </div>
       {/if}
     </div>
