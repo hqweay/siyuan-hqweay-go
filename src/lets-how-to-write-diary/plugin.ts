@@ -25,17 +25,17 @@ export const pluginMetadata: PluginMetadata = {
     },
     {
       type: "checkbox",
-      title:
-        "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
+      title: "快捷小窗录入日记（默认快捷键F10）",
       description: "",
-      key: "slashDiaryNote",
+      key: "quickInput",
       value: true,
     },
     {
       type: "checkbox",
-      title: "快捷小窗录入日记（默认快捷键F10）",
+      title:
+        "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
       description: "",
-      key: "quickInput",
+      key: "slashDiaryNote",
       value: true,
     },
     {

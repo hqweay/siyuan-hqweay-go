@@ -3,6 +3,7 @@ import { settings } from "@/settings";
 import { isMobile, plugin } from "@/utils";
 import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
+import { quickNoteOnload } from "./quick-note/quickNote";
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -25,7 +26,9 @@ export default class DiaryTools implements SubPlugin {
   //   // Setup menu for mobile or desktop
 
   // }
-  onload(): void {}
+  onload(): void {
+    settings.getBySpace("diaryTools", "quickInput") && quickNoteOnload(this);
+  }
   onunload(): void {}
 
   //获取天气并插入当前文档属性

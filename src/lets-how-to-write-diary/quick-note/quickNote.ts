@@ -6,10 +6,11 @@ import {
   updateStyleDom,
 } from "@frostime/siyuan-plugin-kits";
 import ProtyleComponent from "./quickNote.svelte";
+import { plugin } from "@/utils";
 
 let quickInputWin: any = null;
 
-export async function quickNoteOnload(muPlugin) {
+export async function quickNoteOnload() {
   // 如果不是移动端且不是子窗口，创建快速输入窗口
   if (
     !isMobile() &&
@@ -24,7 +25,7 @@ export async function quickNoteOnload(muPlugin) {
   }
 
   // 添加全局快捷键命令
-  muPlugin.addCommand({
+  plugin.addCommand({
     langKey: "openQuickInput",
     hotkey: "F10", // 默认使用F10快捷键
     globalCallback: () => {
@@ -158,8 +159,9 @@ async function initQuickInputUI() {
   const editorContainer = document.createElement("div");
   editorContainer.id = "protyle-editor-container";
   document.body.appendChild(editorContainer);
-  const config = settings.get("createDailyNoteConfig");
-  const blockId = await createDailynote(config.noteBookID);
+  const noteBookID = settings.getBySpace("diaryTools", "noteBookID");
+
+  const blockId = await createDailynote(noteBookID);
 
   // 修复打开文档时，面包屑栏隐藏的问题
   updateStyleDom(
