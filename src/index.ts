@@ -233,7 +233,7 @@ export default class PluginGo extends Plugin {
     const plugins = this.pluginRegistry.getAllPlugins();
     for (const plugin of plugins) {
       try {
-        await plugin.onunload();
+        await plugin?.onunload();
       } catch (error) {
         console.error(`Error in onunload for plugin ${plugin.name}:`, error);
       }

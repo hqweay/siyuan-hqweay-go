@@ -8,14 +8,13 @@ export const pluginMetadata: PluginMetadata = {
   settings: [
     {
       type: "textarea",
-      title: "在左上边栏新增图标固定打开链接或文档（块）",
-      description: ``,
+      title: "在左上边栏、右上边栏新增图标固定打开链接或文档（块）",
+      description: `dockLeft-top | dockLeft-bottom | dockRight-top | dockRight-bottom | toolar-left | toolbar-right`,
       key: "docks",
       placeholder: `
-      格式：图标,块ID/sql/链接
-      示例：🥹,20240416195915-sod1ftd`,
-      value: `🥹,20251126002344-r4jzwns
-			🥹,20240416195915-sod1ftd`,
+      格式：位置,图标,块ID/sql/链接
+      示例：dockLeft-top,🥹,20240416195915-sod1ftd`,
+      value: `toolbar-left,🥹,20251126002344-r4jzwns\ndockRight-bottom,🥹,20240416195915-sod1ftd`,
     },
   ],
 };

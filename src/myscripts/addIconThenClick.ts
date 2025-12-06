@@ -14,7 +14,7 @@ export default class AddIconThenClick implements SubPlugin {
     this.thisElement && this.thisElement.remove();
   }
   onload(): void {}
-  
+
   onLayoutReady() {
     if (document.getElementById(this.id) || this.thisElement) {
       return;
