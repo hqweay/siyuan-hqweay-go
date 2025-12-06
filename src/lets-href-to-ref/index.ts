@@ -1,9 +1,21 @@
 import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 import { plugin } from "@/utils";
 import { IOperation } from "siyuan";
 
-export default class HrefToRef {
+export default class HrefToRef implements SubPlugin {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
+
+  onunload(): void {}
+  public onload() {
+    //太多了，添加好麻烦，算了
+    // 添加全局快捷键命令
+    // plugin.addCommand({
+    //   langKey: "openQuickInput",
+    //   hotkey: "F10", // 默认使用F10快捷键
+    //   editorCallback: (protyle: IProtyle) => {},
+    // });
+  }
 
   cleanRef({ detail, exec }) {
     const doOperations: IOperation[] = [];
@@ -53,16 +65,6 @@ export default class HrefToRef {
       availableBlocks: ["NodeParagraph", "NodeHeading"],
     },
   ];
-
-  public onload() {
-    //太多了，添加好麻烦，算了
-    // 添加全局快捷键命令
-    // plugin.addCommand({
-    //   langKey: "openQuickInput",
-    //   hotkey: "F10", // 默认使用F10快捷键
-    //   editorCallback: (protyle: IProtyle) => {},
-    // });
-  }
 
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
