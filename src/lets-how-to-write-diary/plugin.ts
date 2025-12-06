@@ -6,21 +6,13 @@ export const pluginMetadata: PluginMetadata = {
   description: "提供日记相关的工具，包括仪表盘、天气信息插入等功能",
   version: "1.0.0",
   author: "hqweay",
-  defaultConfig: {
-    enabled: false,
-    noteBookID: "20240330144726-gs2xey6",
-    slashDiaryNote: true,
-    quickInput: true,
-    topBar: false,
-    getWeatherSetAttrs: "101270101",
-  },
   settings: [
     {
       type: "textinput",
       title: "创建日记的笔记本id",
       description: "",
       key: "noteBookID",
-      value: "",
+      value: "20240330144726-gs2xey6",
       placeholder: "20240330144726-gs2xey6",
     },
     {
@@ -50,7 +42,7 @@ export const pluginMetadata: PluginMetadata = {
       title: "顶栏-获取天气并插入当前文档属性",
       description: "https://www.sojson.com/blog/305.html",
       key: "getWeatherSetAttrs",
-      value: "",
+      value: "101270101",
       placeholder: "配置城市代码，如：101270101",
     },
   ],

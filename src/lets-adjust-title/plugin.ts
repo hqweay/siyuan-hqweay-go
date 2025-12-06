@@ -5,10 +5,6 @@ export const pluginMetadata: PluginMetadata = {
   displayName: "标题 Plus",
   description: "标题工具箱",
   version: "1.0.0",
-  defaultConfig: {
-    enabled: false,
-    adjustTitleLevel: false,
-  },
   settings: [
     {
       type: "checkbox",

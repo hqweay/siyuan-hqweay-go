@@ -5,11 +5,7 @@ export const pluginMetadata: PluginMetadata = {
   displayName: "侧边栏展示文档或块",
   description: "在侧边栏中展示指定的文档或块内容",
   version: "1.0.0",
-  defaultConfig: {
-    enabled: false,
-    zoomScale: 100,
-    rules: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
-  },
+
   settings: [
     {
       type: "number",
@@ -33,7 +29,7 @@ export const pluginMetadata: PluginMetadata = {
 position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
 `,
       key: "rules",
-      value: "",
+      value: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
       placeholder: `id:20251126002344-r4jzwns,position:RightTop`,
     },
   ],

@@ -4,14 +4,6 @@ export default {
   description: "支持配置本地文件夹/自定义 URL",
   version: "1.0.0",
   author: "hqweay",
-  defaultConfig: {
-    enabled: false,
-    folderPaths: `/Users/hqweay/SiYuan/data/assets/images
-https://shibe.online/api/shibes?count=1`,
-    isCached: true,
-    bing: false,
-    xjh: false,
-  },
   settings: [
     {
       type: "checkbox",

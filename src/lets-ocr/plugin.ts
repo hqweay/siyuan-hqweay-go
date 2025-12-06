@@ -4,15 +4,6 @@ export default {
   description: "批量 OCR 识别图片中的文字",
   version: "1.0.0",
   author: "hqweay",
-  defaultConfig: {
-    enabled: false,
-    ocrMethod: "macOSVision",
-    umiOCRServer: "",
-    autoRemoveLineBreaks: false,
-    removeLineBreaks: false,
-    removeBlankInChinese: false,
-    formatWithPangu: false,
-  },
   settings: [
     {
       type: "select",

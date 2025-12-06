@@ -6,10 +6,22 @@ const pluginMetadata: PluginMetadata = {
   description: "仪表盘",
   version: "1.0.0",
   author: "hqweay",
-  defaultConfig: {
-    enabled: false,
-    addToDock: false,
-    configs: `[
+  settings: [
+    {
+      type: "textinput",
+      title: "添加到 Dock",
+      description:
+        "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
+      key: "addToDock",
+      value: false,
+      placeholder: "为空不添加",
+    },
+    {
+      type: "textarea",
+      title: "仪表盘配置",
+      description: "参考默认配置……",
+      key: "configs",
+      value: `[
     {
       //配置名
       name: "所有文档！",
@@ -91,23 +103,6 @@ const pluginMetadata: PluginMetadata = {
       mainSQL: "select blocks.* from blocks join attributes on blocks.id = attributes.block_id where attributes.name like 'custom-dailynote%' order by attributes.value desc",
     },
   ]`,
-  },
-  settings: [
-    {
-      type: "textinput",
-      title: "添加到 Dock",
-      description:
-        "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
-      key: "addToDock",
-      value: false,
-      placeholder: "为空不添加",
-    },
-    {
-      type: "textarea",
-      title: "仪表盘配置",
-      description: "参考默认配置……",
-      key: "configs",
-      value: "",
       placeholder: "参考默认配置……",
     },
   ],
