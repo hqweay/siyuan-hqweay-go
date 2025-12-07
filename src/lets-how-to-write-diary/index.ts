@@ -1,12 +1,11 @@
 import { getBlockAttrs, setBlockAttrs } from "@/api";
-import { settings } from "@/settings";
-import { isMobile, plugin } from "@/utils";
-import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
-import { SubPlugin } from "@/types/plugin";
-import { quickNoteOnload } from "./quick-note/quickNote";
-import { addProtyleSlash } from "@/myscripts/syUtils";
 import { datePickerDialog } from "@/myscripts/dialog";
+import { addProtyleSlash } from "@/myscripts/syUtils";
+import { settings } from "@/settings";
+import { SubPlugin } from "@/types/plugin";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
+import { showMessage } from "siyuan";
+import { quickNoteOnload } from "./quick-note/quickNote";
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";

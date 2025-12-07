@@ -19,7 +19,7 @@ export default class doOnPaste {
       event.preventDefault();
 
       if (
-        settings.getBySpace("doOnPaste", "title") &&
+        settings.getBySpace("doOnPaste", "titleLink") &&
         (await this.getTitle(event))
       ) {
         return;

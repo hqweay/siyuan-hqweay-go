@@ -1,6 +1,12 @@
 import { request } from "@/api";
 import { isMobile, plugin } from "@/utils";
-import { getFrontend, openMobileFileById, openTab, showMessage } from "siyuan";
+import {
+  getActiveEditor,
+  getFrontend,
+  openMobileFileById,
+  openTab,
+  showMessage,
+} from "siyuan";
 import { goToRandomBlock } from "./randomDocCache";
 import { openByMobile } from "./utils";
 /**
@@ -108,6 +114,23 @@ export function getCurrentDocId(): string {
         ?.getAttribute("data-node-id");
 }
 
+export const getCurrentDoc = (): {} | null => {
+  // 原生函数获取当前文档 protyle https://github.com/siyuan-note/siyuan/issues/15415
+  const editor = getActiveEditor(false);
+  const protyle = editor?.protyle;
+  if (
+    !protyle ||
+    !protyle.block?.rootID ||
+    !protyle.path ||
+    !protyle.notebookId
+  )
+    return null;
+  return {
+    id: protyle.block.rootID,
+    path: protyle.path,
+    notebookId: protyle.notebookId,
+  };
+};
 export function openBlockByID(id: string) {
   if (!isBlockID(id)) {
     return;
