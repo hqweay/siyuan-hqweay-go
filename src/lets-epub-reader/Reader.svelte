@@ -79,17 +79,60 @@
   let fileInput: HTMLInputElement;
 
   // Parse initial CFI from URL if present
-  $: if (url && typeof url === "string") {
+  // $: if (url && typeof url === "string") {
+  //   console.log("Parsing URL:", url);
+  //   const parsed = parseLocationFromUrl(url);
+  //   if (parsed) {
+  //     epubPath = parsed.epubPath;
+  //     // if (parsed.cfiRange && !initialCfi) {
+  //     if (parsed.cfiRange) {
+  //       initialCfi = parsed.cfiRange;
+  //     }
+  //   } else {
+  //     epubPath = url;
+  //   }
+  // }
+  // 当 url 变化时，判断是同一本书还是新的书
+  $: if (url) {
     console.log("Parsing URL:", url);
     const parsed = parseLocationFromUrl(url);
-    if (parsed) {
-      epubPath = parsed.epubPath;
-      if (parsed.cfiRange && !initialCfi) {
+
+    console.log("parsed:", parsed);
+    console.log("epubPath:", epubPath);
+    console.log("isReady:", isReady);
+    if (parsed && parsed.epubPath === epubPath) {
+      // 同一本书 → 不 openBook，直接跳转
+      console.log("111111");
+      if (isReady) {
+        console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+        jumpTo(parsed.cfiRange);
+      } else {
+        // 书尚未 ready 的第一次加载，正常流程
         initialCfi = parsed.cfiRange;
       }
     } else {
-      epubPath = url;
+      // 不同 epub，正常 openBook
+      epubPath = parsed.epubPath;
+      initialCfi = parsed.cfiRange;
+      if (src) openBook(src);
     }
+  }
+  function jumpTo(cfi: string) {
+    if (!rendition) return;
+
+    // 清除 selected / toolbar 状态
+    selectionToolbarVisible = false;
+    showRemoveButton = false;
+    selectedAnnotation = null;
+
+    // 直接 jump，而不是 openBook()
+    rendition.display(cfi).then(() => {
+      console.log("Jumped to new CFI:", cfi);
+
+      // re-apply highlights (必要)
+      highlightsApplied = false;
+      setTimeout(applyStoredHighlights, 300);
+    });
   }
 
   function openFile(file: File) {
@@ -104,6 +147,7 @@
 
   async function openBook(source: any) {
     // Reset highlights applied flag when opening new book
+    console.log("openBook");
     highlightsApplied = false;
 
     if (rendition) {
@@ -178,6 +222,7 @@
     } catch (e) {}
     const start = initialCfi || saved || undefined;
 
+    console.log("Displaying book with start:", start);
     rendition.display(start).then(() => {
       isReady = true;
       console.log("Book displayed, loading annotations...");
@@ -884,7 +929,14 @@
       }
 
       const { cfiRange, blockId: annotationId, bgColor } = parsedLocation;
-      console.log("✅ Extracted CFI:", cfiRange, "annotationId:", annotationId, "bgColor:", bgColor);
+      console.log(
+        "✅ Extracted CFI:",
+        cfiRange,
+        "annotationId:",
+        annotationId,
+        "bgColor:",
+        bgColor
+      );
 
       // Validate CFI format
       if (!cfiRange || cfiRange.length === 0) {
@@ -897,7 +949,13 @@
       console.log("✅ Extracted text:", text);
 
       // Get color from bgColor or default
-      const color = bgColor ? HIGHLIGHT_COLORS.find(c => c.bgColor === bgColor) || { name: '自定义', color: '#000', bgColor: bgColor } : HIGHLIGHT_COLORS[0];
+      const color = bgColor
+        ? HIGHLIGHT_COLORS.find((c) => c.bgColor === bgColor) || {
+            name: "自定义",
+            color: "#000",
+            bgColor: bgColor,
+          }
+        : HIGHLIGHT_COLORS[0];
       console.log("✅ Matched color:", color);
 
       const annotation = {
@@ -983,6 +1041,9 @@
         openBook(src);
       }
     }
+
+    // console.log("Initial CFI from URL:", initialCfi);
+    // rendition.display(initialCfi);
 
     return () => {
       if (rendition)

@@ -32,6 +32,20 @@ export default class EpubReaderPlugin implements SubPlugin {
   }
 
   async onload() {
+    plugin.addTab({
+      type: "custom_tab1",
+      async init() {
+        let tabDiv = document.createElement("div");
+        tabDiv.setAttribute("id", "hqweay-diary-dashborear2d");
+
+        console.log("this.data", this.data);
+        new Reader({
+          target: tabDiv,
+          props: this.data,
+        });
+        this.element.appendChild(tabDiv);
+      },
+    });
     // 设置 EPUB 点击监听
     this.setupEpubClickHandler();
   }
@@ -139,48 +153,19 @@ export default class EpubReaderPlugin implements SubPlugin {
 
       // 使用
 
-      let tabDiv = document.createElement("div");
-      tabDiv.setAttribute("id", "hqweay-diary-dashborear2d");
-      // new EpubReader({
-      //   target: tabDiv,
-      //   props: {
-      //     epubPath: url,
-      //     file: file,
-      //   },
-      // });
-
-      // new Reader({
-      //   target: tabDiv,
-      //   props: {
-      //     src: url,
-      //     file: file,
-      //   },
-      // });
-
-      new Reader({
-        target: tabDiv,
-        props: {
-          src: file,
-          url,
-        },
-      });
-
-      plugin.addTab({
-        type: "custom_tab1",
-        async init() {
-          this.element.appendChild(tabDiv);
-        },
-      });
-
       openTab({
         app: plugin.app,
         custom: {
           icon: "",
           title: "仪表盘",
-          data: {},
+          data: {
+            src: file,
+            url,
+          },
           id: `${plugin.name}custom_tab1`,
         },
         position: "right",
+        removeCurrentTab: true,
       });
     } else {
       console.log("无法获取文件对象");
@@ -479,40 +464,6 @@ export default class EpubReaderPlugin implements SubPlugin {
           : null
       )
       .catch(() => null);
-
-  // 打开Tab（统一处理）
-  openReaderTab = (
-    plugin: Plugin,
-    data: any,
-    title: string,
-    type: string,
-    openMode: string
-  ) => {
-    let tabDiv = document.createElement("div");
-    tabDiv.setAttribute("id", "hqweay-diary-dashboreard");
-    new Reader({
-      target: tabDiv,
-      props: {
-        src: data.epubPath || data.src,
-      },
-    });
-    plugin.addTab({
-      type: "custom_tab1",
-      init() {
-        this.element.appendChild(tabDiv);
-      },
-    });
-    openTab({
-      app: plugin.app,
-      custom: {
-        icon: "",
-        title: "仪表盘",
-        data: {},
-        id: "custom_tab1",
-      },
-      position: "right",
-    });
-  };
 
   /**
    * 初始化插件
