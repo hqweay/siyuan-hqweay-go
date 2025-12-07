@@ -6,7 +6,7 @@
   export let visible = false;
   export let rect: SelectionRect = { top: 0, left: 0, width: 0, height: 0 };
   export let showRemove = false;
-  export let selectedColor: HighlightColor = HIGHLIGHT_COLORS[0];
+
 
   const dispatch = createEventDispatcher<{
     highlight: { color: HighlightColor };
@@ -15,17 +15,16 @@
     remove: void;
   }>();
 
-  let showColorPicker = false;
-  let pendingAction: 'highlight' | 'note' | null = null;
+
 
   function handleHighlight() {
-    pendingAction = 'highlight';
-    showColorPicker = true;
+    // 直接使用默认颜色进行标注
+    dispatch('highlight', { color: HIGHLIGHT_COLORS[0] });
   }
 
   function handleNote() {
-    pendingAction = 'note'; 
-    showColorPicker = true; 
+    // 直接使用默认颜色进行笔记
+    dispatch('note', { color: HIGHLIGHT_COLORS[0] });
   }
 
   function handleCopy() {
@@ -36,26 +35,12 @@
     dispatch('remove');
   }
 
-  function selectColor(color: HighlightColor) {
-    selectedColor = color;
-    showColorPicker = false;
-    
-    if (pendingAction === 'highlight') {
-      dispatch('highlight', { color });
-    } else if (pendingAction === 'note') {
-      dispatch('note', { color });
-    }
-    
-    pendingAction = null;
-  }
+
 
   function handleClickOutside(e: MouseEvent) {
     const target = e.target as HTMLElement;
     if (!target.closest('.selection-toolbar')) {
-      if (showColorPicker) {
-        showColorPicker = false;
-        pendingAction = null;
-      }
+      // Toolbar will auto-hide when selection is cleared
     }
   }
 
@@ -72,45 +57,25 @@
     style="top: {toolbarTop}px; left: {toolbarLeft}px;"
     on:mousedown|stopPropagation
   >
-    {#if showColorPicker}
-      <div class="color-picker">
-        <div class="color-picker-title">选择颜色</div>
-        <div class="color-options">
-          {#each HIGHLIGHT_COLORS as color}
-            <button
-              class="color-btn"
-              style="background-color: {color.bgColor}"
-              title={color.name}
-              on:click={() => selectColor(color)}
-            >
-              {#if selectedColor.bgColor === color.bgColor}
-                <span class="check">✓</span>
-              {/if}
-            </button>
-          {/each}
-        </div>
-      </div>
-    {:else}
-      <div class="toolbar-actions">
-        <button class="action-btn highlight-btn" on:click={handleHighlight} title="标注">
-          🖍️
+    <div class="toolbar-actions">
+      <button class="action-btn highlight-btn" on:click={handleHighlight} title="标注（使用默认颜色）">
+        🖍️
+      </button>
+      
+      <button class="action-btn note-btn" on:click={handleNote} title="笔记（使用默认颜色）">
+        📝
+      </button>
+      
+      <button class="action-btn copy-btn" on:click={handleCopy} title="复制">
+        📋
+      </button>
+      
+      {#if showRemove}
+        <button class="action-btn remove-btn" on:click={handleRemove} title="删除">
+          🗑️
         </button>
-        
-        <button class="action-btn note-btn" on:click={handleNote} title="笔记">
-          📝
-        </button>
-        
-        <button class="action-btn copy-btn" on:click={handleCopy} title="复制">
-          📋
-        </button>
-        
-        {#if showRemove}
-          <button class="action-btn remove-btn" on:click={handleRemove} title="删除">
-            🗑️
-          </button>
-        {/if}
-      </div>
-    {/if}
+      {/if}
+    </div>
   </div>
 {/if}
 
@@ -164,45 +129,5 @@
 
   .remove-btn:hover {
     background: #f8d7da;
-  }
-
-  .color-picker {
-    padding: 4px;
-  }
-
-  .color-picker-title {
-    font-size: 11px;
-    color: var(--b3-theme-on-surface, #666);
-    margin-bottom: 6px;
-    text-align: center;
-  }
-
-  .color-options {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-  }
-
-  .color-btn {
-    width: 28px;
-    height: 28px;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .color-btn:hover {
-    transform: scale(1.15);
-    border-color: var(--b3-theme-primary, #3b82f6);
-  }
-
-  .color-btn .check {
-    color: #333;
-    font-size: 14px;
-    font-weight: bold;
   }
 </style>
