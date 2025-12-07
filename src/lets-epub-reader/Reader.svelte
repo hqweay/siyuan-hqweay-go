@@ -95,26 +95,28 @@
   // 当 url 变化时，判断是同一本书还是新的书
   $: if (url) {
     console.log("Parsing URL:", url);
-    const parsed = parseLocationFromUrl(url);
+    if (url) {
+      const parsed = parseLocationFromUrl(url);
 
-    console.log("parsed:", parsed);
-    console.log("epubPath:", epubPath);
-    console.log("isReady:", isReady);
-    if (parsed && parsed.epubPath === epubPath) {
-      // 同一本书 → 不 openBook，直接跳转
-      console.log("111111");
-      if (isReady) {
-        console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
-        jumpTo(parsed.cfiRange);
+      console.log("parsed:", parsed);
+      console.log("epubPath:", epubPath);
+      console.log("isReady:", isReady);
+      if (parsed && parsed.epubPath === epubPath) {
+        // 同一本书 → 不 openBook，直接跳转
+        console.log("111111");
+        if (isReady) {
+          console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+          jumpTo(parsed.cfiRange);
+        } else {
+          // 书尚未 ready 的第一次加载，正常流程
+          initialCfi = parsed.cfiRange;
+        }
       } else {
-        // 书尚未 ready 的第一次加载，正常流程
+        // 不同 epub，正常 openBook
+        epubPath = parsed.epubPath;
         initialCfi = parsed.cfiRange;
+        if (src) openBook(src);
       }
-    } else {
-      // 不同 epub，正常 openBook
-      epubPath = parsed.epubPath;
-      initialCfi = parsed.cfiRange;
-      if (src) openBook(src);
     }
   }
   function jumpTo(cfi: string) {

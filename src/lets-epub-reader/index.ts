@@ -32,16 +32,22 @@ export default class EpubReaderPlugin implements SubPlugin {
   }
 
   async onload() {
+    const that = this;
     plugin.addTab({
       type: "custom_tab1",
       async init() {
         let tabDiv = document.createElement("div");
         tabDiv.setAttribute("id", "hqweay-diary-dashborear2d");
 
+        console.log("11");
         console.log("this.data", this.data);
+
         new Reader({
           target: tabDiv,
-          props: this.data,
+          props: {
+            src: await that.fetchFile(this.data.url),
+            url: this.data.url,
+          },
         });
         this.element.appendChild(tabDiv);
       },
@@ -49,6 +55,7 @@ export default class EpubReaderPlugin implements SubPlugin {
     // 设置 EPUB 点击监听
     this.setupEpubClickHandler();
   }
+  onLayoutReady(): void {}
 
   onunload() {
     // 清理资源
@@ -125,41 +132,15 @@ export default class EpubReaderPlugin implements SubPlugin {
     e.preventDefault();
     e.stopPropagation();
 
-    // 获取文件并打开阅读器标签页
-    const filePath = url.split("#")[0];
-    console.log("文件路径:", filePath);
-
-    const file = await this.fetchFile(filePath);
-    console.log("获取的文件对象:", file);
-
-    if (file) {
+    if (url) {
       console.log("打开阅读器标签页");
-      // let tabDiv = document.createElement("div");
-      // tabDiv.setAttribute("id", "hqweay-diary-dashboreard");
-      // new EpubReader({
-      //   target: tabDiv,
-      //   props: {
-      //     epubPath: url,
-      //   },
-      //   onClose: () => {
-      //     console.log("关闭阅读器");
-      //     // 关闭标签页
-      //   },
-      // });
-      // new DashboardComponent({
-      //   target: tabDiv,
-      //   props: {},
-      // });
 
-      // 使用
-
-      openTab({
+      await openTab({
         app: plugin.app,
         custom: {
           icon: "",
           title: "仪表盘",
           data: {
-            src: file,
             url,
           },
           id: `${plugin.name}custom_tab1`,
@@ -453,18 +434,6 @@ export default class EpubReaderPlugin implements SubPlugin {
     }
   }
 
-  private fetchFile = async (url: string) =>
-    fetch(url.startsWith("http") || url.startsWith("/") ? url : `/${url}`)
-      .then(async (r) =>
-        r.ok
-          ? new File(
-              [await r.blob()],
-              url.split("/").pop()?.split("?")[0] || "book"
-            )
-          : null
-      )
-      .catch(() => null);
-
   /**
    * 初始化插件
    * @param plugin 插件实例
@@ -497,4 +466,16 @@ export default class EpubReaderPlugin implements SubPlugin {
       document.head.appendChild(script);
     }
   }
+
+  public fetchFile = async (url: string) =>
+    fetch(url.startsWith("http") || url.startsWith("/") ? url : `/${url}`)
+      .then(async (r) =>
+        r.ok
+          ? new File(
+              [await r.blob()],
+              url.split("/").pop()?.split("?")[0] || "book"
+            )
+          : null
+      )
+      .catch(() => null);
 }
