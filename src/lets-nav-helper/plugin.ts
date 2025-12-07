@@ -185,7 +185,7 @@ const pluginMetadata: PluginMetadata = {
       description: "自定义链接配置，每行一个，格式：标题====链接",
       key: "customLinks",
       value:
-        "养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n添加到写作数据库====20250914152149-1emaqok",
+        "养恐龙====https://leay.net/\n日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'\n草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'\n添加到写作数据库====20250914152140-n10qdtt",
       placeholder: "标题1====链接1\n标题2====链接2",
     },
   ],
