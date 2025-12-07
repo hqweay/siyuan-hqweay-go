@@ -223,10 +223,13 @@
     const start = initialCfi || saved || undefined;
 
     console.log("Displaying book with start:", start);
-    rendition.display(start).then(() => {
+    rendition.display(start).then(async () => {
       isReady = true;
+      // Load bound document
+      await loadBoundDoc();
+
       console.log("Book displayed, loading annotations...");
-      loadAnnotations();
+      await loadAnnotations();
 
       // Apply highlights after a longer delay to ensure everything is ready
       setTimeout(() => {
@@ -328,12 +331,10 @@
     });
 
     window.addEventListener("keydown", handleKeydown);
-
-    // Load bound document
-    await loadBoundDoc();
   }
 
   async function loadBoundDoc() {
+    console.log("Loading bound document for EPUB:", epubPath);
     if (epubPath) {
       const docId = await getBoundDocId(epubPath);
       if (docId) {
@@ -344,15 +345,13 @@
 
   async function loadAnnotations() {
     // Use hardcoded docId as requested
-    const hardcodedDocId = "20251127170418-996up2h";
-    boundDocId = hardcodedDocId;
 
     try {
-      console.log("Loading annotations for docId:", hardcodedDocId);
+      console.log("Loading annotations for docId:", boundDocId);
 
       // Query all blocks containing ◎ symbol
       const blocks = await sql(
-        `SELECT id, markdown FROM blocks WHERE root_id='${hardcodedDocId}' AND type = 'p' AND markdown LIKE '%◎%'`
+        `SELECT id, markdown FROM blocks WHERE root_id='${boundDocId}' AND type = 'p' AND markdown LIKE '%◎%'`
       );
 
       console.log("Found blocks with annotations:", blocks?.length || 0);

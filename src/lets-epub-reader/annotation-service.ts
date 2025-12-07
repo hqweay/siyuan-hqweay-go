@@ -21,11 +21,13 @@ export function generateAnnotationId(): string {
  * Get highlight color by bgColor, or create a custom color if not found in predefined colors
  */
 export function getColorByBgColor(bgColor: string): HighlightColor {
-  return HIGHLIGHT_COLORS.find(c => c.bgColor === bgColor) || {
-    name: '自定义',
-    color: '#000',
-    bgColor: bgColor
-  };
+  return (
+    HIGHLIGHT_COLORS.find((c) => c.bgColor === bgColor) || {
+      name: "自定义",
+      color: "#000",
+      bgColor: bgColor,
+    }
+  );
 }
 
 /**
@@ -53,7 +55,12 @@ export function buildLocationString(
  */
 export function parseLocationString(
   locationStr: string
-): { epubPath: string; cfiRange: string; blockId?: string; bgColor?: string } | null {
+): {
+  epubPath: string;
+  cfiRange: string;
+  blockId?: string;
+  bgColor?: string;
+} | null {
   try {
     const parts = locationStr.split("#");
     if (parts.length < 2) return null;
@@ -79,7 +86,12 @@ export function formatAnnotationMarkdown(
 ): string {
   // Build location string with assets/ prefix so Siyuan recognizes it as an epub file
   const assetsPath = `${epubPath}`;
-  const locationStr = buildLocationString(assetsPath, annotation.cfiRange, annotation.id, annotation.color.bgColor);
+  const locationStr = buildLocationString(
+    assetsPath,
+    annotation.cfiRange,
+    annotation.id,
+    annotation.color.bgColor
+  );
 
   // Format: text [◎](location) - plain text with color info in link
   let markdown = `${escapeMarkdown(annotation.text)} [◎](${locationStr})`;
@@ -249,7 +261,14 @@ function parseAnnotationFromBlock(
     }
 
     const { cfiRange, blockId, bgColor } = parsedLocation;
-    console.log("Extracted CFI:", cfiRange, "blockId:", blockId, "bgColor:", bgColor);
+    console.log(
+      "Extracted CFI:",
+      cfiRange,
+      "blockId:",
+      blockId,
+      "bgColor:",
+      bgColor
+    );
 
     // Extract text - everything before the link
     const text = content.split("[◎]")[0].replace(/^-\s*/, "").trim();
