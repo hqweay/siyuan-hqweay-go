@@ -18,27 +18,42 @@ export function generateAnnotationId(): string {
 }
 
 /**
+ * Get highlight color by bgColor, or create a custom color if not found in predefined colors
+ */
+export function getColorByBgColor(bgColor: string): HighlightColor {
+  return HIGHLIGHT_COLORS.find(c => c.bgColor === bgColor) || {
+    name: '自定义',
+    color: '#000',
+    bgColor: bgColor
+  };
+}
+
+/**
  * Build the location string for linking back to epub position
- * Format: assets/book.epub#epubcfi(/6/18!/4/82,/1:57,/1:145)#blockId
+ * Format: assets/book.epub#epubcfi(/6/18!/4/82,/1:57,/1:145)#blockId#bgColor
  */
 export function buildLocationString(
   epubPath: string,
   cfiRange: string,
-  blockId?: string
+  blockId?: string,
+  bgColor?: string
 ): string {
   let locationStr = `${epubPath}#${encodeURIComponent(cfiRange)}`;
   if (blockId) {
     locationStr += `#${blockId}`;
   }
+  if (bgColor) {
+    locationStr += `#${encodeURIComponent(bgColor)}`;
+  }
   return locationStr;
 }
 
 /**
- * Parse location string to extract epub path and CFI
+ * Parse location string to extract epub path, CFI, blockId and bgColor
  */
 export function parseLocationString(
   locationStr: string
-): { epubPath: string; cfiRange: string; blockId?: string } | null {
+): { epubPath: string; cfiRange: string; blockId?: string; bgColor?: string } | null {
   try {
     const parts = locationStr.split("#");
     if (parts.length < 2) return null;
@@ -46,8 +61,9 @@ export function parseLocationString(
     const epubPath = parts[0];
     const cfiRange = decodeURIComponent(parts[1]);
     const blockId = parts[2];
+    const bgColor = parts[3] ? decodeURIComponent(parts[3]) : undefined;
 
-    return { epubPath, cfiRange, blockId };
+    return { epubPath, cfiRange, blockId, bgColor };
   } catch (e) {
     console.error("Failed to parse location string:", e);
     return null;
@@ -63,12 +79,9 @@ export function formatAnnotationMarkdown(
 ): string {
   // Build location string with assets/ prefix so Siyuan recognizes it as an epub file
   const assetsPath = `${epubPath}`;
-  const locationStr = `${assetsPath}#${encodeURIComponent(
-    annotation.cfiRange
-  )}#${annotation.id}`;
+  const locationStr = buildLocationString(assetsPath, annotation.cfiRange, annotation.id, annotation.color.bgColor);
 
-  // Format: - text [◎](location) - plain text with color info in HTML span
-  // let markdown = `- <span style="background-color: ${annotation.color.bgColor}">${escapeMarkdown(annotation.text)}</span> [◎](${locationStr})`;
+  // Format: text [◎](location) - plain text with color info in link
   let markdown = `${escapeMarkdown(annotation.text)} [◎](${locationStr})`;
 
   if (annotation.note) {
@@ -218,53 +231,36 @@ function parseAnnotationFromBlock(
     const content = block.content || "";
     console.log("Parsing annotation content:", content);
 
-    // Extract CFI from the link
-    const cfiMatch = content.match(
-      new RegExp(`${escapeRegExp(epubPath)}#([^#\\)]+)`)
-    );
-    if (!cfiMatch) {
-      console.warn("No CFI match found for content:", content);
+    // Extract link from the content
+    const linkMatch = content.match(/\[◎\]\(([^)]+)\)/);
+    if (!linkMatch) {
+      console.warn("No link found in content:", content);
       return null;
     }
 
-    const cfiRange = decodeURIComponent(cfiMatch[1]);
-    console.log("Extracted CFI:", cfiRange);
+    const link = linkMatch[1];
+    console.log("Extracted link:", link);
 
-    // Extract text and color from span tag with improved regex
-    const spanMatch = content.match(
-      /<span[^>]*style=["']*background-color:\s*([^;"']+)[^"']*["']*[^>]*>([^<]+)<\/span>/
-    );
-    let text = "";
-    let bgColor = "#ffeb3b"; // Default color
-
-    if (spanMatch) {
-      bgColor = spanMatch[1].trim();
-      text = spanMatch[2].trim();
-      console.log("Extracted from span - text:", text, "color:", bgColor);
-    } else {
-      // Fallback: extract text without span
-      const textMatch = content.match(/<span[^>]*>([^<]+)<\/span>/);
-      text = textMatch
-        ? textMatch[1]
-        : content.split("[◎]")[0].replace(/^-\s*/, "").trim();
-
-      // Try to extract color from any background-color property
-      const colorMatch = content.match(/background-color:\s*([^;'"}\s]+)/);
-      if (colorMatch) {
-        bgColor = colorMatch[1].trim();
-      }
-
-      console.log("Fallback extraction - text:", text, "color:", bgColor);
+    // Parse location string to get CFI, blockId and bgColor
+    const parsedLocation = parseLocationString(link);
+    if (!parsedLocation) {
+      console.warn("Failed to parse location string:", link);
+      return null;
     }
 
-    // Find matching color from predefined colors
-    const color =
-      HIGHLIGHT_COLORS.find((c) => c.bgColor === bgColor) ||
-      HIGHLIGHT_COLORS[0];
+    const { cfiRange, blockId, bgColor } = parsedLocation;
+    console.log("Extracted CFI:", cfiRange, "blockId:", blockId, "bgColor:", bgColor);
+
+    // Extract text - everything before the link
+    const text = content.split("[◎]")[0].replace(/^-\s*/, "").trim();
+    console.log("Extracted text:", text);
+
+    // Get color from bgColor or default
+    const color = bgColor ? getColorByBgColor(bgColor) : HIGHLIGHT_COLORS[0];
     console.log("Matched color:", color);
 
     return {
-      id: block.id,
+      id: blockId || block.id,
       type: "highlight",
       text,
       cfiRange,

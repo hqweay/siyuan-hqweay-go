@@ -106,23 +106,24 @@ export function getCfiFromSelection(book: any, content: any, selection: Selectio
 
 /**
  * Parse location information from a URL
- * Format: assets/book.epub#cfi#blockId
+ * Format: assets/book.epub#cfi#blockId#bgColor
  */
-export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?: string; blockId?: string } | null {
+export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?: string; blockId?: string; bgColor?: string } | null {
   if (!url) return null;
-  
+
   try {
     const parts = url.split('#');
     const epubPath = parts[0];
-    
+
     // Check if it ends with .epub or contains assets/ path
     if (!epubPath.endsWith('.epub') && !epubPath.includes('assets/')) {
       return null;
     }
-    
+
     let cfiRange: string | undefined;
     let blockId: string | undefined;
-    
+    let bgColor: string | undefined;
+
     if (parts.length > 1) {
       // Decode and check if it's a CFI
       const cfiPart = decodeURIComponent(parts[1]);
@@ -132,14 +133,19 @@ export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?
         console.log('Parsed CFI from URL:', cfiRange);
       }
     }
-    
+
     if (parts.length > 2) {
       blockId = parts[2];
       console.log('Parsed block ID from URL:', blockId);
     }
-    
-    console.log('Parsed location:', { epubPath, cfiRange, blockId });
-    return { epubPath, cfiRange, blockId };
+
+    if (parts.length > 3) {
+      bgColor = decodeURIComponent(parts[3]);
+      console.log('Parsed bgColor from URL:', bgColor);
+    }
+
+    console.log('Parsed location:', { epubPath, cfiRange, blockId, bgColor });
+    return { epubPath, cfiRange, blockId, bgColor };
   } catch (e) {
     console.warn('Failed to parse location from URL:', e);
     return null;
@@ -149,17 +155,21 @@ export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?
 /**
  * Build a URL with location information
  */
-export function buildLocationUrl(epubPath: string, cfiRange?: string, blockId?: string): string {
+export function buildLocationUrl(epubPath: string, cfiRange?: string, blockId?: string, bgColor?: string): string {
   let url = epubPath;
-  
+
   if (cfiRange) {
     url += '#' + encodeURIComponent(cfiRange);
   }
-  
+
   if (blockId) {
     url += '#' + blockId;
   }
-  
+
+  if (bgColor) {
+    url += '#' + encodeURIComponent(bgColor);
+  }
+
   return url;
 }
 

@@ -866,7 +866,7 @@
       console.log("Block ID:", blockId);
       console.log("Markdown:", markdown);
 
-      // Extract CFI and ID from the link in markdown
+      // Extract link from the markdown
       const linkMatch = markdown.match(/\[◎\]\(((?:[^()]|\([^()]*\))*)\)/);
       if (!linkMatch) {
         console.warn("❌ No link found in markdown");
@@ -876,32 +876,15 @@
       const link = linkMatch[1];
       console.log("✅ Extracted link:", link);
 
-      const parts = link.split("#");
-      console.log("🔍 Link parts:", parts);
-
-      if (parts.length < 2) {
-        console.warn("❌ Invalid link format - expected at least 2 parts");
+      // Parse location string to get CFI, blockId and bgColor
+      const parsedLocation = parseLocationFromUrl(link);
+      if (!parsedLocation) {
+        console.warn("❌ Failed to parse location string:", link);
         return null;
       }
 
-      // Handle the new link format: assets/epubpath#cfi#id
-      let cfiRange: string;
-      let annotationId: string;
-
-      if (parts.length >= 3) {
-        // New format: assets/path#cfi#id
-        cfiRange = decodeURIComponent(parts[1]);
-        annotationId = parts[2];
-        console.log("✅ Using new link format");
-      } else {
-        // Old format fallback
-        cfiRange = decodeURIComponent(parts[1]);
-        annotationId = blockId;
-        console.log("⚠️ Using old link format");
-      }
-
-      console.log("✅ Extracted CFI:", cfiRange);
-      console.log("✅ Annotation ID:", annotationId);
+      const { cfiRange, blockId: annotationId, bgColor } = parsedLocation;
+      console.log("✅ Extracted CFI:", cfiRange, "annotationId:", annotationId, "bgColor:", bgColor);
 
       // Validate CFI format
       if (!cfiRange || cfiRange.length === 0) {
@@ -909,41 +892,16 @@
         return null;
       }
 
-      // Extract text and color from span
-      const spanMatch = markdown.match(
-        /<span[^>]*style=["']*background-color:\s*([^;"']+)[^"']*["']*[^>]*>([^<]+)<\/span>/
-      );
-      let text = "";
-      let bgColor = "#ffeb3b";
+      // Extract text - everything before the link, plain text
+      const text = markdown.split("[◎]")[0].replace(/^-\s*/, "").trim();
+      console.log("✅ Extracted text:", text);
 
-      if (spanMatch) {
-        bgColor = spanMatch[1].trim();
-        text = spanMatch[2].trim();
-        console.log("✅ Extracted from span - text:", text, "color:", bgColor);
-      } else {
-        // Fallback: extract text without span
-        const textMatch = markdown.match(/<span[^>]*>([^<]+)<\/span>/);
-        text = textMatch
-          ? textMatch[1]
-          : markdown.split("[◎]")[0].replace(/^-\s*/, "").trim();
-
-        // Try to extract color from any background-color property
-        const colorMatch = markdown.match(/background-color:\s*([^;'"}\s]+)/);
-        if (colorMatch) {
-          bgColor = colorMatch[1].trim();
-        }
-
-        console.log("⚠️ Fallback extraction - text:", text, "color:", bgColor);
-      }
-
-      // Find matching color
-      const color =
-        HIGHLIGHT_COLORS.find((c) => c.bgColor === bgColor) ||
-        HIGHLIGHT_COLORS[0];
+      // Get color from bgColor or default
+      const color = bgColor ? HIGHLIGHT_COLORS.find(c => c.bgColor === bgColor) || { name: '自定义', color: '#000', bgColor: bgColor } : HIGHLIGHT_COLORS[0];
       console.log("✅ Matched color:", color);
 
       const annotation = {
-        id: annotationId,
+        id: annotationId || blockId,
         type: "highlight" as const,
         text,
         cfiRange,
