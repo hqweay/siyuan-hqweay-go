@@ -120,6 +120,12 @@ export default class EpubReaderPlugin implements SubPlugin {
     const url =
       linkEl?.getAttribute("data-href") || linkEl?.getAttribute("href");
 
+    if (!url) {
+      console.log("没有找到 URL");
+      return;
+    }
+
+    console.log("提取的 URL:", url);
     console.log("提取的 URL:", url);
     console.log("是否为 EPUB 文件:", this.isEpubFileUrl(url));
 

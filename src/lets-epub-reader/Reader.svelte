@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import ePub from "epubjs";
-  import { appendBlock, deleteBlock, sql } from "../api";
+  import { appendBlock, deleteBlock, updateBlock, sql } from "../api";
   import Toc from "./Toc.svelte";
   import SelectionToolbar from "./SelectionToolbar.svelte";
   import Sidebar from "./Sidebar.svelte";
@@ -66,6 +66,9 @@
   } | null = null;
   let showRemoveButton = false;
   let selectedAnnotation: Annotation | null = null;
+  let showColorPicker = false;
+  let colorPickerAnnotation: Annotation | null = null;
+  let colorPickerRect: SelectionRect = { top: 0, left: 0, width: 0, height: 0 };
 
   // View mode: 'paginated' or 'scrolled'
   let viewMode: "paginated" | "scrolled" = "scrolled";
@@ -333,6 +336,7 @@
     });
 
     window.addEventListener("keydown", handleKeydown);
+    window.addEventListener("click", handleGlobalClick);
   }
 
   async function loadBoundDoc() {
@@ -496,6 +500,7 @@
         "fill-opacity": "0.4",
       }
     );
+
     console.log(
       "Highlight applied successfully using method 3:",
       annotation.id
@@ -503,15 +508,123 @@
   }
 
   function handleHighlightClick(annotation: Annotation, e: MouseEvent) {
-    selectedAnnotation = annotation;
-    showRemoveButton = true;
-    selectionRect = {
-      top: e.clientY,
-      left: e.clientX,
-      width: 0,
-      height: 0,
+    console.log("📍 [点击标注] 处理点击事件", {
+      annotationId: annotation.id,
+      annotationText: annotation.text,
+      annotationColor: annotation.color,
+      hasBlockId: !!annotation.blockId,
+    });
+
+    colorPickerAnnotation = annotation;
+    const target = e.target as HTMLElement;
+    const rect = target.getBoundingClientRect();
+
+    // 计算颜色选择器位置 - 在点击位置上方
+    colorPickerRect = {
+      top: rect.top + window.scrollY - 80,
+      left: rect.left + window.scrollX + rect.width / 2 - 100,
+      width: 200,
+      height: 60,
     };
-    selectionToolbarVisible = true;
+
+    showColorPicker = true;
+    console.log("🎨 [颜色选择器] 显示在位置", colorPickerRect);
+
+    // 隐藏其他工具栏
+    selectionToolbarVisible = false;
+    showRemoveButton = false;
+    selectedAnnotation = null;
+  }
+
+  async function handleColorChange(
+    event: CustomEvent<{ color: HighlightColor }>
+  ) {
+    if (!colorPickerAnnotation || !colorPickerAnnotation.blockId) {
+      console.error("❌ [颜色更改] 缺少标注信息", { colorPickerAnnotation });
+      return;
+    }
+
+    const { color } = event.detail;
+    console.log("🎨 [颜色更改] 开始处理", {
+      annotationId: colorPickerAnnotation.id,
+      newColor: color,
+      blockId: colorPickerAnnotation.blockId,
+    });
+
+    try {
+      // 更新本地状态
+      const updatedAnnotations = annotations.map((a) =>
+        a.id === colorPickerAnnotation.id ? { ...a, color } : a
+      );
+      annotations = updatedAnnotations;
+      console.log("✅ [颜色更改] 本地状态已更新");
+
+      // 更新数据库中的标注
+      await updateAnnotationColor(colorPickerAnnotation.blockId, color);
+      console.log("✅ [颜色更改] 数据库已更新");
+
+      // 重新应用高亮
+      highlightsApplied = false;
+      setTimeout(applyStoredHighlights, 100);
+      console.log("✅ [颜色更改] 高亮重新应用已触发");
+
+      console.log(
+        "🎉 [颜色更改] 标注颜色已更新完成:",
+        colorPickerAnnotation.id,
+        color
+      );
+    } catch (e) {
+      console.error("❌ [颜色更改] 更新标注颜色失败:", e);
+    }
+
+    showColorPicker = false;
+    colorPickerAnnotation = null;
+  }
+
+  async function updateAnnotationColor(
+    blockId: string,
+    newColor: HighlightColor
+  ) {
+    try {
+      // 获取当前标注内容
+      const result = await sql(
+        `SELECT markdown FROM blocks WHERE id = '${blockId}'`
+      );
+
+      if (result && result.length > 0) {
+        const currentMarkdown = result[0].markdown;
+
+        // 解析并更新颜色信息
+        const updatedMarkdown = updateMarkdownColor(currentMarkdown, newColor);
+
+        // 更新块内容
+        await updateBlockContent(blockId, updatedMarkdown);
+      }
+    } catch (e) {
+      console.error("更新标注颜色到数据库失败:", e);
+    }
+  }
+
+  function updateMarkdownColor(
+    markdown: string,
+    newColor: HighlightColor
+  ): string {
+    console.log("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
+    const annotationRegex =
+      /\[◎\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*)\)/;
+
+    const color = encodeURIComponent(newColor.bgColor);
+
+    return markdown.replace(annotationRegex, `\[◎\]($1#$2#$3#${color})`);
+  }
+
+  async function updateBlockContent(blockId: string, markdown: string) {
+    try {
+      // 使用 API 更新块内容
+      await updateBlock("markdown", markdown, blockId);
+    } catch (e) {
+      console.error("更新块内容失败:", e);
+    }
   }
 
   function applyHighlightDirectly(annotation: Annotation) {
@@ -550,6 +663,20 @@
       }
     } catch (e) {
       console.error("Direct DOM highlight failed:", e);
+    }
+  }
+
+  function handleGlobalClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+
+    // 隐藏悬浮颜色选择器
+    if (
+      showHoverColorPicker &&
+      !target.closest(".hover-color-picker") &&
+      !target.closest(".epub-hl")
+    ) {
+      showHoverColorPicker = false;
+      hoverAnnotation = null;
     }
   }
 
@@ -882,6 +1009,8 @@
     selectionToolbarVisible = false;
     selectedAnnotation = null;
     showRemoveButton = false;
+    showHoverColorPicker = false;
+    hoverAnnotation = null;
   }
 
   function removeHighlightFromDOM(annotation: Annotation) {
@@ -1022,6 +1151,14 @@
     }
   }
 
+  function handleJumpToBlock() {
+    if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
+      openFloatLayer(colorPickerAnnotation.blockId);
+      showColorPicker = false;
+      colorPickerAnnotation = null;
+    }
+  }
+
   export function display(cfiOrHref: string) {
     if (!rendition) return;
     rendition.display(cfiOrHref);
@@ -1056,12 +1193,14 @@
           book.destroy();
         } catch (e) {}
       window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("click", handleGlobalClick);
     };
   });
 
   onDestroy(() => {
     try {
       window.removeEventListener("keydown", handleKeydown);
+      window.removeEventListener("click", handleGlobalClick);
     } catch (e) {}
   });
 </script>
@@ -1154,13 +1293,16 @@
   </div>
 
   <SelectionToolbar
-    visible={selectionToolbarVisible}
-    rect={selectionRect}
+    visible={selectionToolbarVisible || showColorPicker}
+    rect={showColorPicker ? colorPickerRect : selectionRect}
     showRemove={showRemoveButton}
+    {showColorPicker}
     on:highlight={handleHighlight}
     on:note={handleNote}
     on:copy={handleCopy}
     on:remove={handleRemove}
+    on:colorChange={handleColorChange}
+    on:jumpToBlock={handleJumpToBlock}
   />
 </div>
 
@@ -1294,5 +1436,54 @@
 
   .viewer :global(iframe) {
     border: none !important;
+  }
+
+  /* 悬浮颜色选择器样式 */
+  .hover-color-picker {
+    position: fixed;
+    background: var(--b3-theme-background, white);
+    border: 1px solid var(--b3-border-color, #e1e5e9);
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 8px;
+    z-index: 10001;
+    min-width: 150px;
+  }
+
+  .hover-color-picker .color-picker-title {
+    font-size: 11px;
+    color: var(--b3-theme-on-surface, #666);
+    margin-bottom: 6px;
+    text-align: center;
+  }
+
+  .hover-color-picker .color-options {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .hover-color-picker .color-btn {
+    width: 24px;
+    height: 24px;
+    border: 2px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .hover-color-picker .color-btn:hover {
+    transform: scale(1.2);
+    border-color: var(--b3-theme-primary, #3b82f6);
+  }
+
+  .hover-color-picker .color-btn .check {
+    color: #333;
+    font-size: 12px;
+    font-weight: bold;
   }
 </style>
