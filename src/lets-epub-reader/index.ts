@@ -18,6 +18,12 @@ export default class EpubReaderPlugin implements SubPlugin {
   type = "barMode";
 
   private epubReaderInstance: any = null;
+  
+  // 全局状态管理：存储当前应该显示的书籍信息
+  private globalReaderState = {
+    currentFile: null as File | null,
+    currentUrl: "" as string,
+  };
 
   constructor() {
     this.id = "hqweay-epub-reader";
@@ -33,25 +39,55 @@ export default class EpubReaderPlugin implements SubPlugin {
 
   async onload() {
     const that = this;
+
+    // 注册tab
     plugin.addTab({
-      type: "custom_tab1",
-      async init() {
+      type: "_epub_reader_tab",
+      init() {
         let tabDiv = document.createElement("div");
-        tabDiv.setAttribute("id", "hqweay-diary-dashborear2d");
+        tabDiv.setAttribute("id", "hqweay-epub-reader-container");
 
-        console.log("11");
-        console.log("this.data", this.data);
-
-        new Reader({
+        // 创建Reader组件，使用全局状态
+        const reader = new Reader({
           target: tabDiv,
           props: {
-            src: await that.fetchFile(this.data.url),
-            url: this.data.url,
+            src: that.globalReaderState.currentFile,
+            url: that.globalReaderState.currentUrl,
           },
         });
+
+        that.epubReaderInstance = reader;
         this.element.appendChild(tabDiv);
+
+        // 监听全局更新事件
+        const handleUpdate = (event: CustomEvent) => {
+          const { file, url } = event.detail;
+          reader.$set({
+            src: file,
+            url: url,
+          });
+          console.log("Reader组件已更新:", url);
+        };
+
+        window.addEventListener(
+          "epub-reader-update",
+          handleUpdate as EventListener
+        );
+
+        // 存储事件监听器引用以便清理
+        (that as any).updateListener = handleUpdate;
+      },
+      destroy() {
+        // 清理事件监听器
+        if ((that as any).updateListener) {
+          window.removeEventListener(
+            "epub-reader-update",
+            (that as any).updateListener as EventListener
+          );
+        }
       },
     });
+
     // 设置 EPUB 点击监听
     this.setupEpubClickHandler();
   }
@@ -73,6 +109,12 @@ export default class EpubReaderPlugin implements SubPlugin {
         false
       );
       (this as any).epubClickHandler = null;
+    }
+
+    // 清理更新事件监听器
+    if ((this as any).updateListener) {
+      window.removeEventListener('epub-reader-update', (this as any).updateListener as EventListener);
+      (this as any).updateListener = null;
     }
   }
 
@@ -140,16 +182,31 @@ export default class EpubReaderPlugin implements SubPlugin {
 
     if (url) {
       console.log("打开阅读器标签页");
+      const file = await this.fetchFile(url);
+      
+      // 更新全局状态
+      this.globalReaderState.currentFile = file;
+      this.globalReaderState.currentUrl = url;
+      
+      // 发送自定义事件通知tab更新内容
+      window.dispatchEvent(new CustomEvent('epub-reader-update', {
+        detail: {
+          file: file,
+          url: url
+        }
+      }));
 
+      // 使用固定的data结构，避免创建新tab
       await openTab({
         app: plugin.app,
         custom: {
-          icon: "",
-          title: "仪表盘",
+          icon: "📖",
+          title: "EPUB 阅读器",
           data: {
-            url,
+            type: "epub-reader",
+            initialized: true  // 固定的标记
           },
-          id: `${plugin.name}custom_tab1`,
+          id: `${plugin.name}_epub_reader_tab`,
         },
         position: "right",
         removeCurrentTab: true,
