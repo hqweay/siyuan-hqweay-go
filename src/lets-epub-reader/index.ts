@@ -7,6 +7,7 @@ import Reader from "./Reader.svelte";
 import EpubReader from "./Reader.svelte"; // Alias for backward compatibility
 
 import { plugin } from "@/utils";
+import { parseLocationFromUrl } from "./utils";
 
 export default class EpubReaderPlugin implements SubPlugin {
   private _isEnabled = false;
@@ -114,7 +115,7 @@ export default class EpubReaderPlugin implements SubPlugin {
     const filePath = url.split("#")[0];
     console.log("文件路径:", filePath);
 
-    const file = await this.fetchFile(url);
+    const file = await this.fetchFile(filePath);
     console.log("获取的文件对象:", file);
 
     if (file) {
@@ -159,7 +160,8 @@ export default class EpubReaderPlugin implements SubPlugin {
       new Reader({
         target: tabDiv,
         props: {
-          src: file || url,
+          src: file,
+          url,
         },
       });
 
@@ -264,8 +266,16 @@ export default class EpubReaderPlugin implements SubPlugin {
    * @returns 是否为 EPUB 文件
    */
   private isEpubFileUrl(url: string): boolean {
-    // 匹配 assets/先发影响力 “股神”沃伦·巴菲特、查理·芒格联袂推荐！ - 罗伯特·西奥迪尼Robert Cialdini-20251128005342-5q3ynf9.epub 这样的格式
-    return url.includes("assets/") && url.endsWith(".epub");
+    // 清理 URL，移除查询参数和片段标识符
+    const cleanUrl = url.split(/[?#]/)[0];
+
+    // 检查是否包含 assets/ 路径（支持 assets/ 或 assets/assets/ 等情况）
+    const hasAssetsPath = cleanUrl.includes("assets/");
+
+    // 检查是否以 .epub 结尾
+    const isEpubExtension = cleanUrl.toLowerCase().endsWith(".epub");
+
+    return hasAssetsPath && isEpubExtension;
   }
 
   /**
