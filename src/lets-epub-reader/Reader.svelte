@@ -592,7 +592,10 @@
       );
 
       if (result && result.length > 0) {
-        const currentMarkdown = result[0].markdown;
+        let currentMarkdown = result[0].markdown;
+        //查询出来的markdown空格是转义后的，需要转义回去。其它的特殊符号也处理下
+        currentMarkdown = currentMarkdown.replaceAll("%20", " ");
+        currentMarkdown;
 
         // 解析并更新颜色信息
         const updatedMarkdown = updateMarkdownColor(currentMarkdown, newColor);
@@ -615,7 +618,11 @@
 
     const color = encodeURIComponent(newColor.bgColor);
 
-    return markdown.replace(annotationRegex, `\[◎\]($1#$2#$3#${color})`);
+    return markdown.replace(annotationRegex, (match, p1, p2, p3, p4) => {
+      // 对 p1 进行 URL 解码，将 %20 替换为空格
+      const decodedP1 = decodeURIComponent(p1);
+      return `[◎](${decodedP1}#${p2}#${p3}#${color})`;
+    });
   }
 
   async function updateBlockContent(blockId: string, markdown: string) {
