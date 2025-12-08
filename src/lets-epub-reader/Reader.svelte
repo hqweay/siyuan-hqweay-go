@@ -626,10 +626,8 @@
       await updateAnnotationInDatabase(colorPickerAnnotation.blockId, color);
       console.log("✅ [颜色更改] 数据库已更新");
 
-      // 只更新当前标注的高亮
-      if (annotationManager && colorPickerAnnotation) {
-        annotationManager.updateHighlightColor(colorPickerAnnotation.cfiRange, color);
-      }
+      // 重新应用高亮
+      setTimeout(loadAndApplyAnnotations, 100);
       console.log("✅ [颜色更改] 高亮重新应用已触发");
 
       console.log(
