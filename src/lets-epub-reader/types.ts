@@ -41,7 +41,7 @@ export const HIGHLIGHT_COLORS: HighlightColor[] = [
 ];
 
 // Annotation types
-export type AnnotationType = 'highlight' | 'note';
+export type AnnotationType = 'highlight' | 'note' | 'underline' | 'mark';
 
 export interface Annotation {
   id: string;

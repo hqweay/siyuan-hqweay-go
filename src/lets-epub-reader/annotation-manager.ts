@@ -1,4 +1,4 @@
-import type { Annotation } from './types';
+import type { Annotation, AnnotationType } from './types';
 
 /**
  * 标注管理器类
@@ -60,20 +60,20 @@ export class AnnotationManager {
    */
   applyHighlight(annotation: Annotation, onClick?: (e: any) => void): boolean {
     if (!this.rendition || !annotation.cfiRange) {
-      console.warn('⚠️ [标注管理器] 无法应用标注：缺少必要参数', { 
-        hasRendition: !!this.rendition, 
-        hasCfi: !!annotation.cfiRange 
+      console.warn('⚠️ [标注管理器] 无法应用标注：缺少必要参数', {
+        hasRendition: !!this.rendition,
+        hasCfi: !!annotation.cfiRange
       });
       return false;
     }
 
-    // 检查是否已经应用过
-    if (this.appliedAnnotations.has(annotation.id)) {
-      console.log('⏭️ [标注管理器] 标注已存在，跳过:', annotation.id);
-      return true;
-    }
-
     try {
+      // 如果标注已存在，先移除再重新应用
+      if (this.appliedAnnotations.has(annotation.id)) {
+        console.log('🔄 [标注管理器] 标注已存在，重新应用:', annotation.id);
+        this.removeHighlight(annotation);
+      }
+
       console.log('🎨 [标注管理器] 应用标注:', annotation.id, 'CFI:', annotation.cfiRange);
       
       // 映射颜色到 CSS 类
@@ -88,18 +88,32 @@ export class AnnotationManager {
         return colorMap[bgColor] || 'epub-hl-yellow';
       };
 
-      const className = `epub-hl-${annotation.id}`;
+      const className = `epub-anno-${annotation.id}`;
+      const annotationType = annotation.type === 'note' ? 'highlight' : annotation.type;
 
-      // 使用 epub.js 标注 API 应用
-      this.rendition.annotations.highlight(
+      // 使用 epub.js 通用标注 API
+      this.rendition.annotations.add(
+        annotationType,
         annotation.cfiRange,
-        { id: annotation.id },
+        {
+          id: annotation.id,
+          color: annotation.color.bgColor,
+          type: annotationType
+        },
         onClick || ((e: any) => {}),
         className,
         {
           fill: annotation.color.bgColor,
-          'fill-opacity': '0.4',
-          'cursor': 'pointer'
+          'fill-opacity': annotationType === 'mark' ? '0.6' : '0.4',
+          'cursor': 'pointer',
+          ...(annotationType === 'underline' ? {
+            'border-bottom': `2px solid ${annotation.color.bgColor}`,
+            'padding-bottom': '1px'
+          } : {}),
+          ...(annotationType === 'mark' ? {
+            'background-color': annotation.color.bgColor,
+            'color': '#000'
+          } : {})
         }
       );
 
@@ -142,34 +156,21 @@ export class AnnotationManager {
   /**
    * 移除特定的高亮标注
    */
-  removeHighlight(annotationId: string): boolean {
+  removeHighlight(annotation: Annotation): boolean {
     try {
-      // 从标注数组中找到对应的标注信息
-      // 这里假设外部会维护标注数组，或者通过其他方式获取
-      console.log('🗑️ [标注管理器] 尝试删除标注:', annotationId);
+      console.log('🗑️ [标注管理器] 尝试删除标注:', annotation.id);
       
-      // 尝试从 epub.js 标注中移除
-      // 注意：这里需要 CFI 范围，但我们在当前上下文中可能没有
-      // 实际使用时可能需要外部传入 CFI 信息
+      // 使用 epub.js API 移除标注
+      const annotationType = annotation.type === 'note' ? 'highlight' : annotation.type;
+      this.rendition.annotations.remove(annotation.cfiRange, annotationType);
       
       // 从跟踪中移除
-      this.appliedAnnotations.delete(annotationId);
-      
-      // 从 DOM 中移除（如果存在）
-      const contents = this.rendition.getContents();
-      for (const content of contents) {
-        const doc = content.document;
-        const highlightEl = doc.querySelector(`.epub-hl-${annotationId}`);
-        if (highlightEl) {
-          const text = doc.createTextNode(highlightEl.textContent || '');
-          highlightEl.parentNode?.replaceChild(text, highlightEl);
-        }
-      }
+      this.appliedAnnotations.delete(annotation.id);
 
-      console.log('✅ [标注管理器] 标注已删除:', annotationId);
+      console.log('✅ [标注管理器] 标注已删除:', annotation.id);
       return true;
     } catch (e) {
-      console.error('❌ [标注管理器] 删除标注失败:', annotationId, e);
+      console.error('❌ [标注管理器] 删除标注失败:', annotation.id, e);
       return false;
     }
   }
@@ -178,14 +179,20 @@ export class AnnotationManager {
    * 使用 CFI 范围移除标注
    */
   removeHighlightByCfi(cfiRange: string): boolean {
-    try {
-      this.rendition.annotations.remove(cfiRange, 'highlight');
-      console.log('✅ [标注管理器] 通过 CFI 移除标注:', cfiRange);
-      return true;
-    } catch (e) {
-      console.error('❌ [标注管理器] 通过 CFI 移除标注失败:', cfiRange, e);
-      return false;
+    const types: AnnotationType[] = ['highlight', 'underline', 'mark'];
+    let success = false;
+    
+    for (const type of types) {
+      try {
+        this.rendition.annotations.remove(cfiRange, type);
+        console.log(`✅ [标注管理器] 通过 CFI 移除标注 (${type}):`, cfiRange);
+        success = true;
+      } catch (e) {
+        // Ignore errors for types that don't exist at this CFI
+      }
     }
+    
+    return success;
   }
 
   /**
