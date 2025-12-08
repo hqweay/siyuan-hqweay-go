@@ -1,13 +1,12 @@
 <script lang="ts">
-  import type { SelectionRect, HighlightColor, ToolbarAction } from './types';
-  import { HIGHLIGHT_COLORS } from './types';
-  import { createEventDispatcher } from 'svelte';
+  import type { SelectionRect, HighlightColor, ToolbarAction } from "./types";
+  import { HIGHLIGHT_COLORS } from "./types";
+  import { createEventDispatcher } from "svelte";
 
   export let visible = false;
   export let rect: SelectionRect = { top: 0, left: 0, width: 0, height: 0 };
   export let showRemove = false;
   export let showColorPicker = false;
-
 
   const dispatch = createEventDispatcher<{
     highlight: { color: HighlightColor };
@@ -16,48 +15,53 @@
     remove: void;
     colorChange: { color: HighlightColor };
     jumpToBlock: void;
+    removeAnnotationBlock: void;
+    copyAnnotation: void;
   }>();
-
-
 
   function handleHighlight() {
     // 直接使用默认颜色进行标注
-    dispatch('highlight', { color: HIGHLIGHT_COLORS[0] });
+    dispatch("highlight", { color: HIGHLIGHT_COLORS[0] });
   }
 
   function handleNote() {
     // 直接使用默认颜色进行笔记
-    dispatch('note', { color: HIGHLIGHT_COLORS[0] });
+    dispatch("note", { color: HIGHLIGHT_COLORS[0] });
   }
 
   function handleCopy() {
-    dispatch('copy');
+    dispatch("copy");
   }
 
-  function handleRemove() {
-    dispatch('remove');
+  function handleCopyAnnotation() {
+    dispatch("copyAnnotation");
+  }
+
+  function handleRemoveAnnotation() {
+    dispatch("removeAnnotationBlock");
   }
 
   function handleColorChange(color: HighlightColor) {
-    dispatch('colorChange', { color });
+    dispatch("colorChange", { color });
   }
 
   function handleJumpToBlock() {
-    dispatch('jumpToBlock');
+    dispatch("jumpToBlock");
   }
-
-
 
   function handleClickOutside(e: MouseEvent) {
     const target = e.target as HTMLElement;
-    if (!target.closest('.selection-toolbar')) {
+    if (!target.closest(".selection-toolbar")) {
       // Toolbar will auto-hide when selection is cleared
     }
   }
 
   // Calculate toolbar position - directly above the selection
   $: toolbarTop = Math.max(10, rect.top - 50);
-  $: toolbarLeft = Math.max(10, Math.min(window.innerWidth - 220, rect.left + rect.width / 2 - 100));
+  $: toolbarLeft = Math.max(
+    10,
+    Math.min(window.innerWidth - 220, rect.left + rect.width / 2 - 100)
+  );
 </script>
 
 <svelte:window on:mousedown={handleClickOutside} />
@@ -66,33 +70,67 @@
   <div
     class="selection-toolbar"
     style="top: {toolbarTop}px; left: {toolbarLeft}px;"
-    on:mousedown|stopPropagation
+    on:mousedown
     role="toolbar"
     aria-label="EPUB阅读工具栏"
     tabindex="0"
   >
     <div class="toolbar-actions">
-      <button class="action-btn highlight-btn" on:click={handleHighlight} title="标注（使用默认颜色）">
-        🖍️
-      </button>
+      {#if !showColorPicker}
+        <!-- Selection mode buttons -->
+        <button
+          class="action-btn highlight-btn"
+          on:click={handleHighlight}
+          title="标注（使用默认颜色）"
+        >
+          🖍️
+        </button>
 
-      <button class="action-btn note-btn" on:click={handleNote} title="笔记（使用默认颜色）">
-        📝
-      </button>
+        <button
+          class="action-btn note-btn"
+          on:click={handleNote}
+          title="笔记（使用默认颜色）"
+        >
+          📝
+        </button>
 
-      <button class="action-btn copy-btn" on:click={handleCopy} title="复制">
-        📋
-      </button>
+        <button class="action-btn copy-btn" on:click={handleCopy} title="复制">
+          📋
+        </button>
 
-      {#if showRemove}
-        <button class="action-btn remove-btn" on:click={handleRemove} title="删除">
+        {#if showRemove}
+          <button
+            class="action-btn remove-btn"
+            on:click={handleRemoveAnnotation}
+            title="删除"
+          >
+            🗑️
+          </button>
+        {/if}
+      {:else}
+        <!-- Annotation mode buttons -->
+        <button
+          class="action-btn remove-btn"
+          on:click={handleRemoveAnnotation}
+          title="取消标注"
+        >
           🗑️
         </button>
-      {/if}
 
-      {#if showColorPicker}
-        <button class="action-btn jump-btn" on:click={handleJumpToBlock} title="跳转到笔记">
-          📍
+        <button
+          class="action-btn float-btn"
+          on:click|stopPropagation={handleJumpToBlock}
+          title="打开块浮窗"
+        >
+          📄
+        </button>
+
+        <button
+          class="action-btn copy-btn"
+          on:click={handleCopyAnnotation}
+          title="复制标注文本"
+        >
+          📋
         </button>
       {/if}
 

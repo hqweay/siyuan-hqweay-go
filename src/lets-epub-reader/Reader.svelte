@@ -553,42 +553,48 @@
     const closeColorPicker = () => {
       showColorPicker = false;
       document.removeEventListener("click", closeColorPickerHandler);
-      
+
       // 移除iframe监听器
-      const iframes = containerEl.querySelectorAll('iframe');
-      iframes.forEach(iframe => {
+      const iframes = containerEl.querySelectorAll("iframe");
+      iframes.forEach((iframe) => {
         try {
           if (iframe.contentDocument) {
-            iframe.contentDocument.removeEventListener("click", closeColorPickerHandler);
+            iframe.contentDocument.removeEventListener(
+              "click",
+              closeColorPickerHandler
+            );
           }
         } catch (e) {
-          console.log('无法移除iframe监听器:', e);
+          console.log("无法移除iframe监听器:", e);
         }
       });
     };
-    
+
     // 创建事件处理函数
     const closeColorPickerHandler = (event: MouseEvent) => {
       const target = event.target as Element;
-      const isColorPicker = target.closest('.hover-color-picker');
-      
+      const isColorPicker = target.closest(".hover-color-picker");
+
       if (!isColorPicker) {
         closeColorPicker();
       }
     };
-    
+
     // 添加主文档监听器
     document.addEventListener("click", closeColorPickerHandler);
-    
+
     // 添加iframe监听器
-    const iframes = containerEl.querySelectorAll('iframe');
-    iframes.forEach(iframe => {
+    const iframes = containerEl.querySelectorAll("iframe");
+    iframes.forEach((iframe) => {
       try {
         if (iframe.contentDocument) {
-          iframe.contentDocument.addEventListener("click", closeColorPickerHandler);
+          iframe.contentDocument.addEventListener(
+            "click",
+            closeColorPickerHandler
+          );
         }
       } catch (e) {
-        console.log('无法访问iframe内容:', e);
+        console.log("无法访问iframe内容:", e);
       }
     });
   }
@@ -903,19 +909,27 @@
     clearSelection();
   }
 
-  async function handleRemove() {
-    if (selectedAnnotation && selectedAnnotation.blockId) {
-      const success = await removeAnnotation(selectedAnnotation.blockId);
-      if (success) {
-        // Remove from local state
-        annotations = annotations.filter(
-          (a) => a.id !== selectedAnnotation!.id
-        );
+  async function handleCopyAnnotation() {
+    if (colorPickerAnnotation) {
+      await copyToClipboard(colorPickerAnnotation.text);
+    }
+  }
 
-        // Remove highlight using annotation manager
-        if (annotationManager) {
-          annotationManager.removeHighlightByCfi(selectedAnnotation.cfiRange);
-        }
+  async function handleRemove() {
+    console.log("Removing annotation:", colorPickerAnnotation);
+    if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
+      const success = await removeAnnotation(colorPickerAnnotation.blockId);
+      if (success) {
+        annotationManager.removeHighlight(colorPickerAnnotation);
+        // Remove from local state
+        // annotations = annotations.filter(
+        //   (a) => a.id !== colorPickerAnnotation!.id
+        // );
+
+        // // Remove highlight using annotation manager
+        // if (annotationManager) {
+        //   annotationManager.removeHighlightByCfi(colorPickerAnnotation.cfiRange);
+        // }
       }
     }
 
@@ -1048,8 +1062,9 @@
   function handleJumpToBlock() {
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
       openFloatLayer(colorPickerAnnotation.blockId);
-      showColorPicker = false;
-      colorPickerAnnotation = null;
+      console.log(colorPickerAnnotation);
+      // showColorPicker = false;
+      // colorPickerAnnotation = null;
     }
   }
 
@@ -1224,6 +1239,8 @@
     on:remove={handleRemove}
     on:colorChange={handleColorChange}
     on:jumpToBlock={handleJumpToBlock}
+    on:removeAnnotationBlock={handleRemove}
+    on:copyAnnotation={handleCopyAnnotation}
   />
 </div>
 
