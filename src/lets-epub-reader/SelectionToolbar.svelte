@@ -67,6 +67,9 @@
     class="selection-toolbar"
     style="top: {toolbarTop}px; left: {toolbarLeft}px;"
     on:mousedown|stopPropagation
+    role="toolbar"
+    aria-label="EPUB阅读工具栏"
+    tabindex="0"
   >
     <div class="toolbar-actions">
       <button class="action-btn highlight-btn" on:click={handleHighlight} title="标注（使用默认颜色）">

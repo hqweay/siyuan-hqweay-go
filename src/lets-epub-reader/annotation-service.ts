@@ -4,6 +4,7 @@ import {
   getBlockAttrs,
   setBlockAttrs,
   sql,
+  updateBlock,
 } from "@/api";
 import type { Annotation, HighlightColor, BookBinding } from "./types";
 import { HIGHLIGHT_COLORS } from "./types";
@@ -302,6 +303,9 @@ function escapeRegExp(string: string): string {
 /**
  * Copy text to clipboard
  */
+/**
+ * Copy text to clipboard
+ */
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
@@ -322,5 +326,70 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       console.error("Failed to copy to clipboard:", e2);
       return false;
     }
+  }
+}
+
+/**
+ * Update annotation color in database
+ */
+export async function updateAnnotationColor(
+  blockId: string,
+  newColor: HighlightColor
+): Promise<boolean> {
+  try {
+    // Get current annotation content
+    const result = await sql(
+      `SELECT markdown FROM blocks WHERE id = '${blockId}'`
+    );
+
+    if (result && result.length > 0) {
+      let currentMarkdown = result[0].markdown;
+      // Handle URL-encoded spaces and other special characters
+      currentMarkdown = currentMarkdown.replaceAll("%20", " ");
+
+      // Parse and update color information
+      const updatedMarkdown = updateMarkdownColor(currentMarkdown, newColor);
+
+      // Update block content
+      await updateBlockContent(blockId, updatedMarkdown);
+      return true;
+    }
+    return false;
+  } catch (e) {
+    console.error("Failed to update annotation color:", e);
+    return false;
+  }
+}
+
+/**
+ * Update markdown color using regex replacement
+ */
+function updateMarkdownColor(
+  markdown: string,
+  newColor: HighlightColor
+): string {
+  console.log("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
+  const annotationRegex =
+    /\[◎\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*)\)/;
+
+  const color = encodeURIComponent(newColor.bgColor);
+
+  return markdown.replace(annotationRegex, (match, p1, p2, p3, p4) => {
+    // Decode p1 and replace %20 with spaces
+    const decodedP1 = decodeURIComponent(p1);
+    return `[◎](${decodedP1}#${p2}#${p3}#${color})`;
+  });
+}
+
+/**
+ * Update block content using API
+ */
+async function updateBlockContent(blockId: string, markdown: string): Promise<void> {
+  try {
+    // Use API to update block content
+    await updateBlock("markdown", markdown, blockId);
+  } catch (e) {
+    console.error("Failed to update block content:", e);
+    throw e;
   }
 }

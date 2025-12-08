@@ -1,47 +1,44 @@
 <script lang="ts">
-  import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { plugin } from "@/utils";
   import ePub from "epubjs";
-  import { appendBlock, deleteBlock, updateBlock, sql } from "../api";
-  import Toc from "./Toc.svelte";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { sql, updateBlock } from "../api";
+  import { AnnotationManager } from "./annotation-manager";
+  import {
+    bindDocToEpub,
+    copyToClipboard,
+    generateAnnotationId,
+    getBoundDocId,
+    insertAnnotation,
+    removeAnnotation,
+    updateAnnotationColor,
+  } from "./annotation-service";
   import SelectionToolbar from "./SelectionToolbar.svelte";
   import Sidebar from "./Sidebar.svelte";
   import type {
-    TocItem,
-    SelectionRect,
-    TocPosition,
     Annotation,
-    HighlightColor,
+    HighlightColor, 
+    SelectionRect,
     SidebarTab,
+    TocItem,
+    TocPosition,
   } from "./types";
   import { HIGHLIGHT_COLORS } from "./types";
   import {
-    getSelectionRect,
-    hasValidSelection,
-    applyHighlightStyle,
     getCfiFromSelection,
+    hasValidSelection,
     parseLocationFromUrl,
   } from "./utils";
-  import {
-    generateAnnotationId,
-    insertAnnotation,
-    removeAnnotation,
-    getBoundDocId,
-    bindDocToEpub,
-    queryAnnotations,
-    copyToClipboard,
-    buildLocationString,
-  } from "./annotation-service";
-  import { plugin } from "@/utils";
 
   // Props
   export let src: string | File | ArrayBuffer | null = null;
   export let url: string | null = null;
   export let initialCfi: string | null = null;
   export let storedKey = "epub-last-location";
-  export let width = "100%";
-  export let height = "100%";
-  export let tocPosition: TocPosition = "left";
-  export let highlightStyle = "background: #ffeb3b;";
+  export const width = "100%";
+  export const height = "100%";
+  export const tocPosition: TocPosition = "left";
+  export const highlightStyle = "background: #ffeb3b;";
 
   const dispatch = createEventDispatcher();
 
@@ -53,6 +50,10 @@
   let rendition: any = null;
   let currentCfi: string | null = null;
   let isReady = false;
+  let isLoading = false;
+  let loadingProgress = 0;
+  let loadingMessage = "";
+  let errorMessage = "";
   let fontSize = 100;
   let theme = "light";
   let sidebarVisible = false;
@@ -77,24 +78,10 @@
   let annotations: Annotation[] = [];
   let boundDocId = "";
   let epubPath = "";
-  let highlightsApplied = false;
+  let annotationManager: AnnotationManager | null = null;
 
   let fileInput: HTMLInputElement;
 
-  // Parse initial CFI from URL if present
-  // $: if (url && typeof url === "string") {
-  //   console.log("Parsing URL:", url);
-  //   const parsed = parseLocationFromUrl(url);
-  //   if (parsed) {
-  //     epubPath = parsed.epubPath;
-  //     // if (parsed.cfiRange && !initialCfi) {
-  //     if (parsed.cfiRange) {
-  //       initialCfi = parsed.cfiRange;
-  //     }
-  //   } else {
-  //     epubPath = url;
-  //   }
-  // }
   // 当 url 变化时，判断是同一本书还是新的书
   $: if (url) {
     console.log("Parsing URL:", url);
@@ -130,118 +117,228 @@
     showRemoveButton = false;
     selectedAnnotation = null;
 
-    // 直接 jump，而不是 openBook()
+    // 直接跳转到指定 CFI
     rendition.display(cfi).then(() => {
       console.log("Jumped to new CFI:", cfi);
-
-      // re-apply highlights (必要)
-      highlightsApplied = false;
-      setTimeout(applyStoredHighlights, 300);
     });
   }
 
   function openFile(file: File) {
-    if (!file) return;
+    if (!file) {
+      errorMessage = "未选择文件";
+      return;
+    }
+
+    console.log("File selected:", file);
+    console.log("Selected file:", file.name, "Size:", file.size);
+
+    // Validate file type
+    if (!file.name.toLowerCase().endsWith(".epub")) {
+      errorMessage = "请选择有效的EPUB文件";
+      return;
+    }
+
+    // Validate file size (max 100MB)
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    if (file.size > maxSize) {
+      errorMessage = "文件过大，请选择小于100MB的EPUB文件";
+      return;
+    }
+
+    console.log(
+      "开始读取文件:",
+      file.name,
+      "大小:",
+      (file.size / 1024 / 1024).toFixed(2),
+      "MB"
+    );
+
     const reader = new FileReader();
     reader.onload = async () => {
       const arrayBuffer = reader.result;
-      await openBook(arrayBuffer);
+      if (arrayBuffer) {
+        await openBook(arrayBuffer);
+      } else {
+        errorMessage = "文件读取失败";
+      }
+    };
+    reader.onerror = () => {
+      errorMessage = "文件读取失败";
+      console.error("文件读取错误:", reader.error);
     };
     reader.readAsArrayBuffer(file);
   }
 
   async function openBook(source: any) {
-    // Reset highlights applied flag when opening new book
-    console.log("openBook");
-    highlightsApplied = false;
+    try {
+      // Reset states
+      isLoading = true;
+      isReady = false;
+      errorMessage = "";
+      loadingProgress = 0;
+      loadingMessage = "正在初始化阅读器...";
 
-    if (rendition) {
-      try {
-        rendition.destroy();
-      } catch (e) {}
-      rendition = null;
-    }
-    if (book) {
-      try {
-        book.destroy();
-      } catch (e) {}
-      book = null;
-    }
+      // Cleanup previous book
+      if (rendition) {
+        try {
+          rendition.destroy();
+        } catch (e) {
+          console.warn("清理之前的渲染器失败:", e);
+        }
+        rendition = null;
+      }
+      if (book) {
+        try {
+          book.destroy();
+        } catch (e) {
+          console.warn("清理之前的书籍失败:", e);
+        }
+        book = null;
+      }
 
-    book = ePub(source);
+      console.log("开始加载EPUB书籍...");
+      loadingMessage = "正在解析EPUB文件...";
+      loadingProgress = 20;
 
-    // Create rendition with view mode
-    const renderOptions: any = {
-      width: "100%",
-      height: "100%",
-    };
+      // Create book instance - handle URLs with fragments
+      let bookSource = source;
+      if (typeof source === 'string' && source.includes('#')) {
+        bookSource = source.split('#')[0];
+      }
+      book = ePub(bookSource);
 
-    if (viewMode === "scrolled") {
-      renderOptions.flow = "scrolled";
-      renderOptions.manager = "continuous";
-    } else {
-      renderOptions.spread = "auto";
-    }
+      loadingMessage = "正在准备渲染...";
+      loadingProgress = 40;
 
-    rendition = book.renderTo(containerEl, renderOptions);
+      // Create rendition with view mode
+      const renderOptions: any = {
+        width: "100%",
+        height: "100%",
+      };
 
-    rendition.themes.register("light", {
-      body: { background: "#ffffff", color: "#111" },
-    });
-    rendition.themes.register("dark", {
-      body: { background: "#0b0b0b", color: "#eee" },
-    });
+      if (viewMode === "scrolled") {
+        renderOptions.flow = "scrolled";
+        renderOptions.manager = "continuous";
+      } else {
+        renderOptions.spread = "auto";
+      }
 
-    // Register highlight styles for each color
-    rendition.themes.default({
-      "::selection": {
-        background: "rgba(255, 235, 59, 0.4)",
-      },
-      ".epubjs-hl": {
-        fill: "yellow",
-        "fill-opacity": "0.3",
-        "mix-blend-mode": "multiply",
-      },
-    });
+      // Create rendition
+      rendition = book.renderTo(containerEl, renderOptions);
 
-    rendition.themes.select(theme);
-    rendition.themes.fontSize(`${fontSize}%`);
+      // Register themes
+      loadingMessage = "正在加载主题...";
+      loadingProgress = 50;
 
-    book.loaded.navigation
-      .then((nav: any) => {
-        toc = nav.toc || [];
-      })
-      .catch(() => {
-        toc = [];
+      rendition.themes.register("light", {
+        body: { background: "#ffffff", color: "#111" },
+      });
+      rendition.themes.register("dark", {
+        body: { background: "#0b0b0b", color: "#eee" },
       });
 
-    book.loaded.metadata
-      .then((meta: any) => {
-        title = meta.title || "";
-      })
-      .catch(() => {});
+      // Register highlight styles for each color
+      rendition.themes.default({
+        "::selection": {
+          background: "rgba(255, 235, 59, 0.4)",
+        },
+        ".epubjs-hl": {
+          fill: "yellow",
+          "fill-opacity": "0.3",
+          "mix-blend-mode": "multiply",
+        },
+      });
 
-    let saved = null;
-    try {
-      saved = localStorage.getItem(storedKey);
-    } catch (e) {}
-    const start = initialCfi || saved || undefined;
+      rendition.themes.select(theme);
+      rendition.themes.fontSize(`${fontSize}%`);
 
-    console.log("Displaying book with start:", start);
-    rendition.display(start).then(async () => {
+      // Load navigation
+      loadingMessage = "正在加载目录...";
+      loadingProgress = 60;
+
+      book.loaded.navigation
+        .then((nav: any) => {
+          toc = nav.toc || [];
+          console.log("目录加载成功:", toc.length, "项");
+        })
+        .catch((err) => {
+          console.warn("加载目录失败:", err);
+          toc = [];
+        });
+
+      // Load metadata
+      loadingMessage = "正在读取书籍信息...";
+      loadingProgress = 70;
+
+      book.loaded.metadata
+        .then((meta: any) => {
+          title = meta.title || "";
+          console.log("书籍标题:", title);
+        })
+        .catch((err) => {
+          console.warn("读取书籍信息失败:", err);
+          title = "";
+        });
+
+      // Get starting position
+      let saved = null;
+      try {
+        saved = localStorage.getItem(storedKey);
+      } catch (e) {
+        console.warn("读取保存位置失败:", e);
+      }
+      const start = initialCfi || saved || undefined;
+
+      // Display the book
+      loadingMessage = "正在渲染内容...";
+      loadingProgress = 80;
+
+      console.log("开始显示书籍，初始位置:", start);
+      await rendition.display(start);
+
+      loadingMessage = "正在完成初始化...";
+      loadingProgress = 90;
+
       isReady = true;
+      isLoading = false;
+      loadingProgress = 100;
+
+      // Initialize annotation manager
+      annotationManager = new AnnotationManager(rendition);
+
       // Load bound document
       await loadBoundDoc();
 
-      console.log("Book displayed, loading annotations...");
+      console.log("书籍显示完成，开始加载标注...");
       await loadAnnotations();
 
-      // Apply highlights after a longer delay to ensure everything is ready
+      // Apply highlights after a delay to ensure everything is ready
       setTimeout(() => {
-        console.log("Applying highlights after extended delay...");
-        applyStoredHighlights();
+        console.log("开始应用标注...");
+        loadAndApplyAnnotations();
       }, 1000);
-    });
+
+      console.log("✅ EPUB阅读器初始化完成");
+    } catch (error) {
+      console.error("❌ 加载EPUB失败:", error);
+      isLoading = false;
+      isReady = false;
+      errorMessage = `加载EPUB失败: ${error instanceof Error ? error.message : "未知错误"}`;
+
+      // Show error to user
+      if (typeof window !== "undefined" && window.siyuan?.showMessage) {
+        window.siyuan.showMessage(errorMessage, 5000);
+      }
+    }
+
+    // Set up event listeners
+    if (rendition) {
+      setupRenditionEvents();
+    }
+  }
+
+  function setupRenditionEvents() {
+    if (!rendition) return;
 
     rendition.on("relocated", (location: any) => {
       currentCfi = location.start.cfi;
@@ -249,15 +346,10 @@
       progress = Math.round(at * 100);
       try {
         localStorage.setItem(storedKey, currentCfi!);
-      } catch (e) {}
-      dispatch("relocated", { cfi: currentCfi, progress });
-
-      // Re-apply highlights when navigating to ensure they're visible
-      if (annotations.length > 0 && !highlightsApplied) {
-        setTimeout(() => {
-          applyStoredHighlights();
-        }, 300); // Delay to ensure page content is rendered
+      } catch (e) {
+        console.warn("保存阅读位置失败:", e);
       }
+      dispatch("relocated", { cfi: currentCfi, progress });
     });
 
     rendition.on("rendered", (section: any) => {
@@ -268,14 +360,14 @@
         content.document.addEventListener("keyup", handleSelection);
       }
 
-      // Re-apply highlights after render - but only if we have annotations to apply and haven't applied yet
-      if (annotations.length > 0 && !highlightsApplied) {
+      // Re-apply highlights after render
+      if (annotations.length > 0 && annotationManager) {
         console.log(
-          "Re-applying highlights after render, annotations count:",
+          "页面渲染完成，重新应用标注，标注数量:",
           annotations.length
         );
         setTimeout(() => {
-          applyStoredHighlights();
+          loadAndApplyAnnotations();
         }, 100); // Small delay to ensure DOM is ready
       }
 
@@ -283,7 +375,14 @@
     });
 
     rendition.on("started", () => {
+      console.log("渲染开始");
       dispatch("started");
+    });
+
+    rendition.on("failed", (error: any) => {
+      console.error("渲染失败:", error);
+      errorMessage = `渲染失败: ${error.message || error}`;
+      isLoading = false;
     });
 
     // Hook to inject highlight styles into each content document
@@ -335,6 +434,7 @@
       doc.head.appendChild(style);
     });
 
+    // Add global event listeners
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("click", handleGlobalClick);
   }
@@ -382,128 +482,32 @@
     }
   }
 
-  function applyStoredHighlights() {
-    if (!rendition || !annotations.length) {
-      console.log(
-        "Cannot apply highlights: rendition or annotations not ready"
-      );
+  /**
+   * Load and apply all annotations for the current book
+   */
+  function loadAndApplyAnnotations() {
+    if (!annotationManager || !annotations.length) {
+      console.log("📋 [标注加载] 跳过：没有管理器或标注");
       return;
     }
 
-    // Prevent duplicate application
-    if (highlightsApplied) {
-      console.log("Highlights already applied, skipping...");
-      return;
-    }
+    console.log("📋 [标注加载] 开始应用标注，数量:", annotations.length);
 
-    console.log("Applying stored highlights, count:", annotations.length);
-
-    // Wait for all content to be ready
-    const contents = rendition.getContents();
-    if (contents.length === 0) {
-      console.log("No contents available, retrying in 100ms");
-      setTimeout(applyStoredHighlights, 100);
-      return;
-    }
-
-    // Clear existing highlights first to prevent duplicates
-    try {
-      // Remove all existing highlights using both CSS selectors
-      const existingHighlights1 =
-        contents[0]?.document.querySelectorAll(".epub-hl");
-      const existingHighlights2 =
-        contents[0]?.document.querySelectorAll('[class*="epub-hl"]');
-
-      const allHighlights = new Set([
-        ...existingHighlights1,
-        ...existingHighlights2,
-      ]);
-
-      allHighlights.forEach((el) => {
-        const textNode = contents[0].document.createTextNode(
-          el.textContent || ""
-        );
-        el.parentNode?.replaceChild(textNode, el);
-      });
-
-      console.log(`Cleared ${allHighlights.size} existing highlights`);
-    } catch (e) {
-      console.warn("Failed to clear existing highlights:", e);
-    }
-
-    // Apply highlights from stored annotations using epub.js annotations API
-    let appliedCount = 0;
-    for (const annotation of annotations) {
-      console.log(
-        "Applying highlight for annotation:",
-        annotation.id,
-        "cfi:",
-        annotation.cfiRange
-      );
-      try {
-        applyHighlightToEpub(annotation);
-        appliedCount++;
-      } catch (e) {
-        console.error(
-          "Failed to apply highlight for annotation:",
-          annotation.id,
-          e
-        );
-      }
-    }
-
-    console.log(
-      "Applied",
-      appliedCount,
-      "out of",
-      annotations.length,
-      "highlights"
-    );
-    highlightsApplied = true;
-  }
-
-  function applyHighlightToEpub(annotation: Annotation) {
-    if (!rendition || !annotation.cfiRange) return;
-
-    // Check if this highlight is already applied
-    const contents = rendition.getContents();
-    const existingHighlight = contents[0]?.document.querySelector(
-      `.epub-hl-${annotation.id}`
-    );
-    if (existingHighlight) {
-      console.log("Highlight already applied for annotation:", annotation.id);
-      return;
-    }
-
-    // Map bgColor to CSS class name
-    const getColorClass = (bgColor: string): string => {
-      const colorMap: { [key: string]: string } = {
-        "#ffeb3b": "epub-hl-yellow",
-        "#a5d6a7": "epub-hl-green",
-        "#90caf9": "epub-hl-blue",
-        "#f48fb1": "epub-hl-pink",
-        "#ffcc80": "epub-hl-orange",
-      };
-      return colorMap[bgColor] || "epub-hl-yellow"; // Default to yellow
+    // Create click handler for annotations
+    const createClickHandler = (annotation: Annotation) => {
+      return (e: any) => handleHighlightClick(annotation, e);
     };
 
-    const colorClass = getColorClass(annotation.color.bgColor);
-    // const className = `epub-hl epub-hl-${annotation.id} ${colorClass}`;
-    const className = `epub-hl-${annotation.id}`;
-    rendition.annotations.highlight(
-      annotation.cfiRange,
-      { id: annotation.id },
-      (e: any) => handleHighlightClick(annotation, e),
-      className,
-      {
-        fill: annotation.color.bgColor,
-        "fill-opacity": "0.4",
-      }
+    // Apply all highlights using the manager
+    const result = annotationManager.applyAllHighlights(
+      annotations,
+      createClickHandler
     );
-
     console.log(
-      "Highlight applied successfully using method 3:",
-      annotation.id
+      "✅ [标注加载] 完成 - 成功应用:",
+      result.success,
+      "失败:",
+      result.failed
     );
   }
 
@@ -534,6 +538,15 @@
     selectionToolbarVisible = false;
     showRemoveButton = false;
     selectedAnnotation = null;
+
+    // 添加点击外部关闭颜色选择器的监听器
+    const clickHandler = (event: MouseEvent) => {
+      if (!(event.target as Element).closest(".hover-color-picker")) {
+        showColorPicker = false;
+        document.removeEventListener("click", clickHandler);
+      }
+    };
+    setTimeout(() => document.addEventListener("click", clickHandler));
   }
 
   async function handleColorChange(
@@ -560,12 +573,11 @@
       console.log("✅ [颜色更改] 本地状态已更新");
 
       // 更新数据库中的标注
-      await updateAnnotationColor(colorPickerAnnotation.blockId, color);
+      await updateAnnotationInDatabase(colorPickerAnnotation.blockId, color);
       console.log("✅ [颜色更改] 数据库已更新");
 
       // 重新应用高亮
-      highlightsApplied = false;
-      setTimeout(applyStoredHighlights, 100);
+      setTimeout(loadAndApplyAnnotations, 100);
       console.log("✅ [颜色更改] 高亮重新应用已触发");
 
       console.log(
@@ -581,110 +593,17 @@
     colorPickerAnnotation = null;
   }
 
-  async function updateAnnotationColor(
+  async function updateAnnotationInDatabase(
     blockId: string,
     newColor: HighlightColor
   ) {
-    try {
-      // 获取当前标注内容
-      const result = await sql(
-        `SELECT markdown FROM blocks WHERE id = '${blockId}'`
-      );
-
-      if (result && result.length > 0) {
-        let currentMarkdown = result[0].markdown;
-        //查询出来的markdown空格是转义后的，需要转义回去。其它的特殊符号也处理下
-        currentMarkdown = currentMarkdown.replaceAll("%20", " ");
-        currentMarkdown;
-
-        // 解析并更新颜色信息
-        const updatedMarkdown = updateMarkdownColor(currentMarkdown, newColor);
-
-        // 更新块内容
-        await updateBlockContent(blockId, updatedMarkdown);
-      }
-    } catch (e) {
-      console.error("更新标注颜色到数据库失败:", e);
-    }
-  }
-
-  function updateMarkdownColor(
-    markdown: string,
-    newColor: HighlightColor
-  ): string {
-    console.log("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
-    const annotationRegex =
-      /\[◎\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*)\)/;
-
-    const color = encodeURIComponent(newColor.bgColor);
-
-    return markdown.replace(annotationRegex, (match, p1, p2, p3, p4) => {
-      // 对 p1 进行 URL 解码，将 %20 替换为空格
-      const decodedP1 = decodeURIComponent(p1);
-      return `[◎](${decodedP1}#${p2}#${p3}#${color})`;
-    });
-  }
-
-  async function updateBlockContent(blockId: string, markdown: string) {
-    try {
-      // 使用 API 更新块内容
-      await updateBlock("markdown", markdown, blockId);
-    } catch (e) {
-      console.error("更新块内容失败:", e);
-    }
-  }
-
-  function applyHighlightDirectly(annotation: Annotation) {
-    if (!rendition) return;
-
-    try {
-      const contents = rendition.getContents();
-      for (let content of contents) {
-        const doc = content.document;
-        const cfi = annotation.cfiRange;
-
-        // Find the range using CFI
-        const range = content.getRange(cfi);
-        if (range) {
-          const highlightEl = doc.createElement("span");
-          highlightEl.className = `epub-hl epub-hl-${annotation.id}`;
-          highlightEl.style.cssText = `
-            background-color: ${annotation.color.bgColor};
-            background-opacity: 0.3;
-            cursor: pointer;
-          `;
-
-          // Wrap the range contents
-          const fragment = range.extractContents();
-          highlightEl.appendChild(fragment);
-          range.insertNode(highlightEl);
-
-          // Add click handler
-          highlightEl.addEventListener("click", (e) => {
-            handleHighlightClick(annotation, e as MouseEvent);
-          });
-
-          console.log("Direct DOM highlight applied:", annotation.id);
-          break;
-        }
-      }
-    } catch (e) {
-      console.error("Direct DOM highlight failed:", e);
-    }
+    return updateAnnotationColor(blockId, newColor);
   }
 
   function handleGlobalClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
 
-    // 隐藏悬浮颜色选择器
-    if (
-      showHoverColorPicker &&
-      !target.closest(".hover-color-picker") &&
-      !target.closest(".epub-hl")
-    ) {
-      showHoverColorPicker = false;
-      hoverAnnotation = null;
-    }
+    // Handle global clicks if needed in the future
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -837,39 +756,27 @@
       updatedAt: Date.now(),
     };
 
-    // First, apply highlight to epub
-    try {
-      rendition.annotations.add(
-        "highlight",
-        annotation.cfiRange,
-        { id: annotation.id },
-        (e: any) => handleHighlightClick(annotation, e),
-        `epub-hl epub-hl-${annotation.id}`,
-        {
-          fill: color.bgColor,
-          "fill-opacity": "0.3",
-          "mix-blend-mode": "multiply",
-        }
+    // Apply highlight using annotation manager with click handler
+    if (annotationManager) {
+      const clickHandler = (e: any) => handleHighlightClick(annotation, e);
+      const success = annotationManager.applyHighlight(
+        annotation,
+        clickHandler
       );
-      console.log("Highlight applied to epub successfully:", annotation.id);
-    } catch (e) {
-      console.warn("Failed to apply highlight to epub:", e);
-      try {
-        applyHighlightToEpub(annotation);
-      } catch (e2) {
-        console.warn("Fallback highlight also failed:", e2);
+      if (!success) {
+        console.warn(
+          "Failed to apply highlight using annotation manager:",
+          annotation.id
+        );
       }
     }
 
-    // Then insert into Siyuan document
+    // Insert into Siyuan document
     const blockId = await insertAnnotation(annotation, epubPath, boundDocId);
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
       console.log("Annotation saved to Siyuan:", annotation.id);
-
-      // Reset highlights applied flag to allow re-application
-      highlightsApplied = false;
     }
 
     selectionToolbarVisible = false;
@@ -898,44 +805,29 @@
       updatedAt: Date.now(),
     };
 
-    // First, apply highlight to epub
-    try {
-      rendition.annotations.add(
-        "highlight",
-        annotation.cfiRange,
-        { id: annotation.id },
-        (e: any) => handleHighlightClick(annotation, e),
-        `epub-hl epub-hl-${annotation.id}`,
-        {
-          fill: color.bgColor,
-          "fill-opacity": "0.3",
-          "mix-blend-mode": "multiply",
-        }
+    // Apply highlight using annotation manager with click handler
+    if (annotationManager) {
+      const clickHandler = (e: any) => handleHighlightClick(annotation, e);
+      const success = annotationManager.applyHighlight(
+        annotation,
+        clickHandler
       );
-      console.log(
-        "Note highlight applied to epub successfully:",
-        annotation.id
-      );
-    } catch (e) {
-      console.warn("Failed to apply note highlight to epub:", e);
-      try {
-        applyHighlightToEpub(annotation);
-      } catch (e2) {
-        console.warn("Fallback note highlight also failed:", e2);
+      if (!success) {
+        console.warn(
+          "Failed to apply note highlight using annotation manager:",
+          annotation.id
+        );
       }
     }
 
-    // Then insert into Siyuan document
+    // Insert into Siyuan document
     const blockId = await insertAnnotation(annotation, epubPath, boundDocId);
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
       console.log("Note annotation saved to Siyuan:", annotation.id);
 
-      // Reset highlights applied flag to allow re-application
-      highlightsApplied = false;
-
-      // Open float layer for note editing with delay to ensure it stays
+      // Open float layer for note editing
       setTimeout(() => {
         openFloatLayer(blockId);
       }, 300);
@@ -949,25 +841,13 @@
     if (plugin && plugin.addFloatLayer) {
       try {
         plugin.addFloatLayer({
-          ids: [blockId],
-          defIds: [],
+          refDefs: [{ refID: blockId }],
           x: window.innerWidth - 768 - 120,
           y: 100,
           isBacklink: false,
         });
-      } catch (e) {
-        console.warn("Failed to open float layer:", e);
-        // Fallback: try alternative API
-        try {
-          plugin.addFloatLayer({
-            refDefs: [{ refID: blockId }],
-            x: window.innerWidth - 768 - 120,
-            y: 100,
-            isBacklink: false,
-          });
-        } catch (e2) {
-          console.warn("Fallback float layer also failed:", e2);
-        }
+      } catch (e2) {
+        console.warn("Fallback float layer also failed:", e2);
       }
     }
   }
@@ -988,27 +868,9 @@
           (a) => a.id !== selectedAnnotation!.id
         );
 
-        // Remove highlight from epub
-        try {
-          rendition.annotations.remove(
-            selectedAnnotation.cfiRange,
-            "highlight"
-          );
-          console.log("Highlight removed using annotations.remove");
-        } catch (e) {
-          console.warn(
-            "Failed to remove highlight with annotations.remove:",
-            e
-          );
-          // Fallback: try to remove by ID
-          try {
-            rendition.annotations.remove(selectedAnnotation.id);
-            console.log("Highlight removed using ID");
-          } catch (e2) {
-            console.warn("Failed to remove highlight by ID:", e2);
-            // Last resort: try to remove from DOM
-            removeHighlightFromDOM(selectedAnnotation);
-          }
+        // Remove highlight using annotation manager
+        if (annotationManager) {
+          annotationManager.removeHighlightByCfi(selectedAnnotation.cfiRange);
         }
       }
     }
@@ -1016,27 +878,6 @@
     selectionToolbarVisible = false;
     selectedAnnotation = null;
     showRemoveButton = false;
-    showHoverColorPicker = false;
-    hoverAnnotation = null;
-  }
-
-  function removeHighlightFromDOM(annotation: Annotation) {
-    try {
-      const contents = rendition?.getContents() || [];
-      for (let content of contents) {
-        const doc = content.document;
-        const highlightEl = doc.querySelector(`.epub-hl-${annotation.id}`);
-        if (highlightEl) {
-          // Replace the highlight element with its text content
-          const textNode = doc.createTextNode(highlightEl.textContent || "");
-          highlightEl.parentNode?.replaceChild(textNode, highlightEl);
-          console.log("Highlight removed from DOM:", annotation.id);
-          break;
-        }
-      }
-    } catch (e) {
-      console.warn("Failed to remove highlight from DOM:", e);
-    }
   }
 
   function parseAnnotationFromMarkdown(
@@ -1151,9 +992,11 @@
       const success = await removeAnnotation(annotation.blockId);
       if (success) {
         annotations = annotations.filter((a) => a.id !== annotation.id);
-        try {
-          rendition.annotations.remove(annotation.cfiRange, "highlight");
-        } catch (e) {}
+
+        // Remove highlight using annotation manager
+        if (annotationManager) {
+          annotationManager.removeHighlightByCfi(annotation.cfiRange);
+        }
       }
     }
   }
@@ -1283,6 +1126,33 @@
 
   <div class="main-content">
     <div class="viewer" bind:this={containerEl}></div>
+
+    <!-- Loading overlay -->
+    {#if isLoading}
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <div class="loading-spinner">📖</div>
+          <div class="loading-message">{loadingMessage}</div>
+          <div class="loading-progress">
+            <div class="progress-bar" style="width: {loadingProgress}%"></div>
+          </div>
+          <div class="loading-percentage">{loadingProgress}%</div>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Error display -->
+    {#if errorMessage}
+      <div class="error-overlay">
+        <div class="error-content">
+          <div class="error-icon">⚠️</div>
+          <div class="error-message">{errorMessage}</div>
+          <button class="error-btn" on:click={() => (errorMessage = "")}
+            >关闭</button
+          >
+        </div>
+      </div>
+    {/if}
 
     <Sidebar
       {toc}
@@ -1445,52 +1315,148 @@
     border: none !important;
   }
 
-  /* 悬浮颜色选择器样式 */
-  .hover-color-picker {
-    position: fixed;
-    background: var(--b3-theme-background, white);
-    border: 1px solid var(--b3-border-color, #e1e5e9);
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    padding: 8px;
-    z-index: 10001;
-    min-width: 150px;
-  }
-
-  .hover-color-picker .color-picker-title {
-    font-size: 11px;
-    color: var(--b3-theme-on-surface, #666);
-    margin-bottom: 6px;
-    text-align: center;
-  }
-
-  .hover-color-picker .color-options {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-  }
-
-  .hover-color-picker .color-btn {
-    width: 24px;
-    height: 24px;
-    border: 2px solid transparent;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  /* Loading overlay styles */
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
   }
 
-  .hover-color-picker .color-btn:hover {
-    transform: scale(1.2);
-    border-color: var(--b3-theme-primary, #3b82f6);
+  .loading-content {
+    text-align: center;
+    padding: 32px;
+    background: var(--b3-theme-background, white);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--b3-border-color, #e1e5e9);
+    min-width: 280px;
   }
 
-  .hover-color-picker .color-btn .check {
-    color: #333;
-    font-size: 12px;
-    font-weight: bold;
+  .loading-spinner {
+    font-size: 48px;
+    margin-bottom: 16px;
+    animation: bounce 1.5s infinite;
+  }
+
+  @keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-10px);
+    }
+    60% {
+      transform: translateY(-5px);
+    }
+  }
+
+  .loading-message {
+    font-size: 16px;
+    color: var(--b3-theme-on-background, #333);
+    margin-bottom: 20px;
+    font-weight: 500;
+  }
+
+  .loading-progress {
+    width: 100%;
+    height: 8px;
+    background: var(--b3-theme-surface, #f3f4f6);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .loading-progress .progress-bar {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--b3-theme-primary, #3b82f6),
+      var(--b3-theme-primary-light, #60a5fa)
+    );
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+    100% {
+      background-position: 200px 0;
+    }
+  }
+
+  .loading-percentage {
+    font-size: 14px;
+    color: var(--b3-theme-on-surface, #666);
+    font-weight: 500;
+  }
+
+  /* Error overlay styles */
+  .error-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    backdrop-filter: blur(4px);
+  }
+
+  .error-content {
+    text-align: center;
+    padding: 32px;
+    background: var(--b3-theme-background, white);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--b3-theme-error, #dc3545);
+    min-width: 320px;
+    max-width: 400px;
+  }
+
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .error-message {
+    font-size: 16px;
+    color: var(--b3-theme-error, #dc3545);
+    margin-bottom: 24px;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+
+  .error-btn {
+    padding: 12px 24px;
+    background: var(--b3-theme-error, #dc3545);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .error-btn:hover {
+    background: var(--b3-theme-error-light, #c82333);
   }
 </style>

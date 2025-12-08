@@ -79,7 +79,7 @@
 </script>
 
 {#if visible}
-  <div class="sidebar-overlay" on:click={() => dispatch('close')}></div>
+  <div class="sidebar-overlay" on:click={() => dispatch('close')} role="button" tabindex="0" on:keydown={(e) => e.key === 'Enter' && dispatch('close')}></div>
   <div class="sidebar">
     <!-- Search bar -->
     <div class="search-bar">
@@ -156,9 +156,10 @@
             </div>
           {:else}
             {#each filteredAnnotations as annotation}
-              <div
+              <button
                 class="annotation-item"
                 on:click={() => handleAnnotationClick(annotation)}
+                type="button"
               >
                 <div class="annotation-header">
                   <span
@@ -181,7 +182,7 @@
                 {#if annotation.note}
                   <div class="annotation-note">📝 {annotation.note}</div>
                 {/if}
-              </div>
+              </button>
             {/each}
           {/if}
         </div>
@@ -189,7 +190,7 @@
       {:else if activeTab === 'settings'}
         <div class="settings-panel">
           <div class="setting-group">
-            <label class="setting-label">绑定文档</label>
+            <label class="setting-label" for="doc-id-input">绑定文档</label>
             <p class="setting-desc">
               将此书籍与思源笔记文档绑定，标注和笔记将自动插入到绑定的文档中。
             </p>
@@ -203,6 +204,7 @@
             
             <div class="bind-input-group">
               <input
+                id="doc-id-input"
                 type="text"
                 placeholder="输入文档 ID"
                 bind:value={docIdInput}
@@ -219,7 +221,7 @@
           </div>
 
           <div class="setting-group">
-            <label class="setting-label">书籍路径</label>
+            <span class="setting-label">书籍路径</span>
             <code class="epub-path">{epubPath || '未知'}</code>
           </div>
         </div>

@@ -18,7 +18,7 @@ export default class EpubReaderPlugin implements SubPlugin {
   type = "barMode";
 
   private epubReaderInstance: any = null;
-  
+
   // 全局状态管理：存储当前应该显示的书籍信息
   private globalReaderState = {
     currentFile: null as File | null,
@@ -113,7 +113,10 @@ export default class EpubReaderPlugin implements SubPlugin {
 
     // 清理更新事件监听器
     if ((this as any).updateListener) {
-      window.removeEventListener('epub-reader-update', (this as any).updateListener as EventListener);
+      window.removeEventListener(
+        "epub-reader-update",
+        (this as any).updateListener as EventListener
+      );
       (this as any).updateListener = null;
     }
   }
@@ -182,19 +185,23 @@ export default class EpubReaderPlugin implements SubPlugin {
 
     if (url) {
       console.log("打开阅读器标签页");
-      const file = await this.fetchFile(url);
-      
+      //通过url获取真实的filePath
+      const parsed = parseLocationFromUrl(url);
+      const file = await this.fetchFile(parsed.epubPath);
+
       // 更新全局状态
       this.globalReaderState.currentFile = file;
       this.globalReaderState.currentUrl = url;
-      
+
       // 发送自定义事件通知tab更新内容
-      window.dispatchEvent(new CustomEvent('epub-reader-update', {
-        detail: {
-          file: file,
-          url: url
-        }
-      }));
+      window.dispatchEvent(
+        new CustomEvent("epub-reader-update", {
+          detail: {
+            file: file,
+            url: url,
+          },
+        })
+      );
 
       // 使用固定的data结构，避免创建新tab
       await openTab({
@@ -204,7 +211,7 @@ export default class EpubReaderPlugin implements SubPlugin {
           title: "EPUB 阅读器",
           data: {
             type: "epub-reader",
-            initialized: true  // 固定的标记
+            initialized: true, // 固定的标记
           },
           id: `${plugin.name}_epub_reader_tab`,
         },
