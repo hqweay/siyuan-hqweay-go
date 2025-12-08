@@ -615,20 +615,27 @@
     });
 
     try {
-      // 更新本地状态
-      const updatedAnnotations = annotations.map((a) =>
-        a.id === colorPickerAnnotation.id ? { ...a, color } : a
+      const annotation = annotations.find(
+        (a) => a.id === colorPickerAnnotation.id
       );
-      annotations = updatedAnnotations;
+      annotation.color = color;
+
+      // 只更新当前标注的高亮
+      if (annotationManager && annotation) {
+        // 移除旧的高亮
+        annotationManager.removeHighlightByCfi(annotation.cfiRange);
+        // 创建新的点击处理器
+        const clickHandler = (e: any) => handleHighlightClick(annotation, e);
+        // 应用新的高亮
+        annotationManager.applyHighlight(annotation, clickHandler);
+        console.log("✅ [颜色更改] 高亮更新已触发");
+      }
+
       console.log("✅ [颜色更改] 本地状态已更新");
 
       // 更新数据库中的标注
-      await updateAnnotationInDatabase(colorPickerAnnotation.blockId, color);
+      await updateAnnotationInDatabase(annotation.blockId, color);
       console.log("✅ [颜色更改] 数据库已更新");
-
-      // 重新应用高亮
-      setTimeout(loadAndApplyAnnotations, 100);
-      console.log("✅ [颜色更改] 高亮重新应用已触发");
 
       console.log(
         "🎉 [颜色更改] 标注颜色已更新完成:",
