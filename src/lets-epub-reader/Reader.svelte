@@ -549,14 +549,48 @@
     showRemoveButton = false;
     selectedAnnotation = null;
 
-    // 添加点击外部关闭颜色选择器的监听器
-    const clickHandler = (event: MouseEvent) => {
-      if (!(event.target as Element).closest(".hover-color-picker")) {
-        showColorPicker = false;
-        document.removeEventListener("click", clickHandler);
+    // 创建关闭颜色选择器的函数
+    const closeColorPicker = () => {
+      showColorPicker = false;
+      document.removeEventListener("click", closeColorPickerHandler);
+      
+      // 移除iframe监听器
+      const iframes = containerEl.querySelectorAll('iframe');
+      iframes.forEach(iframe => {
+        try {
+          if (iframe.contentDocument) {
+            iframe.contentDocument.removeEventListener("click", closeColorPickerHandler);
+          }
+        } catch (e) {
+          console.log('无法移除iframe监听器:', e);
+        }
+      });
+    };
+    
+    // 创建事件处理函数
+    const closeColorPickerHandler = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const isColorPicker = target.closest('.hover-color-picker');
+      
+      if (!isColorPicker) {
+        closeColorPicker();
       }
     };
-    setTimeout(() => document.addEventListener("click", clickHandler));
+    
+    // 添加主文档监听器
+    document.addEventListener("click", closeColorPickerHandler);
+    
+    // 添加iframe监听器
+    const iframes = containerEl.querySelectorAll('iframe');
+    iframes.forEach(iframe => {
+      try {
+        if (iframe.contentDocument) {
+          iframe.contentDocument.addEventListener("click", closeColorPickerHandler);
+        }
+      } catch (e) {
+        console.log('无法访问iframe内容:', e);
+      }
+    });
   }
 
   async function handleColorChange(
