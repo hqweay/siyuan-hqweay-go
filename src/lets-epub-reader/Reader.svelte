@@ -17,7 +17,7 @@
   import Sidebar from "./Sidebar.svelte";
   import type {
     Annotation,
-    HighlightColor, 
+    HighlightColor,
     SelectionRect,
     SidebarTab,
     TocItem,
@@ -120,6 +120,8 @@
     // 直接跳转到指定 CFI
     rendition.display(cfi).then(() => {
       console.log("Jumped to new CFI:", cfi);
+      // Ensure event listeners are attached after jump
+      setupRenditionEvents();
     });
   }
 
@@ -202,8 +204,8 @@
 
       // Create book instance - handle URLs with fragments
       let bookSource = source;
-      if (typeof source === 'string' && source.includes('#')) {
-        bookSource = source.split('#')[0];
+      if (typeof source === "string" && source.includes("#")) {
+        bookSource = source.split("#")[0];
       }
       book = ePub(bookSource);
 
@@ -523,10 +525,18 @@
     const target = e.target as HTMLElement;
     const rect = target.getBoundingClientRect();
 
+    // Find the iframe element and get its position
+    const iframe = containerEl?.querySelector("iframe");
+    let iframeOffset = { top: 0, left: 0 };
+    if (iframe) {
+      const iframeRect = iframe.getBoundingClientRect();
+      iframeOffset = { top: iframeRect.top, left: iframeRect.left };
+    }
+
     // 计算颜色选择器位置 - 在点击位置上方
     colorPickerRect = {
-      top: rect.top + window.scrollY - 80,
-      left: rect.left + window.scrollX + rect.width / 2 - 100,
+      top: rect.top, //+ iframeOffset.top - 80,
+      left: rect.left + rect.width / 2 - 100, //+ iframeOffset.left + rect.width / 2 - 100,
       width: 200,
       height: 60,
     };
