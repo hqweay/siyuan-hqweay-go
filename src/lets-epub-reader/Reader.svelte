@@ -646,8 +646,8 @@
       console.error("❌ [颜色更改] 更新标注颜色失败:", e);
     }
 
-    showColorPicker = false;
-    colorPickerAnnotation = null;
+    // showColorPicker = false;
+    // colorPickerAnnotation = null;
   }
 
   async function updateAnnotationInDatabase(
