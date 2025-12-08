@@ -72,6 +72,119 @@ export function parseCfiString(cfi: string): {
 }
 
 /**
+ * 从 CFI 中提取章节 ID
+ * 使用 epub.js 官方的 spine item 方式：章节本质上是 spine item（XHTML 文件）
+ * @param book - EPUB book 实例
+ * @param cfi - CFI 字符串
+ * @returns 章节索引或 href，失败返回 null
+ */
+export function extractChapterIdFromCfi(book: any, cfi: string): string | null {
+  if (!cfi || !book) return null;
+  
+  try {
+    // 首先确保 CFI 格式正确
+    if (!isValidCfi(cfi)) {
+      return null;
+    }
+    
+    // 使用 epub.js 官方的章节定位方式
+    // 通过 book.spine.get() 获取对应的 spine item
+    const section = book.spine.get(cfi);
+    
+    if (!section) {
+      console.warn('无法从 CFI 获取章节:', cfi);
+      return null;
+    }
+    
+    // 返回章节的 index（这是最准确的章节标识符）
+    // 如果 index 不可用，回退到 href
+    if (typeof section.index === 'number') {
+      console.log(`✅ 章节识别成功: CFI=${cfi} -> 章节索引=${section.index}`);
+      return `${section.index}`;
+    }
+    
+    // 回退方案：使用 href
+    if (section.href) {
+      console.log(`✅ 章节识别成功: CFI=${cfi} -> href=${section.href}`);
+      return section.href;
+    }
+    
+    console.warn('章节信息不完整:', section);
+    return null;
+    
+  } catch (e) {
+    console.warn('从 CFI 提取章节 ID 失败:', cfi, e);
+    return null;
+  }
+}
+
+/**
+ * 获取当前章节信息
+ * @param book - EPUB book 实例
+ * @param cfi - CFI 字符串
+ * @returns 章节信息对象，包含 index、href 等信息
+ */
+export function getCurrentChapterInfo(book: any, cfi: string): { index: number; href: string; section: any } | null {
+  if (!cfi || !book) return null;
+  
+  try {
+    // 使用 epub.js 官方的章节定位方式
+    const section = book.spine.get(cfi);
+    
+    if (!section) {
+      console.warn('无法从 CFI 获取章节:', cfi);
+      return null;
+    }
+    
+    return {
+      index: section.index,
+      href: section.href,
+      section: section
+    };
+    
+  } catch (e) {
+    console.warn('获取当前章节信息失败:', cfi, e);
+    return null;
+  }
+}
+
+/**
+ * 解析当前章节的 CFI
+ * 接收完整的 CFI 并返回当前章节的基础 CFI（不包含范围部分）
+ * @param book - EPUB book 实例
+ * @param cfi - 完整 CFI 字符串
+ * @returns 章节基础 CFI
+ */
+export function getCurrentChapterCfi(book: any, cfi: string): string | null {
+  if (!cfi || !book) return null;
+  
+  try {
+    // 首先确保 CFI 格式正确
+    if (!isValidCfi(cfi)) {
+      return null;
+    }
+    
+    // 使用 epub.js 官方方式获取章节信息
+    const chapterInfo = getCurrentChapterInfo(book, cfi);
+    
+    if (!chapterInfo) {
+      return null;
+    }
+    
+    // 构建章节基础 CFI（只包含到章节的部分，不包含具体位置）
+    // 这里我们使用章节的 spine 位置作为基础 CFI
+    const baseCfi = `epubcfi(/spine/${chapterInfo.index}!)`;
+    
+    console.log(`✅ 章节基础 CFI: ${cfi} -> ${baseCfi}`);
+    return baseCfi;
+    
+  } catch (e) {
+    console.warn('获取当前章节 CFI 失败:', cfi, e);
+    return null;
+  }
+}
+
+/**
  * 从文本创建选择范围
  */
 export function createSelectionRange(

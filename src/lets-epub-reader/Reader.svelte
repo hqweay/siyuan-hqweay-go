@@ -29,6 +29,7 @@
     hasValidSelection,
     parseLocationFromUrl,
   } from "./utils";
+  import { extractChapterIdFromCfi } from "./epub-utils";
 
   // Props
   export let src: string | File | ArrayBuffer | null = null;
@@ -362,14 +363,28 @@
         content.document.addEventListener("keyup", handleSelection);
       }
 
-      // Re-apply highlights after render
+      // Re-apply highlights after render (only for current chapter)
       if (annotations.length > 0 && annotationManager) {
         console.log(
           "页面渲染完成，重新应用标注，标注数量:",
           annotations.length
         );
         setTimeout(() => {
-          loadAndApplyAnnotations();
+          // Use chapter-specific rendering for better performance
+          const createClickHandler = (annotation: Annotation) => {
+            return (e: any) => handleHighlightClick(annotation, e);
+          };
+          
+          const result = annotationManager.applyCurrentChapterHighlights(
+            annotations,
+            createClickHandler
+          );
+          console.log(
+            "✅ [章节渲染] 完成 - 成功应用:",
+            result.success,
+            "失败:",
+            result.failed
+          );
         }, 100); // Small delay to ensure DOM is ready
       }
 
@@ -500,8 +515,8 @@
       return (e: any) => handleHighlightClick(annotation, e);
     };
 
-    // Apply all highlights using the manager
-    const result = annotationManager.applyAllHighlights(
+    // Use chapter-specific rendering for better performance
+    const result = annotationManager.applyCurrentChapterHighlights(
       annotations,
       createClickHandler
     );
@@ -802,6 +817,10 @@
     }
 
     const { color } = event.detail;
+    
+    // Extract chapter ID from CFI for efficient rendering
+    const chapterId = book ? extractChapterIdFromCfi(book, currentSelection.cfiRange) : null;
+    
     const annotation: Annotation = {
       id: generateAnnotationId(),
       type: "highlight",
@@ -809,6 +828,7 @@
       cfiRange: currentSelection.cfiRange,
       epubCfi: currentSelection.cfiRange,
       color,
+      chapterId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -851,6 +871,10 @@
     }
 
     const { color } = event.detail;
+    
+    // Extract chapter ID from CFI for efficient rendering
+    const chapterId = book ? extractChapterIdFromCfi(book, currentSelection.cfiRange) : null;
+    
     const annotation: Annotation = {
       id: generateAnnotationId(),
       type: "note",
@@ -858,6 +882,7 @@
       cfiRange: currentSelection.cfiRange,
       epubCfi: currentSelection.cfiRange,
       color,
+      chapterId,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     };
@@ -1000,6 +1025,10 @@
           }
         : HIGHLIGHT_COLORS[0];
       console.log("✅ Matched color:", color);
+      
+      // Extract chapter ID from CFI for efficient rendering
+      const chapterId = extractChapterIdFromCfi(book, cfiRange);
+      console.log("✅ Extracted chapter ID:", chapterId);
 
       const annotation = {
         id: annotationId || blockId,
@@ -1009,6 +1038,7 @@
         epubCfi: cfiRange,
         color,
         blockId,
+        chapterId,
         createdAt: Date.now(),
         updatedAt: Date.now(),
       };

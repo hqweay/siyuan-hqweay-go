@@ -54,6 +54,7 @@ export interface Annotation {
   blockId?: string; // Siyuan block ID after insertion
   createdAt: number;
   updatedAt: number;
+  chapterId?: string; // Chapter identifier for efficient rendering
 }
 
 // Sidebar tab types

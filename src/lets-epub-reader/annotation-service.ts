@@ -287,6 +287,7 @@ function parseAnnotationFromBlock(
       epubCfi: cfiRange,
       color,
       blockId: block.id,
+      // chapterId will be set later in Reader.svelte where book instance is available
       createdAt: new Date(block.created).getTime(),
       updatedAt: new Date(block.updated).getTime(),
     };
