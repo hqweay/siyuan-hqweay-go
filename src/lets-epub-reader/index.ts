@@ -1,12 +1,17 @@
-import { Plugin, showMessage, fetchSyncPost, Menu, openTab } from "siyuan";
-import { settings } from "@/settings";
+import {
+  Dialog,
+  fetchSyncPost,
+  Menu,
+  openTab,
+  Plugin,
+  showMessage,
+} from "siyuan";
 
 import { SubPlugin } from "@/types/plugin";
 
 import Reader from "./Reader.svelte";
-import EpubReader from "./Reader.svelte"; // Alias for backward compatibility
 
-import { plugin } from "@/utils";
+import { isMobile, plugin } from "@/utils";
 import { parseLocationFromUrl } from "./utils";
 
 export default class EpubReaderPlugin implements SubPlugin {
@@ -203,21 +208,42 @@ export default class EpubReaderPlugin implements SubPlugin {
         })
       );
 
-      // 使用固定的data结构，避免创建新tab
-      await openTab({
-        app: plugin.app,
-        custom: {
-          icon: "📖",
-          title: "EPUB 阅读器",
-          data: {
-            type: "epub-reader",
-            initialized: true, // 固定的标记
+      if (isMobile) {
+        let dialog = new Dialog({
+          title: "仪表盘",
+          content: `<div id="hqweay-epub-reader-container2" style="height: 700px;"></div>`,
+          width: "400px",
+          destroyCallback: (options) => {
+            pannel.$destroy();
           },
-          id: `${plugin.name}_epub_reader_tab`,
-        },
-        position: "right",
-        removeCurrentTab: true,
-      });
+        });
+        // 创建Reader组件，使用全局状态
+        let pannel = new Reader({
+          target: dialog.element.querySelector(
+            "#hqweay-epub-reader-container2"
+          ),
+          props: {
+            src: this.globalReaderState.currentFile,
+            url: this.globalReaderState.currentUrl,
+          },
+        });
+      } else {
+        // 使用固定的data结构，避免创建新tab
+        await openTab({
+          app: plugin.app,
+          custom: {
+            icon: "📖",
+            title: "EPUB 阅读器",
+            data: {
+              type: "epub-reader",
+              initialized: true, // 固定的标记
+            },
+            id: `${plugin.name}_epub_reader_tab`,
+          },
+          position: "right",
+          removeCurrentTab: true,
+        });
+      }
     } else {
       console.log("无法获取文件对象");
     }
@@ -260,39 +286,6 @@ export default class EpubReaderPlugin implements SubPlugin {
     } catch (error) {
       console.error("加载嵌入式阅读器失败:", error);
       showMessage("加载嵌入式阅读器失败", 3000);
-    }
-  }
-
-  /**
-   * 在新标签页中打开 EPUB 文件
-   * @param url EPUB URL
-   * @param id 块 ID
-   */
-  private async openEpubTab(url: string, id: string) {
-    try {
-      // 获取当前工作区
-      const workspace = window.siyuan.workspace;
-
-      // 创建新标签页
-      const tab = workspace.createTab({
-        app: {
-          id: "hqweay-epub-reader",
-          name: "EPUB 阅读器",
-          icon: "📖",
-        },
-        data: {
-          epubPath: url,
-          blockId: id,
-        },
-      });
-
-      // 在新标签页中渲染 EPUB 阅读器
-      await this.renderEpubReader(tab, url);
-
-      showMessage(`正在打开 EPUB 文件: ${this.getDisplayName(url)}`, 3000);
-    } catch (error) {
-      console.error("打开 EPUB 标签页失败:", error);
-      showMessage("打开 EPUB 标签页失败", 3000);
     }
   }
 
