@@ -153,7 +153,7 @@ export default class NavHelper implements SubPlugin {
       right: 0;
       height: ${config.height};
       background-color: ${config.backgroundColor};
-      border-top: 1px solid #e0e0e0;
+     /* border-top: 1px solid #e0e0e0; */
       display: flex;
       align-items: center;
       justify-content: space-around;

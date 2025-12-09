@@ -1182,7 +1182,7 @@
       >
     {/if}
 
-    <div class="toolbar-group">
+    <!-- <div class="toolbar-group">
       <label class="toolbar-label" for="font-size">字号</label>
       <input
         id="font-size"
@@ -1194,20 +1194,20 @@
         class="font-slider"
       />
       <span class="toolbar-label">{fontSize}%</span>
-    </div>
+    </div> -->
 
-    <button class="toolbar-btn" on:click={toggleTheme} title="切换主题">
+    <!-- <button class="toolbar-btn" on:click={toggleTheme} title="切换主题">
       {theme === "light" ? "🌙" : "☀️"}
-    </button>
+    </button> -->
 
-    <button class="toolbar-btn" on:click={toggleViewMode} title="切换阅读模式">
+    <!-- <button class="toolbar-btn" on:click={toggleViewMode} title="切换阅读模式">
       {viewMode === "scrolled" ? "📄" : "📜"}
       <span class="btn-text">{viewMode === "scrolled" ? "翻页" : "滚动"}</span>
-    </button>
+    </button> -->
 
     <div class="toolbar-spacer"></div>
 
-    <div class="title-text" {title}>{title}</div>
+    <!-- <div class="title-text" {title}>{title}</div> -->
 
     <div class="progress-wrapper">
       <div class="progress-bar" title="进度 {progress}%">
@@ -1216,7 +1216,7 @@
       <span class="progress-text">{progress}%</span>
     </div>
 
-    <input
+    <!-- <input
       bind:this={fileInput}
       type="file"
       accept=".epub"
@@ -1227,7 +1227,7 @@
       class="toolbar-btn"
       on:click={() => fileInput.click()}
       title="打开文件">📂</button
-    >
+    > -->
   </div>
 
   <div class="main-content">
@@ -1303,7 +1303,7 @@
 
   .toolbar {
     display: flex;
-    /* gap: 8px; */
+    gap: 6px;
     align-items: center;
     padding: 8px 12px;
     min-height: 44px;
