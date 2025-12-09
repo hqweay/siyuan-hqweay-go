@@ -85,6 +85,15 @@
 
   let fileInput: HTMLInputElement;
 
+  // 阅读进度保存优化 - 节流相关变量
+  let lastSavedProgress = 0;
+  let lastSavedTime = 0;
+  let saveProgressTimer: NodeJS.Timeout | null = null;
+
+  // 配置参数
+  const SAVE_PROGRESS_THROTTLE_MS = 2000; // 2秒节流
+  const SAVE_PROGRESS_THRESHOLD = 1; // 进度变化阈值1%
+
   // 当 url 变化时，判断是同一本书还是新的书
   // $: if (url) {
   //   console.log("Parsing URL:", url);
@@ -176,6 +185,14 @@
       loadingProgress = 0;
       loadingMessage = "正在初始化阅读器...";
 
+      // 重置阅读进度跟踪变量
+      lastSavedProgress = 0;
+      lastSavedTime = 0;
+      if (saveProgressTimer) {
+        clearTimeout(saveProgressTimer);
+        saveProgressTimer = null;
+      }
+
       // Cleanup previous book
       if (rendition) {
         try {
@@ -223,6 +240,10 @@
 
       // Create rendition
       rendition = book.renderTo(containerEl, renderOptions);
+
+      // 遍历书籍生成百分比，会卡顿一会
+      await book.ready;
+      await book.locations.generate();
 
       // Register themes
       loadingMessage = "正在加载主题...";
@@ -342,26 +363,54 @@
     }
   }
 
+  /**
+   * 优化的阅读进度保存函数 - 带节流和阈值检查
+   *
+   * 优化策略：
+   * 1. 时间节流：至少间隔2秒才保存一次，避免频繁写入数据库
+   * 2. 进度阈值：进度变化超过1%才保存，避免微小变化触发保存
+   * 3. UI响应：始终派发relocated事件以保持UI实时更新
+   *
+   * 这样既保证了阅读位置的准确性，又大幅减少了数据库写入频率
+   */
+
+  // 优化的阅读进度保存函数 - 带节流和阈值检查
+  function saveReadingProgressOptimized() {
+    if (!boundDocId || !currentCfi) return;
+
+    const now = Date.now();
+    const progressDiff = Math.abs(progress - lastSavedProgress);
+
+    // 检查是否需要保存：时间间隔超过2秒且进度变化超过1%
+    const shouldSave =
+      now - lastSavedTime >= SAVE_PROGRESS_THROTTLE_MS &&
+      progressDiff >= SAVE_PROGRESS_THRESHOLD;
+
+    if (shouldSave) {
+      try {
+        saveReadingProgress(boundDocId, epubPath, currentCfi!, progress, title);
+        lastSavedProgress = progress;
+        lastSavedTime = now;
+        console.log(
+          `📚 [优化保存] 进度: ${progress}%, CFI: ${currentCfi!.substring(0, 20)}...`
+        );
+      } catch (e) {
+        console.warn("保存阅读位置失败:", e);
+      }
+    }
+  }
+
   function setupRenditionEvents() {
     if (!rendition) return;
 
     rendition.on("relocated", (location: any) => {
       currentCfi = location.start.cfi;
-      const at = location.start.percentage || 0;
-      progress = Math.round(at * 100);
-      if (boundDocId) {
-        try {
-          saveReadingProgress(
-            boundDocId,
-            epubPath,
-            currentCfi!,
-            progress,
-            title
-          );
-        } catch (e) {
-          console.warn("保存阅读位置失败:", e);
-        }
-      }
+      const cfi = location.start.cfi;
+      const percentage = book.locations.percentageFromCfi(cfi);
+      progress = Math.round(percentage * 100);
+      // 使用优化的保存函数
+      saveReadingProgressOptimized();
+      // 总是派发事件以更新UI
       dispatch("relocated", { cfi: currentCfi, progress });
     });
 
@@ -1420,6 +1469,11 @@
     try {
       window.removeEventListener("keydown", handleKeydown);
       window.removeEventListener("click", handleGlobalClick);
+      // 清理保存进度的定时器
+      if (saveProgressTimer) {
+        clearTimeout(saveProgressTimer);
+        saveProgressTimer = null;
+      }
     } catch (e) {}
   });
 </script>
