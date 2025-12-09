@@ -5,6 +5,7 @@
   export let description: string; // Displaying Setting Text
   export let settingKey: string;
   export let settingValue: any;
+  export let height: string;
 
   //Optional
   export let placeholder: string = ""; // Use it if type is input
@@ -35,7 +36,7 @@
       </div>
     </div>
     <textarea
-      style="height: 300px;"
+      style="height: {height ? height : '300px'};"
       class="b3-text-field"
       id={settingKey}
       {placeholder}

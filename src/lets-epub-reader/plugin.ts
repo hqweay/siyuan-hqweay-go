@@ -12,6 +12,7 @@ export default {
       key: "annotionFormat",
       value: "- [◎](${link}) ${text}",
       plcaholder: "",
+      height: "100px",
     },
   ],
 };

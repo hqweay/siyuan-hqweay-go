@@ -39,6 +39,7 @@
             placeholder={item?.placeholder}
             options={item?.options}
             slider={item?.slider}
+            height={item?.height}
             on:click={onClick}
             on:changed={onChanged}
         />
