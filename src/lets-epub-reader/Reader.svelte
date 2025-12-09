@@ -1303,7 +1303,7 @@
 
   .toolbar {
     display: flex;
-    gap: 8px;
+    /* gap: 8px; */
     align-items: center;
     padding: 8px 12px;
     min-height: 44px;

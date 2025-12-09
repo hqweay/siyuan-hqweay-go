@@ -130,24 +130,24 @@ export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?
       // CFI typically starts with '/' or contains epubcfi
       if (cfiPart.startsWith('/') || cfiPart.includes('!') || cfiPart.startsWith('epubcfi(')) {
         cfiRange = cfiPart;
-        console.log('Parsed CFI from URL:', cfiRange);
+        // console.log('Parsed CFI from URL:', cfiRange);
       }
     }
 
     if (parts.length > 2) {
       blockId = parts[2];
-      console.log('Parsed block ID from URL:', blockId);
+      // console.log('Parsed block ID from URL:', blockId);
     }
 
     if (parts.length > 3) {
       bgColor = decodeURIComponent(parts[3]);
-      console.log('Parsed bgColor from URL:', bgColor);
+      // console.log('Parsed bgColor from URL:', bgColor);
     }
 
-    console.log('Parsed location:', { epubPath, cfiRange, blockId, bgColor });
+    // console.log('Parsed location:', { epubPath, cfiRange, blockId, bgColor });
     return { epubPath, cfiRange, blockId, bgColor };
   } catch (e) {
-    console.warn('Failed to parse location from URL:', e);
+    // console.warn('Failed to parse location from URL:', e);
     return null;
   }
 }

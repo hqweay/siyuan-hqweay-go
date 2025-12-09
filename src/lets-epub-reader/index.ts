@@ -131,11 +131,11 @@ export default class EpubReaderPlugin implements SubPlugin {
    */
   private setupEpubClickHandler() {
     // 监听文档点击事件 - 使用捕获阶段以确保优先处理
-    console.log("设置 EPUB 点击监听");
+    // console.log("设置 EPUB 点击监听");
 
     // 使用捕获阶段并确保在冒泡阶段也能捕获
     const handleClick = (e: MouseEvent) => {
-      console.log("EPUB 点击事件被触发");
+      // console.log("EPUB 点击事件被触发");
       this.handleEpubClick(e);
     };
 
@@ -154,9 +154,9 @@ export default class EpubReaderPlugin implements SubPlugin {
    * @param e 点击事件
    */
   private async handleEpubClick(e: MouseEvent) {
-    console.log("处理 EPUB 点击事件 - 开始");
-    console.log("事件目标:", e.target);
-    console.log("当前目标:", e.currentTarget);
+    // console.log("处理 EPUB 点击事件 - 开始");
+    // console.log("事件目标:", e.target);
+    // console.log("当前目标:", e.currentTarget);
 
     const target = e.target as HTMLElement;
 
@@ -165,31 +165,31 @@ export default class EpubReaderPlugin implements SubPlugin {
       ? target
       : target.closest('a[href], [data-href], span[data-type="a"]');
 
-    console.log("找到的链接元素:", linkEl);
+    // console.log("找到的链接元素:", linkEl);
 
     const url =
       linkEl?.getAttribute("data-href") || linkEl?.getAttribute("href");
 
     if (!url) {
-      console.log("没有找到 URL");
+      // console.log("没有找到 URL");
       return;
     }
 
-    console.log("提取的 URL:", url);
-    console.log("提取的 URL:", url);
-    console.log("是否为 EPUB 文件:", this.isEpubFileUrl(url));
+    // console.log("提取的 URL:", url);
+    // console.log("提取的 URL:", url);
+    // console.log("是否为 EPUB 文件:", this.isEpubFileUrl(url));
 
     if (!url || !this.isEpubFileUrl(url)) {
-      console.log("不是 EPUB 文件，跳过处理");
+      // console.log("不是 EPUB 文件，跳过处理");
       return;
     }
 
-    console.log("阻止默认行为和事件传播");
+    // console.log("阻止默认行为和事件传播");
     e.preventDefault();
     e.stopPropagation();
 
     if (url) {
-      console.log("打开阅读器标签页");
+      // console.log("打开阅读器标签页");
       //通过url获取真实的filePath
       const parsed = parseLocationFromUrl(url);
       const file = await this.fetchFile(parsed.epubPath);
@@ -208,10 +208,16 @@ export default class EpubReaderPlugin implements SubPlugin {
         })
       );
 
+      let fileName = parsed.epubPath
+        ?.replace("assets/", "")
+        ?.replace(".epub", "");
+      fileName = fileName?.length > 10 ? fileName?.slice(0, 10) + "…" : fileName;
+
       if (isMobile) {
         let dialog = new Dialog({
-          title: "仪表盘",
-          content: `<div id="hqweay-epub-reader-container2" style="height: 700px;"></div>`,
+          // 如果大于10位，截断
+          title: fileName,
+          content: `<div id="hqweay-epub-reader-container" style="height: 800px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -219,9 +225,7 @@ export default class EpubReaderPlugin implements SubPlugin {
         });
         // 创建Reader组件，使用全局状态
         let pannel = new Reader({
-          target: dialog.element.querySelector(
-            "#hqweay-epub-reader-container2"
-          ),
+          target: dialog.element.querySelector("#hqweay-epub-reader-container"),
           props: {
             src: this.globalReaderState.currentFile,
             url: this.globalReaderState.currentUrl,
@@ -233,7 +237,7 @@ export default class EpubReaderPlugin implements SubPlugin {
           app: plugin.app,
           custom: {
             icon: "📖",
-            title: "EPUB 阅读器",
+            title: `${parsed.epubPath}`,
             data: {
               type: "epub-reader",
               initialized: true, // 固定的标记
