@@ -1,21 +1,15 @@
 import { settings } from "@/settings";
-import { isMobile, plugin } from "@/utils";
-import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
+import { isMobile, plugin } from "@/utils";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
+import { openMobileFileById, showMessage } from "siyuan";
 // import MobileNavigation from "./components/MobileNavigation.svelte";
-import { navigation } from "./navigation";
-import { openByMobile } from "@/myscripts/utils";
-import {
-  getCurrentDocId,
-  isBlockID,
-  openBlockByID,
-  openByUrl,
-} from "@/myscripts/syUtils";
 import { createSiyuanAVHelper } from "@/myscripts/dbUtil";
 import { goToRandomBlock } from "@/myscripts/randomDocCache";
-import { mobileUtils } from "./utils";
+import { getCurrentDocId, openBlockByID, openByUrl } from "@/myscripts/syUtils";
+import { navigation } from "./navigation";
 import pluginMetadata from "./plugin";
+import { mobileUtils } from "./utils";
 export default class NavHelper implements SubPlugin {
   private navigationElement: HTMLElement | null = null;
   private desktopNavigationElement: HTMLElement | null = null;
@@ -39,7 +33,7 @@ export default class NavHelper implements SubPlugin {
     }
 
     // 注册事件监听器
-    this.registerEventListeners();
+    // this.registerEventListeners();
   }
 
   onunload(): void {
@@ -542,34 +536,34 @@ export default class NavHelper implements SubPlugin {
   }
 
   // 注册事件监听器
-  private registerEventListeners(): void {
-    // 监听页面可见性变化
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        this.hideNavigation();
-      } else {
-        if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
-          this.showNavigation();
-        }
-      }
-    });
+  // private registerEventListeners(): void {
+  //   // 监听页面可见性变化
+  //   document.addEventListener("visibilitychange", () => {
+  //     if (document.hidden) {
+  //       this.hideNavigation();
+  //     } else {
+  //       if (settings.getBySpace(pluginMetadata.name, "enableBottomNav")) {
+  //         this.showNavigation();
+  //       }
+  //     }
+  //   });
 
-    // 监听窗口大小变化（响应式处理）
-    let resizeTimeout: NodeJS.Timeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
-        this.handleDeviceChange();
-      }, 300);
-    });
+  //   // 监听窗口大小变化（响应式处理）
+  //   let resizeTimeout: NodeJS.Timeout;
+  //   window.addEventListener("resize", () => {
+  //     clearTimeout(resizeTimeout);
+  //     resizeTimeout = setTimeout(() => {
+  //       this.handleDeviceChange();
+  //     }, 300);
+  //   });
 
-    // 监听设置变化
-    plugin.eventBus.on("ws-main", (event) => {
-      if (event.detail.data?.data?.appData?.plugins) {
-        this.handleSettingsChange();
-      }
-    });
-  }
+  //   // 监听设置变化
+  //   plugin.eventBus.on("ws-main", (event) => {
+  //     if (event.detail.data?.data?.appData?.plugins) {
+  //       this.handleSettingsChange();
+  //     }
+  //   });
+  // }
 
   // 处理设备类型变化
   private handleDeviceChange(): void {
