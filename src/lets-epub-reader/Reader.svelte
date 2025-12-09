@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { plugin } from "@/utils";
+  import { isMobile, plugin } from "@/utils";
   import ePub from "epubjs";
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
   import { sql, updateBlock } from "../api";
@@ -951,6 +951,212 @@
     }
   }
 
+  /**
+   * Handles quick highlight functionality with improved iOS compatibility
+   * and enhanced error handling
+   */
+  function handleQuickHighlight() {
+    try {
+      // Validate basic prerequisites
+      if (!isReady) {
+        console.warn("📖 Reader is not ready yet");
+        return;
+      }
+
+      if (!boundDocId) {
+        console.warn("📝 Please bind a document first");
+        this?.showMessage?.("请先在设置中绑定文档", "warning");
+        return;
+      }
+
+      // Get selection with iOS compatibility fallback
+      const selectionInfo = getSelectionInfo();
+      
+      if (!selectionInfo.isValid) {
+        console.log("📝 Please select text first");
+        if (selectionInfo.error) {
+          console.warn("Selection error:", selectionInfo.error);
+        }
+        return;
+      }
+
+      // Update currentSelection state for consistency
+      currentSelection = {
+        text: selectionInfo.text,
+        cfiRange: selectionInfo.cfiRange,
+        range: selectionInfo.range
+      };
+
+      // Validate selection content
+      if (!selectionInfo.text || selectionInfo.text.trim().length === 0) {
+        console.warn("📝 Selected text is empty");
+        return;
+      }
+
+      // Validate CFI range
+      if (!selectionInfo.cfiRange) {
+        console.warn("📍 Could not get CFI range for selection");
+        return;
+      }
+
+      // Trigger highlight with default color using native event
+      const highlightEvent = new CustomEvent("highlight", {
+        detail: { 
+          color: HIGHLIGHT_COLORS[0],
+          selection: selectionInfo // Pass selection info for debugging
+        },
+        bubbles: true,
+        cancelable: true
+      });
+
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        handleHighlight(highlightEvent);
+      });
+
+    } catch (error) {
+      console.error("❌ Error in handleQuickHighlight:", error);
+      // Optionally show user-friendly error message
+      this?.showMessage?.("标注功能出现错误，请重试", "error");
+    }
+  }
+
+  /**
+   * Gets selection information with iOS compatibility
+   * Falls back to native selection if currentSelection is unavailable
+   */
+  function getSelectionInfo(): {
+    isValid: boolean;
+    text: string;
+    cfiRange: string;
+    range: Range | null;
+    error?: string;
+  } {
+    // Primary method: Use currentSelection state
+    if (currentSelection && currentSelection.text) {
+      return {
+        isValid: true,
+        text: currentSelection.text,
+        cfiRange: currentSelection.cfiRange,
+        range: currentSelection.range
+      };
+    }
+
+    // Fallback method: Check native selection directly (for iOS compatibility)
+    try {
+      if (!rendition) {
+        return { isValid: false, text: "", cfiRange: "", range: null, error: "No rendition available" };
+      }
+
+      const contents = rendition.getContents();
+      
+      for (const content of contents) {
+        const selection = content.window.getSelection();
+        
+        if (hasValidSelection(selection)) {
+          const range = selection.getRangeAt(0);
+          const text = selection.toString();
+          const cfiRange = getCfiFromSelection(book, content, selection);
+
+          return {
+            isValid: true,
+            text,
+            cfiRange,
+            range
+          };
+        }
+      }
+
+      return { 
+        isValid: false, 
+        text: "", 
+        cfiRange: "", 
+        range: null, 
+        error: "No valid selection found" 
+      };
+
+    } catch (error) {
+      console.warn("Error getting native selection:", error);
+      return { 
+        isValid: false, 
+        text: "", 
+        cfiRange: "", 
+        range: null, 
+        error: error instanceof Error ? error.message : "Unknown selection error" 
+      };
+    }
+  }
+
+  /**
+   * Handles quick note functionality with improved iOS compatibility
+   * and enhanced error handling
+   */
+  function handleQuickNote() {
+    try {
+      // Validate basic prerequisites
+      if (!isReady) {
+        console.warn("📖 Reader is not ready yet");
+        return;
+      }
+
+      if (!boundDocId) {
+        console.warn("📝 Please bind a document first");
+        this?.showMessage?.("请先在设置中绑定文档", "warning");
+        return;
+      }
+
+      // Get selection with iOS compatibility fallback
+      const selectionInfo = getSelectionInfo();
+      
+      if (!selectionInfo.isValid) {
+        console.log("📝 Please select text first");
+        if (selectionInfo.error) {
+          console.warn("Selection error:", selectionInfo.error);
+        }
+        return;
+      }
+
+      // Update currentSelection state for consistency
+      currentSelection = {
+        text: selectionInfo.text,
+        cfiRange: selectionInfo.cfiRange,
+        range: selectionInfo.range
+      };
+
+      // Validate selection content
+      if (!selectionInfo.text || selectionInfo.text.trim().length === 0) {
+        console.warn("📝 Selected text is empty");
+        return;
+      }
+
+      // Validate CFI range
+      if (!selectionInfo.cfiRange) {
+        console.warn("📍 Could not get CFI range for selection");
+        return;
+      }
+
+      // Trigger note with default color using native event
+      const noteEvent = new CustomEvent("note", {
+        detail: { 
+          color: HIGHLIGHT_COLORS[0],
+          selection: selectionInfo // Pass selection info for debugging
+        },
+        bubbles: true,
+        cancelable: true
+      });
+
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
+        handleNote(noteEvent);
+      });
+
+    } catch (error) {
+      console.error("❌ Error in handleQuickNote:", error);
+      // Optionally show user-friendly error message
+      this?.showMessage?.("笔记功能出现错误，请重试", "error");
+    }
+  }
+
   async function handleRemove() {
     console.log("Removing annotation:", colorPickerAnnotation);
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
@@ -1126,6 +1332,7 @@
 
   onMount(() => {
     console.log("Reader mounted with src:", src);
+
     if (src) {
       if (src instanceof File) {
         openFile(src);
@@ -1166,6 +1373,22 @@
     <button class="toolbar-btn" on:click={toggleSidebar} title="切换侧栏">
       {sidebarVisible ? "◀" : "▶"}
     </button>
+
+    {#if isMobile}
+      <button
+        class="toolbar-btn"
+        on:click={handleQuickHighlight}
+        title="标注"
+        disabled={!isReady}>🖍️</button
+      >
+
+      <button
+        class="toolbar-btn"
+        on:click={handleQuickNote}
+        title="笔记"
+        disabled={!isReady}>📝</button
+      >
+    {/if}
 
     {#if viewMode === "paginated"}
       <button

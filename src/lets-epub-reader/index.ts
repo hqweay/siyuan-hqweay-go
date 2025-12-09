@@ -211,13 +211,14 @@ export default class EpubReaderPlugin implements SubPlugin {
       let fileName = parsed.epubPath
         ?.replace("assets/", "")
         ?.replace(".epub", "");
-      fileName = fileName?.length > 10 ? fileName?.slice(0, 10) + "…" : fileName;
+      fileName =
+        fileName?.length > 10 ? fileName?.slice(0, 10) + "…" : fileName;
 
       if (isMobile) {
         let dialog = new Dialog({
           // 如果大于10位，截断
           title: fileName,
-          content: `<div id="hqweay-epub-reader-container" style="height: 800px;"></div>`,
+          content: `<div id="hqweay-epub-reader-container" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();

@@ -76,9 +76,7 @@ export default class NavHelper implements SubPlugin {
   mobilekeyboardhideEvent(eventData: any): void {
     console.log("移动端键盘隐藏", eventData);
     // 恢复底部导航栏
-    if (
-      settings.getBySpace(pluginMetadata.name, "enableBottomNav") === "mobile"
-    ) {
+    if (this.showInMobile()) {
       this.showNavigation();
     }
   }
