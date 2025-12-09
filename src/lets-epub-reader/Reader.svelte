@@ -84,32 +84,25 @@
   let fileInput: HTMLInputElement;
 
   // 当 url 变化时，判断是同一本书还是新的书
-  $: if (url) {
-    console.log("Parsing URL:", url);
-    if (url) {
-      const parsed = parseLocationFromUrl(url);
+  // $: if (url) {
+  //   console.log("Parsing URL:", url);
+  //   const parsed = parseLocationFromUrl(url);
+  //   if (parsed && parsed.epubPath === epubPath) {
+  //     if (isReady) {
+  //       console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+  //       jumpTo(parsed.cfiRange);
+  //     } else {
+  //       // 书尚未 ready 的第一次加载，正常流程
+  //       initialCfi = parsed.cfiRange;
+  //     }
+  //   } else {
+  //     // 不同 epub，正常 openBook
+  //     epubPath = parsed.epubPath;
+  //     initialCfi = parsed.cfiRange;
+  //     if (src) openBook(src);
+  //   }
+  // }
 
-      console.log("parsed:", parsed);
-      console.log("epubPath:", epubPath);
-      console.log("isReady:", isReady);
-      if (parsed && parsed.epubPath === epubPath) {
-        // 同一本书 → 不 openBook，直接跳转
-        console.log("111111");
-        if (isReady) {
-          console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
-          jumpTo(parsed.cfiRange);
-        } else {
-          // 书尚未 ready 的第一次加载，正常流程
-          initialCfi = parsed.cfiRange;
-        }
-      } else {
-        // 不同 epub，正常 openBook
-        epubPath = parsed.epubPath;
-        initialCfi = parsed.cfiRange;
-        if (src) openBook(src);
-      }
-    }
-  }
   function jumpTo(cfi: string) {
     if (!rendition) return;
 
@@ -283,6 +276,7 @@
           title = "";
         });
 
+      console.log("开始加载书籍标题..");
       // Get starting position
       let saved = null;
       try {
@@ -971,7 +965,7 @@
 
       // Get selection with iOS compatibility fallback
       const selectionInfo = getSelectionInfo();
-      
+
       if (!selectionInfo.isValid) {
         console.log("📝 Please select text first");
         if (selectionInfo.error) {
@@ -984,7 +978,7 @@
       currentSelection = {
         text: selectionInfo.text,
         cfiRange: selectionInfo.cfiRange,
-        range: selectionInfo.range
+        range: selectionInfo.range,
       };
 
       // Validate selection content
@@ -1001,19 +995,18 @@
 
       // Trigger highlight with default color using native event
       const highlightEvent = new CustomEvent("highlight", {
-        detail: { 
+        detail: {
           color: HIGHLIGHT_COLORS[0],
-          selection: selectionInfo // Pass selection info for debugging
+          selection: selectionInfo, // Pass selection info for debugging
         },
         bubbles: true,
-        cancelable: true
+        cancelable: true,
       });
 
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
         handleHighlight(highlightEvent);
       });
-
     } catch (error) {
       console.error("❌ Error in handleQuickHighlight:", error);
       // Optionally show user-friendly error message
@@ -1038,21 +1031,27 @@
         isValid: true,
         text: currentSelection.text,
         cfiRange: currentSelection.cfiRange,
-        range: currentSelection.range
+        range: currentSelection.range,
       };
     }
 
     // Fallback method: Check native selection directly (for iOS compatibility)
     try {
       if (!rendition) {
-        return { isValid: false, text: "", cfiRange: "", range: null, error: "No rendition available" };
+        return {
+          isValid: false,
+          text: "",
+          cfiRange: "",
+          range: null,
+          error: "No rendition available",
+        };
       }
 
       const contents = rendition.getContents();
-      
+
       for (const content of contents) {
         const selection = content.window.getSelection();
-        
+
         if (hasValidSelection(selection)) {
           const range = selection.getRangeAt(0);
           const text = selection.toString();
@@ -1062,27 +1061,27 @@
             isValid: true,
             text,
             cfiRange,
-            range
+            range,
           };
         }
       }
 
-      return { 
-        isValid: false, 
-        text: "", 
-        cfiRange: "", 
-        range: null, 
-        error: "No valid selection found" 
+      return {
+        isValid: false,
+        text: "",
+        cfiRange: "",
+        range: null,
+        error: "No valid selection found",
       };
-
     } catch (error) {
       console.warn("Error getting native selection:", error);
-      return { 
-        isValid: false, 
-        text: "", 
-        cfiRange: "", 
-        range: null, 
-        error: error instanceof Error ? error.message : "Unknown selection error" 
+      return {
+        isValid: false,
+        text: "",
+        cfiRange: "",
+        range: null,
+        error:
+          error instanceof Error ? error.message : "Unknown selection error",
       };
     }
   }
@@ -1107,7 +1106,7 @@
 
       // Get selection with iOS compatibility fallback
       const selectionInfo = getSelectionInfo();
-      
+
       if (!selectionInfo.isValid) {
         console.log("📝 Please select text first");
         if (selectionInfo.error) {
@@ -1120,7 +1119,7 @@
       currentSelection = {
         text: selectionInfo.text,
         cfiRange: selectionInfo.cfiRange,
-        range: selectionInfo.range
+        range: selectionInfo.range,
       };
 
       // Validate selection content
@@ -1137,19 +1136,18 @@
 
       // Trigger note with default color using native event
       const noteEvent = new CustomEvent("note", {
-        detail: { 
+        detail: {
           color: HIGHLIGHT_COLORS[0],
-          selection: selectionInfo // Pass selection info for debugging
+          selection: selectionInfo, // Pass selection info for debugging
         },
         bubbles: true,
-        cancelable: true
+        cancelable: true,
       });
 
       // Use requestAnimationFrame for better performance
       requestAnimationFrame(() => {
         handleNote(noteEvent);
       });
-
     } catch (error) {
       console.error("❌ Error in handleQuickNote:", error);
       // Optionally show user-friendly error message
@@ -1330,21 +1328,63 @@
     return currentCfi;
   }
 
-  onMount(() => {
-    console.log("Reader mounted with src:", src);
-
-    if (src) {
-      if (src instanceof File) {
-        openFile(src);
-      } else if (src instanceof ArrayBuffer) {
-        openBook(src);
+  let prevUrl;
+  $: {
+    if (url && url !== prevUrl) {
+      prevUrl = url;
+      console.log("url changed", url);
+      const parsed = parseLocationFromUrl(url);
+      if (parsed && parsed.epubPath === epubPath) {
+        if (isReady) {
+          console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+          jumpTo(parsed.cfiRange);
+        } else {
+          initialCfi = parsed.cfiRange;
+        }
       } else {
-        openBook(src);
+        epubPath = parsed.epubPath;
+        initialCfi = parsed.cfiRange;
+        if (src) {
+          if (src instanceof File) {
+            openFile(src);
+          } else if (src instanceof ArrayBuffer) {
+            openBook(src);
+          } else {
+            openBook(src);
+          }
+        }
       }
     }
+  }
 
-    // console.log("Initial CFI from URL:", initialCfi);
-    // rendition.display(initialCfi);
+  onMount(() => {
+    console.log("Reader mounted with src:", src);
+    // const parsed = parseLocationFromUrl(url);
+    // if (parsed && parsed.epubPath === epubPath) {
+    //   if (isReady) {
+    //     console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+    //     jumpTo(parsed.cfiRange);
+    //   } else {
+    //     // 书尚未 ready 的第一次加载，正常流程
+    //     initialCfi = parsed.cfiRange;
+    //   }
+    // } else {
+    //   // 不同 epub，正常 openBook
+    //   epubPath = parsed.epubPath;
+    //   initialCfi = parsed.cfiRange;
+    //   if (src) {
+    //     openBook(src);
+    //   }
+    // }
+    // if (src) {
+    //   if (src instanceof File) {
+    //     openFile(src);
+    //   } else if (src instanceof ArrayBuffer) {
+    //     openBook(src);
+    //   } else {
+    //     openBook(src);
+    //   }
+    // }
 
     return () => {
       if (rendition)

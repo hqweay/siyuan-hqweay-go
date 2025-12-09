@@ -45,54 +45,6 @@ export default class EpubReaderPlugin implements SubPlugin {
   async onload() {
     const that = this;
 
-    // 注册tab
-    plugin.addTab({
-      type: "_epub_reader_tab",
-      init() {
-        let tabDiv = document.createElement("div");
-        tabDiv.setAttribute("id", "hqweay-epub-reader-container");
-
-        // 创建Reader组件，使用全局状态
-        const reader = new Reader({
-          target: tabDiv,
-          props: {
-            src: that.globalReaderState.currentFile,
-            url: that.globalReaderState.currentUrl,
-          },
-        });
-
-        that.epubReaderInstance = reader;
-        this.element.appendChild(tabDiv);
-
-        // 监听全局更新事件
-        const handleUpdate = (event: CustomEvent) => {
-          const { file, url } = event.detail;
-          reader.$set({
-            src: file,
-            url: url,
-          });
-          console.log("Reader组件已更新:", url);
-        };
-
-        window.addEventListener(
-          "epub-reader-update",
-          handleUpdate as EventListener
-        );
-
-        // 存储事件监听器引用以便清理
-        (that as any).updateListener = handleUpdate;
-      },
-      destroy() {
-        // 清理事件监听器
-        if ((that as any).updateListener) {
-          window.removeEventListener(
-            "epub-reader-update",
-            (that as any).updateListener as EventListener
-          );
-        }
-      },
-    });
-
     // 设置 EPUB 点击监听
     this.setupEpubClickHandler();
   }
@@ -195,18 +147,9 @@ export default class EpubReaderPlugin implements SubPlugin {
       const file = await this.fetchFile(parsed.epubPath);
 
       // 更新全局状态
-      this.globalReaderState.currentFile = file;
-      this.globalReaderState.currentUrl = url;
-
-      // 发送自定义事件通知tab更新内容
-      window.dispatchEvent(
-        new CustomEvent("epub-reader-update", {
-          detail: {
-            file: file,
-            url: url,
-          },
-        })
-      );
+      // this.globalReaderState.currentFile = file;
+      // this.globalReaderState.currentUrl = url;
+      // console.log(this.globalReaderState.currentUrl);
 
       let fileName = parsed.epubPath
         ?.replace("assets/", "")
@@ -233,21 +176,41 @@ export default class EpubReaderPlugin implements SubPlugin {
           },
         });
       } else {
-        // 使用固定的data结构，避免创建新tab
-        await openTab({
-          app: plugin.app,
-          custom: {
-            icon: "📖",
-            title: `${parsed.epubPath}`,
-            data: {
-              type: "epub-reader",
-              initialized: true, // 固定的标记
+        if (this.epubReaderInstance) {
+          this.epubReaderInstance.$set({
+            src: file,
+            url: url,
+          });
+        } else {
+          let that = this;
+          plugin.addTab({
+            type: "_epub_reader_tab",
+            init() {
+              let tabDiv = document.createElement("div");
+              tabDiv.setAttribute("id", "hqweay-epub-reader-container");
+              const reader = new Reader({
+                target: tabDiv,
+                props: {
+                  src: file,
+                  url: url,
+                },
+              });
+              that.epubReaderInstance = reader;
+              this.element.appendChild(tabDiv);
             },
-            id: `${plugin.name}_epub_reader_tab`,
-          },
-          position: "right",
-          removeCurrentTab: true,
-        });
+            destroy() {},
+          });
+          await openTab({
+            app: plugin.app,
+            custom: {
+              icon: "📖",
+              title: `${parsed.epubPath}`,
+              data: {},
+              id: `${plugin.name}_epub_reader_tab`,
+            },
+            position: "right",
+          });
+        }
       }
     } else {
       console.log("无法获取文件对象");

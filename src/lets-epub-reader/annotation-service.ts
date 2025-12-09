@@ -404,3 +404,79 @@ async function updateBlockContent(
     throw e;
   }
 }
+
+/**
+ * Save reading progress to document attributes
+ */
+export async function saveReadingProgress(
+  docId: string,
+  epubPath: string,
+  cfi: string,
+  progress: number,
+  title?: string
+): Promise<boolean> {
+  try {
+    const progressData = {
+      cfi,
+      progress,
+      title: title || "",
+      timestamp: Date.now(),
+      epubPath,
+    };
+
+    await setBlockAttrs(docId, {
+      "custom-epub-reading-progress": JSON.stringify(progressData),
+    });
+    
+    console.log("📚 [阅读进度] 已保存到文档属性:", progressData);
+    return true;
+  } catch (e) {
+    console.error("Failed to save reading progress:", e);
+    return false;
+  }
+}
+
+/**
+ * Get reading progress from document attributes
+ */
+export async function getReadingProgress(
+  docId: string
+): Promise<{
+  cfi: string;
+  progress: number;
+  title: string;
+  timestamp: number;
+  epubPath: string;
+} | null> {
+  try {
+    const attrs = await getBlockAttrs(docId);
+    const progressData = attrs?.["custom-epub-reading-progress"];
+    
+    if (progressData) {
+      const parsed = JSON.parse(progressData);
+      console.log("📚 [阅读进度] 从文档属性读取:", parsed);
+      return parsed;
+    }
+    
+    return null;
+  } catch (e) {
+    console.error("Failed to get reading progress:", e);
+    return null;
+  }
+}
+
+/**
+ * Clear reading progress from document attributes
+ */
+export async function clearReadingProgress(docId: string): Promise<boolean> {
+  try {
+    await setBlockAttrs(docId, {
+      "custom-epub-reading-progress": "",
+    });
+    console.log("📚 [阅读进度] 已清除");
+    return true;
+  } catch (e) {
+    console.error("Failed to clear reading progress:", e);
+    return false;
+  }
+}
