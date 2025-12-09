@@ -4,14 +4,14 @@ export default {
   description: "支持 EPUB 文件的阅读功能",
   version: "1.0.0",
   author: "hqweay",
-
   settings: [
     {
-      type: "checkbox",
-      title: "启用 EPUB 阅读器",
-      description: "启用 EPUB 文件阅读功能",
-      key: "enabled",
-      value: false,
+      type: "textarea",
+      title: "自定义链接",
+      description: "支持占位符 ${link} ${text}",
+      key: "annotionFormat",
+      value: "- [◎](${link}) ${text}",
+      plcaholder: "",
     },
   ],
 };

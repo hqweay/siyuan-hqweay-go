@@ -374,7 +374,7 @@
           const createClickHandler = (annotation: Annotation) => {
             return (e: any) => handleHighlightClick(annotation, e);
           };
-          
+
           const result = annotationManager.applyCurrentChapterHighlights(
             annotations,
             createClickHandler
@@ -472,9 +472,9 @@
     try {
       console.log("Loading annotations for docId:", boundDocId);
 
-      // Query all blocks containing ◎ symbol
+      // Query all blocks containing 标注
       const blocks = await sql(
-        `SELECT id, markdown FROM blocks WHERE root_id='${boundDocId}' AND type = 'p' AND markdown LIKE '%◎%'`
+        `SELECT id, markdown FROM blocks WHERE root_id='${boundDocId}' AND type = 'p' AND markdown LIKE '%epub#epubcfi(%'`
       );
 
       console.log("Found blocks with annotations:", blocks?.length || 0);
@@ -817,10 +817,12 @@
     }
 
     const { color } = event.detail;
-    
+
     // Extract chapter ID from CFI for efficient rendering
-    const chapterId = book ? extractChapterIdFromCfi(book, currentSelection.cfiRange) : null;
-    
+    const chapterId = book
+      ? extractChapterIdFromCfi(book, currentSelection.cfiRange)
+      : null;
+
     const annotation: Annotation = {
       id: generateAnnotationId(),
       type: "highlight",
@@ -871,10 +873,12 @@
     }
 
     const { color } = event.detail;
-    
+
     // Extract chapter ID from CFI for efficient rendering
-    const chapterId = book ? extractChapterIdFromCfi(book, currentSelection.cfiRange) : null;
-    
+    const chapterId = book
+      ? extractChapterIdFromCfi(book, currentSelection.cfiRange)
+      : null;
+
     const annotation: Annotation = {
       id: generateAnnotationId(),
       type: "note",
@@ -980,13 +984,15 @@
       console.log("Markdown:", markdown);
 
       // Extract link from the markdown
-      const linkMatch = markdown.match(/\[◎\]\(((?:[^()]|\([^()]*\))*)\)/);
+      const linkMatch = markdown.match(
+        /(.*)\[(.*)\]\(((?:[^()]|\([^()]*\))*)\)(.*)/
+      );
       if (!linkMatch) {
         console.warn("❌ No link found in markdown");
         return null;
       }
 
-      const link = linkMatch[1];
+      const link = linkMatch[3];
       console.log("✅ Extracted link:", link);
 
       // Parse location string to get CFI, blockId and bgColor
@@ -1013,7 +1019,11 @@
       }
 
       // Extract text - everything before the link, plain text
-      const text = markdown.split("[◎]")[0].replace(/^-\s*/, "").trim();
+      // const text = markdown.split("[◎]")[0].replace(/^-\s*/, "").trim();
+      const text = linkMatch[1]
+        ?.replace(/^-\s*/, "")
+        .trim()
+        .concat(linkMatch[4]?.replace(/^-\s*/, "").trim());
       console.log("✅ Extracted text:", text);
 
       // Get color from bgColor or default
@@ -1025,7 +1035,7 @@
           }
         : HIGHLIGHT_COLORS[0];
       console.log("✅ Matched color:", color);
-      
+
       // Extract chapter ID from CFI for efficient rendering
       const chapterId = extractChapterIdFromCfi(book, cfiRange);
       console.log("✅ Extracted chapter ID:", chapterId);

@@ -8,6 +8,7 @@ import {
 } from "@/api";
 import type { Annotation, HighlightColor, BookBinding } from "./types";
 import { HIGHLIGHT_COLORS } from "./types";
+import { settings } from "@/settings";
 
 const EPUB_BINDING_ATTR = "custom-bind-epub";
 
@@ -54,9 +55,7 @@ export function buildLocationString(
 /**
  * Parse location string to extract epub path, CFI, blockId and bgColor
  */
-export function parseLocationString(
-  locationStr: string
-): {
+export function parseLocationString(locationStr: string): {
   epubPath: string;
   cfiRange: string;
   blockId?: string;
@@ -95,7 +94,15 @@ export function formatAnnotationMarkdown(
   );
 
   // Format: text [◎](location) - plain text with color info in link
-  let markdown = `${escapeMarkdown(annotation.text)} [◎](${locationStr})`;
+  const annotionFormat = settings.getBySpace("epubReader", "annotionFormat");
+
+  let markdown = `- [◎](${locationStr}) ${escapeMarkdown(annotation.text)}`;
+
+  if (annotionFormat) {
+    markdown = annotionFormat
+      .replace("${link}", locationStr)
+      .replace("${text}", escapeMarkdown(annotation.text));
+  }
 
   if (annotation.note) {
     markdown += `\n  - 📝 ${escapeMarkdown(annotation.note)}`;
@@ -207,95 +214,95 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
 /**
  * Query all annotations for an epub from bound document
  */
-export async function queryAnnotations(
-  epubPath: string,
-  docId: string
-): Promise<Annotation[]> {
-  try {
-    // Query blocks that contain the epub path in their content
-    const result = await sql(
-      `SELECT * FROM blocks WHERE root_id = '${docId}' AND content LIKE '%${epubPath}%' AND type = 'i'`
-    );
+// export async function queryAnnotations(
+//   epubPath: string,
+//   docId: string
+// ): Promise<Annotation[]> {
+//   try {
+//     // Query blocks that contain the epub path in their content
+//     const result = await sql(
+//       `SELECT * FROM blocks WHERE root_id = '${docId}' AND content LIKE '%${epubPath}%' AND type = 'i'`
+//     );
 
-    // Parse annotations from blocks
-    const annotations: Annotation[] = [];
-    for (const block of result || []) {
-      const annotation = parseAnnotationFromBlock(block, epubPath);
-      if (annotation) {
-        annotations.push(annotation);
-      }
-    }
+//     // Parse annotations from blocks
+//     const annotations: Annotation[] = [];
+//     for (const block of result || []) {
+//       const annotation = parseAnnotationFromBlock(block, epubPath);
+//       if (annotation) {
+//         annotations.push(annotation);
+//       }
+//     }
 
-    return annotations;
-  } catch (e) {
-    console.error("Failed to query annotations:", e);
-    return [];
-  }
-}
+//     return annotations;
+//   } catch (e) {
+//     console.error("Failed to query annotations:", e);
+//     return [];
+//   }
+// }
 
 /**
  * Parse annotation from a Siyuan block
  */
-function parseAnnotationFromBlock(
-  block: any,
-  epubPath: string
-): Annotation | null {
-  try {
-    const content = block.content || "";
-    console.log("Parsing annotation content:", content);
+// function parseAnnotationFromBlock(
+//   block: any,
+//   epubPath: string
+// ): Annotation | null {
+//   try {
+//     const content = block.content || "";
+//     console.log("Parsing annotation content:", content);
 
-    // Extract link from the content
-    const linkMatch = content.match(/\[◎\]\(([^)]+)\)/);
-    if (!linkMatch) {
-      console.warn("No link found in content:", content);
-      return null;
-    }
+//     // Extract link from the content
+//     const linkMatch = content.match(/\[◎\]\(([^)]+)\)/);
+//     if (!linkMatch) {
+//       console.warn("No link found in content:", content);
+//       return null;
+//     }
 
-    const link = linkMatch[1];
-    console.log("Extracted link:", link);
+//     const link = linkMatch[1];
+//     console.log("Extracted link:", link);
 
-    // Parse location string to get CFI, blockId and bgColor
-    const parsedLocation = parseLocationString(link);
-    if (!parsedLocation) {
-      console.warn("Failed to parse location string:", link);
-      return null;
-    }
+//     // Parse location string to get CFI, blockId and bgColor
+//     const parsedLocation = parseLocationString(link);
+//     if (!parsedLocation) {
+//       console.warn("Failed to parse location string:", link);
+//       return null;
+//     }
 
-    const { cfiRange, blockId, bgColor } = parsedLocation;
-    console.log(
-      "Extracted CFI:",
-      cfiRange,
-      "blockId:",
-      blockId,
-      "bgColor:",
-      bgColor
-    );
+//     const { cfiRange, blockId, bgColor } = parsedLocation;
+//     console.log(
+//       "Extracted CFI:",
+//       cfiRange,
+//       "blockId:",
+//       blockId,
+//       "bgColor:",
+//       bgColor
+//     );
 
-    // Extract text - everything before the link
-    const text = content.split("[◎]")[0].replace(/^-\s*/, "").trim();
-    console.log("Extracted text:", text);
+//     // Extract text - everything before the link
+//     const text = content.split("[◎]")[0].replace(/^-\s*/, "").trim();
+//     console.log("Extracted text:", text);
 
-    // Get color from bgColor or default
-    const color = bgColor ? getColorByBgColor(bgColor) : HIGHLIGHT_COLORS[0];
-    console.log("Matched color:", color);
+//     // Get color from bgColor or default
+//     const color = bgColor ? getColorByBgColor(bgColor) : HIGHLIGHT_COLORS[0];
+//     console.log("Matched color:", color);
 
-    return {
-      id: blockId || block.id,
-      type: "highlight",
-      text,
-      cfiRange,
-      epubCfi: cfiRange,
-      color,
-      blockId: block.id,
-      // chapterId will be set later in Reader.svelte where book instance is available
-      createdAt: new Date(block.created).getTime(),
-      updatedAt: new Date(block.updated).getTime(),
-    };
-  } catch (e) {
-    console.error("Failed to parse annotation from block:", e);
-    return null;
-  }
-}
+//     return {
+//       id: blockId || block.id,
+//       type: "highlight",
+//       text,
+//       cfiRange,
+//       epubCfi: cfiRange,
+//       color,
+//       blockId: block.id,
+//       // chapterId will be set later in Reader.svelte where book instance is available
+//       createdAt: new Date(block.created).getTime(),
+//       updatedAt: new Date(block.updated).getTime(),
+//     };
+//   } catch (e) {
+//     console.error("Failed to parse annotation from block:", e);
+//     return null;
+//   }
+// }
 
 function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -371,21 +378,24 @@ function updateMarkdownColor(
 ): string {
   console.log("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
   const annotationRegex =
-    /\[◎\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*)\)/;
+    /\[(.*?)\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*?)\)/;
 
   const color = encodeURIComponent(newColor.bgColor);
 
   return markdown.replace(annotationRegex, (match, p1, p2, p3, p4) => {
     // Decode p1 and replace %20 with spaces
-    const decodedP1 = decodeURIComponent(p1);
-    return `[◎](${decodedP1}#${p2}#${p3}#${color})`;
+    const decodedP1 = decodeURIComponent(p2);
+    return `[${p1}](${decodedP1}#${p3}#${p4}#${color})`;
   });
 }
 
 /**
  * Update block content using API
  */
-async function updateBlockContent(blockId: string, markdown: string): Promise<void> {
+async function updateBlockContent(
+  blockId: string,
+  markdown: string
+): Promise<void> {
   try {
     // Use API to update block content
     await updateBlock("markdown", markdown, blockId);
