@@ -9,8 +9,10 @@
     copyToClipboard,
     generateAnnotationId,
     getBoundDocId,
+    getReadingProgress,
     insertAnnotation,
     removeAnnotation,
+    saveReadingProgress,
     updateAnnotationColor,
   } from "./annotation-service";
   import SelectionToolbar from "./SelectionToolbar.svelte";
@@ -277,12 +279,21 @@
         });
 
       console.log("开始加载书籍标题..");
+      // Load bound document
+      await loadBoundDoc();
       // Get starting position
       let saved = null;
-      try {
-        saved = localStorage.getItem(storedKey);
-      } catch (e) {
-        console.warn("读取保存位置失败:", e);
+      if (boundDocId) {
+        try {
+          const progressData = await getReadingProgress(boundDocId);
+          console.log("📚 [阅读进度] 从数据库读取位置:", progressData);
+          if (progressData && progressData.epubPath === epubPath) {
+            saved = progressData.cfi;
+            console.log("📚 [阅读进度] 从文档属性读取位置:", saved);
+          }
+        } catch (e) {
+          console.warn("读取保存位置失败:", e);
+        }
       }
       const start = initialCfi || saved || undefined;
 
@@ -302,9 +313,6 @@
 
       // Initialize annotation manager
       annotationManager = new AnnotationManager(rendition);
-
-      // Load bound document
-      await loadBoundDoc();
 
       console.log("书籍显示完成，开始加载标注...");
       await loadAnnotations();
@@ -341,10 +349,18 @@
       currentCfi = location.start.cfi;
       const at = location.start.percentage || 0;
       progress = Math.round(at * 100);
-      try {
-        localStorage.setItem(storedKey, currentCfi!);
-      } catch (e) {
-        console.warn("保存阅读位置失败:", e);
+      if (boundDocId) {
+        try {
+          saveReadingProgress(
+            boundDocId,
+            epubPath,
+            currentCfi!,
+            progress,
+            title
+          );
+        } catch (e) {
+          console.warn("保存阅读位置失败:", e);
+        }
       }
       dispatch("relocated", { cfi: currentCfi, progress });
     });

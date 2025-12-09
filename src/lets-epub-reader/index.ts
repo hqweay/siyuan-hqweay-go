@@ -198,7 +198,10 @@ export default class EpubReaderPlugin implements SubPlugin {
               that.epubReaderInstance = reader;
               this.element.appendChild(tabDiv);
             },
-            destroy() {},
+            destroy() {
+              that.epubReaderInstance.$destroy();
+              that.epubReaderInstance = null;
+            },
           });
           await openTab({
             app: plugin.app,
