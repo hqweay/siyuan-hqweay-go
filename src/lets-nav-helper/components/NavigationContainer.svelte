@@ -3,6 +3,7 @@
   import { isMobile } from "../utils";
   import NavButton from "./NavButton.svelte";
   import Submenu from "./Submenu.svelte";
+  import ToggleButton from "./ToggleButton.svelte";
   import { navigation } from "../navigation";
   import { settings } from "@/settings";
   import pluginMetadata from "../plugin";
@@ -20,11 +21,13 @@
   export let deviceType: "mobile" | "desktop" = "mobile";
   export let isVisible: boolean = true;
 
-  let navigationElement: HTMLElement;
   let submenuVisible = false;
   let submenuType: "navigation" | "customLinks" | null = null;
   let submenuItems: any[] = [];
   let submenuTriggerButton: HTMLElement | null = null;
+  
+  // Collapse/expand state management - only enable on desktop
+  let isCollapsed = deviceType === "mobile" ? false : false;
 
   // 导航按钮配置
   const buttonConfigs = [
@@ -220,6 +223,13 @@
     submenuTriggerButton = null;
   }
 
+  // Toggle collapse/expand state
+  function toggleCollapse() {
+    if (deviceType === "desktop") {
+      isCollapsed = !isCollapsed;
+    }
+  }
+
   // 过滤显示的按钮
   $: visibleButtons = buttonConfigs.filter((btn) => {
     if (isMobile && btn.show === "mobile") return true;
@@ -252,8 +262,8 @@
 
 {#if isVisible}
   <div
-    bind:this={navigationElement}
     class="navigation-container {deviceType}"
+    class:collapsed={isCollapsed}
     style="
       position: {deviceType === 'mobile' ? 'fixed' : 'fixed'};
       {deviceType === 'mobile'
@@ -262,6 +272,14 @@
         left: 0;
         right: 0;
         height: ${getConfig().height};
+        width: 100%;
+      `
+      : isCollapsed
+      ? `
+        bottom: 30px;
+        right: 20px;
+     /*   width: 60px;*/
+        height: 50px;
       `
       : `
         bottom: 30px;
@@ -273,8 +291,8 @@
       z-index: {getConfig().notJustInMain ? 0 : 9999};
       display: flex;
       align-items: center;
-      justify-content: space-around;
-      {deviceType === 'mobile' ? 'padding: 0 10px;' : 'padding: 4px 3px;'}
+      justify-content: {isCollapsed ? 'center' : 'space-around'};
+      {deviceType === 'mobile' ? 'padding: 0 10px;' : '/*padding: 4px 3px;*/'}
       {deviceType === 'mobile'
       ? 'box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);'
       : `
@@ -282,15 +300,32 @@
         border-radius: 6px;
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(233, 236, 239, 0.8);
+       /* border: 1px solid rgba(233, 236, 239, 0.8);*/
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       `}
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
     "
   >
-    {#each visibleButtons as button (button.key)}
-      <NavButton {button} {deviceType} config={getConfig()} />
-    {/each}
+    {#if deviceType === 'desktop' && !isCollapsed}
+      {#each visibleButtons as button (button.key)}
+        <NavButton {button} {deviceType} config={getConfig()} />
+      {/each}
+    {/if}
+    
+    {#if deviceType === 'mobile'}
+      {#each visibleButtons as button (button.key)}
+        <NavButton {button} {deviceType} config={getConfig()} />
+      {/each}
+    {/if}
+    
+    <!-- Toggle button for desktop -->
+    {#if deviceType === 'desktop'}
+      <ToggleButton 
+        {isCollapsed} 
+        {deviceType} 
+        on:toggle={toggleCollapse} 
+      />
+    {/if}
   </div>
 
   {#if submenuVisible}
@@ -324,7 +359,12 @@
     touch-action: manipulation;
   }
 
-  .navigation-container.desktop:hover {
+  .navigation-container.desktop:hover:not(.collapsed) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .navigation-container.desktop.collapsed:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   }
@@ -334,5 +374,19 @@
     .navigation-container.mobile {
       transform: translateY(100%);
     }
+  }
+
+  /* Smooth transition for collapse/expand */
+  .navigation-container.desktop {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhanced animations for better UX */
+  .navigation-container.desktop {
+    will-change: transform, width, right, box-shadow;
+  }
+
+  .navigation-container.desktop.collapsed {
+    will-change: transform, width, right, box-shadow;
   }
 </style>
