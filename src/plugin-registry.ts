@@ -1,38 +1,5 @@
 import { settings } from "./settings";
-import { SubPlugin, PluginMetadata } from "./types/plugin";
-
-// Static imports for plugin configurations
-import epubReaderConfig from "./lets-epub-reader/plugin";
-import diaryToolsConfig from "./lets-how-to-write-diary/plugin";
-import ocrConfig from "./lets-ocr/plugin";
-
-// Dynamic imports for plugin classes
-import EpubReaderPlugin from "./lets-epub-reader";
-import DiaryTools from "./lets-how-to-write-diary";
-import OCRPlugin from "./lets-ocr";
-import randomHeaderImage from "./lets-random-header-image";
-
-// 自动导出所有子插件
-// const modules = import.meta.glob("./lets*/index.ts", { eager: true }) as Record<
-//   string,
-//   { default: SubPlugin }
-// >;
-
-// export const subPlugins = Object.entries(modules).reduce(
-//   (acc, [path, module]) => {
-//     const pluginName = path.split("/")[1]; // 获取文件夹名
-//     acc[pluginName] = module.default;
-//     return acc;
-//   },
-//   {} as Record<string, SubPlugin>
-// );
-
-// const configs = [
-//   "random-header-image",
-//   "epub-reader",
-//   "how-to-write-diary",
-//   "ocr",
-// ];
+import { PluginMetadata, SubPlugin } from "./types/plugin";
 
 export class PluginRegistry {
   private static instance: PluginRegistry;
@@ -120,7 +87,9 @@ export class PluginRegistry {
       pluginInstance.description = config.description;
       pluginInstance.version = config.version;
       pluginInstance.enabled =
-        settings.getBySpace(pluginInstance.name, "enabled") || false;
+        settings.getBySpace(pluginInstance.name, "enabled") ||
+        config.enabled ||
+        false;
       // enabled will be read from settings when needed
 
       // Register plugin

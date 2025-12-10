@@ -1,6 +1,6 @@
 export default {
   name: "typography",
-  displayName: "中文排版优化",
+  displayName: "【实验】中文排版优化",
   description:
     "右上角增加机器人图标/块菜单增加格式化文档的功能；注意有损坏数据风险。",
   version: "1.0.0",

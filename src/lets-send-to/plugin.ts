@@ -3,7 +3,7 @@ import { PluginMetadata } from "@/types/plugin";
 export const pluginMetadata: PluginMetadata = {
   name: "sendTo",
   displayName: "发送到",
-  description: "将内容发送到指定的位置或应用",
+  description: "将内容发送到指定的位置、应用或链接",
   version: "1.0.0",
   settings: [
     {

@@ -1,7 +1,7 @@
 export default {
   name: "epubReader",
-  displayName: "EPUB 阅读器",
-  description: "支持 EPUB 文件的阅读功能",
+  displayName: "【实验】EPUB 阅读器",
+  description: "支持 EPUB 文件的阅读，支持手机端，支持反链做笔记",
   version: "1.0.0",
   author: "hqweay",
   settings: [

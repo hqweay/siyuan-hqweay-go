@@ -45,7 +45,10 @@
         title: pluginMeta.displayName || pluginMeta.name,
         description: pluginMeta.description || "",
         key: pluginMeta.name,
-        value: settings.getBySpace(pluginMeta.name, "enabled") || false,
+        value:
+          settings.getBySpace(pluginMeta.name, "enabled") ||
+          pluginMeta.enabled ||
+          false,
         hasSetting: pluginMeta.settings ? true : false,
       });
 

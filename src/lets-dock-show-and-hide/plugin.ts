@@ -3,7 +3,7 @@ import { PluginMetadata } from "@/types/plugin";
 export const pluginMetadata: PluginMetadata = {
   name: "dockShowAndHide",
   displayName: "边栏自动打开、关闭",
-  description: "自动控制边栏的显示和隐藏",
+  description: "当打开文档时，自动控制边栏的显示和隐藏",
   version: "1.0.0",
   settings: [
     {

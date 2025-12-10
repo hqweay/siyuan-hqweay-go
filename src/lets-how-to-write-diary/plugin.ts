@@ -3,7 +3,8 @@ import { PluginMetadata } from "@/types/plugin";
 export const pluginMetadata: PluginMetadata = {
   name: "diaryTools",
   displayName: "日记相关工具",
-  description: "提供日记相关的工具，包括仪表盘、天气信息插入等功能",
+  description:
+    "提供日记相关的工具，包括快捷小窗录入日记、slash 新增快捷创建指定日期日记、天气信息插入等功能",
   version: "1.0.0",
   author: "hqweay",
   settings: [

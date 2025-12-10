@@ -1,7 +1,7 @@
 export default {
   name: "ocr",
   displayName: "OCR 图片识别",
-  description: "批量 OCR 识别图片中的文字",
+  description: "Mac 支持使用本地 OCR 功能，提供 OCR 文本的预处理等",
   version: "1.0.0",
   author: "hqweay",
   settings: [

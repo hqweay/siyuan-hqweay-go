@@ -2,7 +2,7 @@ import { PluginMetadata } from "@/types/plugin";
 
 const pluginMetadata: PluginMetadata = {
   name: "nav-helper",
-  displayName: "导航助手",
+  displayName: "【实验】导航助手",
   description:
     "支持 PC、移动端。快捷前进、后退、今日日记、父文档、保存至数据库……",
   version: "1.0.0",
