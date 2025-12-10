@@ -24,6 +24,7 @@
   let submenuVisible = false;
   let submenuType: "navigation" | "customLinks" | null = null;
   let submenuItems: any[] = [];
+  let submenuTriggerButton: HTMLElement | null = null;
 
   // 导航按钮配置
   const buttonConfigs = [
@@ -49,7 +50,7 @@
         pluginMetadata.name,
         "showNavigationMenuButton"
       ),
-      action: () => showNavigationSubmenu(),
+      action: (event) => showNavigationSubmenu(event),
       hasSubmenu: true,
     },
     {
@@ -71,7 +72,7 @@
       icon: "🔗",
       label: "链接",
       show: settings.getBySpace(pluginMetadata.name, "showCustomLinksButton"),
-      action: () => showCustomLinksSubmenu(),
+      action: (event) => showCustomLinksSubmenu(event),
       hasSubmenu: true,
     },
   ];
@@ -119,8 +120,9 @@
   }
 
   // 显示导航子菜单
-  function showNavigationSubmenu() {
+  function showNavigationSubmenu(event: MouseEvent) {
     submenuType = "navigation";
+    submenuTriggerButton = event.currentTarget as HTMLElement;
     submenuItems = [
       {
         icon: "⬆️",
@@ -167,7 +169,8 @@
   }
 
   // 显示自定义链接子菜单
-  function showCustomLinksSubmenu() {
+  function showCustomLinksSubmenu(event: MouseEvent) {
+    submenuTriggerButton = event.currentTarget as HTMLElement;
     const linksConfig =
       settings.getBySpace(pluginMetadata.name, "customLinks") || "";
     const links = linksConfig.split("\n").filter((line: string) => line.trim());
@@ -214,6 +217,7 @@
     submenuVisible = false;
     submenuType = null;
     submenuItems = [];
+    submenuTriggerButton = null;
   }
 
   // 过滤显示的按钮
@@ -294,6 +298,7 @@
       type={submenuType}
       items={submenuItems}
       {deviceType}
+      triggerButton={submenuTriggerButton}
       on:close={hideSubmenu}
     />
   {/if}

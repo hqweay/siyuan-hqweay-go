@@ -3,7 +3,7 @@
     key: string;
     icon: string;
     label: string;
-    action: () => void;
+    action: (event?: MouseEvent) => void;
     hasSubmenu?: boolean;
   };
   export let deviceType: 'mobile' | 'desktop';
@@ -14,9 +14,9 @@
 
   let isPressed = false;
 
-  function handleClick() {
+  function handleClick(event: MouseEvent) {
     if (button.hasSubmenu) {
-      button.action();
+      button.action(event);
     } else {
       button.action();
     }
