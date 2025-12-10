@@ -50,41 +50,8 @@ class MobileUtils {
    * 设置移动端样式
    */
   private setupMobileStyles(): void {
-    // 添加移动端特定样式
-    if (!document.getElementById("mobile-helper-styles")) {
-      const style = document.createElement("style");
-      style.id = "mobile-helper-styles";
-      style.textContent = `
-        /* 移动端助手样式 */
-        .mobile-helper-nav {
-          user-select: none;
-          -webkit-user-select: none;
-          -webkit-touch-callout: none;
-        }
-        
-        .mobile-helper-nav button {
-          -webkit-tap-highlight-color: transparent;
-          outline: none;
-        }
-        
-        .mobile-helper-nav button:active {
-          transform: scale(0.95);
-        }
-        
-        /* 防止双击缩放 */
-        .mobile-helper-nav {
-          touch-action: manipulation;
-        }
-        
-        /* 键盘弹出时的样式调整 */
-        @media (max-height: 500px) {
-          .mobile-helper-nav {
-            transform: translateY(100%);
-          }
-        }
-      `;
-      document.head.appendChild(style);
-    }
+    // 样式已移至Svelte组件中处理
+    // 这里保持空实现以保持接口兼容性
   }
 
   /**
@@ -123,15 +90,8 @@ class MobileUtils {
    * 处理设备方向变化
    */
   private handleOrientationChange(): void {
-    // 延迟执行以确保布局已完成
-    setTimeout(() => {
-      const navigation = document.getElementById("mobile-helper-navigation");
-      if (navigation) {
-        // 调整导航栏位置
-        const isLandscape = window.innerWidth > window.innerHeight;
-        navigation.style.height = isLandscape ? "50px" : "60px";
-      }
-    }, 300);
+    // 设备方向变化处理已移至Svelte组件中
+    // 这里保持空实现以保持接口兼容性
   }
 
   /**
