@@ -171,8 +171,8 @@ export default class EpubReaderPlugin implements SubPlugin {
         let pannel = new Reader({
           target: dialog.element.querySelector("#hqweay-epub-reader-container"),
           props: {
-            src: this.globalReaderState.currentFile,
-            url: this.globalReaderState.currentUrl,
+            src: file,
+            url: url,
           },
         });
       } else {
