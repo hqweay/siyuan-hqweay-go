@@ -28,6 +28,13 @@ const pluginMetadata: PluginMetadata = {
       value: true,
     },
     {
+      type: "checkbox",
+      title: "点击后隐藏子菜单",
+      description: "比方说点击「导航」里的「跳转到父文档」后是否隐藏子菜单",
+      key: "hideSubmenu",
+      value: false,
+    },
+    {
       type: "select",
       title: "显示返回按钮",
       description: "在导航栏中显示返回按钮",

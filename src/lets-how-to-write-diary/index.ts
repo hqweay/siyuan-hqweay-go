@@ -39,9 +39,12 @@ export default class DiaryTools implements SubPlugin {
           datePickerDialog({
             title: "选择日记",
             confirm: async (choosedDate) => {
-              const config = settings.get("createDailyNoteConfig");
+              const noteBookID = settings.getBySpace(
+                "diaryTools",
+                "noteBookID"
+              );
               const dailyNoteId = await createDailynote(
-                config.noteBookID,
+                noteBookID,
                 new Date(choosedDate)
               );
               event.insert(`((${dailyNoteId} "${choosedDate}"))`, false, false);

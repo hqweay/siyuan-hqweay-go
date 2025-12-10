@@ -25,7 +25,7 @@
   let submenuType: "navigation" | "customLinks" | null = null;
   let submenuItems: any[] = [];
   let submenuTriggerButton: HTMLElement | null = null;
-  
+
   // Collapse/expand state management - only enable on desktop
   let isCollapsed = deviceType === "mobile" ? false : false;
 
@@ -217,6 +217,9 @@
 
   // 隐藏子菜单
   function hideSubmenu() {
+    if (!settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+      return;
+    }
     submenuVisible = false;
     submenuType = null;
     submenuItems = [];
@@ -275,13 +278,13 @@
         width: 100%;
       `
       : isCollapsed
-      ? `
+        ? `
         bottom: 30px;
         right: 20px;
      /*   width: 60px;*/
         height: 50px;
       `
-      : `
+        : `
         bottom: 30px;
         right: calc(50% - 200px);
         width: 280px;
@@ -306,25 +309,21 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
     "
   >
-    {#if deviceType === 'desktop' && !isCollapsed}
+    {#if deviceType === "desktop" && !isCollapsed}
       {#each visibleButtons as button (button.key)}
         <NavButton {button} {deviceType} config={getConfig()} />
       {/each}
     {/if}
-    
-    {#if deviceType === 'mobile'}
+
+    {#if deviceType === "mobile"}
       {#each visibleButtons as button (button.key)}
         <NavButton {button} {deviceType} config={getConfig()} />
       {/each}
     {/if}
-    
+
     <!-- Toggle button for desktop -->
-    {#if deviceType === 'desktop'}
-      <ToggleButton 
-        {isCollapsed} 
-        {deviceType} 
-        on:toggle={toggleCollapse} 
-      />
+    {#if deviceType === "desktop"}
+      <ToggleButton {isCollapsed} {deviceType} on:toggle={toggleCollapse} />
     {/if}
   </div>
 
