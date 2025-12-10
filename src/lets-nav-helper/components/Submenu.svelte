@@ -36,36 +36,36 @@
   $: position = getPosition();
 
   function getPosition() {
-    if (deviceType === "mobile") {
+    // if (deviceType === "mobile") {
+    //   return {
+    //     position: "fixed",
+    //     bottom: "70px",
+    //     left: type === "customLinks" ? "60%" : "50%",
+    //     transform: "translateX(-50%)",
+    //   };
+    // } else {
+    // 桌面端：根据触发按钮位置动态计算位置，显示在按钮上方
+    if (triggerButton) {
+      const buttonRect = triggerButton.getBoundingClientRect();
+      const submenuWidth = 180; // 子菜单预估宽度
+
       return {
         position: "fixed",
-        bottom: "70px",
-        left: type === "customLinks" ? "60%" : "50%",
-        transform: "translateX(-50%)",
+        // top: `${buttonRect.top - 300}px`, // 在按钮上方70px，避免与导航栏重合
+        bottom: `${window.innerHeight - buttonRect.top + 10}px`,
+        left: `${buttonRect.left + (buttonRect.width - submenuWidth) / 2}px`, // 居中对齐
+        transform: "translateX(0)",
       };
     } else {
-      // 桌面端：根据触发按钮位置动态计算位置，显示在按钮上方
-      if (triggerButton) {
-        const buttonRect = triggerButton.getBoundingClientRect();
-        const submenuWidth = 180; // 子菜单预估宽度
-
-        return {
-          position: "fixed",
-          // top: `${buttonRect.top - 300}px`, // 在按钮上方70px，避免与导航栏重合
-          bottom: `${window.innerHeight - buttonRect.top + 10}px`,
-          left: `${buttonRect.left + (buttonRect.width - submenuWidth) / 2}px`, // 居中对齐
-          transform: "translateX(0)",
-        };
-      } else {
-        // 回退到固定居中位置，显示在上方
-        return {
-          position: "fixed",
-          bottom: "80px",
-          left: "50%",
-          transform: "translateX(-50%)",
-        };
-      }
+      // 回退到固定居中位置，显示在上方
+      return {
+        position: "fixed",
+        bottom: "80px",
+        left: "50%",
+        transform: "translateX(-50%)",
+      };
     }
+    // }
   }
 </script>
 
