@@ -103,7 +103,7 @@ class DockyPlugin implements SubPlugin {
   }
 
   private addToDock(dock: any) {
-    console.log("addToDock", dock);
+    // console.log("addToDock", dock);
     // document
     //   .querySelector(`[data-type="siyuan-hqweay-go_docky_${dock.id}"]`)
     //   ?.remove();
@@ -121,8 +121,8 @@ class DockyPlugin implements SubPlugin {
       },
       data: {},
       init: (dockEle) => {
-        console.log("init", dockEle);
-        console.log("init", dock);
+        // console.log("init", dockEle);
+        // console.log("init", dock);
         // initDockPanel will be called with the correct element
 
         this.initDockPanel(dock, (dockEle as any).element);

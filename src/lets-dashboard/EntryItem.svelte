@@ -3,8 +3,9 @@
   import { Protyle } from "siyuan";
   import { onMount } from "svelte";
   export let blockId;
-  export let isExpanded = false;
+  export let isExpanded = true;
   export let fixedHeight = true;
+  export let showTitle = true;
 
   let container;
 
@@ -15,7 +16,7 @@
           blockId: blockId,
           action: ["cb-get-focus"],
           render: {
-            title: false,
+            title: true,
             titleShowTop: false,
             hideTitleOnZoom: false,
             gutter: true,
@@ -63,10 +64,14 @@
     bind:this={container}
     class:expanded={isExpanded}
     class:fixed-height={fixedHeight}
+    class:not-show-title={!showTitle}
   />
 </div>
 
-<style>
+<style lang="scss">
+  :global(.not-show-title .protyle-title) {
+    display: none;
+  }
   .entry-header {
     display: flex;
     align-items: center;

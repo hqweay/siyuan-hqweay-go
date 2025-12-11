@@ -3,9 +3,14 @@
   import { onMount } from "svelte";
   import EntryItem from "./EntryItem.svelte";
   import StatCard from "./StatCard.svelte";
+  import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
+  import { showMessage } from "siyuan";
 
   export let idSQL = null; // a query that returns rows with `id` and optionally `created`
   export let pageSize = 12;
+  export let fromFlow = false;
+  export let title = "😝";
+  // export let title = "仪表盘";
 
   $: ids = [];
 
@@ -15,6 +20,7 @@
   let sentinel;
   let fixedHeight = false;
   let isExpanded = false;
+  let showTitle = true;
 
   async function loadNext() {
     if (!idSQL || loading || !hasMore) return;
@@ -76,7 +82,7 @@
       label="折叠"
       active={isExpanded}
       activeBackground="rgba(16, 185, 129, 0.12)"
-      fixedWidth="25%"
+      fixedWidth="15%"
       clickable={true}
       onClick={() => {
         isExpanded = !isExpanded;
@@ -86,7 +92,7 @@
       type="text"
       asButton={true}
       label="固定高度"
-      fixedWidth="25%"
+      fixedWidth="15%"
       active={fixedHeight}
       activeBackground="rgba(16, 185, 129, 0.12)"
       clickable={true}
@@ -94,9 +100,37 @@
         fixedHeight = !fixedHeight;
       }}
     />
+    <StatCard
+      type="text"
+      asButton={true}
+      label="展示标题"
+      fixedWidth="15%"
+      active={showTitle}
+      activeBackground="rgba(16, 185, 129, 0.12)"
+      clickable={true}
+      onClick={() => {
+        showTitle = !showTitle;
+      }}
+    />
+    {#if !fromFlow}
+      <StatCard
+        type="text"
+        asButton={true}
+        label="复制文档流链接"
+        fixedWidth="15%"
+        activeBackground="rgba(16, 185, 129, 0.12)"
+        clickable={true}
+        onClick={() => {
+          copyToClipboard(
+            `siyuan://plugins/siyuan-hqweay-go/flow?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(idSQL)}`
+          );
+          showMessage(`文档流访问链接已复制到剪贴板～`);
+        }}
+      />
+    {/if}
   </div>
   {#each ids as id}
-    <EntryItem blockId={id} {isExpanded} {fixedHeight} />
+    <EntryItem blockId={id} {isExpanded} {fixedHeight} {showTitle} />
   {/each}
 
   <div class="list-loading">

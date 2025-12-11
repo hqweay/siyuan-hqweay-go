@@ -132,7 +132,9 @@
         label: "跳转到父文档",
         action: async () => {
           await navigation.goToParent();
-          hideSubmenu();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+            hideSubmenu();
+          }
         },
       },
       {
@@ -140,7 +142,9 @@
         label: "跳转到上一个文档",
         action: async () => {
           await navigation.goToSibling(-1);
-          hideSubmenu();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+            hideSubmenu();
+          }
         },
       },
       {
@@ -148,7 +152,9 @@
         label: "随机",
         action: async () => {
           await goToRandomBlock("SELECT * FROM blocks WHERE type = 'd'");
-          hideSubmenu();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+            hideSubmenu();
+          }
         },
       },
       {
@@ -156,7 +162,9 @@
         label: "跳转到下一个文档",
         action: async () => {
           await navigation.goToSibling(1);
-          hideSubmenu();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+            hideSubmenu();
+          }
         },
       },
       {
@@ -164,7 +172,9 @@
         label: "跳转到子文档",
         action: async () => {
           await navigation.goToChild();
-          hideSubmenu();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+            hideSubmenu();
+          }
         },
       },
     ];
@@ -204,7 +214,9 @@
               } else {
                 openByUrl(url);
               }
-              hideSubmenu();
+              if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
+                hideSubmenu();
+              }
             },
           };
         }
@@ -217,9 +229,6 @@
 
   // 隐藏子菜单
   function hideSubmenu() {
-    if (!settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
-      return;
-    }
     submenuVisible = false;
     submenuType = null;
     submenuItems = [];

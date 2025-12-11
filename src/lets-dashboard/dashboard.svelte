@@ -9,6 +9,7 @@
   import ImageGallery from "./ImageGallery.svelte";
   import StatCard from "./StatCard.svelte";
   import { parseYYYYMMDD } from "@/myscripts/utils";
+  import { title } from "process";
 
   const sqlConfigs =
     settings.getBySpace("dashBoard", "configs") === "hqweay"
@@ -828,7 +829,11 @@ order by attributes.value desc`,
     <div class="media-and-entries">
       {#if showEntries}
         <div class="entries-column">
-          <EntryList idSQL={filteredIdListSQL} pageSize={10} />
+          <EntryList
+            idSQL={filteredIdListSQL}
+            title={currentConfig.name}
+            pageSize={10}
+          />
         </div>
       {/if}
 
