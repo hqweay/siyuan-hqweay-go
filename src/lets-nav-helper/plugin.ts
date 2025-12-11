@@ -89,6 +89,7 @@ const pluginMetadata: PluginMetadata = {
       key: "dashBoardLink",
       value: "siyuan://plugins/siyuan-hqweay-go/open",
       placeholder: "siyuan://plugins/siyuan-hqweay-go/open",
+      height: "100px",
     },
     {
       type: "select",

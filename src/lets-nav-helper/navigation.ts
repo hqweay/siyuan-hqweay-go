@@ -207,7 +207,8 @@ class MobileNavigation {
    */
   goToHome(): void {
     try {
-      const link = settings.getBySpace(pluginMetadata.name, "dashBoardUrl");
+      const link = settings.getBySpace(pluginMetadata.name, "dashBoardLink");
+      console.log("尝试打开仪表盘:", link);
       // 尝试打开仪表盘
       PluginRegistry.getInstance()
         .getPlugin("dashBoard")

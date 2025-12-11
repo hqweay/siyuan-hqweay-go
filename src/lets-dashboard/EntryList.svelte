@@ -127,6 +127,21 @@
           showMessage(`文档流访问链接已复制到剪贴板～`);
         }}
       />
+    {:else}
+      <StatCard
+        type="text"
+        asButton={true}
+        label="刷新"
+        fixedWidth="15%"
+        activeBackground="rgba(16, 185, 129, 0.12)"
+        clickable={true}
+        onClick={() => {
+          ids = [];
+          page = 0;
+          hasMore = true;
+          loadNext();
+        }}
+      />
     {/if}
   </div>
   {#each ids as id}
