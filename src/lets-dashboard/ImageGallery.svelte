@@ -47,6 +47,19 @@
     const count = page * pageSize;
     displayedImages = images.slice(0, count);
     hasMore = displayedImages.length < images.length;
+
+    // 兜底机制：如果还有更多内容但当前没有滚动条，立即加载下一页
+    if (hasMore && !loading && displayedImages.length > 0) {
+      setTimeout(() => {
+        const container = document.querySelector(".images-section");
+        if (container) {
+          const isScrollable = container.scrollHeight > container.clientHeight;
+          if (!isScrollable) {
+            loadMoreImages();
+          }
+        }
+      }, 50);
+    }
   }
 
   function loadMoreImages() {
@@ -97,12 +110,23 @@
           }
         });
       },
-      { root: null, rootMargin: "200px", threshold: 0.1 }
+      {
+        root: null,
+        rootMargin: "50px",
+        threshold: 0.1,
+      }
     );
 
-    if (sentinel) observer.observe(sentinel);
+    // 如果 sentinel 已经存在，立即观察
+    if (sentinel) {
+      observer.observe(sentinel);
+    }
 
-    return () => observer.disconnect();
+    return () => {
+      if (observer) {
+        observer.disconnect();
+      }
+    };
   });
 </script>
 
@@ -306,6 +330,9 @@
 
   .sentinel {
     width: 100%;
-    height: 8px;
+    height: 20px;
+    background: transparent;
+    /* 可以设置一个非常淡的背景来调试，但保持隐藏 */
+    /* background: rgba(255, 0, 0, 0.1); */
   }
 </style>
