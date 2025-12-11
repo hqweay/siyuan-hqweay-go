@@ -239,7 +239,7 @@ export default class DashBoard implements SubPlugin {
       if (isMobile) {
         let dialog = new Dialog({
           title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-entry-${title}" style="height: 700px;"></div>`,
+          content: `<div id="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -247,9 +247,7 @@ export default class DashBoard implements SubPlugin {
         });
 
         let pannel = new EntryList({
-          target: dialog.element.querySelector(
-            `#hqweay-diary-flow-entry-${title}`
-          ),
+          target: dialog.element.querySelector(`#hqweay-diary-flow-entry`),
           props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
       } else {
@@ -293,7 +291,7 @@ export default class DashBoard implements SubPlugin {
       if (isMobile) {
         let dialog = new Dialog({
           title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-image-${title}" style="height: 700px;"></div>`,
+          content: `<div id="hqweay-diary-flow-image" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -301,9 +299,7 @@ export default class DashBoard implements SubPlugin {
         });
 
         let pannel = new ImageGallery({
-          target: dialog.element.querySelector(
-            `#hqweay-diary-flow-image-${title}`
-          ),
+          target: dialog.element.querySelector(`#hqweay-diary-flow-image`),
           props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
       } else {
