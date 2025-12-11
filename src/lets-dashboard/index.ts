@@ -232,13 +232,14 @@ export default class DashBoard implements SubPlugin {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "flow-entry") {
-      const sqlParam = urlObj.searchParams.get("sql");
+      let sqlParam = urlObj.searchParams.get("sql");
       const title = urlObj.searchParams.get("title");
 
+      sqlParam = sqlParam ? sqlParam : 'select * from blocks where type = "d"';
       if (isMobile) {
         let dialog = new Dialog({
           title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
+          content: `<div id="hqweay-diary-flow-entry-${title}" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -246,20 +247,22 @@ export default class DashBoard implements SubPlugin {
         });
 
         let pannel = new EntryList({
-          target: dialog.element.querySelector("#hqweay-diary-flow-entry"),
+          target: dialog.element.querySelector(
+            `#hqweay-diary-flow-entry-${title}`
+          ),
           props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
       } else {
         let tabDiv = document.createElement("div");
         //设置样式边距
         tabDiv.setAttribute("style", "padding: 15px;");
-        tabDiv.setAttribute("id", "hqweay-diary-flow");
+        tabDiv.setAttribute("id", `#hqweay-diary-flow-entry-${title}`);
         new EntryList({
           target: tabDiv,
           props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
         plugin.addTab({
-          type: "flow",
+          type: `flow-entry-${title}`,
           init() {
             this.element.appendChild(tabDiv);
           },
@@ -270,7 +273,7 @@ export default class DashBoard implements SubPlugin {
             icon: "",
             title: title ? title : "Flow",
             data: {},
-            id: plugin.name + "flow",
+            id: plugin.name + `flow-entry-${title}`,
           },
         });
       }
@@ -280,13 +283,17 @@ export default class DashBoard implements SubPlugin {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "flow-image") {
-      const sqlParam = urlObj.searchParams.get("sql");
+      let sqlParam = urlObj.searchParams.get("sql");
       const title = urlObj.searchParams.get("title");
+
+      sqlParam = sqlParam
+        ? sqlParam
+        : "select assets.PATH as asset_path from assets ";
 
       if (isMobile) {
         let dialog = new Dialog({
           title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-image" style="height: 700px;"></div>`,
+          content: `<div id="hqweay-diary-flow-image-${title}" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
             pannel.$destroy();
@@ -294,20 +301,22 @@ export default class DashBoard implements SubPlugin {
         });
 
         let pannel = new ImageGallery({
-          target: dialog.element.querySelector("#hqweay-diary-flow-image"),
+          target: dialog.element.querySelector(
+            `#hqweay-diary-flow-image-${title}`
+          ),
           props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
       } else {
         let tabDiv = document.createElement("div");
         //设置样式边距
         tabDiv.setAttribute("style", "padding: 15px;");
-        tabDiv.setAttribute("id", "hqweay-diary-flow");
+        tabDiv.setAttribute("id", "hqweay-diary-flow-image-${title}");
         new ImageGallery({
           target: tabDiv,
           props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
         });
         plugin.addTab({
-          type: "flow",
+          type: `flow-image-${title}`,
           init() {
             this.element.appendChild(tabDiv);
           },
@@ -318,7 +327,7 @@ export default class DashBoard implements SubPlugin {
             icon: "",
             title: title ? title : "Flow",
             data: {},
-            id: plugin.name + "flow",
+            id: plugin.name + `flow-image-${title}`,
           },
         });
       }

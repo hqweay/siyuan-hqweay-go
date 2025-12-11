@@ -82,6 +82,15 @@ const pluginMetadata: PluginMetadata = {
       },
     },
     {
+      type: "textarea",
+      title: "仪表盘按钮配置",
+      description:
+        "支持 siyuan://plugins/siyuan-hqweay-go/flow 或 siyuan://plugins/siyuan-hqweay-go/open",
+      key: "dashBoardLink",
+      value: "siyuan://plugins/siyuan-hqweay-go/open",
+      placeholder: "siyuan://plugins/siyuan-hqweay-go/open",
+    },
+    {
       type: "select",
       title: "显示随机按钮",
       description: "在导航栏中显示随机文档按钮",

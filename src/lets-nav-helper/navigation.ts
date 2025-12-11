@@ -1,10 +1,11 @@
-import { getRandomDocId } from "../myscripts/randomDocCache";
-import { getBlockByID, listDocsByPath, sql } from "@/api";
-import { plugin } from "@/utils";
-import { openMobileFileById, openTab, showMessage } from "siyuan";
-import { mobileUtils, isMobile } from "./utils";
-import { PluginRegistry } from "@/plugin-registry";
+import { getBlockByID, listDocsByPath } from "@/api";
+
 import { getCurrentDocId, openBlockByID } from "@/myscripts/syUtils";
+import { PluginRegistry } from "@/plugin-registry";
+import { settings } from "@/settings";
+import { showMessage } from "siyuan";
+import pluginMetadata from "./plugin";
+import { isMobile, mobileUtils } from "./utils";
 
 /**
  * 移动端导航类
@@ -206,12 +207,13 @@ class MobileNavigation {
    */
   goToHome(): void {
     try {
+      const link = settings.getBySpace(pluginMetadata.name, "dashBoardUrl");
       // 尝试打开仪表盘
       PluginRegistry.getInstance()
         .getPlugin("dashBoard")
         .openSiyuanUrlPluginEvent({
           detail: {
-            url: "siyuan://plugins/hqweay-diary-tools/open",
+            url: link ? link : "siyuan://plugins/siyuan-hqweay-go/open",
           },
         });
     } catch (error) {
