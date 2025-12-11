@@ -3,7 +3,8 @@ import { PluginMetadata } from "@/types/plugin";
 const pluginMetadata: PluginMetadata = {
   name: "dashBoard",
   displayName: "【实验】仪表盘",
-  description: "提供一个仪表盘，主要为了复刻日记软件的流程",
+  description:
+    "提供一个仪表盘，主要为了复刻日记软件的流程；支持通过链接单独打开文档流、图片流",
   version: "1.0.0",
   author: "hqweay",
   settings: [

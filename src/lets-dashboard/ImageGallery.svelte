@@ -2,14 +2,18 @@
   import { sql } from "@/api";
   import { onMount } from "svelte";
   import StatCard from "./StatCard.svelte";
+  import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
+  import { showMessage } from "siyuan";
 
   export let imgSQL;
   export let layout = "grid"; // 'grid' | 'masonry'
   export let pageSize = 30;
   export let selectedDays = []; // Array of YYYYMMDD to filter images by day
+  export let fromFlow = false;
+  export let title = "";
 
   let images = [];
-  let displayedImages = [];
+  $: displayedImages = [];
   let page = 1;
   let loading = false;
   let hasMore = true;
@@ -111,7 +115,7 @@
         label="网格"
         active={layout === "grid"}
         activeBackground="rgba(16, 185, 129, 0.12)"
-        fixedWidth="25%"
+        fixedWidth="15%"
         clickable={true}
         onClick={() => {
           layout = "grid";
@@ -121,7 +125,7 @@
         type="text"
         asButton={true}
         label="瀑布流"
-        fixedWidth="25%"
+        fixedWidth="15%"
         active={layout === "masonry"}
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
@@ -129,6 +133,22 @@
           layout = "masonry";
         }}
       />
+      {#if !fromFlow}
+        <StatCard
+          type="text"
+          asButton={true}
+          label="复制图片流链接"
+          fixedWidth="15%"
+          activeBackground="rgba(16, 185, 129, 0.12)"
+          clickable={true}
+          onClick={() => {
+            copyToClipboard(
+              `siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)}`
+            );
+            showMessage(`文档流访问链接已复制到剪贴板～`);
+          }}
+        />
+      {/if}
     </div>
   </div>
   {#if layout === "grid"}
