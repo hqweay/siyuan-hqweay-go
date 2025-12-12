@@ -28,10 +28,23 @@ siyuan://plugins/siyuan-hqweay-go/flow-board?title=SQL查询面板
 - 错误处理和用户友好的错误提示
 
 ### 3. 示例 SQL
-提供三个常用示例 SQL：
-- 文档查询：`SELECT * FROM blocks WHERE type = 'd' LIMIT 20`
-- 图片查询：`SELECT assets.path as asset_path FROM assets LIMIT 20`  
-- 内容搜索：`SELECT * FROM blocks WHERE content LIKE '%日记%' LIMIT 10`
+提供多个分类示例 SQL：
+- **少量示例时**：直接显示在页面上，点击即可使用
+- **大量示例时**：显示"更多示例"下拉按钮，点击展开分类菜单
+
+**示例分类包括**：
+- **文档查询**：基础文档查询、内容搜索、路径筛选等
+- **图片查询**：JPG/PNG图片查询、按时间排序等
+- **高级查询**：时间范围查询、标签搜索、计数查询等
+- **时间范围**：按日期区间、按月份、相对时间查询等
+
+**智能显示**：
+- 每个示例支持可选的 `name` 字段
+- 有 `name` 时显示友好名称（如"所有文档"）
+- 无 `name` 时显示 SQL 片段
+- 鼠标悬停显示完整 SQL 语句
+
+当示例数量较少（≤4个）时，直接显示按钮；当示例较多时，右侧显示下拉菜单。
 
 ### 4. 智能渲染
 根据查询结果自动判断显示类型：
@@ -68,11 +81,41 @@ ORDER BY created DESC LIMIT 20
 
 ### 示例 4：查询特定时间范围的文档
 ```sql
-SELECT * FROM blocks 
-WHERE type = 'd' 
-AND created >= '20241201000000' 
+SELECT * FROM blocks
+WHERE type = 'd'
+AND created >= '20241201000000'
 AND created <= '20241231235959'
 ORDER BY created DESC
+```
+
+### 示例 5：按月份查询
+```sql
+SELECT * FROM blocks
+WHERE substr(created, 1, 6) = '202412'
+ORDER BY created DESC
+```
+
+### 示例 6：查询标签内容
+```sql
+SELECT id, content, created
+FROM blocks
+WHERE content LIKE '%#标签%'
+LIMIT 25
+```
+
+### 示例 7：统计文档总数
+```sql
+SELECT COUNT(*) as total
+FROM blocks
+WHERE type = 'd'
+```
+
+### 示例 8：查询近30天的文档
+```sql
+SELECT * FROM blocks
+WHERE created >= date('now', '-30 days')
+ORDER BY created DESC
+LIMIT 20
 ```
 
 ## 注意事项
@@ -84,6 +127,9 @@ ORDER BY created DESC
    - 文档查询使用：`id`, `content`, `created`, `updated` 等字段
    - 图片查询必须包含：`asset_path` 字段作为图片路径
 5. **排序**：建议使用 `ORDER BY` 子句对结果进行排序
+6. **示例格式**：示例 SQL 支持两种格式
+   - 字符串格式：`"SELECT * FROM blocks WHERE type = 'd'"`
+   - 对象格式：`{ name: "友好名称", sql: "SELECT * FROM blocks WHERE type = 'd'" }`
 
 ## 技术实现
 
@@ -100,3 +146,6 @@ ORDER BY created DESC
 - 查询结果导出
 - 更多示例 SQL 模板
 - 语法高亮和自动补全
+- 自定义示例 SQL 分类
+- 示例 SQL 搜索功能
+- 键盘快捷键支持

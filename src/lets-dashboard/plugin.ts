@@ -22,9 +22,32 @@ const pluginMetadata: PluginMetadata = {
       title: "文档流/图片流模式",
       description: "提供一个面板通过输入的 SQL 查询……",
       key: "flowMode",
-      value: `SELECT * FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 20
-    SELECT assets.path as asset_path FROM assets ORDER BY RANDOM() LIMIT 20
-    SELECT * FROM blocks WHERE content LIKE '%维特根斯坦%'  ORDER BY RANDOM() LIMIT 10`,
+      value: `[
+        {
+          name: "文档查询",
+          examples: [
+            { name: "随机所有文档", sql: "SELECT * FROM blocks WHERE type = 'd' ORDER BY RANDOM()" },
+            { name: "随机内容搜索", sql: "SELECT * FROM blocks WHERE content LIKE '%关键词%' ORDER BY RANDOM()" },
+            { name: "路径筛选", sql: "SELECT * FROM blocks WHERE path LIKE '%2024%' ORDER BY created DESC LIMIT 15" },
+          ],
+        },
+        {
+          name: "图片查询",
+          examples: [
+            { name: "JPG图片", sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.jpg' LIMIT 20" },
+            { name: "PNG图片", sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.png' LIMIT 20" },
+            { name: "按时间排序", sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id ORDER BY created DESC LIMIT 30" },
+          ],
+        },
+        {
+          name: "时间范围",
+          examples: [
+            { name: "日期区间", sql: "SELECT * FROM blocks WHERE type = 'd' AND created >= '20241201000000' AND created <= '20241231235959'" },
+            { name: "按月查询", sql: "SELECT * FROM blocks WHERE substr(created, 1, 6) = '202412' ORDER BY created DESC" },
+            { name: "近30天", sql: "SELECT * FROM blocks WHERE created >= date('now', '-30 days') ORDER BY created DESC LIMIT 20" },
+          ],
+        },
+      ]`,
       placeholder: "",
     },
     {
