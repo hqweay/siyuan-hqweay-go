@@ -115,7 +115,7 @@
         role="menuitem"
       >
         <span style="margin-right: 10px; font-size: 14px;">
-          {item.icon}
+          {item.icon ? item.icon : ""}
         </span>
         <span style="flex: 1; color: #333; font-size: 13px;">
           {item.title || item.label}

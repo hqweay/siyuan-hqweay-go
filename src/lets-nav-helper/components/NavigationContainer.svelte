@@ -197,14 +197,14 @@
     submenuItems = links
       .filter((line: string) => line.trim())
       .map((line: string) => {
-        const [title, url] = line.split("====");
+        const [title, url, icon] = line.split("====");
         if (title && url) {
           return {
-            icon: "🔗",
+            icon: icon ? icon : "🔗",
             title: title.trim(),
             url: url.trim(),
             action: async () => {
-              if (title.startsWith("💾") || title.includes("数据库")) {
+              if (icon == "💾" || title.includes("添加到")) {
                 try {
                   const avHelper = await createSiyuanAVHelper(url);
                   await avHelper.addBlocks([getCurrentDocId()]);
