@@ -254,7 +254,7 @@
   }
 
   .sql-input-section h3 {
-    color: #ffd700;
+    /* color: #ffd700; */
     margin-bottom: 15px;
     font-size: 1.2rem;
   }
@@ -275,7 +275,7 @@
     font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
     font-size: 14px;
     resize: vertical;
-    min-height: 100px;
+    /* min-height: 100px; */
   }
 
   .sql-input::placeholder {

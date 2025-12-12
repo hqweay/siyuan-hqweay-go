@@ -30,7 +30,7 @@ export default class DashBoard implements SubPlugin {
   addMenuItem(menu) {
     menu.addItem({
       label: "打开仪表盘",
-      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开仪表盘" >${this.icon}</div>`,
+      iconHTML: `<div id="${this.id}-dashboard" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开仪表盘" >${this.icon}</div>`,
       click: async () => {
         this.openDashBoard("", "");
       },
@@ -38,7 +38,7 @@ export default class DashBoard implements SubPlugin {
 
     menu.addItem({
       label: "打开 Flow 浏览界面",
-      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开 Flow 浏览界面" >${this.icon}</div>`,
+      iconHTML: `<div id="${this.id}-flow" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开 Flow 浏览界面" >${this.icon}</div>`,
       click: async () => {
         this.openFlowboard("Let it flow ～");
       },
@@ -132,7 +132,7 @@ export default class DashBoard implements SubPlugin {
         props: {},
       });
       plugin.addTab({
-        type: `flow-board`,
+        type: `flow-board-${title}`,
         init() {
           this.element.appendChild(tabDiv);
         },
@@ -143,7 +143,7 @@ export default class DashBoard implements SubPlugin {
           icon: "",
           title: title,
           data: {},
-          id: plugin.name + `flow-board`,
+          id: plugin.name + `flow-board-${title}`,
         },
       });
     }
@@ -202,7 +202,7 @@ export default class DashBoard implements SubPlugin {
         props: { selectedConfig: index, type },
       });
       plugin.addTab({
-        type: TAB_TYPE + index,
+        type: `lets-dashboard-${index}`,
         init() {
           this.element.appendChild(tabDiv);
         },
@@ -211,9 +211,9 @@ export default class DashBoard implements SubPlugin {
         app: plugin.app,
         custom: {
           icon: "",
-          title: typeof index === "string" ? index : "仪表盘",
+          title: typeof index === "string" && index !== "" ? index : "仪表盘",
           data: {},
-          id: plugin.name + TAB_TYPE + index,
+          id: plugin.name + `lets-dashboard-${index}`,
         },
       });
     }
