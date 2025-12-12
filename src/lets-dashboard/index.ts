@@ -44,21 +44,21 @@ export default class DashBoard implements SubPlugin {
       },
     });
 
-    menu.addItem({
-      label: "打开 文档流",
-      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="文档流" >${this.icon}</div>`,
-      click: async () => {
-        this.openFlowEntry("", "文档流");
-      },
-    });
+    // menu.addItem({
+    //   label: "打开 文档流",
+    //   iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="文档流" >${this.icon}</div>`,
+    //   click: async () => {
+    //     this.openFlowEntry("", "文档流");
+    //   },
+    // });
 
-    menu.addItem({
-      label: "打开 图片流",
-      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="图片流" >${this.icon}</div>`,
-      click: async () => {
-        this.openFlowImage("", "图片流");
-      },
-    });
+    // menu.addItem({
+    //   label: "打开 图片流",
+    //   iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="图片流" >${this.icon}</div>`,
+    //   click: async () => {
+    //     this.openFlowImage("", "图片流");
+    //   },
+    // });
   }
 
   addDock() {
