@@ -10,6 +10,7 @@
   let loading = false;
   let error = "";
   let isEntryList = false; // 判断是否显示 EntryList
+  let refreshKey = 0;
 
   async function executeSQL() {
     if (!inputSQL.trim()) {
@@ -17,6 +18,7 @@
       return;
     }
 
+    refreshKey += 1;
     loading = true;
     error = "";
 
@@ -151,9 +153,9 @@
 
     <!-- 示例 SQL -->
     <div class="examples-dropdown-container">
-      <span class="examples-label">示例 SQL:</span>
-
       {#if exampleSQLs.length <= 4}
+        <span class="examples-label">示例 SQL:</span>
+
         <!-- 少量示例时直接显示 -->
         {#each exampleSQLs as example}
           <button
@@ -173,7 +175,7 @@
             on:click={toggleExamplesDropdown}
             disabled={loading}
           >
-            更多示例 ({exampleSQLs.length})
+            示例 SQL ({exampleSQLs.length})
             <span class="arrow" class:rotated={showExamplesDropdown}>▼</span>
           </button>
 
@@ -210,27 +212,29 @@
 
   <!-- 结果展示区域 -->
   {#if inputExecuteSQL}
-    <div class="results-section">
-      {#if isEntryList}
-        <div class="entries-column">
-          <EntryList
-            idSQL={inputExecuteSQL}
-            title="自定义查询结果"
-            pageSize={10}
-            fromFlow={false}
-          />
-        </div>
-      {:else}
-        <div class="media-column">
-          <ImageGallery
-            imgSQL={inputExecuteSQL}
-            title="自定义查询结果"
-            pageSize={30}
-            fromFlow={false}
-          />
-        </div>
-      {/if}
-    </div>
+    {#key refreshKey}
+      <div class="results-section">
+        {#if isEntryList}
+          <div class="entries-column">
+            <EntryList
+              idSQL={inputExecuteSQL}
+              title="自定义查询结果"
+              pageSize={10}
+              fromFlow={false}
+            />
+          </div>
+        {:else}
+          <div class="media-column">
+            <ImageGallery
+              imgSQL={inputExecuteSQL}
+              title="自定义查询结果"
+              pageSize={30}
+              fromFlow={false}
+            />
+          </div>
+        {/if}
+      </div>
+    {/key}
   {:else if !loading && !error}
     <div class="empty-state">
       <p>请输入 SQL 语句并点击执行按钮</p>
