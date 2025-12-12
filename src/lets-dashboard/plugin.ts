@@ -22,7 +22,9 @@ const pluginMetadata: PluginMetadata = {
       title: "文档流/图片流模式",
       description: "提供一个面板通过输入的 SQL 查询……",
       key: "flowMode",
-      value: "",
+      value: `SELECT * FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 20
+    SELECT assets.path as asset_path FROM assets ORDER BY RANDOM() LIMIT 20
+    SELECT * FROM blocks WHERE content LIKE '%维特根斯坦%'  ORDER BY RANDOM() LIMIT 10`,
       placeholder: "",
     },
     {

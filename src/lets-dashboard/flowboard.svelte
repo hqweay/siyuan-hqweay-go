@@ -1,10 +1,12 @@
 <script>
-  import { sql } from "@/api";
   import EntryList from "./EntryList.svelte";
   import ImageGallery from "./ImageGallery.svelte";
+  import { settings } from "@/settings";
+
+  import pluginMetadata from "./plugin";
 
   let inputSQL = "";
-  let resultData = [];
+  let inputExecuteSQL = "";
   let loading = false;
   let error = "";
   let isEntryList = false; // 判断是否显示 EntryList
@@ -19,31 +21,27 @@
     error = "";
 
     try {
-      // 执行用户输入的 SQL
-      resultData = await sql(inputSQL);
-
       // 判断数据类型
-      if (resultData.length > 0) {
-        const firstRow = resultData[0];
-        // 如果包含 asset_path 字段，认为是图片数据
-        isEntryList = !firstRow.hasOwnProperty("asset_path");
-      } else {
+      if (inputSQL.includes("asset_path")) {
         isEntryList = false;
+      } else {
+        isEntryList = true;
       }
+      inputExecuteSQL = inputSQL;
     } catch (e) {
       error = "SQL 执行错误: " + e.message;
-      resultData = [];
     } finally {
       loading = false;
     }
   }
 
   // 示例 SQL
-  const exampleSQLs = [
-    "SELECT * FROM blocks WHERE type = 'd' LIMIT 20",
-    "SELECT assets.path as asset_path FROM assets LIMIT 20",
-    "SELECT * FROM blocks WHERE content LIKE '%日记%' LIMIT 10",
-  ];
+  const exampleSQLs = settings.getBySpace(pluginMetadata.name, "flowMode")
+    ? settings.getBySpace(pluginMetadata.name, "flowMode").split("\n")
+    : [
+        "SELECT * FROM blocks WHERE type = 'd' ORDER BY RANDOM() LIMIT 20",
+        "SELECT assets.path as asset_path FROM assets ORDER BY RANDOM() LIMIT 20",
+      ];
 
   function setExampleSQL(sql) {
     inputSQL = sql;
@@ -58,7 +56,7 @@
       <textarea
         bind:value={inputSQL}
         placeholder="请输入 SQL 语句..."
-        rows="4"
+        rows="2"
         class="sql-input"
       ></textarea>
       <button on:click={executeSQL} disabled={loading} class="execute-btn">
@@ -89,19 +87,12 @@
   </div>
 
   <!-- 结果展示区域 -->
-  {#if resultData.length > 0}
+  {#if inputExecuteSQL}
     <div class="results-section">
-      <div class="results-header">
-        <span class="results-count">找到 {resultData.length} 条记录</span>
-        <span class="results-type">
-          {isEntryList ? "文档列表" : "图片库"}
-        </span>
-      </div>
-
       {#if isEntryList}
         <div class="entries-column">
           <EntryList
-            idSQL={inputSQL}
+            idSQL={inputExecuteSQL}
             title="自定义查询结果"
             pageSize={10}
             fromFlow={false}
@@ -110,7 +101,7 @@
       {:else}
         <div class="media-column">
           <ImageGallery
-            imgSQL={inputSQL}
+            imgSQL={inputExecuteSQL}
             title="自定义查询结果"
             pageSize={30}
             fromFlow={false}
