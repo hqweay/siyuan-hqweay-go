@@ -2,7 +2,7 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "dockPlus",
-  displayName: "边栏任意位置按钮扩充",
+  displayName: "边栏扩充",
   description: "在任意边栏新增按钮，可执行SQL、固定文档、打开链接",
   version: "1.0.0",
   settings: [
