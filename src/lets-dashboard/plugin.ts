@@ -14,8 +14,16 @@ const pluginMetadata: PluginMetadata = {
       description:
         "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
       key: "addToDock",
-      value: false,
+      value: "",
       placeholder: "为空不添加",
+    },
+    {
+      type: "textarea",
+      title: "文档流/图片流模式",
+      description: "提供一个面板通过输入的 SQL 查询……",
+      key: "flowMode",
+      value: "",
+      placeholder: "",
     },
     {
       type: "textarea",

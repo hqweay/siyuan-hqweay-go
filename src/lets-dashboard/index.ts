@@ -8,6 +8,7 @@ import { SubPlugin } from "@/types/plugin";
 import DashboardComponent from "./dashboard.svelte";
 import EntryList from "./EntryList.svelte";
 import ImageGallery from "./ImageGallery.svelte";
+import FlowBoard from "./flowboard.svelte";
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -71,29 +72,7 @@ export default class DashBoard implements SubPlugin {
 
   onload(): void {}
   async onLayoutReady() {
-    //console.log("diary-tools onload");
-    // Add icon to toolbar
-    // this.addIconToToolbar();
-
-    // Add dock if configured
     this.addDock();
-
-    // Setup menu for mobile or desktop
-    // if (isMobile) {
-    //   let dialog = new Dialog({
-    //     title: "仪表盘",
-    //     content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-    //     width: "400px",
-    //     destroyCallback: (options) => {
-    //       pannel.$destroy();
-    //     },
-    //   });
-
-    //   let pannel = new DashboardComponent({
-    //     target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-    //     props: {},
-    //   });
-    // }
   }
 
   private addIconToToolbar() {
@@ -162,6 +141,53 @@ export default class DashBoard implements SubPlugin {
     }
   }
 
+  registerFlowBoard(detail) {
+    const urlObj = new URL(detail.url);
+    const method = urlObj.pathname.split("/").pop();
+    if (method === "flow-board") {
+      const title = urlObj.searchParams.get("title") || "SQL 查询面板";
+
+      if (isMobile) {
+        let dialog = new Dialog({
+          title: title,
+          content: `<div id="hqweay-diary-flow-board" style="height: 700px;"></div>`,
+          width: "90%",
+          destroyCallback: (options) => {
+            pannel.$destroy();
+          },
+        });
+
+        let pannel = new FlowBoard({
+          target: dialog.element.querySelector(`#hqweay-diary-flow-board`),
+          props: {},
+        });
+      } else {
+        let tabDiv = document.createElement("div");
+        tabDiv.setAttribute("style", "height: 100%;");
+        tabDiv.setAttribute("id", `hqweay-diary-flow-board`);
+        new FlowBoard({
+          target: tabDiv,
+          props: {},
+        });
+        plugin.addTab({
+          type: `flow-board`,
+          init() {
+            this.element.appendChild(tabDiv);
+          },
+        });
+        openTab({
+          app: plugin.app,
+          custom: {
+            icon: "",
+            title: title,
+            data: {},
+            id: plugin.name + `flow-board`,
+          },
+        });
+      }
+    }
+  }
+
   onunload(): void {
     // 查询所有匹配的元素并删除
     document
@@ -174,6 +200,7 @@ export default class DashBoard implements SubPlugin {
   openSiyuanUrlPluginEvent({ detail }) {
     this.registerFlowEntry(detail);
     this.registerFlowImage(detail);
+    this.registerFlowBoard(detail);
     this.registerDashBoard(detail);
   }
 
