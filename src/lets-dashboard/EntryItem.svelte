@@ -1,6 +1,8 @@
 <script>
+  import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
+  import { openByUrl } from "@/myscripts/syUtils";
   import { plugin } from "@/utils";
-  import { Protyle } from "siyuan";
+  import { Protyle, showMessage } from "siyuan";
   import { onMount } from "svelte";
   export let blockId;
   export let isExpanded = true;
@@ -48,7 +50,23 @@
     >
       <span class="arrow">{isExpanded ? "➡️" : "⬇️"}</span>
     </button>
-    <span class="entry-id">{blockId}</span>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <span
+      class="entry-id"
+      on:click={() => {
+        copyToClipboard(blockId);
+        showMessage(`id:${blockId}复制到剪贴板～`);
+      }}>{blockId}</span
+    >
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <span
+      class="entry-id"
+      on:click={() => {
+        openByUrl(`${blockId}`);
+      }}>🚀</span
+    >
     <button
       class="toggle-btn"
       on:click={() => {
