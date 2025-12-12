@@ -30,9 +30,33 @@ export default class DashBoard implements SubPlugin {
   addMenuItem(menu) {
     menu.addItem({
       label: "打开仪表盘",
-      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" >${this.icon}</div>`,
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开仪表盘" >${this.icon}</div>`,
       click: async () => {
-        this.openDashBoard();
+        this.openDashBoard("", "");
+      },
+    });
+
+    menu.addItem({
+      label: "打开 Flow 浏览界面",
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开 Flow 浏览界面" >${this.icon}</div>`,
+      click: async () => {
+        this.openFlowboard("Let it flow ～");
+      },
+    });
+
+    menu.addItem({
+      label: "打开 文档流",
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="文档流" >${this.icon}</div>`,
+      click: async () => {
+        this.openFlowEntry("", "文档流");
+      },
+    });
+
+    menu.addItem({
+      label: "打开 图片流",
+      iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="图片流" >${this.icon}</div>`,
+      click: async () => {
+        this.openFlowImage("", "图片流");
       },
     });
   }
@@ -75,116 +99,53 @@ export default class DashBoard implements SubPlugin {
     this.addDock();
   }
 
-  private addIconToToolbar() {
-    this.showMenu();
-  }
-
-  private showMenu() {
-    //console.log("showMenu");
-    this.thisElement = plugin.addTopBar({
-      icon: "iconBookmark",
-      title: "恐龙工具箱",
-      position: "right",
-      callback: () => {
-        // diaryTools handles its own menu display
-        this.openDashBoard();
-      },
-    });
-  }
-
-  private openDashBoard() {
-    if (isMobile) {
-      let dialog = new Dialog({
-        title: "仪表盘",
-        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-        width: "400px",
-        destroyCallback: (options) => {
-          pannel.$destroy();
-        },
-      });
-
-      let pannel = new DashboardComponent({
-        target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-        props: {},
-      });
-    } else {
-      let rect = this.thisElement?.getBoundingClientRect();
-      if (!rect || rect.width === 0) {
-        rect = document.querySelector("#barMore")?.getBoundingClientRect();
-      }
-      if (!rect || rect.width === 0) {
-        rect = document.querySelector("#barPlugins")?.getBoundingClientRect();
-      }
-      if (rect) {
-        let tabDiv = document.createElement("div");
-        tabDiv.setAttribute("id", "hqweay-diary-dashboard");
-        new DashboardComponent({
-          target: tabDiv,
-          props: {},
-        });
-        plugin.addTab({
-          type: TAB_TYPE,
-          init() {
-            this.element.appendChild(tabDiv);
-          },
-        });
-        openTab({
-          app: plugin.app,
-          custom: {
-            icon: "",
-            title: "仪表盘",
-            data: {},
-            id: plugin.name + TAB_TYPE,
-          },
-        });
-      }
-    }
-  }
-
   registerFlowBoard(detail) {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "flow-board") {
       const title = urlObj.searchParams.get("title") || "SQL 查询面板";
+      this.openFlowboard(title);
+    }
+  }
 
-      if (isMobile) {
-        let dialog = new Dialog({
+  openFlowboard(title) {
+    if (isMobile) {
+      let dialog = new Dialog({
+        title: title,
+        content: `<div id="hqweay-diary-flow-board" style="height: 700px;"></div>`,
+        width: "90%",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
+
+      let pannel = new FlowBoard({
+        target: dialog.element.querySelector(`#hqweay-diary-flow-board`),
+        props: {},
+      });
+    } else {
+      let tabDiv = document.createElement("div");
+      tabDiv.setAttribute("style", "height: 100%;");
+      tabDiv.setAttribute("id", `hqweay-diary-flow-board`);
+      new FlowBoard({
+        target: tabDiv,
+        props: {},
+      });
+      plugin.addTab({
+        type: `flow-board`,
+        init() {
+          this.element.appendChild(tabDiv);
+        },
+      });
+      openTab({
+        app: plugin.app,
+        custom: {
+          icon: "",
           title: title,
-          content: `<div id="hqweay-diary-flow-board" style="height: 700px;"></div>`,
-          width: "90%",
-          destroyCallback: (options) => {
-            pannel.$destroy();
-          },
-        });
-
-        let pannel = new FlowBoard({
-          target: dialog.element.querySelector(`#hqweay-diary-flow-board`),
-          props: {},
-        });
-      } else {
-        let tabDiv = document.createElement("div");
-        tabDiv.setAttribute("style", "height: 100%;");
-        tabDiv.setAttribute("id", `hqweay-diary-flow-board`);
-        new FlowBoard({
-          target: tabDiv,
-          props: {},
-        });
-        plugin.addTab({
-          type: `flow-board`,
-          init() {
-            this.element.appendChild(tabDiv);
-          },
-        });
-        openTab({
-          app: plugin.app,
-          custom: {
-            icon: "",
-            title: title,
-            data: {},
-            id: plugin.name + `flow-board`,
-          },
-        });
-      }
+          data: {},
+          id: plugin.name + `flow-board`,
+        },
+      });
     }
   }
 
@@ -214,44 +175,47 @@ export default class DashBoard implements SubPlugin {
       const index =
         //@ts-ignore
         indexParam && !isNaN(indexParam) ? Number(indexParam) : indexParam || 0;
+      this.openDashBoard(index, type);
+    }
+  }
 
-      if (isMobile) {
-        let dialog = new Dialog({
-          title: "仪表盘",
-          content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
-          width: "400px",
-          destroyCallback: (options) => {
-            pannel.$destroy();
-          },
-        });
+  openDashBoard(index, type) {
+    if (isMobile) {
+      let dialog = new Dialog({
+        title: typeof index === "string" ? index : "仪表盘",
+        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+        width: "400px",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
 
-        let pannel = new DashboardComponent({
-          target: dialog.element.querySelector("#hqweay-diary-dashboard"),
-          props: { selectedConfig: index, type },
-        });
-      } else {
-        let tabDiv = document.createElement("div");
-        tabDiv.setAttribute("id", "hqweay-diary-dashboard" + index);
-        new DashboardComponent({
-          target: tabDiv,
-          props: { selectedConfig: index, type },
-        });
-        plugin.addTab({
-          type: TAB_TYPE + index,
-          init() {
-            this.element.appendChild(tabDiv);
-          },
-        });
-        openTab({
-          app: plugin.app,
-          custom: {
-            icon: "",
-            title: "仪表盘",
-            data: {},
-            id: plugin.name + TAB_TYPE + index,
-          },
-        });
-      }
+      let pannel = new DashboardComponent({
+        target: dialog.element.querySelector("#hqweay-diary-dashboard"),
+        props: { selectedConfig: index, type },
+      });
+    } else {
+      let tabDiv = document.createElement("div");
+      tabDiv.setAttribute("id", "hqweay-diary-dashboard" + index);
+      new DashboardComponent({
+        target: tabDiv,
+        props: { selectedConfig: index, type },
+      });
+      plugin.addTab({
+        type: TAB_TYPE + index,
+        init() {
+          this.element.appendChild(tabDiv);
+        },
+      });
+      openTab({
+        app: plugin.app,
+        custom: {
+          icon: "",
+          title: typeof index === "string" ? index : "仪表盘",
+          data: {},
+          id: plugin.name + TAB_TYPE + index,
+        },
+      });
     }
   }
 
@@ -262,46 +226,49 @@ export default class DashBoard implements SubPlugin {
       let sqlParam = urlObj.searchParams.get("sql");
       const title = urlObj.searchParams.get("title");
 
-      sqlParam = sqlParam ? sqlParam : 'select * from blocks where type = "d"';
-      if (isMobile) {
-        let dialog = new Dialog({
-          title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
-          width: "400px",
-          destroyCallback: (options) => {
-            pannel.$destroy();
-          },
-        });
+      this.openFlowEntry(sqlParam, title);
+    }
+  }
+  openFlowEntry(sqlParam, title) {
+    sqlParam = sqlParam ? sqlParam : 'select * from blocks where type = "d"';
+    if (isMobile) {
+      let dialog = new Dialog({
+        title: title ? title : "Flow",
+        content: `<div id="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
+        width: "400px",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
 
-        let pannel = new EntryList({
-          target: dialog.element.querySelector(`#hqweay-diary-flow-entry`),
-          props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
-        });
-      } else {
-        let tabDiv = document.createElement("div");
-        //设置样式边距
-        tabDiv.setAttribute("style", "padding: 15px;");
-        tabDiv.setAttribute("id", `#hqweay-diary-flow-entry-${title}`);
-        new EntryList({
-          target: tabDiv,
-          props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
-        });
-        plugin.addTab({
-          type: `flow-entry-${title}`,
-          init() {
-            this.element.appendChild(tabDiv);
-          },
-        });
-        openTab({
-          app: plugin.app,
-          custom: {
-            icon: "",
-            title: title ? title : "Flow",
-            data: {},
-            id: plugin.name + `flow-entry-${title}`,
-          },
-        });
-      }
+      let pannel = new EntryList({
+        target: dialog.element.querySelector(`#hqweay-diary-flow-entry`),
+        props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
+      });
+    } else {
+      let tabDiv = document.createElement("div");
+      //设置样式边距
+      tabDiv.setAttribute("style", "padding: 15px;");
+      tabDiv.setAttribute("id", `#hqweay-diary-flow-entry-${title}`);
+      new EntryList({
+        target: tabDiv,
+        props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },
+      });
+      plugin.addTab({
+        type: `flow-entry-${title}`,
+        init() {
+          this.element.appendChild(tabDiv);
+        },
+      });
+      openTab({
+        app: plugin.app,
+        custom: {
+          icon: "",
+          title: title ? title : "Flow",
+          data: {},
+          id: plugin.name + `flow-entry-${title}`,
+        },
+      });
     }
   }
   registerFlowImage(detail) {
@@ -311,49 +278,52 @@ export default class DashBoard implements SubPlugin {
       let sqlParam = urlObj.searchParams.get("sql");
       const title = urlObj.searchParams.get("title");
 
-      sqlParam = sqlParam
-        ? sqlParam
-        : "select assets.PATH as asset_path from assets ";
+      this.openFlowImage(sqlParam, title);
+    }
+  }
 
-      if (isMobile) {
-        let dialog = new Dialog({
+  openFlowImage(sqlParam, title) {
+    sqlParam = sqlParam
+      ? sqlParam
+      : "select blocks.*, assets.PATH as asset_path from assets left join blocks on assets.block_id = blocks.id";
+    if (isMobile) {
+      let dialog = new Dialog({
+        title: title ? title : "Flow",
+        content: `<div id="hqweay-diary-flow-image" style="height: 700px;"></div>`,
+        width: "400px",
+        destroyCallback: (options) => {
+          pannel.$destroy();
+        },
+      });
+
+      let pannel = new ImageGallery({
+        target: dialog.element.querySelector(`#hqweay-diary-flow-image`),
+        props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
+      });
+    } else {
+      let tabDiv = document.createElement("div");
+      //设置样式边距
+      tabDiv.setAttribute("style", "padding: 15px;");
+      tabDiv.setAttribute("id", "hqweay-diary-flow-image-${title}");
+      new ImageGallery({
+        target: tabDiv,
+        props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
+      });
+      plugin.addTab({
+        type: `flow-image-${title}`,
+        init() {
+          this.element.appendChild(tabDiv);
+        },
+      });
+      openTab({
+        app: plugin.app,
+        custom: {
+          icon: "",
           title: title ? title : "Flow",
-          content: `<div id="hqweay-diary-flow-image" style="height: 700px;"></div>`,
-          width: "400px",
-          destroyCallback: (options) => {
-            pannel.$destroy();
-          },
-        });
-
-        let pannel = new ImageGallery({
-          target: dialog.element.querySelector(`#hqweay-diary-flow-image`),
-          props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
-        });
-      } else {
-        let tabDiv = document.createElement("div");
-        //设置样式边距
-        tabDiv.setAttribute("style", "padding: 15px;");
-        tabDiv.setAttribute("id", "hqweay-diary-flow-image-${title}");
-        new ImageGallery({
-          target: tabDiv,
-          props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
-        });
-        plugin.addTab({
-          type: `flow-image-${title}`,
-          init() {
-            this.element.appendChild(tabDiv);
-          },
-        });
-        openTab({
-          app: plugin.app,
-          custom: {
-            icon: "",
-            title: title ? title : "Flow",
-            data: {},
-            id: plugin.name + `flow-image-${title}`,
-          },
-        });
-      }
+          data: {},
+          id: plugin.name + `flow-image-${title}`,
+        },
+      });
     }
   }
 }
