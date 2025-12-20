@@ -4,6 +4,7 @@
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
   import { sql, getBlockAttrs, setBlockAttrs } from "@/api";
   import { isArrayEmpty } from "@/lets-syplugin-backlink-panel/utils/array-util";
+  import { confirmDialog } from "@frostime/siyuan-plugin-kits";
 
   export let presetSql: string = ""; // 接收预填充的SQL
   export let rootId: string = ""; // 接收文档ID用于保存
@@ -17,6 +18,7 @@
   let error = "";
   let isEntryList = false;
   let refreshKey = 0;
+  // let saveSqlName = ""; // SQL名称变量
 
   // 示例SQL分类
   const exampleSQLCategories = [
@@ -95,8 +97,11 @@
 
   // 保存相关状态
   let showSaveForm = false;
-
   let isSaving = false;
+
+  // 删除相关状态
+  let showDeleteForm = false;
+  let isDeleting = false;
 
   // 初始化时处理预设的SQL
   onMount(() => {
@@ -257,35 +262,68 @@
     saveSqlToDocument(saveSqlName.trim(), inputSQL.trim());
   }
 
-  // 从SQL中提取默认名称
-  function extractDefaultSqlName(sql: string): string {
-    const trimmedSql = sql.trim().toUpperCase();
-
-    // 尝试提取表名
-    const fromMatch = trimmedSql.match(/FROM\s+(\w+)/i);
-    if (fromMatch) {
-      return `查询_${fromMatch[1]}`;
+  // 删除SQL配置
+  async function deleteSqlFromDocument(name: string) {
+    if (!rootId) {
+      alert("无法删除：缺少文档ID");
+      return;
     }
 
-    // 尝试提取SELECT字段
-    const selectMatch = trimmedSql.match(/SELECT\s+(\w+)/i);
-    if (selectMatch) {
-      return `查询_${selectMatch[1]}`;
-    }
+    try {
+      isDeleting = true;
 
-    // 尝试提取WHERE条件中的关键词
-    const whereMatch = trimmedSql.match(/WHERE\s+(\w+)/i);
-    if (whereMatch) {
-      return `查询_${whereMatch[1]}`;
-    }
+      // 获取现有的保存的SQL列表
+      const result = await getBlockAttrs(rootId);
+      let savedSqlList = [];
 
-    // 默认名称：SQL查询 + 时间戳
-    const timestamp = new Date().toLocaleTimeString("zh-CN", {
-      hour12: false,
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    return `SQL查询_${timestamp.replace(":", "")}`;
+      if (result && result["custom-tab-panel-sqls"]) {
+        const sqlAttr = result["custom-tab-panel-sqls"];
+        if (sqlAttr) {
+          try {
+            savedSqlList = JSON.parse(sqlAttr);
+          } catch (e) {
+            console.error("解析保存的SQL数据失败:", e);
+            savedSqlList = [];
+          }
+        }
+      }
+
+      // 查找并删除指定的SQL
+      const targetIndex = savedSqlList.findIndex((item) => item.name === name);
+
+      if (targetIndex === -1) {
+        alert(`未找到名为 "${name}" 的SQL配置`);
+        return;
+      }
+
+      // 确认删除
+      if (!confirm(`确定要删除SQL配置 "${name}" 吗？此操作不可撤销。`)) {
+        return;
+      }
+
+      // 从列表中移除
+      savedSqlList.splice(targetIndex, 1);
+
+      // 保存到文档属性
+      const sqlData = JSON.stringify(savedSqlList);
+      await setBlockAttrs(rootId, {
+        "custom-tab-panel-sqls": sqlData,
+      });
+
+      // 通知父组件更新
+      dispatch("sqlUpdated", { savedSqlList });
+
+      // 重置表单
+      showDeleteForm = false;
+
+      // 显示成功消息
+      alert(`SQL "${name}" 删除成功！`);
+    } catch (error) {
+      console.error("删除SQL失败:", error);
+      alert("删除失败，请重试");
+    } finally {
+      isDeleting = false;
+    }
   }
 
   // 切换保存表单显示
@@ -295,13 +333,18 @@
       return;
     }
     showSaveForm = !showSaveForm;
-    // if (!showSaveForm) {
-    //   saveSqlName = "";
-    // } else {
-    //   // 设置智能默认名称
-    //   saveSqlName = extractDefaultSqlName(inputSQL);
-    // }
   }
+
+  // function toggleDelete() {
+  //   confirmDialog({
+  //     title: "确认删除SQL配置",
+  //     content: `确定要删除SQL配置 "${saveSqlName}" 吗？此操作不可撤销。`,
+  //     confirmText: "删除",
+  //     onConfirm: () => {
+  //       deleteSqlFromDocument(saveSqlName);
+  //     },
+  //   });
+  // }
 </script>
 
 <div class="custom-sql-container">
@@ -326,6 +369,15 @@
           class="save-btn"
         >
           保存SQL
+        </button>
+        <button
+          on:click={async () => {
+            deleteSqlFromDocument(saveSqlName);
+          }}
+          disabled={loading}
+          class="delete-btn"
+        >
+          删除SQL
         </button>
         <button on:click={executeSQL} disabled={loading} class="execute-btn">
           {loading ? "执行中..." : "执行查询"}
@@ -401,7 +453,6 @@
             class="cancel-btn"
             on:click={() => {
               showSaveForm = false;
-              // saveSqlName = "";
             }}
           >
             取消
@@ -531,7 +582,8 @@
   }
 
   .execute-btn,
-  .save-btn {
+  .save-btn,
+  .delete-btn {
     padding: 12px 16px;
     background: var(--b3-theme-primary);
     color: var(--b3-theme-on-primary);
@@ -549,6 +601,11 @@
     color: var(--b3-theme-on-secondary);
   }
 
+  .delete-btn {
+    background: var(--b3-theme-error);
+    color: var(--b3-theme-on-error);
+  }
+
   .execute-btn:hover:not(:disabled) {
     background: var(--b3-theme-primary-hover);
     transform: translateY(-1px);
@@ -559,8 +616,14 @@
     transform: translateY(-1px);
   }
 
+  .delete-btn:hover:not(:disabled) {
+    background: var(--b3-theme-error-hover);
+    transform: translateY(-1px);
+  }
+
   .execute-btn:disabled,
-  .save-btn:disabled {
+  .save-btn:disabled,
+  .delete-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -751,6 +814,14 @@
     margin-bottom: 16px;
   }
 
+  .delete-sql-form {
+    background: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-outline-variant);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
   .form-group {
     margin-bottom: 12px;
   }
@@ -774,9 +845,25 @@
     box-sizing: border-box;
   }
 
+  .delete-sql-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--b3-theme-error);
+    border-radius: 6px;
+    background: var(--b3-theme-background);
+    color: var(--b3-theme-on-background);
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
   .save-sql-input:focus {
     outline: none;
     border-color: var(--b3-theme-primary);
+  }
+
+  .delete-sql-input:focus {
+    outline: none;
+    border-color: var(--b3-theme-error);
   }
 
   .form-actions {
@@ -787,7 +874,8 @@
   }
 
   .cancel-btn,
-  .confirm-save-btn {
+  .confirm-save-btn,
+  .confirm-delete-btn {
     padding: 6px 16px;
     border: none;
     border-radius: 6px;
@@ -814,7 +902,17 @@
     background: var(--b3-theme-primary-hover);
   }
 
-  .confirm-save-btn:disabled {
+  .confirm-delete-btn {
+    background: var(--b3-theme-error);
+    color: var(--b3-theme-on-error);
+  }
+
+  .confirm-delete-btn:hover:not(:disabled) {
+    background: var(--b3-theme-error-hover);
+  }
+
+  .confirm-save-btn:disabled,
+  .confirm-delete-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }

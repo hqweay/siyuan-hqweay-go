@@ -72,7 +72,7 @@
     // 添加"新增SQL"tab，使用SqlManagementPanel
     tabs.push({
       id: "sql" as const,
-      name: "新增SQL",
+      name: "➕新增SQL",
       icon: "#iconAdd",
       component: CustomSqlPanel,
     });
@@ -114,7 +114,7 @@
           on:click={() => switchTab(tab.id)}
           title={tab.name}
         >
-          <svg class="tab-icon"><use xlink:href={tab.icon}></use></svg>
+          <!-- <svg class="tab-icon"><use xlink:href={tab.icon}></use></svg> -->
           <span class="tab-name">{tab.name}</span>
         </button>
       {/each}

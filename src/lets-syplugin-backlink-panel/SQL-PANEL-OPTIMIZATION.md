@@ -353,3 +353,78 @@ if (existingIndex !== -1) {
 这些改进大大提升了SQL保存的便捷性和智能化水平。
 
 所有功能已完整实现并经过测试，用户现在可以在反链面板中享受完整的SQL查询管理功能，同时保持原有的使用习惯。
+
+### 最新功能：SQL删除功能
+
+为了完善SQL管理的完整生命周期（增删改查），我们为CustomSqlPanel新增了删除功能。
+
+#### 功能特点
+- **完整生命周期**: 现在支持SQL的完整管理流程：增加、保存、删除
+- **安全删除**: 提供二次确认机制，防止误删
+- **智能验证**: 检查SQL名称是否存在，提供友好错误提示
+- **状态反馈**: 删除过程中有加载状态和成功提示
+
+#### 实现方式
+**新增状态管理**:
+```typescript
+// 删除相关状态
+let showDeleteForm = false;
+let isDeleting = false;
+let deleteSqlName = "";
+```
+
+**删除核心逻辑**:
+```typescript
+async function deleteSqlFromDocument(name: string) {
+  // 获取现有SQL列表
+  const result = await getBlockAttrs(rootId);
+  let savedSqlList = JSON.parse(result["custom-tab-panel-sqls"] || "[]");
+  
+  // 查找并删除指定的SQL
+  const targetIndex = savedSqlList.findIndex(item => item.name === name);
+  
+  if (targetIndex === -1) {
+    alert(`未找到名为 "${name}" 的SQL配置`);
+    return;
+  }
+  
+  // 确认删除
+  if (!confirm(`确定要删除SQL配置 "${name}" 吗？此操作不可撤销。`)) {
+    return;
+  }
+  
+  // 从列表中移除并保存
+  savedSqlList.splice(targetIndex, 1);
+  await setBlockAttrs(rootId, {
+    "custom-tab-panel-sqls": JSON.stringify(savedSqlList)
+  });
+  
+  // 通知父组件更新
+  dispatch("sqlUpdated", { savedSqlList });
+}
+```
+
+#### 用户界面
+**新增删除按钮**: 在保存按钮旁边添加红色"删除SQL"按钮
+**删除表单**: 简洁的SQL名称输入框和确认按钮
+**样式设计**: 使用红色主题区分危险操作
+
+#### 使用流程
+1. 点击"删除SQL"按钮
+2. 输入要删除的SQL名称
+3. 点击"确认删除"
+4. 在确认对话框中确认删除操作
+5. 系统删除SQL并更新Tab列表
+
+#### 错误处理
+- **不存在SQL**: 提示"未找到名为...的SQL配置"
+- **空名称**: 提示"请输入要删除的SQL名称"
+- **网络错误**: 显示"删除失败，请重试"
+- **取消删除**: 点击取消按钮或确认对话框中的取消
+
+#### 界面优化
+- **红色主题**: 删除按钮和表单使用红色强调危险操作
+- **加载状态**: 删除过程中按钮显示"删除中..."
+- **成功反馈**: 删除成功后显示"SQL '名称' 删除成功！"
+
+现在用户可以在CustomSqlPanel中完成SQL的完整管理：创建、保存、删除，真正实现了增删改查的完整功能。
