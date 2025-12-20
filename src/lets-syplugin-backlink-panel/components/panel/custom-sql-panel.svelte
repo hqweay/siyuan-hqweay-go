@@ -568,7 +568,7 @@
   }
 
   .sql-section-header:hover {
-    background: var(--b3-theme-surface-variant);
+    // background: var(--b3-theme-surface-variant);
     transform: translateY(-1px);
   }
 
@@ -599,7 +599,7 @@
   }
 
   .expand-toggle:hover {
-    background: var(--b3-theme-secondary-hover);
+    // background: var(--b3-theme-secondary-hover);
   }
 
   .expand-toggle .arrow {
