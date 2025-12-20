@@ -20,6 +20,9 @@
   let refreshKey = 0;
   // let saveSqlName = ""; // SQL名称变量
 
+  // 控制SQL输入区域的展开/折叠
+  let isSqlInputExpanded = false;
+
   // 示例SQL分类
   const exampleSQLCategories = [
     {
@@ -107,8 +110,11 @@
   onMount(() => {
     if (presetSql) {
       inputSQL = presetSql;
+      isSqlInputExpanded = false; // 有预设SQL时展开
       // 可以选择自动执行，或者让用户手动执行
       executeSQL(); // 取消自动执行，让用户手动确认
+    } else {
+      isSqlInputExpanded = true; // 无预设SQL时默认折叠
     }
   });
 
@@ -335,6 +341,11 @@
     showSaveForm = !showSaveForm;
   }
 
+  // 切换SQL输入区域展开/折叠
+  function toggleSqlInputSection() {
+    isSqlInputExpanded = !isSqlInputExpanded;
+  }
+
   // function toggleDelete() {
   //   confirmDialog({
   //     title: "确认删除SQL配置",
@@ -348,8 +359,22 @@
 </script>
 
 <div class="custom-sql-container">
+  <!-- SQL 输入区域标题栏 -->
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div class="sql-section-header" on:click={toggleSqlInputSection}>
+    <h3>自定义 SQL 查询</h3>
+    <div class="section-controls">
+      <div class="help-text">Ctrl+Enter 执行查询</div>
+      <button class="expand-toggle" class:expanded={isSqlInputExpanded}>
+        <span class="arrow" class:rotated={isSqlInputExpanded}>▼</span>
+        {isSqlInputExpanded ? '折叠' : '展开'}
+      </button>
+    </div>
+  </div>
+  
   <!-- SQL 输入区域 -->
-  <div class="sql-input-section">
+  <div class="sql-input-section" class:collapsed={!isSqlInputExpanded}>
     <!-- <div class="section-header">
       <h3>自定义 SQL 查询</h3>
       <div class="help-text">Ctrl+Enter 执行查询</div>
@@ -523,6 +548,67 @@
 
   .sql-input-section {
     margin-bottom: 20px;
+  }
+
+  .sql-input-section.collapsed {
+    display: none;
+  }
+
+  .sql-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 12px 16px;
+    background: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-outline-variant);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .sql-section-header:hover {
+    background: var(--b3-theme-surface-variant);
+    transform: translateY(-1px);
+  }
+
+  .sql-section-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--b3-theme-on-background);
+  }
+
+  .section-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .expand-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--b3-theme-secondary);
+    color: var(--b3-theme-on-secondary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .expand-toggle:hover {
+    background: var(--b3-theme-secondary-hover);
+  }
+
+  .expand-toggle .arrow {
+    transition: transform 0.2s ease;
+    font-size: 10px;
+  }
+
+  .expand-toggle .arrow.rotated {
+    transform: rotate(180deg);
   }
 
   .section-header {

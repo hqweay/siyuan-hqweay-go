@@ -428,3 +428,104 @@ async function deleteSqlFromDocument(name: string) {
 - **成功反馈**: 删除成功后显示"SQL '名称' 删除成功！"
 
 现在用户可以在CustomSqlPanel中完成SQL的完整管理：创建、保存、删除，真正实现了增删改查的完整功能。
+
+### 最新改进：智能展开/折叠体验
+
+根据用户反馈，我们对CustomSqlPanel的界面交互进行了优化，实现了智能的展开/折叠功能。
+
+#### 功能背景
+**问题**: 当presetSql为空时，SQL输入区域始终显示，可能造成界面冗余
+**解决**: 当presetSql为空时，默认折叠SQL输入区域，支持用户按需展开
+
+#### 实现方案
+**新增状态管理**:
+```typescript
+// 控制SQL输入区域的展开/折叠
+let isSqlInputExpanded = false;
+
+// 初始化时根据presetSql设置默认状态
+onMount(() => {
+  if (presetSql) {
+    inputSQL = presetSql;
+    isSqlInputExpanded = true; // 有预设SQL时展开
+  } else {
+    isSqlInputExpanded = false; // 无预设SQL时默认折叠
+  }
+});
+```
+
+#### 界面设计
+**标题栏结构**:
+```html
+<div class="sql-section-header" on:click={toggleSqlInputSection}>
+  <h3>自定义 SQL 查询</h3>
+  <div class="section-controls">
+    <div class="help-text">Ctrl+Enter 执行查询</div>
+    <button class="expand-toggle" class:expanded={isSqlInputExpanded}>
+      <span class="arrow" class:rotated={isSqlInputExpanded}>▼</span>
+      {isSqlInputExpanded ? '折叠' : '展开'}
+    </button>
+  </div>
+</div>
+```
+
+#### 交互逻辑
+1. **默认状态**:
+   - presetSql为空 → 默认折叠
+   - presetSql有内容 → 默认展开
+
+2. **展开状态**:
+   - 显示完整的SQL输入界面
+   - 按钮文字为“折叠”
+   - 箭头向上
+
+3. **折叠状态**:
+   - 只显示标题栏
+   - 按钮文字为“展开”
+   - 箭头向下
+
+#### 用户体验优化
+- **按需显示**: 减少界面冗余，提高用户体验
+- **状态保持**: 展开/折叠不影响已输入的内容
+- **多种操作**: 点击标题栏或按钮都可以控制
+- **视觉反馈**: hover效果和状态变化提供良好交互
+
+#### CSS样式设计
+```scss
+.sql-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--b3-theme-surface);
+  border: 1px solid var(--b3-theme-outline-variant);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sql-section-header:hover {
+  background: var(--b3-theme-surface-variant);
+  transform: translateY(-1px);
+}
+
+.sql-input-section.collapsed {
+  display: none;
+}
+```
+
+#### 向后兼容性
+- ✅ 不影响现有功能（保存、删除、执行等）
+- ✅ presetSql功能正常工作
+- ✅ 示例SQL功能正常工作
+- ✅ 响应式设计保持完整
+
+#### 测试验证
+详细的测试用例请参考 `expand-collapse-test.md` 文档，包含：
+- 默认状态验证
+- 展开/折叠功能测试
+- 状态保持验证
+- 交互体验测试
+- 兼容性验证
+
+这个改进大大提升了CustomSqlPanel的界面简洁性和用户体验，特别是在没有预设SQL的场景下，界面更加清爽。
