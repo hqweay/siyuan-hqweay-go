@@ -20,7 +20,7 @@
         defBlockArraySort,
         getBacklinkPanelData,
         getBacklinkPanelRenderData,
-        getTurnPageBacklinkPanelRenderData,
+
     } from "@/lets-syplugin-backlink-panel/service/backlink/backlink-data";
     import {
         isArrayEmpty,
@@ -99,6 +99,13 @@
     let hideBacklinkProtyleBreadcrumb: boolean = false;
     let showSaveCriteriaInputBox: boolean = false;
     let saveCriteriaInputText: string = "";
+    
+    /* 滚动加载相关变量 */
+    let isLoadingMore: boolean = false;
+    let hasMoreData: boolean = true;
+    let currentPage: number = 1;
+    let totalItems: number = 0;
+    const pageSize: number = SettingService.ins.SettingConfig.pageSize;
 
     $: updateLastCriteria(
         queryParams,
@@ -120,10 +127,25 @@
         }
 
         initEvent();
+        
+        // 根据配置决定是否启用滚动加载
+        if (SettingService.ins.SettingConfig.scrollLoading) {
+            initScrollListener();
+        }
     });
 
     onDestroy(async () => {
         clearBacklinkProtyleList();
+        
+        // 根据配置决定是否清理滚动监听器
+        if (SettingService.ins.SettingConfig.scrollLoading) {
+            const scrollContainer = findScrollableContainer();
+            if (scrollContainer) {
+                scrollContainer.removeEventListener('scroll', handleScroll);
+            } else {
+                window.removeEventListener('scroll', handleScroll);
+            }
+        }
     });
 
     function updateLastCriteria(
@@ -512,7 +534,14 @@
             defaultPanelCriteria.backlinkPanelFilterViewExpand;
         // panelBacklinkViewExpand =
         //     defaultPanelCriteria.backlinkPanelBacklinkViewExpand;
-        queryParams.pageNum = 1;
+        
+        // 根据配置重置状态
+        if (SettingService.ins.SettingConfig.scrollLoading) {
+            resetScrollLoadingState();
+        } else {
+            // 翻页模式下重置分页状态
+            queryParams.pageNum = 1;
+        }
 
         savedQueryParamMap =
             await BacklinkFilterPanelAttributeService.ins.getPanelSavedCriteriaMap(
@@ -560,9 +589,10 @@
 
         refreshFilterDisplayData();
 
-        refreshBacklinkPreview();
+        refreshBacklinkPreview(true);
     }
-
+    
+    // 翻页函数（当禁用滚动加载时使用）
     async function pageTurning(pageNumParam: number) {
         if (
             pageNumParam < 1 ||
@@ -572,9 +602,8 @@
         }
         queryParams.pageNum = pageNumParam;
         let pageBacklinkPanelRenderData =
-            await getTurnPageBacklinkPanelRenderData(
-                backlinkFilterPanelRenderData.rootId,
-                backlinkFilterPanelRenderData.backlinkBlockNodeArray,
+            await getBacklinkPanelRenderData(
+                backlinkFilterPanelBaseData,
                 queryParams,
             );
 
@@ -586,8 +615,9 @@
             pageBacklinkPanelRenderData.usedCache;
         queryParams = queryParams;
 
-        refreshBacklinkPreview();
+        refreshBacklinkPreview(true);
     }
+
 
     async function refreshFilterDisplayData() {
         let curDocDefBlockArray =
@@ -632,13 +662,29 @@
         // console.log("refreshFilterDisplayData ", backlinkPanelRenderData);
     }
 
-    function refreshBacklinkPreview() {
-        clearBacklinkProtyleList();
+    function refreshBacklinkPreview(isNewSearch: boolean = true) {
+        if (isNewSearch) {
+            // 新的搜索或筛选条件改变时，清空现有内容
+            clearBacklinkProtyleList();
+            totalItems = 0;
+            
+            // 根据配置重置状态
+            if (SettingService.ins.SettingConfig.scrollLoading) {
+                resetScrollLoadingState();
+            } else {
+                // 翻页模式下重置分页状态
+                queryParams.pageNum = 1;
+            }
+        }
 
-        batchCreateOfficialBacklinkProtyle(
-            backlinkFilterPanelRenderData.backlinkDocumentArray,
-            backlinkFilterPanelRenderData.backlinkDataArray,
-        );
+        if (isNewSearch || currentPage === 1) {
+            // 首次加载或新搜索时，显示所有数据
+            batchCreateOfficialBacklinkProtyle(
+                backlinkFilterPanelRenderData.backlinkDocumentArray,
+                backlinkFilterPanelRenderData.backlinkDataArray,
+            );
+            totalItems = backlinkFilterPanelRenderData.backlinkDataArray.length;
+        }
 
         if (backlinkFilterPanelRenderData.usedCache) {
             displayHintBacklinkBlockCacheUsage = true;
@@ -737,6 +783,60 @@
             }
             let backlinkRootId = backlinkNode.root_id;
             // let backlinkRootId = backlinkDoc.blockPaths[0].id;
+
+            let documentLiElement = createdDocumentLiElement(
+                documentName,
+                backlinkBlockId,
+                backlinkRootId,
+                backlinkNode.content,
+            );
+
+            let backlinks: IBacklinkData[] = [backlinkDoc];
+            const editorElement = document.createElement("div");
+            editorElement.style.minHeight = "auto";
+
+            backlinkULElement.append(editorElement);
+            const editor = new Protyle(EnvConfig.ins.app, editorElement, {
+                blockId: backlinkRootId,
+                backlinkData: backlinks,
+                render: {
+                    background: false,
+                    title: false,
+                    gutter: true,
+                    scroll: false,
+                    breadcrumb: false,
+                },
+            });
+            afterCreateBacklinkProtyle(backlinkDoc, documentLiElement, editor);
+
+            editor.protyle.notebookId = notebookId;
+
+            let editorsTemp = getEditors();
+            editorsTemp.push(editor);
+        }
+    }
+    
+    function appendBacklinkProtyle(
+        backlinkDocumentArray: DefBlock[],
+        backlinkDataArray: IBacklinkData[],
+    ) {
+        if (isArrayEmpty(backlinkDataArray)) {
+            return;
+        }
+
+        for (const backlinkDoc of backlinkDataArray) {
+            let backlinkNode = backlinkDoc.backlinkBlock;
+            let backlinkBlockId = backlinkNode.id;
+            let notebookId = backlinkNode.box;
+
+            let documentName: string = "";
+            for (const document of backlinkDocumentArray) {
+                if (document.id == backlinkNode.root_id) {
+                    documentName = document.content;
+                    break;
+                }
+            }
+            let backlinkRootId = backlinkNode.root_id;
 
             let documentLiElement = createdDocumentLiElement(
                 documentName,
@@ -1273,7 +1373,13 @@ ${documentName}
         if (!savedQueryParam) {
             return;
         }
-        queryParams.pageNum = 1;
+        // 根据配置重置状态
+        if (SettingService.ins.SettingConfig.scrollLoading) {
+            resetScrollLoadingState();
+        } else {
+            // 翻页模式下重置分页状态
+            queryParams.pageNum = 1;
+        }
         queryParams.backlinkCurDocDefBlockType =
             savedQueryParam.backlinkCurDocDefBlockType;
         queryParams.backlinkBlockSortMethod =
@@ -1354,6 +1460,134 @@ ${documentName}
         }
         defalutEditors = [];
     }
+
+    
+    /* 滚动加载相关函数 */
+    function resetScrollLoadingState() {
+        currentPage = 1;
+        isLoadingMore = false;
+        hasMoreData = true;
+        totalItems = 0;
+    }
+    
+    function initScrollListener() {
+        console.log('初始化滚动监听器');
+        console.log('backlinkULElement:', backlinkULElement);
+        
+        // 监听最近的具有滚动条的父容器
+        const scrollContainer = findScrollableContainer();
+        if (scrollContainer) {
+            scrollContainer.addEventListener('scroll', handleScroll);
+            console.log('滚动监听器已绑定到:', scrollContainer);
+        } else {
+            // 如果没有找到合适的容器，监听window
+            window.addEventListener('scroll', handleScroll);
+            console.log('滚动监听器已绑定到window');
+        }
+    }
+    
+    function findScrollableContainer(): HTMLElement | null {
+        if (!backlinkULElement) return null;
+        
+        // 从backlinkULElement开始向上查找具有滚动条的父容器
+        let parent = backlinkULElement.parentElement;
+        while (parent) {
+            const { scrollHeight, clientHeight } = parent;
+            if (scrollHeight > clientHeight) {
+                console.log('找到可滚动容器:', parent);
+                return parent;
+            }
+            parent = parent.parentElement;
+        }
+        
+        return null;
+    }
+    
+    function handleScroll(event: Event) {
+        const target = event.target as HTMLElement;
+        let scrollTop: number, scrollHeight: number, clientHeight: number;
+        
+        if (target === window) {
+            // 如果是window滚动
+            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            scrollHeight = document.documentElement.scrollHeight;
+            clientHeight = window.innerHeight;
+        } else {
+            // 如果是容器滚动
+            scrollTop = target.scrollTop;
+            scrollHeight = target.scrollHeight;
+            clientHeight = target.clientHeight;
+        }
+        
+        console.log('Scroll position:', scrollTop, scrollHeight, clientHeight);
+
+        // 当滚动到距离底部50px时触发加载
+        if (scrollTop + clientHeight >= scrollHeight - 50) {
+            console.log('触发加载更多数据');
+            console.log(hasMoreData);
+            // console.log()
+            loadMoreData();
+        }
+    }
+    
+    async function loadMoreData() {
+        if (isLoadingMore || !hasMoreData) {
+            return;
+        }
+        
+        isLoadingMore = true;
+        currentPage++;
+        
+        try {
+            // 重新获取数据，但只取当前页的数据
+            const moreData = await getBacklinkPanelRenderData(
+                backlinkFilterPanelBaseData,
+                {
+                    ...queryParams,
+                    pageNum: currentPage,
+                    pageSize: pageSize
+                }
+            );
+            
+            console.log('加载更多数据:', moreData);
+
+            if (moreData.rootId != rootId) {
+                return;
+            }
+            
+            // 追加新数据
+            if (moreData.backlinkDataArray && moreData.backlinkDataArray.length > 0) {
+                // 更新渲染数据
+                backlinkFilterPanelRenderData.backlinkDataArray = [
+                    ...backlinkFilterPanelRenderData.backlinkDataArray,
+                    ...moreData.backlinkDataArray
+                ];
+                
+                // 继续渲染新的反链数据
+                appendBacklinkProtyle(
+                    backlinkFilterPanelRenderData.backlinkDocumentArray,
+                    moreData.backlinkDataArray
+                );
+                
+                totalItems += moreData.backlinkDataArray.length;
+                
+                // 如果返回的数据少于页面大小，说明没有更多数据了
+                if (moreData.backlinkDataArray.length < pageSize) {
+                    hasMoreData = false;
+                }
+            } else {
+                hasMoreData = false;
+            }
+            
+        } catch (error) {
+            console.error('加载更多数据失败:', error);
+            currentPage--; // 失败时回退页码
+        } finally {
+            isLoadingMore = false;
+        }
+    }
+    
+
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -1811,62 +2045,74 @@ ${documentName}
                 class="block__icons"
                 style="overflow:auto;style=color:var(--b3-theme-on-background);"
             >
-                <span
-                    class="fn__flex-shrink ft__selectnone {backlinkFilterPanelRenderData.totalPage ==
-                        null || backlinkFilterPanelRenderData.totalPage == 0
-                        ? 'fn__none'
-                        : ''}"
-                >
+                <span class="fn__flex-shrink ft__selectnone">
                     <span class="fn__space"></span>
-
                     <span class="">
                         {EnvConfig.ins.i18n.findInBacklink?.replace(
                             "${x}",
-                            backlinkFilterPanelRenderData.backlinkBlockNodeArray
-                                .length,
+                            SettingService.ins.SettingConfig.scrollLoading 
+                                ? (`${totalItems}/${backlinkFilterPanelRenderData.backlinkBlockNodeArray.length}` )
+                                : backlinkFilterPanelRenderData.backlinkBlockNodeArray.length,
                         )}
                     </span>
                 </span>
                 <span class="fn__space"></span>
                 <span class="fn__flex-1" style="min-height: 100%"></span>
 
-                <span
-                    class="fn__flex-shrink ft__selectnone {backlinkFilterPanelRenderData.totalPage ==
-                        null || backlinkFilterPanelRenderData.totalPage == 0
-                        ? 'fn__none'
-                        : ''}"
-                >
-                    {backlinkFilterPanelRenderData.pageNum}/{backlinkFilterPanelRenderData.totalPage}
-                </span>
-
-                <span class="fn__space"></span>
-                <span
-                    data-position="9bottom"
-                    class="block__icon block__icon--show ariaLabel {backlinkFilterPanelRenderData.pageNum <=
-                    1
-                        ? 'disabled'
-                        : ''}"
-                    aria-label={EnvConfig.ins.i18n.previousLabel}
-                    on:click={() => {
-                        pageTurning(backlinkFilterPanelRenderData.pageNum - 1);
-                    }}
-                    on:keydown={handleKeyDownDefault}
-                    ><svg><use xlink:href="#iconLeft"></use></svg></span
-                >
-                <span class="fn__space"></span>
-                <span
-                    data-position="9bottom"
-                    class="block__icon block__icon--show ariaLabel {backlinkFilterPanelRenderData.pageNum >=
-                    backlinkFilterPanelRenderData.totalPage
-                        ? 'disabled'
-                        : ''}"
-                    aria-label={EnvConfig.ins.i18n.nextLabel}
-                    on:click={() => {
-                        pageTurning(backlinkFilterPanelRenderData.pageNum + 1);
-                    }}
-                    on:keydown={handleKeyDownDefault}
-                    ><svg><use xlink:href="#iconRight"></use></svg></span
-                >
+                {#if SettingService.ins.SettingConfig.scrollLoading}
+                    <!-- 滚动加载模式 -->
+                    {#if isLoadingMore}
+                        <span class="fn__flex-shrink ft__selectnone">
+                            加载中...
+                        </span>
+                    {:else if !hasMoreData}
+                        <span class="fn__flex-shrink ft__selectnone">
+                            已加载全部
+                        </span>
+                    {:else}
+                        <span class="fn__flex-shrink ft__selectnone">
+                            滚动加载更多
+                        </span>
+                    {/if}
+                {:else}
+                    <!-- 翻页加载模式 -->
+                    <span
+                        class="fn__flex-shrink ft__selectnone {backlinkFilterPanelRenderData.totalPage ==
+                            null || backlinkFilterPanelRenderData.totalPage == 0
+                            ? 'fn__none'
+                            : ''}"
+                    >
+                        {backlinkFilterPanelRenderData.pageNum}/{backlinkFilterPanelRenderData.totalPage}
+                    </span>
+                    <span class="fn__space"></span>
+                    <span
+                        data-position="9bottom"
+                        class="block__icon block__icon--show ariaLabel {backlinkFilterPanelRenderData.pageNum <=
+                        1
+                            ? 'disabled'
+                            : ''}"
+                        aria-label={EnvConfig.ins.i18n.previousLabel}
+                        on:click={() => {
+                            pageTurning(backlinkFilterPanelRenderData.pageNum - 1);
+                        }}
+                        on:keydown={handleKeyDownDefault}
+                        ><svg><use xlink:href="#iconLeft"></use></svg></span
+                    >
+                    <span class="fn__space"></span>
+                    <span
+                        data-position="9bottom"
+                        class="block__icon block__icon--show ariaLabel {backlinkFilterPanelRenderData.pageNum >=
+                        backlinkFilterPanelRenderData.totalPage
+                            ? 'disabled'
+                            : ''}"
+                        aria-label={EnvConfig.ins.i18n.nextLabel}
+                        on:click={() => {
+                            pageTurning(backlinkFilterPanelRenderData.pageNum + 1);
+                        }}
+                        on:keydown={handleKeyDownDefault}
+                        ><svg><use xlink:href="#iconRight"></use></svg></span
+                    >
+                {/if}
                 <span class="fn__space"></span>
             </div>
         {/if}

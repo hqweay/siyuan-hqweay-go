@@ -46,7 +46,7 @@ export async function getBacklinkPanelRenderData(
     if (!backlinkPanelData || !queryParams) {
         return
     }
-    let pageNum = 1;
+    let pageNum = queryParams.pageNum || 1;
     let pageSize = SettingService.ins.SettingConfig.pageSize;
     let rootId = backlinkPanelData.rootId;
 

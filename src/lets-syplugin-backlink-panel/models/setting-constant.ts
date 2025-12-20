@@ -17,6 +17,7 @@ export function getSettingTabArray(): TabProperty[] {
                 new ItemProperty({ key: "cacheExpirationTime", type: "number", name: "缓存过期时间（秒）", description: "", tips: "缓存数据失效时间", min: -1, }),
                 new ItemProperty({ key: "doubleClickTimeout", type: "number", name: "双击时间阈值(毫秒)", description: "", tips: "", min: 0, }),
                 new ItemProperty({ key: "documentBottomBacklinkPaddingWidth", type: "number", name: "文档底部反链面板左右间距", description: "为空则跟文档宽度一致。", tips: "" }),
+                new ItemProperty({ key: "scrollLoading", type: "switch", name: "滚动加载", description: "开启后，反链面板会使用滚动加载方式", tips: "" }),
             ]
         }),
         new TabProperty({
