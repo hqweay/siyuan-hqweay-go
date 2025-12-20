@@ -113,7 +113,7 @@ export default class DashBoard implements SubPlugin {
       let dialog = new Dialog({
         title: title,
         content: `<div id="hqweay-diary-flow-board" style="height: 700px;"></div>`,
-        width: "90%",
+        width: "400px",
         destroyCallback: (options) => {
           pannel.$destroy();
         },
