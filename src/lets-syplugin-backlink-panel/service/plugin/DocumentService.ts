@@ -105,13 +105,14 @@ async function getDocumentBottomBacklinkPanelDisplay(docuemntContentElement: HTM
 
     let documentBottomDisplay = SettingService.ins.SettingConfig.documentBottomDisplay;
 
-    if (documentBottomDisplay) {
-        let getDefBlockArraySql = generateGetDefBlockArraySql({ rootId: rootId });
-        let curDocDefBlockArray: DefBlock[] = await sql(getDefBlockArraySql);
-        if (isArrayEmpty(curDocDefBlockArray)) {
-            documentBottomDisplay = false;;
-        }
-    }
+    // 默认展示，以展示 SQL 查询
+    // if (documentBottomDisplay) {
+    //     let getDefBlockArraySql = generateGetDefBlockArraySql({ rootId: rootId });
+    //     let curDocDefBlockArray: DefBlock[] = await sql(getDefBlockArraySql);
+    //     if (isArrayEmpty(curDocDefBlockArray)) {
+    //         documentBottomDisplay = false;;
+    //     }
+    // }
     let docProtyleElement = null;
     if (docuemntContentElement.matches(".protyle-wysiwyg--attr")) {
         docProtyleElement = docuemntContentElement;

@@ -108,7 +108,7 @@
     if (presetSql) {
       inputSQL = presetSql;
       // 可以选择自动执行，或者让用户手动执行
-      // executeSQL(); // 取消自动执行，让用户手动确认
+      executeSQL(); // 取消自动执行，让用户手动确认
     }
   });
 
@@ -350,15 +350,15 @@
 <div class="custom-sql-container">
   <!-- SQL 输入区域 -->
   <div class="sql-input-section">
-    <div class="section-header">
+    <!-- <div class="section-header">
       <h3>自定义 SQL 查询</h3>
       <div class="help-text">Ctrl+Enter 执行查询</div>
-    </div>
+    </div> -->
     <div class="input-group">
       <textarea
         bind:value={inputSQL}
         placeholder="请输入 SQL 语句..."
-        rows="3"
+        rows="2"
         class="sql-input"
         on:keydown={handleKeyDown}
       ></textarea>
@@ -486,7 +486,7 @@
               idSQL={inputExecuteSQL}
               title="自定义查询结果"
               pageSize={10}
-              fromFlow={true}
+              fromFlow={false}
             />
           </div>
         {:else}
@@ -495,7 +495,7 @@
               imgSQL={inputExecuteSQL}
               title="自定义查询结果"
               pageSize={30}
-              fromFlow={true}
+              fromFlow={false}
             />
           </div>
         {/if}
@@ -560,14 +560,14 @@
   .sql-input {
     flex: 1;
     padding: 12px;
-    border: 1px solid var(--b3-theme-surface-variant);
+    // border: 1px solid var(--b3-theme-surface-variant);
     border-radius: 8px;
-    background: var(--b3-theme-background);
-    color: var(--b3-theme-on-background);
+    // background: var(--b3-theme-background);
+    // color: var(--b3-theme-on-background);
     font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
     font-size: 14px;
     resize: vertical;
-    min-height: 80px;
+    // min-height: 80px;
   }
 
   .sql-input::placeholder {
@@ -607,17 +607,17 @@
   }
 
   .execute-btn:hover:not(:disabled) {
-    background: var(--b3-theme-primary-hover);
+    // background: var(--b3-theme-primary-hover);
     transform: translateY(-1px);
   }
 
   .save-btn:hover:not(:disabled) {
-    background: var(--b3-theme-secondary-hover);
+    // background: var(--b3-theme-secondary-hover);
     transform: translateY(-1px);
   }
 
   .delete-btn:hover:not(:disabled) {
-    background: var(--b3-theme-error-hover);
+    // background: var(--b3-theme-error-hover);
     transform: translateY(-1px);
   }
 
@@ -659,7 +659,7 @@
   }
 
   .example-btn:hover:not(:disabled) {
-    background: var(--b3-theme-surface);
+    // background: var(--b3-theme-surface);
     transform: translateY(-1px);
   }
 
@@ -688,7 +688,7 @@
   }
 
   .dropdown-toggle:hover:not(:disabled) {
-    background: var(--b3-theme-secondary-hover);
+    // background: var(--b3-theme-secondary-hover);
   }
 
   .dropdown-toggle:disabled {
@@ -754,7 +754,7 @@
   }
 
   .dropdown-item:hover:not(:disabled) {
-    background: var(--b3-theme-surface-variant);
+    // background: var(--b3-theme-surface-variant);
   }
 
   .dropdown-item:disabled {
@@ -890,7 +890,7 @@
   }
 
   .cancel-btn:hover {
-    background: var(--b3-theme-surface-variant-hover);
+    // background: var(--b3-theme-surface-variant-hover);
   }
 
   .confirm-save-btn {
@@ -899,7 +899,7 @@
   }
 
   .confirm-save-btn:hover:not(:disabled) {
-    background: var(--b3-theme-primary-hover);
+    // background: var(--b3-theme-primary-hover);
   }
 
   .confirm-delete-btn {
@@ -908,7 +908,7 @@
   }
 
   .confirm-delete-btn:hover:not(:disabled) {
-    background: var(--b3-theme-error-hover);
+    // background: var(--b3-theme-error-hover);
   }
 
   .confirm-save-btn:disabled,
