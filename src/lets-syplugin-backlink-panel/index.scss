@@ -1,0 +1,69 @@
+/* 反链面板区域的样式 */
+div.backlink-panel__area div.protyle-wysiwyg.protyle-wysiwyg--attr {
+    padding-bottom: 0px;
+    margin-bottom: 16px;
+}
+
+div.backlink-panel__area .sy__backlink .protyle-wysiwyg>[data-node-id]:last-child {
+    margin-bottom: 0px;
+}
+
+div.backlink-panel__area .sy__backlink .list-item__document-name {
+    line-height: 28px;
+    min-height: 28px;
+    padding: 0 4px;
+    display: flex;
+    z-index: 0;
+    align-items: center;
+    position: relative;
+    background-color: var(--b3-theme-surface);
+    text-align: left;
+    border: 0;
+    color: var(--b3-theme-on-background);
+    margin: 8px 3px 1px;
+    border-radius: var(--b3-border-radius);
+    border-radius: 10px;
+}
+
+div.backlink-panel__area .sy__backlink div.protyle {
+    margin: 0px 4px;
+}
+
+div.backlink-panel__area .sy__backlink .protyle .protyle-wysiwyg [data-node-id].li>.protyle-action svg {
+    z-index: 0;
+}
+
+
+div.backlink-panel__area .block__icon--show.block__icon.disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+
+div.backlink-panel__area .hide-breadcrumb .protyle-breadcrumb__bar.protyle-breadcrumb__bar--nowrap {
+    display: none;
+}
+
+
+::highlight(search-result-mark) {
+    background-color: var(--b3-protyle-inline-mark-background);
+    color: var(--b3-protyle-inline-mark-color);
+}
+
+::highlight(search-result-focus) {
+    background-color: var(--b3-theme-primary-lighter);
+    color: var(--b3-protyle-inline-mark-color);
+}
+
+/* 文档底部样式 */
+div.backlink-panel-document-bottom__area {
+    padding: 8px 48px;
+
+}
+
+
+
+/* 手机端样式 */
+div.document-panel-plugin-mobile.backlink-panel-document-bottom__area {
+    padding: 8px 10px;
+}
