@@ -1472,7 +1472,7 @@ ${documentName}
     
     function initScrollListener() {
         console.log('初始化滚动监听器');
-        console.log('backlinkULElement:', backlinkULElement);
+        // console.log('backlinkULElement:', backlinkULElement);
         
         // 监听最近的具有滚动条的父容器
         const scrollContainer = findScrollableContainer();
@@ -1519,12 +1519,12 @@ ${documentName}
             clientHeight = target.clientHeight;
         }
         
-        console.log('Scroll position:', scrollTop, scrollHeight, clientHeight);
+        // console.log('Scroll position:', scrollTop, scrollHeight, clientHeight);
 
         // 当滚动到距离底部50px时触发加载
         if (scrollTop + clientHeight >= scrollHeight - 50) {
-            console.log('触发加载更多数据');
-            console.log(hasMoreData);
+            // console.log('触发加载更多数据');
+            // console.log(hasMoreData);
             // console.log()
             loadMoreData();
         }
