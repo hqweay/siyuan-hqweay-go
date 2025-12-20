@@ -1,8 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import BacklinkFilterPanelPage from "./backlink-filter-panel-page.svelte";
+  import SqlManagementPanel from "./sql-management-panel.svelte";
   import CustomSqlPanel from "./custom-sql-panel.svelte";
   import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
+  import { getBlockAttrs } from "@/api";
 
   export let rootId: string;
   export let focusBlockId: string;
@@ -11,28 +13,94 @@
   // Tab状态管理
   let activeTab: "backlink" | "sql" = "backlink";
 
+  // 保存的SQL列表
+  let savedSqlList: Array<{ name: string; sql: string }> = [];
+  let isLoadingSql = false;
+
   // Tab配置
-  const tabs = [
+  let tabs = [
     {
       id: "backlink" as const,
       name: "反链",
       icon: "#iconLink",
       component: BacklinkFilterPanelPage,
     },
-    {
-      id: "sql" as const,
-      name: "SQL",
-      icon: "#iconSQL",
-      component: CustomSqlPanel,
-    },
   ];
 
-  function switchTab(tabId: "backlink" | "sql") {
-    activeTab = tabId;
+  // 从文档属性中获取保存的SQL
+  async function loadSavedSqlList() {
+    try {
+      isLoadingSql = true;
+      const result = await getBlockAttrs(rootId);
+
+      if (result && result["custom-tab-panel-sqls"]) {
+        const sqlAttr = result["custom-tab-panel-sqls"];
+        if (sqlAttr) {
+          try {
+            savedSqlList = JSON.parse(sqlAttr);
+          } catch (e) {
+            console.error("解析保存的SQL数据失败:", e);
+            savedSqlList = [];
+          }
+        }
+      }
+      updateSqlTabs();
+    } catch (error) {
+      console.error("获取保存的SQL列表失败:", error);
+      savedSqlList = [];
+    } finally {
+      isLoadingSql = false;
+    }
   }
 
-  // 获取当前激活的Tab配置
-  $: currentTabConfig = tabs.find((tab) => tab.id === activeTab);
+  // 更新SQL相关的Tab
+  function updateSqlTabs() {
+    // 移除现有的SQL相关tabs
+    tabs = tabs.filter((tab) => tab.id !== "sql" && !tab.id.startsWith("sql-"));
+
+    // 添加保存的SQL作为单独的tab，每个Tab使用CustomSqlPanel
+    savedSqlList.forEach((sqlItem, index) => {
+      tabs.push({
+        id: `sql-${index}` as const,
+        name: sqlItem.name,
+        icon: "#iconSQL",
+        component: CustomSqlPanel,
+        presetSql: sqlItem.sql, // 传递SQL内容给CustomSqlPanel
+      });
+    });
+
+    // 添加"新增SQL"tab，使用SqlManagementPanel
+    tabs.push({
+      id: "sql" as const,
+      name: "新增SQL",
+      icon: "#iconAdd",
+      component: CustomSqlPanel,
+    });
+  }
+
+  function switchTab(tabId: string) {
+    activeTab = tabId as any;
+
+    // 如果切换到SQL tab，重新加载数据
+    if (tabId === "sql") {
+      loadSavedSqlList();
+    }
+  }
+
+  // 监听SQL执行事件
+  function handleSqlExecute(event: CustomEvent) {
+    const { sql } = event.detail;
+    // 这里可以与实际的SQL执行逻辑集成
+    console.log("执行SQL:", sql);
+
+    // TODO: 与实际的SQL执行逻辑集成
+    // 可以调用现有的SQL执行API或与CustomSqlPanel集成
+  }
+
+  onMount(() => {
+    // 初始化时加载SQL数据
+    loadSavedSqlList();
+  });
 </script>
 
 <div class="tab-panel-container">
@@ -57,8 +125,30 @@
   <div class="tab-content">
     {#if activeTab === "backlink"}
       <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
-    {:else if activeTab === "sql"}
-      <CustomSqlPanel />
+    {:else}
+      <!-- 查找当前激活的Tab配置 -->
+      {#each tabs as tab}
+        {#if tab.id === activeTab}
+          {#if tab.component === BacklinkFilterPanelPage}
+            <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
+          {:else if tab.component === CustomSqlPanel}
+            <CustomSqlPanel 
+              presetSql={tab.presetSql} 
+              saveSqlName={tab.name} 
+              {rootId}
+              on:sqlUpdated={loadSavedSqlList}
+            />
+          {:else if tab.component === SqlManagementPanel}
+            <SqlManagementPanel
+              {rootId}
+              {focusBlockId}
+              {currentTab}
+              bind:savedSqlList
+              on:sqlUpdated={loadSavedSqlList}
+            />
+          {/if}
+        {/if}
+      {/each}
     {/if}
   </div>
 </div>

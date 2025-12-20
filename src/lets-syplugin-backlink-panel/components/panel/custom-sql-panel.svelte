@@ -1,8 +1,15 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, createEventDispatcher } from "svelte";
   import EntryList from "@/lets-dashboard/EntryList.svelte";
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
-  import { sql } from "@/api";
+  import { sql, getBlockAttrs, setBlockAttrs } from "@/api";
+  import { isArrayEmpty } from "@/lets-syplugin-backlink-panel/utils/array-util";
+
+  export let presetSql: string = ""; // 接收预填充的SQL
+  export let rootId: string = ""; // 接收文档ID用于保存
+  export let saveSqlName: string = ""; // 接收文档名称用于保存
+
+  const dispatch = createEventDispatcher();
 
   let inputSQL = "";
   let inputExecuteSQL = "";
@@ -86,6 +93,20 @@
 
   let showExamplesDropdown = false;
 
+  // 保存相关状态
+  let showSaveForm = false;
+
+  let isSaving = false;
+
+  // 初始化时处理预设的SQL
+  onMount(() => {
+    if (presetSql) {
+      inputSQL = presetSql;
+      // 可以选择自动执行，或者让用户手动执行
+      // executeSQL(); // 取消自动执行，让用户手动确认
+    }
+  });
+
   async function executeSQL() {
     if (!inputSQL.trim()) {
       error = "请输入 SQL 语句";
@@ -157,6 +178,130 @@
       executeSQL();
     }
   }
+
+  // 保存SQL到文档属性
+  async function saveSqlToDocument(name: string, sql: string) {
+    if (!rootId) {
+      alert("无法保存：缺少文档ID");
+      return;
+    }
+
+    try {
+      isSaving = true;
+
+      // 获取现有的保存的SQL列表
+      const result = await getBlockAttrs(rootId);
+      let savedSqlList = [];
+
+      if (result && result["custom-tab-panel-sqls"]) {
+        const sqlAttr = result["custom-tab-panel-sqls"];
+        if (sqlAttr) {
+          try {
+            savedSqlList = JSON.parse(sqlAttr);
+          } catch (e) {
+            console.error("解析保存的SQL数据失败:", e);
+            savedSqlList = [];
+          }
+        }
+      }
+
+      // 检查SQL名称是否已存在
+      const existingIndex = savedSqlList.findIndex(
+        (item) => item.name === name
+      );
+      let isUpdate = false;
+
+      if (existingIndex !== -1) {
+        // 更新已存在的SQL
+        savedSqlList[existingIndex] = { name, sql };
+        isUpdate = true;
+      } else {
+        // 添加新的SQL
+        const newSqlItem = { name, sql };
+        savedSqlList = [...savedSqlList, newSqlItem];
+      }
+
+      // 保存到文档属性
+      const sqlData = JSON.stringify(savedSqlList);
+      await setBlockAttrs(rootId, {
+        "custom-tab-panel-sqls": sqlData,
+      });
+
+      // 通知父组件更新
+      dispatch("sqlUpdated", { savedSqlList });
+
+      // 重置表单
+      // saveSqlName = "";
+      showSaveForm = false;
+
+      // 显示成功消息
+      if (isUpdate) {
+        alert(`SQL "${name}" 更新成功！`);
+      } else {
+        alert(`SQL "${name}" 保存成功！`);
+      }
+    } catch (error) {
+      console.error("保存SQL失败:", error);
+      alert("保存失败，请重试");
+    } finally {
+      isSaving = false;
+    }
+  }
+
+  // 处理保存表单提交
+  function handleSaveSqlSubmit() {
+    if (!saveSqlName.trim() || !inputSQL.trim()) {
+      alert("请输入SQL名称和内容");
+      return;
+    }
+    saveSqlToDocument(saveSqlName.trim(), inputSQL.trim());
+  }
+
+  // 从SQL中提取默认名称
+  function extractDefaultSqlName(sql: string): string {
+    const trimmedSql = sql.trim().toUpperCase();
+
+    // 尝试提取表名
+    const fromMatch = trimmedSql.match(/FROM\s+(\w+)/i);
+    if (fromMatch) {
+      return `查询_${fromMatch[1]}`;
+    }
+
+    // 尝试提取SELECT字段
+    const selectMatch = trimmedSql.match(/SELECT\s+(\w+)/i);
+    if (selectMatch) {
+      return `查询_${selectMatch[1]}`;
+    }
+
+    // 尝试提取WHERE条件中的关键词
+    const whereMatch = trimmedSql.match(/WHERE\s+(\w+)/i);
+    if (whereMatch) {
+      return `查询_${whereMatch[1]}`;
+    }
+
+    // 默认名称：SQL查询 + 时间戳
+    const timestamp = new Date().toLocaleTimeString("zh-CN", {
+      hour12: false,
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    return `SQL查询_${timestamp.replace(":", "")}`;
+  }
+
+  // 切换保存表单显示
+  function toggleSaveForm() {
+    if (!inputSQL.trim()) {
+      alert("请先输入SQL语句");
+      return;
+    }
+    showSaveForm = !showSaveForm;
+    // if (!showSaveForm) {
+    //   saveSqlName = "";
+    // } else {
+    //   // 设置智能默认名称
+    //   saveSqlName = extractDefaultSqlName(inputSQL);
+    // }
+  }
 </script>
 
 <div class="custom-sql-container">
@@ -174,9 +319,18 @@
         class="sql-input"
         on:keydown={handleKeyDown}
       ></textarea>
-      <button on:click={executeSQL} disabled={loading} class="execute-btn">
-        {loading ? "执行中..." : "执行查询"}
-      </button>
+      <div class="button-group">
+        <button
+          on:click={toggleSaveForm}
+          disabled={loading || !inputSQL.trim()}
+          class="save-btn"
+        >
+          保存SQL
+        </button>
+        <button on:click={executeSQL} disabled={loading} class="execute-btn">
+          {loading ? "执行中..." : "执行查询"}
+        </button>
+      </div>
     </div>
 
     <!-- 示例 SQL -->
@@ -229,6 +383,39 @@
         </div>
       {/if}
     </div>
+
+    <!-- 保存SQL表单 -->
+    {#if showSaveForm}
+      <div class="save-sql-form">
+        <div class="form-group">
+          <label>SQL名称:</label>
+          <input
+            type="text"
+            bind:value={saveSqlName}
+            placeholder="请输入SQL名称"
+            class="save-sql-input"
+          />
+        </div>
+        <div class="form-actions">
+          <button
+            class="cancel-btn"
+            on:click={() => {
+              showSaveForm = false;
+              // saveSqlName = "";
+            }}
+          >
+            取消
+          </button>
+          <button
+            class="confirm-save-btn"
+            on:click={handleSaveSqlSubmit}
+            disabled={isSaving || !saveSqlName.trim()}
+          >
+            {isSaving ? "保存中..." : "确认保存"}
+          </button>
+        </div>
+      </div>
+    {/if}
 
     <!-- 错误提示 -->
     {#if error}
@@ -312,6 +499,13 @@
     margin-bottom: 15px;
   }
 
+  .button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 120px;
+  }
+
   .sql-input {
     flex: 1;
     padding: 12px;
@@ -336,8 +530,9 @@
     box-shadow: 0 0 0 2px rgba(var(--b3-theme-primary-rgb), 0.2);
   }
 
-  .execute-btn {
-    padding: 12px 24px;
+  .execute-btn,
+  .save-btn {
+    padding: 12px 16px;
     background: var(--b3-theme-primary);
     color: var(--b3-theme-on-primary);
     border: none;
@@ -346,7 +541,12 @@
     font-weight: 500;
     transition: all 0.2s ease;
     white-space: nowrap;
-    align-self: flex-start;
+    font-size: 14px;
+  }
+
+  .save-btn {
+    background: var(--b3-theme-secondary);
+    color: var(--b3-theme-on-secondary);
   }
 
   .execute-btn:hover:not(:disabled) {
@@ -354,7 +554,13 @@
     transform: translateY(-1px);
   }
 
-  .execute-btn:disabled {
+  .save-btn:hover:not(:disabled) {
+    background: var(--b3-theme-secondary-hover);
+    transform: translateY(-1px);
+  }
+
+  .execute-btn:disabled,
+  .save-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
@@ -534,5 +740,82 @@
     border-radius: 8px;
     padding: 15px;
     border: 1px solid var(--b3-theme-outline-variant);
+  }
+
+  /* 保存表单样式 */
+  .save-sql-form {
+    background: var(--b3-theme-surface);
+    border: 1px solid var(--b3-theme-outline-variant);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--b3-theme-on-surface);
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .save-sql-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--b3-theme-outline);
+    border-radius: 6px;
+    background: var(--b3-theme-background);
+    color: var(--b3-theme-on-background);
+    font-size: 14px;
+    box-sizing: border-box;
+  }
+
+  .save-sql-input:focus {
+    outline: none;
+    border-color: var(--b3-theme-primary);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .cancel-btn,
+  .confirm-save-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+
+  .cancel-btn {
+    background: var(--b3-theme-surface-variant);
+    color: var(--b3-theme-on-surface);
+  }
+
+  .cancel-btn:hover {
+    background: var(--b3-theme-surface-variant-hover);
+  }
+
+  .confirm-save-btn {
+    background: var(--b3-theme-primary);
+    color: var(--b3-theme-on-primary);
+  }
+
+  .confirm-save-btn:hover:not(:disabled) {
+    background: var(--b3-theme-primary-hover);
+  }
+
+  .confirm-save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 </style>
