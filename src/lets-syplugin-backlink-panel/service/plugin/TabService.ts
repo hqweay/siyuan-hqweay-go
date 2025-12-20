@@ -1,5 +1,6 @@
 import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
 import BacklinkFilterPanelPageSvelte from "@/lets-syplugin-backlink-panel/components/panel/backlink-filter-panel-page.svelte";
+import BacklinkTabPanel from "@/lets-syplugin-backlink-panel/components/panel/backlink-tab-panel.svelte";
 import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { openTab } from "siyuan";
 import { CUSTOM_ICON_MAP } from "@/lets-syplugin-backlink-panel/models/icon-constant";
@@ -52,17 +53,16 @@ export class TabService {
 
     public pluginAddTab(docId: string, focusBlockId: string) {
         let tabId = BACKLINK_TAB_PREFIX + docId;
-        let backlinkFilterPanelPageSvelte: BacklinkFilterPanelPageSvelte;
+        let backlinkFilterPanelPageSvelte: any;
 
         EnvConfig.ins.plugin.addTab({
             type: tabId,
             init() {
-                backlinkFilterPanelPageSvelte = new BacklinkFilterPanelPageSvelte({
+                backlinkFilterPanelPageSvelte = new BacklinkTabPanel({
                     target: this.element,
                     props: {
                         rootId: docId,
                         focusBlockId: focusBlockId,
-                        panelBacklinkViewExpand: true,
                         currentTab: this,
                     }
                 });
@@ -70,7 +70,7 @@ export class TabService {
                 this.element.addEventListener(
                     "scroll",
                     () => {
-                        clearProtyleGutters(this.element);
+                        clearProtyleGutters(this.element as HTMLElement);
                     },
                 );
             },

@@ -2,6 +2,7 @@
     import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
     import { onDestroy, onMount } from "svelte";
     import BacklinkFilterPanelPageSvelte from "@/lets-syplugin-backlink-panel/components/panel/backlink-filter-panel-page.svelte";
+    import BacklinkTabPanel from "@/lets-syplugin-backlink-panel/components/panel/backlink-tab-panel.svelte";
     import { isStrNotBlank } from "@/lets-syplugin-backlink-panel/utils/string-util";
 
     let isMobile = false;
@@ -93,19 +94,17 @@
         <div class="toolbar__text">{EnvConfig.ins.i18n.flatDocumentTree}</div>
     </div> -->
     <div class="">
-        <BacklinkFilterPanelPageSvelte
+        <BacklinkTabPanel
             {rootId}
             {focusBlockId}
-            {panelBacklinkViewExpand}
             {currentTab}
         />
     </div>
 {:else}
     <div class="fn__flex-column">
-        <BacklinkFilterPanelPageSvelte
+        <BacklinkTabPanel
             {rootId}
             {focusBlockId}
-            {panelBacklinkViewExpand}
             {currentTab}
         />
     </div>

@@ -2282,7 +2282,7 @@ ${documentName}
     .block__icon {
         opacity: 1;
     }
-
+ 
     .backlink-panel__header {
         position: sticky;
         top: 0;

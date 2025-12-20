@@ -1,5 +1,6 @@
 import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
 import BacklinkFilterPanelPageSvelte from "@/lets-syplugin-backlink-panel/components/panel/backlink-filter-panel-page.svelte";
+import BacklinkTabPanel from "@/lets-syplugin-backlink-panel/components/panel/backlink-tab-panel.svelte";
 import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
 import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { Menu } from "siyuan";
@@ -11,7 +12,7 @@ import { isArrayEmpty } from "@/lets-syplugin-backlink-panel/utils/array-util";
 import { NewNodeID } from "@/lets-syplugin-backlink-panel/utils/siyuan-util";
 
 
-let backlinkPanelPageSvelteMap: Map<string, BacklinkFilterPanelPageSvelte> = new Map();
+let backlinkPanelPageSvelteMap: Map<string, any> = new Map();
 let documentProtyleElementMap: Map<string, HTMLElement> = new Map();
 
 
@@ -188,13 +189,12 @@ async function addBacklinkPanelToBottom(docuemntContentElement: HTMLElement, roo
 
     let docBottomBacklinkPanelViewExpand = SettingService.ins.SettingConfig.docBottomBacklinkPanelViewExpand
 
-    let pageSvelte = new BacklinkFilterPanelPageSvelte({
+    let pageSvelte = new BacklinkTabPanel({
         target: backlinkPanelBottomElement,
         props: {
             rootId: rootId,
             focusBlockId: focusBlockId,
             currentTab: null,
-            panelBacklinkViewExpand: docBottomBacklinkPanelViewExpand,
         }
     });
     backlinkPanelBottomElement.parentElement.addEventListener(
