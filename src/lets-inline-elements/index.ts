@@ -43,6 +43,10 @@ export default class InlineElementsPlugin implements SubPlugin {
         // 使用闭包来捕获组件实例
         let componentInstance: any;
 
+        // 获取配置选项
+        const useProtyle = settings.getBySpace("inline-elements", "useProtyle") || false;
+        const pageSize = parseInt(settings.getBySpace("inline-elements", "pageSize")) || 20;
+        
         // 创建组件实例
         componentInstance = new InlineElements({
           target: dock.element,
@@ -50,6 +54,8 @@ export default class InlineElementsPlugin implements SubPlugin {
             inlineElements: this.inlineElements,
             currentDocId: this.currentDocId,
             isLoading: this.isLoading,
+            useProtyle: useProtyle,
+            pageSize: pageSize,
           },
         });
 
