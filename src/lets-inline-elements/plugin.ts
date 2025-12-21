@@ -1,7 +1,7 @@
 export default {
   name: "inline-elements",
-  displayName: "侧边栏展示行内元素",
-  description: "侧边栏展示行内元素",
+  displayName: "侧边栏展示标注",
+  description: "侧边栏展示 highlight 标注",
   version: "1.0.0",
   author: "hqweay",
   settings: [
