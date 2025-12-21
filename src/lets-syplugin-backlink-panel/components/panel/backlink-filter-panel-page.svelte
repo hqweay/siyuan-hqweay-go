@@ -1,61 +1,60 @@
 <script lang="ts">
+    import { CacheManager } from "@/lets-syplugin-backlink-panel/config/CacheManager";
     import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
     import {
-        BACKLINK_BLOCK_SORT_METHOD_ELEMENT,
-        CUR_DOC_DEF_BLOCK_SORT_METHOD_ELEMENT,
-        CUR_DOC_DEF_BLOCK_TYPE_ELEMENT,
-        RELATED_DEF_BLOCK_SORT_METHOD_ELEMENT,
-        RELATED_DEF_BLOCK_TYPE_ELEMENT,
-        RELATED_DOCMUMENT_SORT_METHOD_ELEMENT,
+      BACKLINK_BLOCK_SORT_METHOD_ELEMENT,
+      CUR_DOC_DEF_BLOCK_SORT_METHOD_ELEMENT,
+      CUR_DOC_DEF_BLOCK_TYPE_ELEMENT,
+      RELATED_DEF_BLOCK_SORT_METHOD_ELEMENT,
+      RELATED_DEF_BLOCK_TYPE_ELEMENT,
+      RELATED_DOCMUMENT_SORT_METHOD_ELEMENT,
     } from "@/lets-syplugin-backlink-panel/models/backlink-constant";
     import {
-        IBacklinkFilterPanelData,
-        IBacklinkFilterPanelDataQueryParams,
-        IBacklinkPanelRenderData,
-        IPanelRednerFilterQueryParams,
-        BacklinkPanelFilterCriteria,
+      BacklinkPanelFilterCriteria,
+      IBacklinkFilterPanelData,
+      IBacklinkFilterPanelDataQueryParams,
+      IBacklinkPanelRenderData,
+      IPanelRednerFilterQueryParams,
     } from "@/lets-syplugin-backlink-panel/models/backlink-model";
     import {
-        defBlockArrayTypeAndKeywordFilter,
-        defBlockArraySort,
-        getBacklinkPanelData,
-        getBacklinkPanelRenderData,
-
+      defBlockArraySort,
+      defBlockArrayTypeAndKeywordFilter,
+      getBacklinkPanelData,
+      getBacklinkPanelRenderData,
     } from "@/lets-syplugin-backlink-panel/service/backlink/backlink-data";
-    import {
-        isArrayEmpty,
-        isArrayNotEmpty,
-        isSetEmpty,
-        isSetNotEmpty,
-    } from "@/lets-syplugin-backlink-panel/utils/array-util";
-    import {
-        clearProtyleGutters,
-        getElementsBeforeDepth,
-        highlightElementTextByCss,
-        getElementsAtDepth,
-        syHasChildListNode,
-    } from "@/lets-syplugin-backlink-panel/utils/html-util";
-    import {
-        isStrBlank,
-        removePrefixAndSuffix,
-        splitKeywordStringToArray,
-    } from "@/lets-syplugin-backlink-panel/utils/string-util";
-    import {
-        Constants,
-        openMobileFileById,
-        Protyle,
-        TProtyleAction,
-        Custom,
-        openTab,
-    } from "siyuan";
-    import { onDestroy, onMount } from "svelte";
-    import { getBlockTypeIconHref } from "@/lets-syplugin-backlink-panel/utils/icon-util";
-    import { CacheManager } from "@/lets-syplugin-backlink-panel/config/CacheManager";
     import { BacklinkFilterPanelAttributeService } from "@/lets-syplugin-backlink-panel/service/setting/BacklinkPanelFilterCriteriaService";
     import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
-    import { delayedTwiceRefresh } from "@/lets-syplugin-backlink-panel/utils/timing-util";
     import { getBlockIsFolded } from "@/lets-syplugin-backlink-panel/utils/api";
+    import {
+      isArrayEmpty,
+      isArrayNotEmpty,
+      isSetEmpty,
+      isSetNotEmpty,
+    } from "@/lets-syplugin-backlink-panel/utils/array-util";
+    import {
+      clearProtyleGutters,
+      getElementsAtDepth,
+      getElementsBeforeDepth,
+      highlightElementTextByCss,
+      syHasChildListNode,
+    } from "@/lets-syplugin-backlink-panel/utils/html-util";
+    import { getBlockTypeIconHref } from "@/lets-syplugin-backlink-panel/utils/icon-util";
     import { getOpenTabActionByZoomIn } from "@/lets-syplugin-backlink-panel/utils/siyuan-util";
+    import {
+      isStrBlank,
+      removePrefixAndSuffix,
+      splitKeywordStringToArray,
+    } from "@/lets-syplugin-backlink-panel/utils/string-util";
+    import { delayedTwiceRefresh } from "@/lets-syplugin-backlink-panel/utils/timing-util";
+    import {
+      Constants,
+      Custom,
+      openMobileFileById,
+      openTab,
+      Protyle,
+      TProtyleAction,
+    } from "siyuan";
+    import { onDestroy, onMount } from "svelte";
 
     export let rootId: string;
     export let focusBlockId: string;

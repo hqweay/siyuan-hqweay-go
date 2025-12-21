@@ -1,10 +1,9 @@
 <script lang="ts">
+  import { getBlockAttrs } from "@/api";
   import { onMount } from "svelte";
   import BacklinkFilterPanelPage from "./backlink-filter-panel-page.svelte";
-  import SqlManagementPanel from "./sql-management-panel.svelte";
   import CustomSqlPanel from "./custom-sql-panel.svelte";
-  import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
-  import { getBlockAttrs } from "@/api";
+  import SqlManagementPanel from "./sql-management-panel.svelte";
 
   export let rootId: string;
   export let focusBlockId: string;

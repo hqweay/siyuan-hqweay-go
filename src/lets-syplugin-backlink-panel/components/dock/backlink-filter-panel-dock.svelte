@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
-    import { onDestroy, onMount } from "svelte";
-    import BacklinkFilterPanelPageSvelte from "@/lets-syplugin-backlink-panel/components/panel/backlink-filter-panel-page.svelte";
     import BacklinkTabPanel from "@/lets-syplugin-backlink-panel/components/panel/backlink-tab-panel.svelte";
+    import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
     import { isStrNotBlank } from "@/lets-syplugin-backlink-panel/utils/string-util";
+    import { onDestroy, onMount } from "svelte";
 
     let isMobile = false;
     let dockActive: boolean;

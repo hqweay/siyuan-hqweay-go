@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from "svelte";
+  import { getBlockAttrs, setBlockAttrs, sql } from "@/api";
   import EntryList from "@/lets-dashboard/EntryList.svelte";
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
-  import { sql, getBlockAttrs, setBlockAttrs } from "@/api";
-  import { isArrayEmpty } from "@/lets-syplugin-backlink-panel/utils/array-util";
-  import { confirmDialog } from "@frostime/siyuan-plugin-kits";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let presetSql: string = ""; // 接收预填充的SQL
   export let rootId: string = ""; // 接收文档ID用于保存

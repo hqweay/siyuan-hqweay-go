@@ -1,10 +1,6 @@
 <script lang="ts">
-  import { onMount, createEventDispatcher } from "svelte";
-  import { Protyle } from "siyuan";
-  import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
-  import { isArrayEmpty } from "@/lets-syplugin-backlink-panel/utils/array-util";
-  import { getBlockAttrs, setBlockAttrs } from "@/api";
-  import CustomSqlPanel from "./custom-sql-panel.svelte";
+  import { setBlockAttrs } from "@/api";
+  import { createEventDispatcher, onMount } from "svelte";
 
   export let rootId: string;
   export let focusBlockId: string;
