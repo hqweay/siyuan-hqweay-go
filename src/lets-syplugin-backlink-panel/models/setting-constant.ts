@@ -203,7 +203,7 @@ export function getSettingTabArray(): TabProperty[] {
           key: "sqlQuery",
           type: "textarea",
           name: "默认展示的 SQL 查询语句",
-          description: "以 name：sql 配置；会展示在每个文档/块的 SQL 查询面板中",
+          description: "以 name：sql 配置；会展示在每个文档/块的 SQL 查询面板中；换行配置多条",
           tips: "",
         }),
       ],
