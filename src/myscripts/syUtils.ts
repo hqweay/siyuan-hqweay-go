@@ -138,17 +138,19 @@ export function openBlockByID(id: string) {
   if (isMobile) {
     openMobileFileById(plugin.app, id);
   } else {
-    openTab({
-      app: plugin.app, //plugin 是你插件的 this 对象
-      doc: {
-        id: id,
-      },
-    });
+    // openTab({
+    //   app: plugin.app, //plugin 是你插件的 this 对象
+    //   doc: {
+    //     id: id,
+    //   },
+    // });
+    window.open(`siyuan://blocks/${id}`, "_blank");
   }
 }
 
 export function openByUrl(url) {
   url = url.trim();
+  console.log("openByUrl:", url);
   if (!url) {
     showMessage("url为空");
     return;
