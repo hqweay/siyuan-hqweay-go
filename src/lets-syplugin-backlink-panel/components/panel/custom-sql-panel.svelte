@@ -7,6 +7,7 @@
   export let presetSql: string = ""; // 接收预填充的SQL
   export let rootId: string = ""; // 接收文档ID用于保存
   export let saveSqlName: string = ""; // 接收文档名称用于保存
+  export let id: string = ""; // id
 
   const dispatch = createEventDispatcher();
 
@@ -357,147 +358,149 @@
 </script>
 
 <div class="custom-sql-container">
-  <!-- SQL 输入区域标题栏 -->
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div class="sql-section-header" on:click={toggleSqlInputSection}>
-    <h3>自定义 SQL 查询</h3>
-    <div class="section-controls">
-      <div class="help-text">Ctrl+Enter 执行查询</div>
-      <button class="expand-toggle" class:expanded={isSqlInputExpanded}>
-        <span class="arrow" class:rotated={isSqlInputExpanded}>▼</span>
-        {isSqlInputExpanded ? '折叠' : '展开'}
-      </button>
+  {#if !id.startsWith("sql-default")}
+    <!-- SQL 输入区域标题栏 -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div class="sql-section-header" on:click={toggleSqlInputSection}>
+      <h3>自定义 SQL 查询</h3>
+      <div class="section-controls">
+        <div class="help-text">Ctrl+Enter 执行查询</div>
+        <button class="expand-toggle" class:expanded={isSqlInputExpanded}>
+          <span class="arrow" class:rotated={isSqlInputExpanded}>▼</span>
+          {isSqlInputExpanded ? "折叠" : "展开"}
+        </button>
+      </div>
     </div>
-  </div>
-  
-  <!-- SQL 输入区域 -->
-  <div class="sql-input-section" class:collapsed={!isSqlInputExpanded}>
-    <!-- <div class="section-header">
+
+    <!-- SQL 输入区域 -->
+    <div class="sql-input-section" class:collapsed={!isSqlInputExpanded}>
+      <!-- <div class="section-header">
       <h3>自定义 SQL 查询</h3>
       <div class="help-text">Ctrl+Enter 执行查询</div>
     </div> -->
-    <div class="input-group">
-      <textarea
-        bind:value={inputSQL}
-        placeholder="请输入 SQL 语句..."
-        rows="2"
-        class="sql-input"
-        on:keydown={handleKeyDown}
-      ></textarea>
-      <div class="button-group">
-        <button
-          on:click={toggleSaveForm}
-          disabled={loading || !inputSQL.trim()}
-          class="save-btn"
-        >
-          保存SQL
-        </button>
-        <button
-          on:click={async () => {
-            deleteSqlFromDocument(saveSqlName);
-          }}
-          disabled={loading}
-          class="delete-btn"
-        >
-          删除SQL
-        </button>
-        <button on:click={executeSQL} disabled={loading} class="execute-btn">
-          {loading ? "执行中..." : "执行查询"}
-        </button>
+      <div class="input-group">
+        <textarea
+          bind:value={inputSQL}
+          placeholder="请输入 SQL 语句..."
+          rows="2"
+          class="sql-input"
+          on:keydown={handleKeyDown}
+        ></textarea>
+        <div class="button-group">
+          <button
+            on:click={toggleSaveForm}
+            disabled={loading || !inputSQL.trim()}
+            class="save-btn"
+          >
+            保存SQL
+          </button>
+          <button
+            on:click={async () => {
+              deleteSqlFromDocument(saveSqlName);
+            }}
+            disabled={loading}
+            class="delete-btn"
+          >
+            删除SQL
+          </button>
+          <button on:click={executeSQL} disabled={loading} class="execute-btn">
+            {loading ? "执行中..." : "执行查询"}
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- 示例 SQL -->
-    <div class="examples-dropdown-container">
-      {#if exampleSQLs.length <= 4}
-        <span class="examples-label">示例 SQL:</span>
+      <!-- 示例 SQL -->
+      <div class="examples-dropdown-container">
+        {#if exampleSQLs.length <= 4}
+          <span class="examples-label">示例 SQL:</span>
 
-        <!-- 少量示例时直接显示 -->
-        {#each exampleSQLs as example}
-          <button
-            class="example-btn"
-            on:click={() => setExampleSQL(example)}
-            disabled={loading}
-            title={getFullText(example)}
-          >
-            {getDisplayText(example)}
-          </button>
-        {/each}
-      {:else}
-        <!-- 大量示例时显示下拉菜单 -->
-        <div class="dropdown-wrapper">
-          <button
-            class="dropdown-toggle"
-            on:click={toggleExamplesDropdown}
-            disabled={loading}
-          >
-            示例 SQL ({exampleSQLs.length})
-            <span class="arrow" class:rotated={showExamplesDropdown}>▼</span>
-          </button>
+          <!-- 少量示例时直接显示 -->
+          {#each exampleSQLs as example}
+            <button
+              class="example-btn"
+              on:click={() => setExampleSQL(example)}
+              disabled={loading}
+              title={getFullText(example)}
+            >
+              {getDisplayText(example)}
+            </button>
+          {/each}
+        {:else}
+          <!-- 大量示例时显示下拉菜单 -->
+          <div class="dropdown-wrapper">
+            <button
+              class="dropdown-toggle"
+              on:click={toggleExamplesDropdown}
+              disabled={loading}
+            >
+              示例 SQL ({exampleSQLs.length})
+              <span class="arrow" class:rotated={showExamplesDropdown}>▼</span>
+            </button>
 
-          {#if showExamplesDropdown}
-            <div class="dropdown-menu">
-              {#each exampleSQLCategories as category}
-                <div class="category-group">
-                  <div class="category-title">{category.name}</div>
-                  {#each category.examples as example}
-                    <button
-                      class="dropdown-item"
-                      on:click={() => setExampleSQL(example)}
-                      disabled={loading}
-                      title={getFullText(example)}
-                    >
-                      {getDisplayText(example)}
-                    </button>
-                  {/each}
-                </div>
-              {/each}
-            </div>
-          {/if}
+            {#if showExamplesDropdown}
+              <div class="dropdown-menu">
+                {#each exampleSQLCategories as category}
+                  <div class="category-group">
+                    <div class="category-title">{category.name}</div>
+                    {#each category.examples as example}
+                      <button
+                        class="dropdown-item"
+                        on:click={() => setExampleSQL(example)}
+                        disabled={loading}
+                        title={getFullText(example)}
+                      >
+                        {getDisplayText(example)}
+                      </button>
+                    {/each}
+                  </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
+      </div>
+
+      <!-- 保存SQL表单 -->
+      {#if showSaveForm}
+        <div class="save-sql-form">
+          <div class="form-group">
+            <label>SQL名称:</label>
+            <input
+              type="text"
+              bind:value={saveSqlName}
+              placeholder="请输入SQL名称"
+              class="save-sql-input"
+            />
+          </div>
+          <div class="form-actions">
+            <button
+              class="cancel-btn"
+              on:click={() => {
+                showSaveForm = false;
+              }}
+            >
+              取消
+            </button>
+            <button
+              class="confirm-save-btn"
+              on:click={handleSaveSqlSubmit}
+              disabled={isSaving || !saveSqlName.trim()}
+            >
+              {isSaving ? "保存中..." : "确认保存"}
+            </button>
+          </div>
+        </div>
+      {/if}
+
+      <!-- 错误提示 -->
+      {#if error}
+        <div class="error-message">
+          {error}
         </div>
       {/if}
     </div>
-
-    <!-- 保存SQL表单 -->
-    {#if showSaveForm}
-      <div class="save-sql-form">
-        <div class="form-group">
-          <label>SQL名称:</label>
-          <input
-            type="text"
-            bind:value={saveSqlName}
-            placeholder="请输入SQL名称"
-            class="save-sql-input"
-          />
-        </div>
-        <div class="form-actions">
-          <button
-            class="cancel-btn"
-            on:click={() => {
-              showSaveForm = false;
-            }}
-          >
-            取消
-          </button>
-          <button
-            class="confirm-save-btn"
-            on:click={handleSaveSqlSubmit}
-            disabled={isSaving || !saveSqlName.trim()}
-          >
-            {isSaving ? "保存中..." : "确认保存"}
-          </button>
-        </div>
-      </div>
-    {/if}
-
-    <!-- 错误提示 -->
-    {#if error}
-      <div class="error-message">
-        {error}
-      </div>
-    {/if}
-  </div>
+  {/if}
 
   <!-- 结果展示区域 -->
   {#if inputExecuteSQL}

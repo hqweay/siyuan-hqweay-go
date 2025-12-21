@@ -160,9 +160,12 @@ function getDefaultSettingConfig() {
     defaultConfig.backlinkBlockSortMethod = "modifiedDesc";
     defaultConfig.hideBacklinkProtyleBreadcrumb = false;
     defaultConfig.defaultExpandedListItemLevel = 0;
+    defaultConfig.scrollLoading = false;
     // defaultConfig.queryAllContentUnderHeadline = false;
 
 
+    // SQL面板
+    defaultConfig.sqlQuery = `今日更新文档:SELECT * FROM blocks AS b WHERE b.type = 'd' AND b.root_id != '.block{.root_id}' AND ( b.updated > strftime( '%Y%m%d%H%M%S', 'now', 'localtime', 'start of day' ) OR b.created > strftime( '%Y%m%d%H%M%S', 'now', 'localtime', 'start of day' ) ) order by updated desc`;
 
     return defaultConfig;
 }

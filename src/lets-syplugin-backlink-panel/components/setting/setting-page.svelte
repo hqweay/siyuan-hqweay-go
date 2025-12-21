@@ -50,7 +50,7 @@
                                 <SettingSwitch {itemProperty}></SettingSwitch>
                             {:else if itemProperty.type == "select"}
                                 <SettingSelect {itemProperty}></SettingSelect>
-                            {:else if itemProperty.type == "number" || itemProperty.type == "text"}
+                            {:else if itemProperty.type == "number" || itemProperty.type == "text" || itemProperty.type == "textarea"}
                                 <SettingInput {itemProperty} />
                             {:else}
                                 不能载入设置项，请检查设置代码实现。 Key: {itemProperty.key}

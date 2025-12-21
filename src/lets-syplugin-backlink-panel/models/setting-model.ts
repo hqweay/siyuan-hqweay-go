@@ -18,7 +18,6 @@ export class SettingConfig {
 
   // 文档底部反链面板宽度
   documentBottomBacklinkPaddingWidth: number;
-  scrollLoading: boolean;
 
   /* 筛选面板 */
   filterPanelViewExpand: boolean;
@@ -38,6 +37,10 @@ export class SettingConfig {
   hideBacklinkProtyleBreadcrumb: boolean;
   defaultExpandedListItemLevel: number;
   // queryAllContentUnderHeadline: boolean;
+  scrollLoading: boolean;
+
+  // SQL 面板
+  sqlQuery: string;
 }
 
 interface ITabProperty {

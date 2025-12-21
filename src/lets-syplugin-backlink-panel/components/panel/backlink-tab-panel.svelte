@@ -4,6 +4,7 @@
   import BacklinkFilterPanelPage from "./backlink-filter-panel-page.svelte";
   import CustomSqlPanel from "./custom-sql-panel.svelte";
   import SqlManagementPanel from "./sql-management-panel.svelte";
+  import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
 
   export let rootId: string;
   export let focusBlockId: string;
@@ -68,6 +69,21 @@
       });
     });
 
+    SettingService.ins.SettingConfig["sqlQuery"]
+      ?.split("/n")
+      .forEach((sql, index) => {
+        if (sql.trim() !== "") {
+          const [name, sqlTemp] = sql.split(":");
+          tabs.push({
+            id: `sql-default-${name}` as const,
+            name: `${name}`,
+            icon: "#iconSQL",
+            component: CustomSqlPanel,
+            presetSql: sqlTemp, // 传递SQL内容给CustomSqlPanel
+          });
+        }
+      });
+
     // 添加"新增SQL"tab，使用SqlManagementPanel
     tabs.push({
       id: "sql" as const,
@@ -131,9 +147,10 @@
           {#if tab.component === BacklinkFilterPanelPage}
             <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
           {:else if tab.component === CustomSqlPanel}
-            <CustomSqlPanel 
-              presetSql={tab.presetSql} 
-              saveSqlName={tab.name} 
+            <CustomSqlPanel
+              presetSql={tab.presetSql}
+              saveSqlName={tab.name}
+              id={tab.id}
               {rootId}
               on:sqlUpdated={loadSavedSqlList}
             />
