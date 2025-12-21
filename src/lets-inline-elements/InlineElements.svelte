@@ -5,10 +5,15 @@
   import { openBlock } from "@frostime/siyuan-plugin-kits";
   import { openBlockByID } from "@/myscripts/syUtils";
 
+  import { createEventDispatcher } from "svelte";
+  
   export let inlineElements: any[] = [];
   export let currentDocId: string = "";
   export let isLoading: boolean = false;
   export let pageSize: number = 20;
+  export let isRefreshing: boolean = false;
+  
+  const dispatch = createEventDispatcher();
 
   // 内部状态管理
   let useProtyle = false;
@@ -203,6 +208,10 @@
     searchText = "";
     manualSearchText = "";
   }
+
+  function handleRefresh() {
+    dispatch("refresh");
+  }
 </script>
 
 <div class="inline-elements-panel" on:scroll={handleScroll}>
@@ -223,6 +232,15 @@
       {/if}
     </div>
     <div class="header-actions">
+      <!-- 刷新按钮 -->
+      <button
+        class="refresh-btn"
+        title="刷新标注列表"
+        on:click={handleRefresh}
+        disabled={isRefreshing}
+      >
+        {isRefreshing ? "⟳" : "🔄"}
+      </button>
       <!-- 模式切换按钮 -->
       <button
         class="mode-toggle-btn"
@@ -412,6 +430,35 @@
   .mode-toggle-btn:hover {
     background-color: var(--hover-bg-color, #f0f0f0);
     border-color: var(--primary-color, #1890ff);
+  }
+
+  .refresh-btn {
+    background: none;
+    border: 1px solid var(--border-color, #d9d9d9);
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+  }
+
+  .refresh-btn:hover {
+    background-color: var(--hover-bg-color, #f0f0f0);
+    border-color: var(--primary-color, #1890ff);
+  }
+
+  .refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .refresh-btn:disabled:hover {
+    background-color: transparent;
+    border-color: var(--border-color, #d9d9d9);
   }
 
   .panel-title {

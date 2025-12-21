@@ -20,6 +20,7 @@ export default class InlineElementsPlugin implements SubPlugin {
 
   private currentDocId: string = "";
   private isLoading: boolean = false;
+  private isRefreshing: boolean = false;
   private inlineElements: InlineElement[] = [];
 
   onload(): void {
@@ -56,6 +57,7 @@ export default class InlineElementsPlugin implements SubPlugin {
             inlineElements: this.inlineElements,
             currentDocId: this.currentDocId,
             isLoading: this.isLoading,
+            isRefreshing: this.isRefreshing,
             pageSize: pageSize,
           },
         });
@@ -65,6 +67,11 @@ export default class InlineElementsPlugin implements SubPlugin {
 
         plugin.eventBus.on("switch-protyle", (e: any) => {
           this.loadInlineElements(componentInstance);
+        });
+
+        // 监听组件的刷新事件
+        componentInstance.$on("refresh", () => {
+          this.handleRefresh(componentInstance);
         });
 
         // 设置文档切换监听
@@ -199,6 +206,30 @@ export default class InlineElementsPlugin implements SubPlugin {
   }
 
   /**
+   * 处理刷新请求
+   */
+  private async handleRefresh(componentInstance: any): Promise<void> {
+    if (!this.currentDocId) {
+      return;
+    }
+
+    this.isRefreshing = true;
+    this.updateComponentProps(componentInstance);
+
+    try {
+      const elements = await this.extractInlineElements(this.currentDocId);
+      this.inlineElements = elements;
+      showMessage(`已刷新，找到 ${elements.length} 个标注`, 2000);
+    } catch (error) {
+      console.error("刷新标注失败:", error);
+      showMessage("刷新标注失败", 3000);
+    } finally {
+      this.isRefreshing = false;
+      this.updateComponentProps(componentInstance);
+    }
+  }
+
+  /**
    * 更新组件属性
    */
   private updateComponentProps(componentInstance: any): void {
@@ -207,6 +238,7 @@ export default class InlineElementsPlugin implements SubPlugin {
         inlineElements: this.inlineElements,
         currentDocId: this.currentDocId,
         isLoading: this.isLoading,
+        isRefreshing: this.isRefreshing,
       });
     }
   }
