@@ -159,6 +159,11 @@
 </div>
 
 <style>
+  /* 文档流不展示底部反链 */
+  :global(.entry-list .backlink-panel-document-bottom__area) {
+    display: none;
+  }
+
   .entry-list {
     display: block;
   }
