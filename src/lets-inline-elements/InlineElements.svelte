@@ -25,9 +25,22 @@
       element.content.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  // Protyle 模式下按 block id 去重
+  $: uniqueElementsById = useProtyle
+    ? Object.values(
+        filteredElements.reduce((acc, element) => {
+          // 保留每个 id 第一次出现的元素
+          if (!acc[element.id]) {
+            acc[element.id] = element;
+          }
+          return acc;
+        }, {})
+      )
+    : filteredElements;
+
   // 分页处理
   $: paginatedElements = useProtyle
-    ? filteredElements.slice(0, (currentPage + 1) * pageSize)
+    ? uniqueElementsById.slice(0, (currentPage + 1) * pageSize)
     : filteredElements;
 
   // 是否还有更多内容可以加载
@@ -204,7 +217,7 @@
       </button>
       <div class="element-count">
         {paginatedElements.length}{useProtyle
-          ? `/ ${filteredElements.length}`
+          ? `/ ${uniqueElementsById.length}`
           : ""}
       </div>
     </div>
@@ -279,7 +292,7 @@
         {#if hasMore}
           <div class="load-more-container">
             <button class="load-more-btn" on:click={loadMore}>
-              加载更多 ({filteredElements.length - paginatedElements.length} 剩余)
+              加载更多 ({uniqueElementsById.length - paginatedElements.length} 剩余)
             </button>
           </div>
         {/if}
