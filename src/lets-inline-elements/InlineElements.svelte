@@ -13,16 +13,20 @@
   // 内部状态管理
   let useProtyle = false;
   let searchText = "";
+  let manualSearchText = ""; // Protyle 模式下的手动搜索
   let currentPage = 0;
   let protyleInstances: { [key: string]: any } = {};
   let protyleContainers: { [key: string]: HTMLElement } = {};
 
-  // 过滤显示的元素
+  // 过滤显示的元素（根据模式选择搜索方式）
+  $: currentSearchText = useProtyle ? manualSearchText : searchText;
   $: filteredElements = inlineElements.filter(
     (element) =>
-      !searchText ||
-      element.markdown.toLowerCase().includes(searchText.toLowerCase()) ||
-      element.content.toLowerCase().includes(searchText.toLowerCase())
+      !currentSearchText ||
+      element.markdown
+        .toLowerCase()
+        .includes(currentSearchText.toLowerCase()) ||
+      element.content.toLowerCase().includes(currentSearchText.toLowerCase())
   );
 
   // Protyle 模式下按 block id 去重
@@ -187,6 +191,18 @@
       loadMore();
     }
   }
+
+  function handleSearchKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" && useProtyle) {
+      manualSearchText = searchText;
+      event.preventDefault();
+    }
+  }
+
+  function clearSearch() {
+    searchText = "";
+    manualSearchText = "";
+  }
 </script>
 
 <div class="inline-elements-panel" on:scroll={handleScroll}>
@@ -224,15 +240,27 @@
   </div>
 
   <!-- 搜索框 -->
-  <div class="search-container">
-    <input
-      type="text"
-      placeholder="搜索标注内容..."
-      bind:value={searchText}
-      class="search-input"
-    />
-  </div>
+  <!--@todo Protyle 搜索有bug，先不支持搜索 -->
 
+  {#if !useProtyle}
+    <div class="search-container">
+      <input
+        type="text"
+        placeholder={useProtyle
+          ? "输入搜索关键词，按 Enter 键搜索"
+          : "搜索标注内容..."}
+        bind:value={searchText}
+        on:keydown={handleSearchKeydown}
+        class="search-input"
+      />
+
+      {#if searchText}
+        <button on:click={clearSearch} class="clear-btn" title="清空">
+          ×
+        </button>
+      {/if}
+    </div>
+  {/if}
   <!-- 内容区域 -->
   <div class="content-container" class:protyle-mode={useProtyle}>
     {#if isLoading}
@@ -438,6 +466,30 @@
 
   .search-input:focus {
     border-color: var(--primary-color, #1890ff);
+  }
+
+  .clear-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary-color, #666);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 2px;
+    font-size: 16px;
+    line-height: 1;
+    position: absolute;
+    right: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .clear-btn:hover {
+    color: var(--text-color, #333);
+    background-color: var(--hover-bg-color, #f0f0f0);
+  }
+
+  .search-container {
+    position: relative;
   }
 
   .content-container {
