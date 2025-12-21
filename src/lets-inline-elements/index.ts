@@ -16,18 +16,20 @@ interface InlineElement {
 }
 
 export default class InlineElementsPlugin implements SubPlugin {
-  regexOfHighLight = /==([^=]+?)==/g;
+   regexOfHighLight = /==([^=]+?)==/g;
 
   private currentDocId: string = "";
   private isLoading: boolean = false;
   private inlineElements: InlineElement[] = [];
 
   onload(): void {
+
+
     plugin.addDock({
       config: {
         position: "RightTop",
         size: { width: 300, height: 0 },
-        icon: "iconHighlight",
+        icon: `iconMark`,
         title: "文档标注",
         hotkey: "⌥⌘W",
       },
@@ -44,9 +46,9 @@ export default class InlineElementsPlugin implements SubPlugin {
         let componentInstance: any;
 
         // 获取配置选项
-        const useProtyle = settings.getBySpace("inline-elements", "useProtyle") || false;
-        const pageSize = parseInt(settings.getBySpace("inline-elements", "pageSize")) || 20;
-        
+        const pageSize =
+          parseInt(settings.getBySpace("inline-elements", "pageSize")) || 20;
+
         // 创建组件实例
         componentInstance = new InlineElements({
           target: dock.element,
@@ -54,7 +56,6 @@ export default class InlineElementsPlugin implements SubPlugin {
             inlineElements: this.inlineElements,
             currentDocId: this.currentDocId,
             isLoading: this.isLoading,
-            useProtyle: useProtyle,
             pageSize: pageSize,
           },
         });
