@@ -13,5 +13,12 @@ export default {
       value: 20,
       placeholder: "20",
     },
+    {
+      type: "checkbox",
+      title: "切换文档自动刷新",
+      description: "标注列表在切换文档时自动刷新",
+      key: "autoRefresh",
+      value: false,
+    },
   ],
 };

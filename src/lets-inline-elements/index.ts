@@ -5,6 +5,7 @@ import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import InlineElements from "./InlineElements.svelte";
 import { getCurrentDocId } from "@/myscripts/syUtils";
+import { get } from "http";
 
 interface InlineElement {
   id: string;
@@ -54,7 +55,8 @@ export default class InlineElementsPlugin implements SubPlugin {
           target: dock.element,
           props: {
             inlineElements: this.inlineElements,
-            currentDocId: this.currentDocId,
+            // currentDocId: this.currentDocId,
+            currentDocId: getCurrentDocId(),
             isLoading: this.isLoading,
             isRefreshing: this.isRefreshing,
             pageSize: pageSize,
@@ -64,9 +66,11 @@ export default class InlineElementsPlugin implements SubPlugin {
         // 初始加载当前文档的标注
         this.loadInlineElements(componentInstance);
 
-        plugin.eventBus.on("switch-protyle", (e: any) => {
-          this.loadInlineElements(componentInstance);
-        });
+        if (settings.getBySpace("inline-elements", "autoRefresh")) {
+          plugin.eventBus.on("switch-protyle", (e: any) => {
+            this.loadInlineElements(componentInstance);
+          });
+        }
 
         // 监听组件的刷新事件
         componentInstance.$on("refresh", () => {
@@ -89,6 +93,10 @@ export default class InlineElementsPlugin implements SubPlugin {
    * 提取当前文档的行内标注元素
    */
   private async loadInlineElements(componentInstance: any): Promise<void> {
+    //如果没有配置自动刷新，延迟加载，确保文档切换完成
+    if (!settings.getBySpace("inline-elements", "autoRefresh")) {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
     const docId = getCurrentDocId();
 
     if (!docId) {
@@ -193,6 +201,7 @@ export default class InlineElementsPlugin implements SubPlugin {
    * 处理刷新请求
    */
   private async handleRefresh(componentInstance: any): Promise<void> {
+    this.currentDocId = getCurrentDocId();
     if (!this.currentDocId) {
       return;
     }
