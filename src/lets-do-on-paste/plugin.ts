@@ -27,6 +27,7 @@ export const pluginMetadata: PluginMetadata = {
         pinImg: "📌图片",
         ocrTextPin: "📌OCR文本",
         pinOcrText: "OCR文本📌",
+        calloutPinText: "callout📌OCR文本",
       },
     },
     {

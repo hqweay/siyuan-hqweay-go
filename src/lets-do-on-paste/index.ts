@@ -98,6 +98,16 @@ export default class doOnPaste {
         undefined
       );
       replaced = clipboardText.replace(regex, `<<$1 "${ocrText}">>`);
+    } else if (recAnnoType === "calloutPinText") {
+      showMessage("正在识别OCR，请稍候...", 2000);
+      const ocrText = await ocrAssetsUrl(
+        Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
+        undefined
+      );
+      replaced = clipboardText.replace(
+        regex,
+        `> [!NOTE] 📚 摘录\n> <<$1 "📌">> ${ocrText}`
+      );
     }
 
     event.detail.textPlain = replaced;

@@ -11,6 +11,8 @@ export default {
       description: "支持占位符 ${link} ${text}",
       key: "annotionFormat",
       value: "- [◎](${link}) ${text}",
+      //       value: `> [!NOTE] 📚 摘录
+      // > [◎](\${link}) \${text}`,
       plcaholder: "",
       height: "100px",
     },
