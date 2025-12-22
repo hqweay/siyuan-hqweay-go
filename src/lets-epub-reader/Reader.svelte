@@ -95,7 +95,7 @@
   const SAVE_PROGRESS_THRESHOLD = 1; // 进度变化阈值1%
 
   // 阅读体验参数
-  const DEFAULT_LINE_HEIGHT = 1.8; // 默认行高，1.8倍字号更适合阅读
+  const DEFAULT_LINE_HEIGHT = 1.6; // 默认行高
 
   function jumpTo(cfi: string) {
     if (!rendition) return;
@@ -307,7 +307,11 @@
       loadingMessage = "正在渲染内容...";
       loadingProgress = 80;
 
-      formatStyle();
+      // Set up event listeners
+      if (rendition) {
+        setupRenditionEvents();
+      }
+      // formatStyle();
       //console.log("开始显示书籍，初始位置:", start);
       await rendition.display(start);
 
@@ -341,11 +345,6 @@
       //   window.siyuan.showMessage(errorMessage, 5000);
       // }
     }
-
-    // Set up event listeners
-    if (rendition) {
-      setupRenditionEvents();
-    }
   }
 
   function formatStyle() {
@@ -370,7 +369,8 @@
         
         /* Color-specific highlight styles */
         .epub-hl-yellow { 
-          background-color: rgba(255, 235, 59, 0.3) !important; 
+          background: linear-gradient(to top, #00c9ff 0, #92fe9d 30%, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0) 100%);
+          color: unset;
         }
         .epub-hl-green { 
           background-color: rgba(165, 214, 167, 0.3) !important; 
@@ -501,6 +501,7 @@
       isLoading = false;
     });
 
+    formatStyle();
     // Add global event listeners
     window.addEventListener("keydown", handleKeydown);
     window.addEventListener("click", handleGlobalClick);
