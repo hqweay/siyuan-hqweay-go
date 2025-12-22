@@ -4,6 +4,7 @@ import { SubPlugin } from "@/types/plugin";
 import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import InlineElements from "./InlineElements.svelte";
+import { getCurrentDocId } from "@/myscripts/syUtils";
 
 interface InlineElement {
   id: string;
@@ -16,7 +17,7 @@ interface InlineElement {
 }
 
 export default class InlineElementsPlugin implements SubPlugin {
-   regexOfHighLight = /==([^=]+?)==/g;
+  regexOfHighLight = /==([^=]+?)==/g;
 
   private currentDocId: string = "";
   private isLoading: boolean = false;
@@ -24,8 +25,6 @@ export default class InlineElementsPlugin implements SubPlugin {
   private inlineElements: InlineElement[] = [];
 
   onload(): void {
-
-
     plugin.addDock({
       config: {
         position: "RightTop",
@@ -87,25 +86,10 @@ export default class InlineElementsPlugin implements SubPlugin {
   onunload(): void {}
 
   /**
-   * 获取当前活跃文档的ID
-   */
-  private getCurrentDocId(): string | null {
-    try {
-      const docElement = document.querySelector(
-        ".layout__wnd--active .protyle.fn__flex-1:not(.fn__none) .protyle-background"
-      );
-      return docElement?.getAttribute("data-node-id") || null;
-    } catch (error) {
-      console.error("获取当前文档ID失败:", error);
-      return null;
-    }
-  }
-
-  /**
    * 提取当前文档的行内标注元素
    */
   private async loadInlineElements(componentInstance: any): Promise<void> {
-    const docId = this.getCurrentDocId();
+    const docId = getCurrentDocId();
 
     if (!docId) {
       console.warn("未找到当前文档ID");
