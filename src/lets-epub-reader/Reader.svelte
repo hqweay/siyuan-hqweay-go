@@ -94,25 +94,8 @@
   const SAVE_PROGRESS_THROTTLE_MS = 2000; // 2秒节流
   const SAVE_PROGRESS_THRESHOLD = 1; // 进度变化阈值1%
 
-  // 当 url 变化时，判断是同一本书还是新的书
-  // $: if (url) {
-  //   console.log("Parsing URL:", url);
-  //   const parsed = parseLocationFromUrl(url);
-  //   if (parsed && parsed.epubPath === epubPath) {
-  //     if (isReady) {
-  //       console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
-  //       jumpTo(parsed.cfiRange);
-  //     } else {
-  //       // 书尚未 ready 的第一次加载，正常流程
-  //       initialCfi = parsed.cfiRange;
-  //     }
-  //   } else {
-  //     // 不同 epub，正常 openBook
-  //     epubPath = parsed.epubPath;
-  //     initialCfi = parsed.cfiRange;
-  //     if (src) openBook(src);
-  //   }
-  // }
+  // 阅读体验参数
+  const DEFAULT_LINE_HEIGHT = 1.8; // 默认行高，1.8倍字号更适合阅读
 
   function jumpTo(cfi: string) {
     if (!rendition) return;
@@ -122,11 +105,13 @@
     showRemoveButton = false;
     selectedAnnotation = null;
 
+    // formatStyle();
+
     // 直接跳转到指定 CFI
     rendition.display(cfi).then(() => {
-      console.log("Jumped to new CFI:", cfi);
+      //console.log("Jumped to new CFI:", cfi);
       // Ensure event listeners are attached after jump
-      setupRenditionEvents();
+      // setupRenditionEvents();
     });
   }
 
@@ -136,8 +121,8 @@
       return;
     }
 
-    console.log("File selected:", file);
-    console.log("Selected file:", file.name, "Size:", file.size);
+    //console.log("File selected:", file);
+    //console.log("Selected file:", file.name, "Size:", file.size);
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith(".epub")) {
@@ -152,13 +137,13 @@
       return;
     }
 
-    console.log(
-      "开始读取文件:",
-      file.name,
-      "大小:",
-      (file.size / 1024 / 1024).toFixed(2),
-      "MB"
-    );
+    // console.log(
+    //   "开始读取文件:",
+    //   file.name,
+    //   "大小:",
+    //   (file.size / 1024 / 1024).toFixed(2),
+    //   "MB"
+    // );
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -211,7 +196,7 @@
         book = null;
       }
 
-      console.log("开始加载EPUB书籍...");
+      //console.log("开始加载EPUB书籍...");
       loadingMessage = "正在解析EPUB文件...";
       loadingProgress = 20;
 
@@ -278,7 +263,7 @@
       book.loaded.navigation
         .then((nav: any) => {
           toc = nav.toc || [];
-          console.log("目录加载成功:", toc.length, "项");
+          //console.log("目录加载成功:", toc.length, "项");
         })
         .catch((err) => {
           console.warn("加载目录失败:", err);
@@ -292,14 +277,14 @@
       book.loaded.metadata
         .then((meta: any) => {
           title = meta.title || "";
-          console.log("书籍标题:", title);
+          //console.log("书籍标题:", title);
         })
         .catch((err) => {
           console.warn("读取书籍信息失败:", err);
           title = "";
         });
 
-      console.log("开始加载书籍标题..");
+      //console.log("开始加载书籍标题..");
       // Load bound document
       await loadBoundDoc();
       // Get starting position
@@ -307,10 +292,10 @@
       if (boundDocId) {
         try {
           const progressData = await getReadingProgress(boundDocId);
-          console.log("📚 [阅读进度] 从数据库读取位置:", progressData);
+          //console.log("📚 [阅读进度] 从数据库读取位置:", progressData);
           if (progressData && progressData.epubPath === epubPath) {
             saved = progressData.cfi;
-            console.log("📚 [阅读进度] 从文档属性读取位置:", saved);
+            //console.log("📚 [阅读进度] 从文档属性读取位置:", saved);
           }
         } catch (e) {
           console.warn("读取保存位置失败:", e);
@@ -322,29 +307,29 @@
       loadingMessage = "正在渲染内容...";
       loadingProgress = 80;
 
-      console.log("开始显示书籍，初始位置:", start);
+      formatStyle();
+      //console.log("开始显示书籍，初始位置:", start);
       await rendition.display(start);
 
       loadingMessage = "正在完成初始化...";
       loadingProgress = 90;
 
-      isReady = true;
-      isLoading = false;
-      loadingProgress = 100;
-
       // Initialize annotation manager
       annotationManager = new AnnotationManager(rendition);
 
-      console.log("书籍显示完成，开始加载标注...");
+      //console.log("书籍显示完成，开始加载标注...");
       await loadAnnotations();
 
       // Apply highlights after a delay to ensure everything is ready
       setTimeout(() => {
-        console.log("开始应用标注...");
+        //console.log("开始应用标注...");
         loadAndApplyAnnotations();
-      }, 1000);
+      }, 500);
 
-      console.log("✅ EPUB阅读器初始化完成");
+      isReady = true;
+      isLoading = false;
+      loadingProgress = 100;
+      //console.log("✅ EPUB阅读器初始化完成");
     } catch (error) {
       console.error("❌ 加载EPUB失败:", error);
       isLoading = false;
@@ -352,9 +337,9 @@
       errorMessage = `加载EPUB失败: ${error instanceof Error ? error.message : "未知错误"}`;
 
       // Show error to user
-      if (typeof window !== "undefined" && window.siyuan?.showMessage) {
-        window.siyuan.showMessage(errorMessage, 5000);
-      }
+      // if (typeof window !== "undefined" && window.siyuan?.showMessage) {
+      //   window.siyuan.showMessage(errorMessage, 5000);
+      // }
     }
 
     // Set up event listeners
@@ -363,104 +348,7 @@
     }
   }
 
-  /**
-   * 优化的阅读进度保存函数 - 带节流和阈值检查
-   *
-   * 优化策略：
-   * 1. 时间节流：至少间隔2秒才保存一次，避免频繁写入数据库
-   * 2. 进度阈值：进度变化超过1%才保存，避免微小变化触发保存
-   * 3. UI响应：始终派发relocated事件以保持UI实时更新
-   *
-   * 这样既保证了阅读位置的准确性，又大幅减少了数据库写入频率
-   */
-
-  // 优化的阅读进度保存函数 - 带节流和阈值检查
-  function saveReadingProgressOptimized() {
-    if (!boundDocId || !currentCfi) return;
-
-    const now = Date.now();
-    const progressDiff = Math.abs(progress - lastSavedProgress);
-
-    // 检查是否需要保存：时间间隔超过2秒且进度变化超过1%
-    const shouldSave =
-      now - lastSavedTime >= SAVE_PROGRESS_THROTTLE_MS &&
-      progressDiff >= SAVE_PROGRESS_THRESHOLD;
-
-    if (shouldSave) {
-      try {
-        saveReadingProgress(boundDocId, epubPath, currentCfi!, progress, title);
-        lastSavedProgress = progress;
-        lastSavedTime = now;
-        console.log(
-          `📚 [优化保存] 进度: ${progress}%, CFI: ${currentCfi!.substring(0, 20)}...`
-        );
-      } catch (e) {
-        console.warn("保存阅读位置失败:", e);
-      }
-    }
-  }
-
-  function setupRenditionEvents() {
-    if (!rendition) return;
-
-    rendition.on("relocated", (location: any) => {
-      currentCfi = location.start.cfi;
-      const cfi = location.start.cfi;
-      const percentage = book.locations.percentageFromCfi(cfi);
-      progress = Math.round(percentage * 100);
-      // 使用优化的保存函数
-      saveReadingProgressOptimized();
-      // 总是派发事件以更新UI
-      dispatch("relocated", { cfi: currentCfi, progress });
-    });
-
-    rendition.on("rendered", (section: any) => {
-      const contents = rendition.getContents();
-      for (let content of contents) {
-        content.document.addEventListener("selectionchange", handleSelection);
-        content.document.addEventListener("mouseup", handleSelectionEnd);
-        content.document.addEventListener("keyup", handleSelection);
-      }
-
-      // Re-apply highlights after render (only for current chapter)
-      if (annotations.length > 0 && annotationManager) {
-        console.log(
-          "页面渲染完成，重新应用标注，标注数量:",
-          annotations.length
-        );
-        setTimeout(() => {
-          // Use chapter-specific rendering for better performance
-          const createClickHandler = (annotation: Annotation) => {
-            return (e: any) => handleHighlightClick(annotation, e);
-          };
-
-          const result = annotationManager.applyCurrentChapterHighlights(
-            annotations,
-            createClickHandler
-          );
-          console.log(
-            "✅ [章节渲染] 完成 - 成功应用:",
-            result.success,
-            "失败:",
-            result.failed
-          );
-        }, 100); // Small delay to ensure DOM is ready
-      }
-
-      dispatch("rendered", { section });
-    });
-
-    rendition.on("started", () => {
-      console.log("渲染开始");
-      dispatch("started");
-    });
-
-    rendition.on("failed", (error: any) => {
-      console.error("渲染失败:", error);
-      errorMessage = `渲染失败: ${error.message || error}`;
-      isLoading = false;
-    });
-
+  function formatStyle() {
     // Hook to inject highlight styles into each content document
     rendition.hooks.content.register((contents: any) => {
       const doc = contents.document;
@@ -506,8 +394,111 @@
         ::selection {
           background-color: rgba(255, 235, 59, 0.4) !important;
         }
+        
+        /* Line height configuration */
+        body, body p, body div {
+          line-height: ${DEFAULT_LINE_HEIGHT} !important;
+        }
       `;
       doc.head.appendChild(style);
+    });
+  }
+  /**
+   * 优化的阅读进度保存函数 - 带节流和阈值检查
+   *
+   * 优化策略：
+   * 1. 时间节流：至少间隔2秒才保存一次，避免频繁写入数据库
+   * 2. 进度阈值：进度变化超过1%才保存，避免微小变化触发保存
+   * 3. UI响应：始终派发relocated事件以保持UI实时更新
+   *
+   * 这样既保证了阅读位置的准确性，又大幅减少了数据库写入频率
+   */
+
+  // 优化的阅读进度保存函数 - 带节流和阈值检查
+  function saveReadingProgressOptimized() {
+    if (!boundDocId || !currentCfi) return;
+
+    const now = Date.now();
+    const progressDiff = Math.abs(progress - lastSavedProgress);
+
+    // 检查是否需要保存：时间间隔超过2秒且进度变化超过1%
+    const shouldSave =
+      now - lastSavedTime >= SAVE_PROGRESS_THROTTLE_MS &&
+      progressDiff >= SAVE_PROGRESS_THRESHOLD;
+
+    if (shouldSave) {
+      try {
+        saveReadingProgress(boundDocId, epubPath, currentCfi!, progress, title);
+        lastSavedProgress = progress;
+        lastSavedTime = now;
+        //console.log(
+        //   `📚 [优化保存] 进度: ${progress}%, CFI: ${currentCfi!.substring(0, 20)}...`
+        // );
+      } catch (e) {
+        console.warn("保存阅读位置失败:", e);
+      }
+    }
+  }
+
+  function setupRenditionEvents() {
+    if (!rendition) return;
+
+    rendition.on("relocated", (location: any) => {
+      currentCfi = location.start.cfi;
+      const cfi = location.start.cfi;
+      const percentage = book.locations.percentageFromCfi(cfi);
+      progress = Math.round(percentage * 100);
+      // 使用优化的保存函数
+      saveReadingProgressOptimized();
+      // 总是派发事件以更新UI
+      dispatch("relocated", { cfi: currentCfi, progress });
+    });
+
+    rendition.on("rendered", (section: any) => {
+      const contents = rendition.getContents();
+      for (let content of contents) {
+        content.document.addEventListener("selectionchange", handleSelection);
+        content.document.addEventListener("mouseup", handleSelectionEnd);
+        content.document.addEventListener("keyup", handleSelection);
+      }
+
+      // Re-apply highlights after render (only for current chapter)
+      if (annotations.length > 0 && annotationManager) {
+        //console.log(
+        //   "页面渲染完成，重新应用标注，标注数量:",
+        //   annotations.length
+        // );
+        setTimeout(() => {
+          // Use chapter-specific rendering for better performance
+          const createClickHandler = (annotation: Annotation) => {
+            return (e: any) => handleHighlightClick(annotation, e);
+          };
+
+          const result = annotationManager.applyCurrentChapterHighlights(
+            annotations,
+            createClickHandler
+          );
+          //console.log(
+          //   "✅ [章节渲染] 完成 - 成功应用:",
+          //   result.success,
+          //   "失败:",
+          //   result.failed
+          // );
+        }, 100); // Small delay to ensure DOM is ready
+      }
+
+      dispatch("rendered", { section });
+    });
+
+    rendition.on("started", () => {
+      //console.log("渲染开始");
+      dispatch("started");
+    });
+
+    rendition.on("failed", (error: any) => {
+      console.error("渲染失败:", error);
+      errorMessage = `渲染失败: ${error.message || error}`;
+      isLoading = false;
     });
 
     // Add global event listeners
@@ -516,7 +507,7 @@
   }
 
   async function loadBoundDoc() {
-    console.log("Loading bound document for EPUB:", epubPath);
+    //console.log("Loading bound document for EPUB:", epubPath);
     if (epubPath) {
       const docId = await getBoundDocId(epubPath);
       if (docId) {
@@ -529,14 +520,14 @@
     // Use hardcoded docId as requested
 
     try {
-      console.log("Loading annotations for docId:", boundDocId);
+      //console.log("Loading annotations for docId:", boundDocId);
 
       // Query all blocks containing 标注
       const blocks = await sql(
         `SELECT id, markdown FROM blocks WHERE root_id='${boundDocId}' AND type = 'p' AND markdown LIKE '%epub#epubcfi(%'`
       );
 
-      console.log("Found blocks with annotations:", blocks?.length || 0);
+      //console.log("Found blocks with annotations:", blocks?.length || 0);
 
       // Parse annotations from blocks
       const loadedAnnotations: Annotation[] = [];
@@ -551,7 +542,7 @@
       }
 
       annotations = loadedAnnotations;
-      console.log("Loaded annotations:", annotations);
+      //console.log("Loaded annotations:", annotations);
     } catch (e) {
       console.error("Failed to load annotations:", e);
       annotations = [];
@@ -563,11 +554,11 @@
    */
   function loadAndApplyAnnotations() {
     if (!annotationManager || !annotations.length) {
-      console.log("📋 [标注加载] 跳过：没有管理器或标注");
+      //console.log("📋 [标注加载] 跳过：没有管理器或标注");
       return;
     }
 
-    console.log("📋 [标注加载] 开始应用标注，数量:", annotations.length);
+    //console.log("📋 [标注加载] 开始应用标注，数量:", annotations.length);
 
     // Create click handler for annotations
     const createClickHandler = (annotation: Annotation) => {
@@ -579,21 +570,21 @@
       annotations,
       createClickHandler
     );
-    console.log(
-      "✅ [标注加载] 完成 - 成功应用:",
-      result.success,
-      "失败:",
-      result.failed
-    );
+    //console.log(
+    //   "✅ [标注加载] 完成 - 成功应用:",
+    //   result.success,
+    //   "失败:",
+    //   result.failed
+    // );
   }
 
   function handleHighlightClick(annotation: Annotation, e: MouseEvent) {
-    console.log("📍 [点击标注] 处理点击事件", {
-      annotationId: annotation.id,
-      annotationText: annotation.text,
-      annotationColor: annotation.color,
-      hasBlockId: !!annotation.blockId,
-    });
+    //console.log("📍 [点击标注] 处理点击事件", {
+    //   annotationId: annotation.id,
+    //   annotationText: annotation.text,
+    //   annotationColor: annotation.color,
+    //   hasBlockId: !!annotation.blockId,
+    // });
 
     colorPickerAnnotation = annotation;
     const target = e.target as HTMLElement;
@@ -616,7 +607,7 @@
     };
 
     showColorPicker = true;
-    console.log("🎨 [颜色选择器] 显示在位置", colorPickerRect);
+    //console.log("🎨 [颜色选择器] 显示在位置", colorPickerRect);
 
     // 隐藏其他工具栏
     selectionToolbarVisible = false;
@@ -639,7 +630,7 @@
             );
           }
         } catch (e) {
-          console.log("无法移除iframe监听器:", e);
+          //console.log("无法移除iframe监听器:", e);
         }
       });
     };
@@ -668,7 +659,7 @@
           );
         }
       } catch (e) {
-        console.log("无法访问iframe内容:", e);
+        //console.log("无法访问iframe内容:", e);
       }
     });
   }
@@ -682,11 +673,11 @@
     }
 
     const { color } = event.detail;
-    console.log("🎨 [颜色更改] 开始处理", {
-      annotationId: colorPickerAnnotation.id,
-      newColor: color,
-      blockId: colorPickerAnnotation.blockId,
-    });
+    //console.log("🎨 [颜色更改] 开始处理", {
+    //   annotationId: colorPickerAnnotation.id,
+    //   newColor: color,
+    //   blockId: colorPickerAnnotation.blockId,
+    // });
 
     try {
       const annotation = annotations.find(
@@ -702,20 +693,20 @@
         const clickHandler = (e: any) => handleHighlightClick(annotation, e);
         // 应用新的高亮
         annotationManager.applyHighlight(annotation, clickHandler);
-        console.log("✅ [颜色更改] 高亮更新已触发");
+        //console.log("✅ [颜色更改] 高亮更新已触发");
       }
 
-      console.log("✅ [颜色更改] 本地状态已更新");
+      //console.log("✅ [颜色更改] 本地状态已更新");
 
       // 更新数据库中的标注
       await updateAnnotationInDatabase(annotation.blockId, color);
-      console.log("✅ [颜色更改] 数据库已更新");
+      //console.log("✅ [颜色更改] 数据库已更新");
 
-      console.log(
-        "🎉 [颜色更改] 标注颜色已更新完成:",
-        colorPickerAnnotation.id,
-        color
-      );
+      //console.log(
+      //   "🎉 [颜色更改] 标注颜色已更新完成:",
+      //   colorPickerAnnotation.id,
+      //   color
+      // );
     } catch (e) {
       console.error("❌ [颜色更改] 更新标注颜色失败:", e);
     }
@@ -914,7 +905,7 @@
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
-      console.log("Annotation saved to Siyuan:", annotation.id);
+      //console.log("Annotation saved to Siyuan:", annotation.id);
     }
 
     selectionToolbarVisible = false;
@@ -970,7 +961,7 @@
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
-      console.log("Note annotation saved to Siyuan:", annotation.id);
+      //console.log("Note annotation saved to Siyuan:", annotation.id);
 
       // Open float layer for note editing
       setTimeout(() => {
@@ -1032,7 +1023,7 @@
       const selectionInfo = getSelectionInfo();
 
       if (!selectionInfo.isValid) {
-        console.log("📝 Please select text first");
+        //console.log("📝 Please select text first");
         if (selectionInfo.error) {
           console.warn("Selection error:", selectionInfo.error);
         }
@@ -1173,7 +1164,7 @@
       const selectionInfo = getSelectionInfo();
 
       if (!selectionInfo.isValid) {
-        console.log("📝 Please select text first");
+        //console.log("📝 Please select text first");
         if (selectionInfo.error) {
           console.warn("Selection error:", selectionInfo.error);
         }
@@ -1221,7 +1212,7 @@
   }
 
   async function handleRemove() {
-    console.log("Removing annotation:", colorPickerAnnotation);
+    //console.log("Removing annotation:", colorPickerAnnotation);
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
       const success = await removeAnnotation(colorPickerAnnotation.blockId);
       if (success) {
@@ -1248,9 +1239,9 @@
     markdown: string
   ): Annotation | null {
     try {
-      console.log("=== PARSING ANNOTATION ===");
-      console.log("Block ID:", blockId);
-      console.log("Markdown:", markdown);
+      //console.log("=== PARSING ANNOTATION ===");
+      //console.log("Block ID:", blockId);
+      //console.log("Markdown:", markdown);
 
       // Extract link from the markdown
       const linkMatch = markdown.match(
@@ -1262,7 +1253,7 @@
       }
 
       const link = linkMatch[3];
-      console.log("✅ Extracted link:", link);
+      //console.log("✅ Extracted link:", link);
 
       // Parse location string to get CFI, blockId and bgColor
       const parsedLocation = parseLocationFromUrl(link);
@@ -1272,14 +1263,14 @@
       }
 
       const { cfiRange, blockId: annotationId, bgColor } = parsedLocation;
-      console.log(
-        "✅ Extracted CFI:",
-        cfiRange,
-        "annotationId:",
-        annotationId,
-        "bgColor:",
-        bgColor
-      );
+      //console.log(
+      //   "✅ Extracted CFI:",
+      //   cfiRange,
+      //   "annotationId:",
+      //   annotationId,
+      //   "bgColor:",
+      //   bgColor
+      // );
 
       // Validate CFI format
       if (!cfiRange || cfiRange.length === 0) {
@@ -1293,7 +1284,7 @@
         ?.replace(/^-\s*/, "")
         .trim()
         .concat(linkMatch[4]?.replace(/^-\s*/, "").trim());
-      console.log("✅ Extracted text:", text);
+      //console.log("✅ Extracted text:", text);
 
       // Get color from bgColor or default
       const color = bgColor
@@ -1303,11 +1294,11 @@
             bgColor: bgColor,
           }
         : HIGHLIGHT_COLORS[0];
-      console.log("✅ Matched color:", color);
+      //console.log("✅ Matched color:", color);
 
       // Extract chapter ID from CFI for efficient rendering
       const chapterId = extractChapterIdFromCfi(book, cfiRange);
-      console.log("✅ Extracted chapter ID:", chapterId);
+      //console.log("✅ Extracted chapter ID:", chapterId);
 
       const annotation = {
         id: annotationId || blockId,
@@ -1322,8 +1313,8 @@
         updatedAt: Date.now(),
       };
 
-      console.log("🎉 Final annotation object:", annotation);
-      console.log("=== PARSING COMPLETE ===");
+      //console.log("🎉 Final annotation object:", annotation);
+      //console.log("=== PARSING COMPLETE ===");
       return annotation;
     } catch (e) {
       console.error("❌ Failed to parse annotation from markdown:", e);
@@ -1378,7 +1369,7 @@
   function handleJumpToBlock() {
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
       openFloatLayer(colorPickerAnnotation.blockId);
-      console.log(colorPickerAnnotation);
+      //console.log(colorPickerAnnotation);
       // showColorPicker = false;
       // colorPickerAnnotation = null;
     }
@@ -1397,11 +1388,11 @@
   $: {
     if (url && url !== prevUrl) {
       prevUrl = url;
-      console.log("url changed", url);
+      //console.log("url changed", url);
       const parsed = parseLocationFromUrl(url);
       if (parsed && parsed.epubPath === epubPath) {
         if (isReady) {
-          console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+          //console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
           jumpTo(parsed.cfiRange);
         } else {
           initialCfi = parsed.cfiRange;
@@ -1423,11 +1414,11 @@
   }
 
   onMount(() => {
-    console.log("Reader mounted with src:", src);
+    //console.log("Reader mounted with src:", src);
     // const parsed = parseLocationFromUrl(url);
     // if (parsed && parsed.epubPath === epubPath) {
     //   if (isReady) {
-    //     console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+    //     //console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
     //     jumpTo(parsed.cfiRange);
     //   } else {
     //     // 书尚未 ready 的第一次加载，正常流程
