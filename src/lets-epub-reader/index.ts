@@ -13,6 +13,7 @@ import Reader from "./Reader.svelte";
 
 import { isMobile, plugin } from "@/utils";
 import { parseLocationFromUrl } from "./utils";
+import { saveReadingProgress } from "./annotation-service";
 
 export default class EpubReaderPlugin implements SubPlugin {
   private _isEnabled = false;
@@ -164,6 +165,21 @@ export default class EpubReaderPlugin implements SubPlugin {
           content: `<div id="hqweay-epub-reader-container" style="height: 700px;"></div>`,
           width: "400px",
           destroyCallback: (options) => {
+            // 保存阅读进度
+            try {
+              const progressInfo = pannel.getReadingProgressInfo();
+              if (progressInfo.isReady && progressInfo.boundDocId && progressInfo.cfi) {
+                saveReadingProgress(
+                  progressInfo.boundDocId,
+                  progressInfo.epubPath,
+                  progressInfo.cfi,
+                  progressInfo.progress,
+                  progressInfo.title
+                );
+              }
+            } catch (e) {
+              console.warn("保存阅读进度失败:", e);
+            }
             pannel.$destroy();
           },
         });
@@ -199,6 +215,21 @@ export default class EpubReaderPlugin implements SubPlugin {
               this.element.appendChild(tabDiv);
             },
             destroy() {
+              // 保存阅读进度
+              try {
+                const progressInfo = that.epubReaderInstance?.getReadingProgressInfo();
+                if (progressInfo?.isReady && progressInfo?.boundDocId && progressInfo?.cfi) {
+                  saveReadingProgress(
+                    progressInfo.boundDocId,
+                    progressInfo.epubPath,
+                    progressInfo.cfi,
+                    progressInfo.progress,
+                    progressInfo.title
+                  );
+                }
+              } catch (e) {
+                console.warn("保存阅读进度失败:", e);
+              }
               that.epubReaderInstance.$destroy();
               that.epubReaderInstance = null;
             },

@@ -1,1 +1,5 @@
-今日更新文档:SELECT * FROM blocks AS b WHERE b.type = 'd' AND b.root_id != '.block{.root_id}' AND ( b.updated > strftime( '%Y%m%d%H%M%S', 'now', 'localtime', 'start of day' ) OR b.created > strftime( '%Y%m%d%H%M%S', 'now', 'localtime', 'start of day' ) ) order by updated desc
+fetch('/api/block/appendBlock', {
+        dataType: 'markdown',
+        data: '- haha',
+        parentID: '20251223003427-rzjle8m'
+    });

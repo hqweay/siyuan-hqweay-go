@@ -1385,6 +1385,20 @@
     return currentCfi;
   }
 
+  /**
+   * 获取阅读进度信息 - 用于销毁时保存
+   */
+  export function getReadingProgressInfo() {
+    return {
+      cfi: currentCfi,
+      progress,
+      boundDocId,
+      epubPath,
+      title,
+      isReady,
+    };
+  }
+
   let prevUrl;
   $: {
     if (url && url !== prevUrl) {
