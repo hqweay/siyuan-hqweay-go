@@ -372,15 +372,16 @@
             <div
               class="element-content"
               on:click={() => jumpToElement(element.id)}
-              on:contextmenu={() => copyToClipboard(element.content)}
+              on:contextmenu={() => copyToClipboard(element.content + `${element.memo ? '\n > ' + element.memo : ''}`)}
             >
               {element.content}
+              {#if element.memo}
+                <div class="element-context">
+                  <div class="context-text">{element.memo}</div>
+                </div>
+              {/if}
             </div>
-            {#if element.memo}
-              <div class="element-context">
-                <div class="context-text">{element.memo}</div>
-              </div>
-            {/if}
+
             <!-- 不展示上下文，没必要了吧…… -->
             <!-- {#if element.context}
                                 <div class="element-context">
