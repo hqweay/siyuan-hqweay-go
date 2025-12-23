@@ -10,6 +10,7 @@ import { get } from "http";
 interface InlineElement {
   id: string;
   content: string;
+  memo: string;
   markdown: string;
   context?: string;
   blockType: string;
@@ -131,11 +132,13 @@ export default class InlineElementsPlugin implements SubPlugin {
    */
   private async extractInlineElements(docId: string): Promise<InlineElement[]> {
     // 使用提供的SQL查询语句
-    const extractHighLightSQL = `SELECT * FROM blocks WHERE path LIKE '%/${docId}.sy' 
-        AND markdown LIKE '%==%==%' AND  (type = 'p' AND parent_id not in 
-        (SELECT id FROM blocks WHERE path LIKE '%/${docId}.sy' AND type = 'i' ) )  
-        OR (type = 'i' AND id in (SELECT parent_id FROM blocks WHERE path LIKE '%/${docId}.sy' 
-        AND type ='p' AND markdown LIKE '%==%==%' )) ORDER BY created`;
+    // const extractHighLightSQL = `SELECT * FROM blocks WHERE path LIKE '%/${docId}.sy'
+    //     AND markdown LIKE '%==%==%' AND  (type = 'p' AND parent_id not in
+    //     (SELECT id FROM blocks WHERE path LIKE '%/${docId}.sy' AND type = 'i' ) )
+    //     OR (type = 'i' AND id in (SELECT parent_id FROM blocks WHERE path LIKE '%/${docId}.sy'
+    //     AND type ='p' AND markdown LIKE '%==%==%' )) ORDER BY created`;
+
+    const extractHighLightSQL = `select * from blocks join spans on blocks.id = spans.block_id where blocks.root_id = '${docId}' and (spans.type='textmark mark' or spans.type='textmark inline-memo') ORDER BY created`;
 
     let res = await sql(extractHighLightSQL);
 
@@ -147,24 +150,32 @@ export default class InlineElementsPlugin implements SubPlugin {
 
     for (const block of res) {
       // 提取标注内容（支持多个标注）
-      const matches = [...block.markdown.matchAll(this.regexOfHighLight)];
+      // const matches = [...block.markdown.matchAll(this.regexOfHighLight)];
 
-      for (const match of matches) {
-        if (match[1]) {
-          // 获取上下文（如果需要）
-          const context = this.getBlockContext(block.markdown, match[0]);
+      // for (const match of matches) {
+      // if (match[1]) {
+      // 获取上下文（如果需要）
+      // const context = this.getBlockContext(block.markdown, match[0]);
+      const match = block.markdown.match(/<sup>[(（)](.*?)[）)]<\/sup>/);
 
-          elements.push({
-            id: block.id,
-            content: match[1].trim(),
-            markdown: block.markdown,
-            context: context,
-            blockType: block.type,
-            created: block.created,
-            updated: block.updated,
-          });
-        }
+      if (match) {
+        block.content = block.markdown.replace(
+          /<sup>[(（)](.*?)[）)]<\/sup>/g,
+          ""
+        );
       }
+      elements.push({
+        id: block.block_id,
+        content: block.content,
+        memo: match ? match[1] : "",
+        markdown: block.markdown,
+        context: null,
+        blockType: block.type,
+        created: block.created,
+        updated: block.updated,
+      });
+      //   }
+      // }
     }
 
     return elements;

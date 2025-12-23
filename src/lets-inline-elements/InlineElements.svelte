@@ -6,13 +6,13 @@
   import { openBlockByID } from "@/myscripts/syUtils";
 
   import { createEventDispatcher } from "svelte";
-  
+
   export let inlineElements: any[] = [];
   export let currentDocId: string = "";
   export let isLoading: boolean = false;
   export let pageSize: number = 20;
   export let isRefreshing: boolean = false;
-  
+
   const dispatch = createEventDispatcher();
 
   // 内部状态管理
@@ -376,6 +376,11 @@
             >
               {element.content}
             </div>
+            {#if element.memo}
+              <div class="element-context">
+                <div class="context-text">{element.memo}</div>
+              </div>
+            {/if}
             <!-- 不展示上下文，没必要了吧…… -->
             <!-- {#if element.context}
                                 <div class="element-context">
