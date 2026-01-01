@@ -304,7 +304,7 @@
       display: flex;
       align-items: center;
       justify-content: {isCollapsed ? 'center' : 'space-around'};
-      {deviceType === 'mobile' ? 'padding: 0 10px;' : '/*padding: 4px 3px;*/'}
+      {deviceType === 'mobile' ? '/*padding: 0 10px;*/' : '/*padding: 4px 3px;*/'}
       {deviceType === 'mobile'
       ? '/*box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);*/'
       : `
