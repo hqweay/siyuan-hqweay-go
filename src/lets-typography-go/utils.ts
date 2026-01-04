@@ -432,7 +432,7 @@ class FormatUtil {
 
     const formatImageV12 = /(!\[[^\]]*\]\([^\]]+?\))((?:\{:[^}]+\})?)/gs;
 
-    const imageCenter = settings.getBySpace("typographyConfig", "imageCenter");
+    const imageCenter = settings.getBySpace("typography", "imageCenter");
     if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
       // //console.log(content);
       // //console.log(formatImage.test(content));
