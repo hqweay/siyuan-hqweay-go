@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getBlockAttrs, setBlockAttrs, sql } from "@/api";
+  import { getBlockAttrs, setBlockAttrs } from "@/api";
   import EntryList from "@/lets-dashboard/EntryList.svelte";
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -107,7 +107,7 @@
 
   // 初始化时处理预设的SQL
   onMount(() => {
-    if (presetSql) {
+        if (presetSql) {
       inputSQL = presetSql;
       isSqlInputExpanded = false; // 有预设SQL时展开
       // 可以选择自动执行，或者让用户手动执行
@@ -129,7 +129,7 @@
 
     try {
       // 简单测试SQL是否有效
-      await testSQL(inputSQL);
+      // await testSQL(inputSQL);
 
       // 判断数据类型
       if (inputSQL.includes("asset_path")) {
@@ -142,15 +142,6 @@
       error = "SQL 执行错误: " + e.message;
     } finally {
       loading = false;
-    }
-  }
-
-  async function testSQL(sqlStr: string): Promise<void> {
-    try {
-      // 尝试执行一个简单的查询来验证SQL语法
-      await sql(`SELECT 1`);
-    } catch (e) {
-      throw new Error("SQL语法错误");
     }
   }
 

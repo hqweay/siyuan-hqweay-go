@@ -1,22 +1,20 @@
 import "./index.scss";
 
+import { SubPlugin } from "@/types/plugin";
+import { plugin } from "@/utils";
 import { EnvConfig } from "./config/EnvConfig";
 import { CUSTOM_ICON_MAP } from "./models/icon-constant";
-import { SettingService } from "./service/setting/SettingService";
-import { openSettingsDialog } from "./components/setting/setting-util";
-import { DocumentService } from "./service/plugin/DocumentService";
 import { DockService } from "./service/plugin/DockServices";
-import { TopBarService } from "./service/plugin/TopBarService";
+import { DocumentService } from "./service/plugin/DocumentService";
 import { TabService } from "./service/plugin/TabService";
-import { plugin } from "@/utils";
-import { SubPlugin } from "@/types/plugin";
+import { TopBarService } from "./service/plugin/TopBarService";
+import { SettingService } from "./service/setting/SettingService";
 
 export default class PluginSample implements SubPlugin {
   addMenuItem(menu) {
     TopBarService.ins.init(menu);
   }
   async onload() {
-
     EnvConfig.ins.init(plugin);
     await SettingService.ins.init();
     DocumentService.ins.init();

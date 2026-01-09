@@ -1,12 +1,11 @@
-import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
-import BacklinkFilterPanelPageSvelte from "@/lets-syplugin-backlink-panel/components/panel/backlink-filter-panel-page.svelte";
 import BacklinkTabPanel from "@/lets-syplugin-backlink-panel/components/panel/backlink-tab-panel.svelte";
-import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
-import { openTab } from "siyuan";
-import { CUSTOM_ICON_MAP } from "@/lets-syplugin-backlink-panel/models/icon-constant";
-import { isStrBlank } from "@/lets-syplugin-backlink-panel/utils/string-util";
-import { clearProtyleGutters, getActiveTab } from "@/lets-syplugin-backlink-panel/utils/html-util";
 import { CacheManager } from "@/lets-syplugin-backlink-panel/config/CacheManager";
+import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
+import { CUSTOM_ICON_MAP } from "@/lets-syplugin-backlink-panel/models/icon-constant";
+import { clearProtyleGutters, getActiveTab } from "@/lets-syplugin-backlink-panel/utils/html-util";
+import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
+import { isStrBlank } from "@/lets-syplugin-backlink-panel/utils/string-util";
+import { openTab } from "siyuan";
 
 
 const BACKLINK_TAB_PREFIX = "backlink_tab_"

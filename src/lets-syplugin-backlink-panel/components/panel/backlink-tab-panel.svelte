@@ -1,10 +1,9 @@
 <script lang="ts">
-  import { getBlockAttrs } from "@/api";
+  import { getBlockAttrs, setBlockAttrs } from "@/api";
+  import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
   import { onMount } from "svelte";
   import BacklinkFilterPanelPage from "./backlink-filter-panel-page.svelte";
   import CustomSqlPanel from "./custom-sql-panel.svelte";
-  import SqlManagementPanel from "./sql-management-panel.svelte";
-  import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
 
   export let rootId: string;
   export let focusBlockId: string;
@@ -93,8 +92,12 @@
     });
   }
 
-  function switchTab(tabId: string) {
+  async function switchTab(tabId: string) {
     activeTab = tabId as any;
+
+    await setBlockAttrs(rootId, {
+      "custom-tab-panel-active-tab": tabId,
+    });
 
     // 如果切换到SQL tab，重新加载数据
     if (tabId === "sql") {
@@ -102,19 +105,13 @@
     }
   }
 
-  // 监听SQL执行事件
-  function handleSqlExecute(event: CustomEvent) {
-    const { sql } = event.detail;
-    // 这里可以与实际的SQL执行逻辑集成
-    console.log("执行SQL:", sql);
-
-    // TODO: 与实际的SQL执行逻辑集成
-    // 可以调用现有的SQL执行API或与CustomSqlPanel集成
-  }
-
-  onMount(() => {
+  onMount(async () => {
     // 初始化时加载SQL数据
     loadSavedSqlList();
+    const activeTabResult = await getBlockAttrs(rootId);
+    if (activeTabResult && activeTabResult["custom-tab-panel-active-tab"]) {
+      activeTab = activeTabResult["custom-tab-panel-active-tab"] as any;
+    }
   });
 </script>
 
@@ -138,13 +135,24 @@
 
   <!-- Tab内容区域 -->
   <div class="tab-content">
-    {#if activeTab === "backlink"}
+    <!-- {#if activeTab === "backlink"} -->
+    <div class:is-hidden={activeTab !== "backlink"}>
       <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
-    {:else}
-      <!-- 查找当前激活的Tab配置 -->
-      {#each tabs as tab}
-        {#if tab.id === activeTab}
-          {#if tab.component === BacklinkFilterPanelPage}
+    </div>
+
+    <!-- {:else} -->
+    <!-- 查找当前激活的Tab配置 -->
+    {#each tabs as tab}
+      <!-- {#if tab.id === activeTab} -->
+      <div class:is-hidden={tab.id !== activeTab}>
+        <CustomSqlPanel
+          presetSql={tab.presetSql}
+          saveSqlName={tab.name}
+          id={tab.id}
+          {rootId}
+          on:sqlUpdated={loadSavedSqlList}
+        />
+        <!-- {#if tab.component === BacklinkFilterPanelPage}
             <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
           {:else if tab.component === CustomSqlPanel}
             <CustomSqlPanel
@@ -162,14 +170,18 @@
               bind:savedSqlList
               on:sqlUpdated={loadSavedSqlList}
             />
-          {/if}
-        {/if}
-      {/each}
-    {/if}
+          {/if} -->
+      </div>
+      <!-- {/if} -->
+    {/each}
+    <!-- {/if} -->
   </div>
 </div>
 
 <style>
+  .is-hidden {
+    display: none;
+  }
   .tab-panel-container {
     display: flex;
     flex-direction: column;
