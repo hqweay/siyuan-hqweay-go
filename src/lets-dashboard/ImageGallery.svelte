@@ -167,7 +167,7 @@
           clickable={true}
           onClick={() => {
             copyToClipboard(
-              `siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)}`
+              `[${title}](siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)})`
             );
             showMessage(`文档流访问链接已复制到剪贴板～`);
           }}

@@ -107,7 +107,7 @@
 
   // 初始化时处理预设的SQL
   onMount(() => {
-        if (presetSql) {
+    if (presetSql) {
       inputSQL = presetSql;
       isSqlInputExpanded = false; // 有预设SQL时展开
       // 可以选择自动执行，或者让用户手动执行
@@ -501,7 +501,7 @@
           <div class="entries-column">
             <EntryList
               idSQL={inputExecuteSQL}
-              title="自定义查询结果"
+              title={saveSqlName || "自定义查询结果"}
               pageSize={10}
               fromFlow={false}
             />
@@ -510,7 +510,7 @@
           <div class="media-column">
             <ImageGallery
               imgSQL={inputExecuteSQL}
-              title="自定义查询结果"
+              title={saveSqlName || "自定义查询结果"}
               pageSize={30}
               fromFlow={false}
             />
