@@ -1,0 +1,8 @@
+/* 仪表盘背景色 */
+[id^="hqweay-diary-dashboard"] {
+  background: white;
+}
+/* 文档流、图片流背景色 */
+div:has(.hqweay-diary-flow-entry) {
+  background: white;
+}

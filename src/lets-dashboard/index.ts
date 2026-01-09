@@ -249,7 +249,8 @@ export default class DashBoard implements SubPlugin {
       let tabDiv = document.createElement("div");
       //设置样式边距
       tabDiv.setAttribute("style", "padding: 15px;");
-      tabDiv.setAttribute("id", `#hqweay-diary-flow-entry-${title}`);
+      tabDiv.setAttribute("id", `hqweay-diary-flow-entry-${title}`);
+      tabDiv.setAttribute("class", `hqweay-diary-flow-entry`);
       new EntryList({
         target: tabDiv,
         props: { idSQL: sqlParam, pageSize: 10, fromFlow: true },

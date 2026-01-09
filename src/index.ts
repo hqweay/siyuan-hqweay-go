@@ -1,4 +1,5 @@
 import "./lets-block-attr/style/index.css";
+import "./custom-css/index.css";
 
 import { Dialog, Menu, Plugin } from "siyuan";
 import SettingPannel from "@/setting.svelte";
