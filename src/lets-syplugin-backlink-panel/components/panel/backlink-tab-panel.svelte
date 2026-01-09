@@ -145,13 +145,15 @@
     {#each tabs as tab}
       <!-- {#if tab.id === activeTab} -->
       <div class:is-hidden={tab.id !== activeTab}>
-        <CustomSqlPanel
-          presetSql={tab.presetSql}
-          saveSqlName={tab.name}
-          id={tab.id}
-          {rootId}
-          on:sqlUpdated={loadSavedSqlList}
-        />
+        {#if tab.component === CustomSqlPanel}
+          <CustomSqlPanel
+            presetSql={tab.presetSql}
+            saveSqlName={tab.name}
+            id={tab.id}
+            {rootId}
+            on:sqlUpdated={loadSavedSqlList}
+          />
+        {/if}
         <!-- {#if tab.component === BacklinkFilterPanelPage}
             <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
           {:else if tab.component === CustomSqlPanel}
