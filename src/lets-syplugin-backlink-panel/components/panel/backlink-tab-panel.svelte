@@ -17,7 +17,7 @@
   let isLoadingSql = false;
 
   // Tab配置
-  let tabs = [
+  let defaultTabs = [
     {
       id: "backlink" as const,
       name: "反链",
@@ -25,6 +25,7 @@
       component: BacklinkFilterPanelPage,
     },
   ];
+  $: tabs = [...defaultTabs];
 
   // 从文档属性中获取保存的SQL
   async function loadSavedSqlList(event?: any) {
@@ -34,9 +35,6 @@
       if (event) {
         savedSqlList = event.detail.savedSqlList;
         // 说明是新增SQL后切换过来的
-        if (event.detail.name) {
-          activeTab = `sql-${event.detail.name}` as any;
-        }
       } else {
         const result = await getBlockAttrs(rootId);
 
@@ -53,6 +51,10 @@
         }
       }
       updateSqlTabs();
+
+      if (event && event.detail && event.detail.name) {
+        activeTab = `sql-${event.detail.name}` as any;
+      }
     } catch (error) {
       console.error("获取保存的SQL列表失败:", error);
       savedSqlList = [];
@@ -64,18 +66,7 @@
   // 更新SQL相关的Tab
   function updateSqlTabs() {
     // 移除现有的SQL相关tabs
-    tabs = tabs.filter((tab) => tab.id !== "sql" && !tab.id.startsWith("sql-"));
-
-    // 添加保存的SQL作为单独的tab，每个Tab使用CustomSqlPanel
-    savedSqlList.forEach((sqlItem, index) => {
-      tabs.push({
-        id: `sql-${sqlItem.name}` as const,
-        name: sqlItem.name,
-        icon: "#iconSQL",
-        component: CustomSqlPanel,
-        presetSql: sqlItem.sql, // 传递SQL内容给CustomSqlPanel
-      });
-    });
+    tabs = [...defaultTabs];
 
     SettingService.ins.SettingConfig["sqlQuery"]
       ?.split("/n")
@@ -92,6 +83,17 @@
         }
       });
 
+    // 添加保存的SQL作为单独的tab，每个Tab使用CustomSqlPanel
+    savedSqlList.forEach((sqlItem, index) => {
+      tabs.push({
+        id: `sql-${sqlItem.name}` as const,
+        name: sqlItem.name,
+        icon: "#iconSQL",
+        component: CustomSqlPanel,
+        presetSql: sqlItem.sql, // 传递SQL内容给CustomSqlPanel
+      });
+    });
+
     // 添加"新增SQL"tab，使用SqlManagementPanel
     tabs.push({
       id: "sql" as const,
@@ -100,7 +102,8 @@
       component: CustomSqlPanel,
     });
 
-    tabs = [...tabs]; // 触发更新
+
+    // tabs = tabs.map((tab) => ({ ...tab })); // 创建新对象数组以触发Svelte的响应式更新
   }
 
   async function switchTab(tabId: string) {
@@ -130,7 +133,7 @@
   <!-- Tab头部 -->
   <div class="tab-header">
     <div class="tab-nav">
-      {#each tabs as tab}
+      {#each tabs as tab (tab.id)}
         <button
           class="tab-button"
           class:active={activeTab === tab.id}
@@ -153,7 +156,7 @@
 
     <!-- {:else} -->
     <!-- 查找当前激活的Tab配置 -->
-    {#each tabs as tab}
+    {#each tabs as tab (tab.id)}
       <!-- {#if tab.id === activeTab} -->
       <div class:is-hidden={tab.id !== activeTab} class="custom-sql-panel-tab">
         {#if tab.component === CustomSqlPanel}

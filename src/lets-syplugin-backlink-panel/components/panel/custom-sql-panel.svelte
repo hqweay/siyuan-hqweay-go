@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { getBlockAttrs, setBlockAttrs } from "@/api";
+  import { getBlockAttrs, setBlockAttrs, sql } from "@/api";
   import EntryList from "@/lets-dashboard/EntryList.svelte";
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
   import { createEventDispatcher, onMount } from "svelte";
@@ -106,15 +106,20 @@
   let isDeleting = false;
 
   // 初始化时处理预设的SQL
-  onMount(() => {
-    if (presetSql) {
-      inputSQL = presetSql;
-      isSqlInputExpanded = false; // 有预设SQL时展开
-      // 可以选择自动执行，或者让用户手动执行
-      executeSQL(); // 取消自动执行，让用户手动确认
+  // 监听 presetSql 变化，更新 inputSQL
+  $: if (presetSql !== undefined && presetSql !== null) {
+    inputSQL = presetSql;
+    if (presetSql.trim()) {
+      isSqlInputExpanded = false;
+      executeSQL();
     } else {
-      isSqlInputExpanded = true; // 无预设SQL时默认折叠
+      isSqlInputExpanded = true;
     }
+  }
+
+  onMount(() => {
+    // 初始化逻辑已由上面的 reactive statement 处理
+    // 这里保留用于其他初始化逻辑（如需要）
   });
 
   async function executeSQL() {
@@ -250,12 +255,24 @@
   }
 
   // 处理保存表单提交
-  function handleSaveSqlSubmit() {
-    if (!saveSqlName.trim() || !inputSQL.trim()) {
+  async function handleSaveSqlSubmit() {
+    const clearedSql = inputSQL.trim().toLowerCase();
+    if (!saveSqlName.trim() || !clearedSql) {
       alert("请输入SQL名称和内容");
       return;
     }
-    saveSqlToDocument(saveSqlName.trim(), inputSQL.trim());
+    if (clearedSql.startsWith("select") === false) {
+      alert("目前仅支持SELECT查询");
+      return;
+    }
+
+    const testSqlData = await sql(`select * from (${clearedSql}) LIMIT 1`);
+
+    if (!testSqlData || testSqlData.length === 0 || !testSqlData[0].id) {
+      alert("SQL语句执行失败，请检查语法");
+      return;
+    }
+    saveSqlToDocument(saveSqlName.trim(), clearedSql);
   }
 
   // 删除SQL配置
@@ -475,7 +492,9 @@
             </button>
             <button
               class="confirm-save-btn"
-              on:click={handleSaveSqlSubmit}
+              on:click={async () => {
+                await handleSaveSqlSubmit();
+              }}
               disabled={isSaving || !saveSqlName.trim()}
             >
               {isSaving ? "保存中..." : "确认保存"}
