@@ -529,7 +529,7 @@
 
 <style lang="scss">
   .custom-sql-container {
-    padding: 20px;
+    // padding: 20px;
     height: 100%;
     overflow-y: auto;
   }
@@ -850,7 +850,7 @@
   }
 
   .results-section {
-    margin-top: 20px;
+    // margin-top: 20px;
   }
 
   .empty-state {
