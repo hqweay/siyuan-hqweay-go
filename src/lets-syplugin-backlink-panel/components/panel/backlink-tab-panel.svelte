@@ -27,19 +27,28 @@
   ];
 
   // 从文档属性中获取保存的SQL
-  async function loadSavedSqlList() {
+  async function loadSavedSqlList(event?: any) {
     try {
       isLoadingSql = true;
-      const result = await getBlockAttrs(rootId);
+      // 说明是修改反显过来的
+      if (event) {
+        savedSqlList = event.detail.savedSqlList;
+        // 说明是新增SQL后切换过来的
+        if (event.detail.name) {
+          activeTab = `sql-${event.detail.name}` as any;
+        }
+      } else {
+        const result = await getBlockAttrs(rootId);
 
-      if (result && result["custom-tab-panel-sqls"]) {
-        const sqlAttr = result["custom-tab-panel-sqls"];
-        if (sqlAttr) {
-          try {
-            savedSqlList = JSON.parse(sqlAttr);
-          } catch (e) {
-            console.error("解析保存的SQL数据失败:", e);
-            savedSqlList = [];
+        if (result && result["custom-tab-panel-sqls"]) {
+          const sqlAttr = result["custom-tab-panel-sqls"];
+          if (sqlAttr) {
+            try {
+              savedSqlList = JSON.parse(sqlAttr);
+            } catch (e) {
+              console.error("解析保存的SQL数据失败:", e);
+              savedSqlList = [];
+            }
           }
         }
       }
@@ -60,7 +69,7 @@
     // 添加保存的SQL作为单独的tab，每个Tab使用CustomSqlPanel
     savedSqlList.forEach((sqlItem, index) => {
       tabs.push({
-        id: `sql-${index}` as const,
+        id: `sql-${sqlItem.name}` as const,
         name: sqlItem.name,
         icon: "#iconSQL",
         component: CustomSqlPanel,
@@ -90,6 +99,8 @@
       icon: "#iconAdd",
       component: CustomSqlPanel,
     });
+
+    tabs = [...tabs]; // 触发更新
   }
 
   async function switchTab(tabId: string) {
@@ -144,7 +155,7 @@
     <!-- 查找当前激活的Tab配置 -->
     {#each tabs as tab}
       <!-- {#if tab.id === activeTab} -->
-      <div class:is-hidden={tab.id !== activeTab}>
+      <div class:is-hidden={tab.id !== activeTab} class="custom-sql-panel-tab">
         {#if tab.component === CustomSqlPanel}
           <CustomSqlPanel
             presetSql={tab.presetSql}

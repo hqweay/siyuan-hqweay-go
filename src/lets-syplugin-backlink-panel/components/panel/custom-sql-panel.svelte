@@ -229,7 +229,7 @@
       });
 
       // 通知父组件更新
-      dispatch("sqlUpdated", { savedSqlList });
+      dispatch("sqlUpdated", { savedSqlList, name });
 
       // 重置表单
       // saveSqlName = "";
