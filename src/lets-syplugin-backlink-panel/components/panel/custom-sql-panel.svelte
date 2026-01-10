@@ -324,7 +324,7 @@
       });
 
       // 通知父组件更新
-      dispatch("sqlUpdated", { savedSqlList });
+      dispatch("sqlUpdated", { savedSqlList, name: "backlink" });
 
       // 重置表单
       showDeleteForm = false;

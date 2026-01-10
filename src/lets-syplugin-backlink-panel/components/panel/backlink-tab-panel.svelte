@@ -68,7 +68,11 @@
       updateSqlTabs();
 
       if (event && event.detail && event.detail.name) {
-        activeTab = `sql-${event.detail.name}` as any;
+        if (event.detail.name === "backlink") {
+          switchTab(`backlink`);
+        } else if (activeTab !== `sql-${event.detail.name}`) {
+          switchTab(`sql-${event.detail.name}`);
+        }
       }
     } catch (error) {
       console.error("获取保存的SQL列表失败:", error);
