@@ -59,6 +59,8 @@
   export let rootId: string;
   export let focusBlockId: string;
   export let currentTab: Custom;
+  export let activeTab: string; // 接收来自父组件的 activeTab 值
+
   // 用来监听变化
   let previousRootId: string;
   let previousFocusBlockId: string;
@@ -113,8 +115,7 @@
   );
 
   onMount(async () => {
-        doubleClickTimeout =
-            SettingService.ins.SettingConfig.doubleClickTimeout;
+    doubleClickTimeout = SettingService.ins.SettingConfig.doubleClickTimeout;
     if (!doubleClickTimeout) {
       doubleClickTimeout = 0;
     }
@@ -1501,6 +1502,12 @@ ${documentName}
   }
 
   async function loadMoreData() {
+    // 如果当前不是 backlink tab，不加载数据
+
+    if (activeTab !== "backlink") {
+      return;
+    }
+
     if (isLoadingMore || !hasMoreData) {
       return;
     }

@@ -154,7 +154,12 @@
   <div class="tab-content">
     <!-- {#if activeTab === "backlink"} -->
     <div class:is-hidden={activeTab !== "backlink"}>
-      <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
+      <BacklinkFilterPanelPage
+        {rootId}
+        {focusBlockId}
+        {currentTab}
+        {activeTab}
+      />
     </div>
     <!-- {:else} -->
     <!-- 查找当前激活的Tab配置 -->
