@@ -8,8 +8,24 @@
   export let isExpanded = true;
   export let fixedHeight = true;
   export let showTitle = true;
+  export let index = 0; // 当前项的索引
+  export let onCollapsed = null; // 关闭时的回调，用于调整滚动位置
 
   let container;
+  let wrapperElement; // wrapper 元素引用
+
+  // 处理折叠按钮点击
+  function handleToggleCollapse() {
+    isExpanded = !isExpanded;
+    if (isExpanded) {
+      // 从展开变为关闭，调用回调
+      if (onCollapsed) {
+        setTimeout(() => {
+          onCollapsed(index, wrapperElement);
+        }, 500); // 等待动画完成
+      }
+    }
+  }
 
   onMount(() => {
     try {
@@ -39,13 +55,11 @@
   });
 </script>
 
-<div class="entry-item-wrapper">
+<div class="entry-item-wrapper" bind:this={wrapperElement}>
   <div class="entry-item-header sticky">
     <button
       class="toggle-btn"
-      on:click={() => {
-        isExpanded = !isExpanded;
-      }}
+      on:click={handleToggleCollapse}
       title={isExpanded ? "折叠" : "展开"}
     >
       <span class="arrow">{isExpanded ? "➡️" : "⬇️"}</span>
@@ -164,9 +178,17 @@
     margin-bottom: 12px;
     min-height: 60px;
     overflow: hidden;
+    transition:
+      max-height 0.3s ease,
+      opacity 0.3s ease,
+      margin-top 0.3s ease;
   }
   .expanded {
-    display: none;
+    max-height: 0;
+    padding: 0 8px;
+    margin-top: 0;
+    opacity: 0;
+    min-height: 0;
   }
   :global(.entry-item .protyle-breadcrumb) {
     background-color: unset;

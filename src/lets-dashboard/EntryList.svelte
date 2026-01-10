@@ -1,6 +1,7 @@
 <script>
   import { sql } from "@/api";
   import { onMount } from "svelte";
+  import { flip } from "svelte/animate";
   import EntryItem from "./EntryItem.svelte";
   import StatCard from "./StatCard.svelte";
   import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
@@ -21,6 +22,23 @@
   let fixedHeight = false;
   let isExpanded = false;
   let showTitle = true;
+
+  function handleCollapsed(index, currentWrapper) {
+    if (
+      currentWrapper &&
+      currentWrapper.parentElement &&
+      currentWrapper.parentElement.nextElementSibling
+    ) {
+      const nextWrapper =
+        currentWrapper.parentElement.nextElementSibling.querySelector(
+          ".entry-item-wrapper"
+        );
+      if (nextWrapper) {
+        // 使用 scrollIntoView 让下一个元素滚动到可见位置，从头开始显示
+        nextWrapper.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }
 
   async function loadNext() {
     if (!idSQL || loading || !hasMore) return;
@@ -141,8 +159,17 @@
       />
     {/if}
   </div>
-  {#each ids as id}
-    <EntryItem blockId={id} {isExpanded} {fixedHeight} {showTitle} />
+  {#each ids as id, index (id)}
+    <div animate:flip={{ duration: 300 }}>
+      <EntryItem
+        blockId={id}
+        {isExpanded}
+        {fixedHeight}
+        {showTitle}
+        {index}
+        onCollapsed={handleCollapsed}
+      />
+    </div>
   {/each}
 
   <div class="list-loading">
