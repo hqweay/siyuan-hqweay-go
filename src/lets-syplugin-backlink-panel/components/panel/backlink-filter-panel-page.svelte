@@ -1475,6 +1475,10 @@ ${documentName}
   }
 
   function handleScroll(event: Event) {
+    // 如果当前不是 backlink tab，不加载数据
+    if (activeTab !== "backlink") {
+      return;
+    }
     const target = event.target as HTMLElement;
     let scrollTop: number, scrollHeight: number, clientHeight: number;
 
@@ -1494,20 +1498,11 @@ ${documentName}
 
     // 当滚动到距离底部50px时触发加载
     if (scrollTop + clientHeight >= scrollHeight - 50) {
-      // console.log('触发加载更多数据');
-      // console.log(hasMoreData);
-      // console.log()
       loadMoreData();
     }
   }
 
   async function loadMoreData() {
-    // 如果当前不是 backlink tab，不加载数据
-
-    if (activeTab !== "backlink") {
-      return;
-    }
-
     if (isLoadingMore || !hasMoreData) {
       return;
     }
