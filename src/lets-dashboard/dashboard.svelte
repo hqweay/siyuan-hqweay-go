@@ -9,6 +9,7 @@
   import ImageGallery from "./ImageGallery.svelte";
   import StatCard from "./StatCard.svelte";
   import { parseYYYYMMDD } from "@/myscripts/utils";
+  import { openBlockByID } from "@/myscripts/syUtils";
 
   const sqlConfigs =
     settings.getBySpace("dashBoard", "configs") === "hqweay"
@@ -51,11 +52,7 @@
                 type: "text",
                 label: `select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1`,
                 onClick: (card) => {
-                  if (isMobile) {
-                    openMobileFileById(plugin.app, card.labelBlocks[0]?.id);
-                  } else {
-                    window.open(`siyuan://blocks/${card.labelBlocks[0]?.id}`);
-                  }
+                  window.diaryTools.openBlockByID(card.labelBlocks[0]?.id);
                 },
               },
 
@@ -201,16 +198,7 @@ order by attributes.value desc`,
                     "select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1",
                   onClick: (card) => {
                     //@ts-ignore
-                    if (window.diaryTools.isMobile) {
-                      //@ts-ignore
-                      window.diaryTools.openMobileFileById(
-                        //@ts-ignore
-                        window.diaryTools.plugin.app,
-                        card.labelBlocks[0]?.id
-                      );
-                    } else {
-                      window.open("siyuan://blocks/" + card.labelBlocks[0]?.id);
-                    }
+                    window.diaryTools.openBlockByID(card.labelBlocks[0]?.id);
                   },
                 },
                 {
@@ -687,6 +675,7 @@ order by attributes.value desc`,
   onMount(async () => {
     (window as any).diaryTools = {
       openMobileFileById,
+      openBlockByID,
       isMobile,
       plugin,
       updateCustomCards,

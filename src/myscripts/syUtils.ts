@@ -138,13 +138,14 @@ export function openBlockByID(id: string) {
   if (isMobile) {
     openMobileFileById(plugin.app, id);
   } else {
-    // openTab({
-    //   app: plugin.app, //plugin 是你插件的 this 对象
-    //   doc: {
-    //     id: id,
-    //   },
-    // });
-    window.open(`siyuan://blocks/${id}`, "_blank");
+    // 使用 openTab，保证浏览器环境也能正常打开
+    openTab({
+      app: plugin.app, //plugin 是你插件的 this 对象
+      doc: {
+        id: id,
+      },
+    });
+    // window.open(`siyuan://blocks/${id}`, "_blank");
   }
 }
 
