@@ -32,12 +32,12 @@ export default class PluginSample implements SubPlugin {
     plugin.eventBus.on("switch-protyle", (e: any) => {
       EnvConfig.ins.lastViewedDocId = e.detail.protyle.block.rootID;
     });
-    // plugin.eventBus.on("loaded-protyle-static", (e: any) => {
-    //   console.log("index loaded-protyle-static ");
-    //   if (EnvConfig.ins.isMobile && !EnvConfig.ins.lastViewedDocId) {
-    //     EnvConfig.ins.lastViewedDocId = e.detail.protyle.block.rootID;
-    //   }
-    // });
+    plugin.eventBus.on("loaded-protyle-static", (e: any) => {
+      // console.log("index loaded-protyle-static ");
+      if (EnvConfig.ins.isMobile && !EnvConfig.ins.lastViewedDocId) {
+        EnvConfig.ins.lastViewedDocId = e.detail.protyle.block.rootID;
+      }
+    });
   }
 
   onLayoutReady() {}

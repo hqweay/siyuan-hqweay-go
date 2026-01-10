@@ -28,10 +28,10 @@ export class DocumentService {
 
   public init() {
     // 加载时不需要处理了吧？有点bug，先注释掉
-    // EnvConfig.ins.plugin.eventBus.on("loaded-protyle-static", (e: any) => {
-    //     // console.log("loaded-protyle-static e : ", e)
-    //     handleSwitchProtyleOrLoadedProtyleStatic(e);
-    // });
+    EnvConfig.ins.plugin.eventBus.on("loaded-protyle-static", (e: any) => {
+        // console.log("loaded-protyle-static e : ", e)
+        handleSwitchProtyleOrLoadedProtyleStatic(e);
+    });
 
     EnvConfig.ins.plugin.eventBus.on("switch-protyle", (e: any) => {
       // console.log("switch-protyle e : ", e)

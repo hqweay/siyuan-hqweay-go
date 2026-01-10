@@ -3,7 +3,7 @@
   import { openByUrl } from "@/myscripts/syUtils";
   import { plugin } from "@/utils";
   import { Protyle, showMessage } from "siyuan";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   export let blockId;
   export let isExpanded = true;
   export let fixedHeight = true;
@@ -13,6 +13,9 @@
 
   let container;
   let wrapperElement; // wrapper 元素引用
+  let protyleInstance = null; // Protyle 实例引用
+  let isProtyleLoaded = false; // 防止重复加载
+  let observer = null; // IntersectionObserver 引用
 
   // 处理折叠按钮点击
   function handleToggleCollapse() {
@@ -27,30 +30,66 @@
     }
   }
 
-  onMount(() => {
-    try {
-      if (Protyle && container) {
-        new Protyle(plugin.app, container, {
-          blockId: blockId,
-          action: ["cb-get-focus"],
-          render: {
-            title: true,
-            titleShowTop: false,
-            hideTitleOnZoom: false,
-            gutter: true,
-            scroll: true,
-            breadcrumb: true,
-            breadcrumbDocName: true,
-          },
+  // 使用 IntersectionObserver 延迟加载，只有进入视口时才加载
+  function initIntersectionObserver() {
+    if (!IntersectionObserver) return;
+
+    observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isProtyleLoaded && Protyle && container) {
+            // 进入视口，加载 Protyle
+            loadProtyle();
+            // 加载后停止观察
+            observer?.disconnect();
+          }
         });
-      } else {
-        // Fallback: show a simple link if Protyle is not available
-        if (container) {
-          container.innerHTML = `<a href=\"siyuan://blocks/${blockId}\">打开块 ${blockId}</a>`;
-        }
+      },
+      {
+        root: null,
+        rootMargin: "100px", // 提前 100px 开始加载
+        threshold: 0.1,
       }
+    );
+
+    observer.observe(wrapperElement);
+  }
+
+  function loadProtyle() {
+    if (isProtyleLoaded) return;
+
+    try {
+      protyleInstance = new Protyle(plugin.app, container, {
+        blockId: blockId,
+        action: ["cb-get-focus"],
+        render: {
+          background: false,
+          title: true,
+          titleShowTop: false,
+          hideTitleOnZoom: false,
+          gutter: true,
+          scroll: false,
+          breadcrumb: true,
+          breadcrumbDocName: true,
+        },
+      });
+      isProtyleLoaded = true;
     } catch (err) {
-      console.error("EntryItem mount error", err);
+      console.error("EntryItem loadProtyle error", err);
+    }
+  }
+
+  onMount(() => {
+    // 初始化 IntersectionObserver 延迟加载
+    initIntersectionObserver();
+  });
+
+  onDestroy(() => {
+    // 清理 observer
+    observer?.disconnect();
+    // 清理 Protyle 实例
+    if (protyleInstance && protyleInstance.close) {
+      protyleInstance.close();
     }
   });
 </script>
