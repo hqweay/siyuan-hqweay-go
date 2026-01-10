@@ -550,7 +550,7 @@
   .custom-sql-container {
     // padding: 20px;
     height: 100%;
-    overflow-y: auto;
+    // overflow-y: auto;
   }
 
   .entries-column {
@@ -898,7 +898,7 @@
   .media-column {
     background: var(--b3-theme-surface);
     border-radius: 8px;
-    padding: 15px;
+    // padding: 15px;
     border: 1px solid var(--b3-theme-outline-variant);
   }
 

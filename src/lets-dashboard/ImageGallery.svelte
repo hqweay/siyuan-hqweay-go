@@ -132,48 +132,48 @@
 
 <div class="images-section">
   <div class="images-header">
-    <div style="display: flex; gap: 12px; margin-bottom: 30px;flex-wrap: wrap;">
+    <!-- <div style="display: flex; gap: 12px; margin-bottom: 30px;flex-wrap: wrap;"> -->
+    <StatCard
+      type="text"
+      asButton={true}
+      label="网格"
+      active={layout === "grid"}
+      activeBackground="rgba(16, 185, 129, 0.12)"
+      fixedWidth="15%"
+      clickable={true}
+      onClick={() => {
+        layout = "grid";
+      }}
+    />
+    <StatCard
+      type="text"
+      asButton={true}
+      label="瀑布流"
+      fixedWidth="15%"
+      active={layout === "masonry"}
+      activeBackground="rgba(16, 185, 129, 0.12)"
+      clickable={true}
+      onClick={() => {
+        layout = "masonry";
+      }}
+    />
+    {#if !fromFlow}
       <StatCard
         type="text"
         asButton={true}
-        label="网格"
-        active={layout === "grid"}
-        activeBackground="rgba(16, 185, 129, 0.12)"
+        label="复制图片流链接"
         fixedWidth="15%"
-        clickable={true}
-        onClick={() => {
-          layout = "grid";
-        }}
-      />
-      <StatCard
-        type="text"
-        asButton={true}
-        label="瀑布流"
-        fixedWidth="15%"
-        active={layout === "masonry"}
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
         onClick={() => {
-          layout = "masonry";
+          copyToClipboard(
+            `[${title}](siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)})`
+          );
+          showMessage(`文档流访问链接已复制到剪贴板～`);
         }}
       />
-      {#if !fromFlow}
-        <StatCard
-          type="text"
-          asButton={true}
-          label="复制图片流链接"
-          fixedWidth="15%"
-          activeBackground="rgba(16, 185, 129, 0.12)"
-          clickable={true}
-          onClick={() => {
-            copyToClipboard(
-              `[${title}](siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)})`
-            );
-            showMessage(`文档流访问链接已复制到剪贴板～`);
-          }}
-        />
-      {/if}
-    </div>
+    {/if}
+    <!-- </div> -->
   </div>
   {#if layout === "grid"}
     <div class="image-grid">
@@ -234,9 +234,14 @@
 
   .images-header {
     display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+
+    background-color: var(--b3-theme-surface);
+    border-radius: 10px;
   }
 
   .image-grid {

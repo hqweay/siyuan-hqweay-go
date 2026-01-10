@@ -72,10 +72,7 @@
 </script>
 
 <div class="entry-list">
-  <div
-    class="entry-header"
-    style="display: flex; gap: 12px; margin-bottom: 30px;flex-wrap: wrap;"
-  >
+  <div class="entry-header">
     <StatCard
       type="text"
       asButton={true}
@@ -164,6 +161,19 @@
     display: none;
   }
 
+  .entry-header {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+
+    background-color: var(--b3-theme-surface);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    /* position: sticky; */
+    /* top: 0; */
+    /* z-index: 2; */
+  }
   .entry-list {
     display: block;
   }

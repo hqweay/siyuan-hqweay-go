@@ -39,8 +39,8 @@
   });
 </script>
 
-<div>
-  <div class="entry-header">
+<div class="entry-item-wrapper">
+  <div class="entry-item-header sticky">
     <button
       class="toggle-btn"
       on:click={() => {
@@ -90,25 +90,38 @@
   :global(.not-show-title .protyle-title) {
     display: none;
   }
-  .entry-header {
+
+  .entry-item-wrapper {
+    position: relative;
+    height: 100%;
+  }
+
+  .entry-item-header {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 8px 12px;
-    background: rgba(255, 255, 255, 0.06);
+    // background: rgba(255, 255, 255, 0.06);
+    background-color: var(--b3-theme-surface);
     border-radius: 8px 8px 0 0;
     cursor: pointer;
     user-select: none;
     transition: background 0.2s;
     margin-bottom: 5px;
+    z-index: 10;
+
+    &.sticky {
+      position: sticky;
+      top: 0;
+    }
   }
   .fixed-height {
     max-height: 300px;
     overflow: hidden;
   }
 
-  .entry-header:hover {
-    background: rgba(255, 255, 255, 0.1);
+  .entry-item-header:hover {
+    // background: rgba(255, 255, 255, 0.1);
   }
 
   .toggle-btn {
