@@ -24,6 +24,21 @@
       icon: "#iconLink",
       component: BacklinkFilterPanelPage,
     },
+    ...SettingService.ins.SettingConfig["sqlQuery"]
+      ?.split("/n")
+      .map((sql, index) => {
+        if (sql.trim() !== "") {
+          const [name, sqlTemp] = sql.split(":");
+          return {
+            id: `sql-default-${name}` as const,
+            name: `${name}`,
+            icon: "#iconSQL",
+            component: CustomSqlPanel,
+            presetSql: sqlTemp,
+          };
+        }
+        return null; // 或者用 undefined
+      }),
   ];
   $: tabs = [...defaultTabs];
 
@@ -32,7 +47,7 @@
     try {
       isLoadingSql = true;
       // 说明是修改反显过来的
-      if (event) {
+      if (event && event.detail) {
         savedSqlList = event.detail.savedSqlList;
         // 说明是新增SQL后切换过来的
       } else {
@@ -68,21 +83,6 @@
     // 移除现有的SQL相关tabs
     tabs = [...defaultTabs];
 
-    SettingService.ins.SettingConfig["sqlQuery"]
-      ?.split("/n")
-      .forEach((sql, index) => {
-        if (sql.trim() !== "") {
-          const [name, sqlTemp] = sql.split(":");
-          tabs.push({
-            id: `sql-default-${name}` as const,
-            name: `${name}`,
-            icon: "#iconSQL",
-            component: CustomSqlPanel,
-            presetSql: sqlTemp, // 传递SQL内容给CustomSqlPanel
-          });
-        }
-      });
-
     // 添加保存的SQL作为单独的tab，每个Tab使用CustomSqlPanel
     savedSqlList.forEach((sqlItem, index) => {
       tabs.push({
@@ -101,7 +101,6 @@
       icon: "#iconAdd",
       component: CustomSqlPanel,
     });
-
 
     // tabs = tabs.map((tab) => ({ ...tab })); // 创建新对象数组以触发Svelte的响应式更新
   }
@@ -153,7 +152,6 @@
     <div class:is-hidden={activeTab !== "backlink"}>
       <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
     </div>
-
     <!-- {:else} -->
     <!-- 查找当前激活的Tab配置 -->
     {#each tabs as tab (tab.id)}
@@ -168,25 +166,6 @@
             on:sqlUpdated={loadSavedSqlList}
           />
         {/if}
-        <!-- {#if tab.component === BacklinkFilterPanelPage}
-            <BacklinkFilterPanelPage {rootId} {focusBlockId} {currentTab} />
-          {:else if tab.component === CustomSqlPanel}
-            <CustomSqlPanel
-              presetSql={tab.presetSql}
-              saveSqlName={tab.name}
-              id={tab.id}
-              {rootId}
-              on:sqlUpdated={loadSavedSqlList}
-            />
-          {:else if tab.component === SqlManagementPanel}
-            <SqlManagementPanel
-              {rootId}
-              {focusBlockId}
-              {currentTab}
-              bind:savedSqlList
-              on:sqlUpdated={loadSavedSqlList}
-            />
-          {/if} -->
       </div>
       <!-- {/if} -->
     {/each}
