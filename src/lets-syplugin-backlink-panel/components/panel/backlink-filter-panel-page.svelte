@@ -2195,7 +2195,7 @@ ${documentName}
 
   .backlink-panel__header {
     position: sticky;
-    top: 0;
+    top: 40px;
     text-align: center;
     padding: 0px 0px;
     z-index: 2;

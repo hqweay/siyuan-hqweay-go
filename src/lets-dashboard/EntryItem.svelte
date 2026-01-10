@@ -37,7 +37,12 @@
     observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isProtyleLoaded && Protyle && container) {
+          if (
+            entry.isIntersecting &&
+            !isProtyleLoaded &&
+            Protyle &&
+            container
+          ) {
             // 进入视口，加载 Protyle
             loadProtyle();
             // 加载后停止观察
@@ -147,6 +152,15 @@
   .entry-item-wrapper {
     position: relative;
     height: 100%;
+  }
+
+  .custom-sql-container
+    .results-section
+    .entries-column
+    .entry-list
+    .entry-item-wrapper
+    .sticky {
+    top: 40px;
   }
 
   .entry-item-header {

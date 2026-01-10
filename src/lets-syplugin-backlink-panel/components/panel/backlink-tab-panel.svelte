@@ -200,10 +200,10 @@
         top: 0;
         z-index: 10; */
     position: sticky;
-    /* top: 0; */
+    top: 0;
     text-align: center;
     padding: 0px 0px;
-    z-index: 2;
+    z-index: 3;
     background-color: var(--b3-theme-surface);
     margin-bottom: 10px;
     border-radius: 10px;
