@@ -194,11 +194,6 @@
   }
 
   .tab-header {
-    /* border-bottom: 1px solid var(--b3-theme-outline-variant);
-        background: var(--b3-theme-surface);
-        position: sticky;
-        top: 0;
-        z-index: 10; */
     position: sticky;
     top: 0;
     text-align: center;
@@ -207,13 +202,23 @@
     background-color: var(--b3-theme-surface);
     margin-bottom: 10px;
     border-radius: 10px;
+
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* 关键属性组合 */
+    overscroll-behavior-x: contain; /* 阻止滚动链 */
+    overscroll-behavior-y: none; /* 允许垂直滚动链 */
+    touch-action: pan-x pinch-zoom; /* 只允许水平滚动手势 */
+    will-change: transform; /* 硬件加速 */
   }
 
   .tab-nav {
     display: flex;
     padding: 0 12px;
     gap: 4px;
-    flex-wrap: wrap;
+    overflow-x: auto;
+
+    /* flex-wrap: wrap; */
   }
 
   .tab-button {
@@ -261,7 +266,7 @@
 
     .tab-button {
       padding: 8px;
-      min-width: 36px;
+      /* min-width: 36px; */
       justify-content: center;
     }
   }

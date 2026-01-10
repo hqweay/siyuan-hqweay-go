@@ -160,7 +160,9 @@
     .entry-list
     .entry-item-wrapper
     .sticky {
+    position: sticky;
     top: 40px;
+    z-index: 2;
   }
 
   .entry-item-header {
