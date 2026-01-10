@@ -193,7 +193,8 @@ export default class NavHelper implements SubPlugin {
     );
     const editor = document.querySelector("#editor");
     if (editor) {
-      (editor as HTMLElement).style.paddingBottom = `${navHeight + 20}px`;
+      (editor as HTMLElement).style.paddingBottom = `${navHeight}px`;
+      // (editor as HTMLElement).style.paddingBottom = `${navHeight + 20}px`;
     }
   }
 
