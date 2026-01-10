@@ -221,23 +221,22 @@
     height: 100%;
   }
 
-  /* 一级菜单容器 */
-  .config__panel > ul.b3-tab-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  .config__panel > ul > li {
-    padding-left: 1rem;
-    flex-shrink: 0;
-  }
-  .my-reload-button {
-    margin-left: 20%;
-  }
-
   /* 移动端：一级菜单和设置面板分排显示 */
   @media (max-width: 768px) {
+    /* 一级菜单容器 */
+    .config__panel > ul.b3-tab-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .config__panel > ul > li {
+      padding-left: 1rem;
+      flex-shrink: 0;
+    }
+    .my-reload-button {
+      margin-left: 20%;
+    }
     .first-menu {
       margin-top: 10px;
     }
