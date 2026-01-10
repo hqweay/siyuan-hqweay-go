@@ -93,7 +93,7 @@
       activeButtonColor:
         settings.getBySpace(pluginMetadata.name, "activeButtonColor") ||
         "#007aff",
-      notJustInMain: !settings.getBySpace(pluginMetadata.name, "navJustInMain"),
+      navJustInMain: settings.getBySpace(pluginMetadata.name, "navJustInMain"),
     };
   }
 
@@ -300,7 +300,7 @@
         height: 50px;
       `}
       background-color: {getConfig().backgroundColor};
-      z-index: {getConfig().notJustInMain ? 0 : 9999};
+      z-index: {getConfig().navJustInMain ? 0 : 9999};
       display: flex;
       align-items: center;
       justify-content: {isCollapsed ? 'center' : 'space-around'};

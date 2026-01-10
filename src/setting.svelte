@@ -148,7 +148,12 @@
         return ele.title === detail.group;
       });
       console.log("opItem", opItem);
+      console.log("detail", detail);
+      
+
       settings.setBySpace(opItem[0].key, detail.key, detail.value);
+
+      console.log(settings.getBySpace(opItem[0].key, detail.key));
       // 子组件的配置修改了，立马刷新
       await PluginRegistry.getInstance().beginPlugin(opItem[0].key);
     }

@@ -25,7 +25,7 @@ const pluginMetadata: PluginMetadata = {
       title: "仅在主界面显示导航",
       description: "导航栏只在主文档界面显示（进入设置页等隐藏）",
       key: "navJustInMain",
-      value: true,
+      value: false,
     },
     {
       type: "checkbox",
