@@ -149,7 +149,6 @@
       });
       console.log("opItem", opItem);
       console.log("detail", detail);
-      
 
       settings.setBySpace(opItem[0].key, detail.key, detail.value);
 
@@ -178,7 +177,7 @@
 </script>
 
 <div class="fn__flex-1 fn__flex config__panel">
-  <ul class="b3-tab-bar b3-list b3-list--background">
+  <ul class="b3-tab-bar b3-list b3-list--background first-menu">
     {#each groups as group}
       <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
       <li
@@ -193,7 +192,7 @@
         }}
         on:keydown={() => {}}
       >
-        <span class="b3-list-item__text">{group}</span>
+        <span class="b3-list-item__text_my">{group}</span>
       </li>
     {/each}
   </ul>
@@ -208,8 +207,7 @@
         <div>💡 部分功能设置后需重启插件生效.</div>
         <div>
           <button
-            class="b3-button b3-button--outline fn__flex-center fn__size200"
-            style="margin-left: 20%;"
+            class="b3-button b3-button--outline fn__flex-center fn__size200 my-reload-button"
             on:click={lreload}>现在重载</button
           >
         </div>
@@ -222,7 +220,63 @@
   .config__panel {
     height: 100%;
   }
+
+  /* 一级菜单容器 */
+  .config__panel > ul.b3-tab-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
   .config__panel > ul > li {
     padding-left: 1rem;
+    flex-shrink: 0;
+  }
+  .my-reload-button {
+    margin-left: 20%;
+  }
+
+  /* 移动端：一级菜单和设置面板分排显示 */
+  @media (max-width: 768px) {
+    .first-menu {
+      margin-top: 10px;
+    }
+    .my-reload-button {
+      margin-left: unset;
+    }
+    .config__panel {
+      flex-direction: column;
+    }
+
+    .config__panel > ul.b3-tab-bar {
+      flex-direction: row;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+
+    .config__tab-wrap {
+      width: 100%;
+      margin-top: 12px;
+    }
+    .b3-list-item {
+      background: antiquewhite;
+    }
+    .b3-list-item--focus {
+      background: orange;
+    }
+  }
+
+  .b3-list-item__text_my {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0);
+    text-align: left;
+    border: 0;
+    padding: 0;
+    color: var(--b3-theme-on-background);
+    word-break: break-all;
+    -webkit-line-clamp: 1;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
   }
 </style>
