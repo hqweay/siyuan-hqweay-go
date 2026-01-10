@@ -16,6 +16,7 @@ import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { NewNodeID } from "@/lets-syplugin-backlink-panel/utils/siyuan-util";
 import { Menu } from "siyuan";
 import { generateGetDefBlockArraySql } from "../backlink/backlink-sql";
+import { isMobile } from "@/utils";
 
 let backlinkPanelPageSvelteMap: Map<string, any> = new Map();
 let documentProtyleElementMap: Map<string, HTMLElement> = new Map();
@@ -114,7 +115,9 @@ async function getDocumentBottomBacklinkPanelDisplay(
   );
   // 搜索弹窗的预览也显示底部反链面板，fn__flex-1 search__preview protyle
   let isSearchDialog = hasClosestById(docuemntContentElement, "searchPreview");
-  if (!isLayoutCenter && !isPopoverBlock && !isSearchDialog) {
+
+  // 移动端也支持展示底部反链
+  if (!isLayoutCenter && !isPopoverBlock && !isSearchDialog && !isMobile) {
     return false;
   }
 
@@ -137,7 +140,7 @@ async function getDocumentBottomBacklinkPanelDisplay(
       `div.protyle-wysiwyg--attr[${DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY}]`
     );
   }
-
+  
   if (docProtyleElement) {
     let attributeValue = docProtyleElement.getAttribute(
       DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY

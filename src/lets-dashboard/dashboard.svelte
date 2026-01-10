@@ -22,7 +22,7 @@
             //进入时是否加载列表
             showEntries: true,
             //进入时是否加载图片
-            showMedia: true,
+            showMedia: false,
             //控制是否展示 主统计信息
             showMainStatics: true,
             //控制是否展示 那年、那月、那周今日

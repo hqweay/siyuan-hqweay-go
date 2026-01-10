@@ -208,6 +208,7 @@
     display: flex;
     padding: 0 12px;
     gap: 4px;
+    flex-wrap: wrap;
   }
 
   .tab-button {
@@ -250,7 +251,7 @@
   /* 在移动设备上隐藏文字，只显示图标 */
   @media (max-width: 768px) {
     .tab-name {
-      display: none;
+      /* display: none; */
     }
 
     .tab-button {

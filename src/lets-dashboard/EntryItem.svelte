@@ -122,7 +122,7 @@
     user-select: none;
     transition: background 0.2s;
     margin-bottom: 5px;
-    z-index: 10;
+    z-index: 2;
 
     &.sticky {
       position: sticky;
