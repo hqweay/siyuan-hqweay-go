@@ -1,14 +1,12 @@
-import { registerPlugin } from "@frostime/siyuan-plugin-kits";
-import { getBlockAttrs, setBlockAttrs } from "@/api";
 import { settings } from "@/settings";
-import { isMobile, plugin } from "@/utils";
-import { Dialog, Menu, openMobileFileById, openTab, showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
+import { isMobile, plugin } from "@/utils";
+import { Dialog, openTab } from "siyuan";
 
 import DashboardComponent from "./dashboard.svelte";
 import EntryList from "./EntryList.svelte";
-import ImageGallery from "./ImageGallery.svelte";
 import FlowBoard from "./flowboard.svelte";
+import ImageGallery from "./ImageGallery.svelte";
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -112,7 +110,7 @@ export default class DashBoard implements SubPlugin {
     if (isMobile) {
       let dialog = new Dialog({
         title: title,
-        content: `<div id="hqweay-diary-flow-board" style="height: 700px;"></div>`,
+        content: `<div id="hqweay-diary-flow-board" class="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
         width: "400px",
         destroyCallback: (options) => {
           pannel.$destroy();
@@ -127,6 +125,7 @@ export default class DashBoard implements SubPlugin {
       let tabDiv = document.createElement("div");
       tabDiv.setAttribute("style", "height: 100%;");
       tabDiv.setAttribute("id", `hqweay-diary-flow-board`);
+      tabDiv.setAttribute("class", `hqweay-diary-flow-entry`);
       new FlowBoard({
         target: tabDiv,
         props: {},
@@ -183,7 +182,7 @@ export default class DashBoard implements SubPlugin {
     if (isMobile) {
       let dialog = new Dialog({
         title: typeof index === "string" ? index : "仪表盘",
-        content: `<div id="hqweay-diary-dashboard" style="height: 700px;"></div>`,
+        content: `<div id="hqweay-diary-dashboard" class="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
         width: "400px",
         destroyCallback: (options) => {
           pannel.$destroy();
@@ -197,6 +196,7 @@ export default class DashBoard implements SubPlugin {
     } else {
       let tabDiv = document.createElement("div");
       tabDiv.setAttribute("id", "hqweay-diary-dashboard" + index);
+      tabDiv.setAttribute("class", "hqweay-diary-flow-entry");
       new DashboardComponent({
         target: tabDiv,
         props: { selectedConfig: index, type },
@@ -234,7 +234,7 @@ export default class DashBoard implements SubPlugin {
     if (isMobile) {
       let dialog = new Dialog({
         title: title ? title : "Flow",
-        content: `<div id="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
+        content: `<div id="hqweay-diary-flow-entry" class="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
         width: "400px",
         destroyCallback: (options) => {
           pannel.$destroy();
@@ -290,7 +290,7 @@ export default class DashBoard implements SubPlugin {
     if (isMobile) {
       let dialog = new Dialog({
         title: title ? title : "Flow",
-        content: `<div id="hqweay-diary-flow-image" style="height: 700px;"></div>`,
+        content: `<div id="hqweay-diary-flow-image" class="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
         width: "400px",
         destroyCallback: (options) => {
           pannel.$destroy();
@@ -306,6 +306,7 @@ export default class DashBoard implements SubPlugin {
       //设置样式边距
       tabDiv.setAttribute("style", "padding: 15px;");
       tabDiv.setAttribute("id", "hqweay-diary-flow-image-${title}");
+      tabDiv.setAttribute("class", `hqweay-diary-flow-entry`);
       new ImageGallery({
         target: tabDiv,
         props: { imgSQL: sqlParam, pageSize: 10, fromFlow: true },
