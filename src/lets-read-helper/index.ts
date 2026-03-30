@@ -1,5 +1,6 @@
 import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
+import { plugin } from "@/utils";
 
 export default class ReadHelper implements SubPlugin {
   onload(): void {}
@@ -7,7 +8,9 @@ export default class ReadHelper implements SubPlugin {
   onunload(): void {}
 
   updateProtyleToolbar(toolbar) {
-    settings.getBySpace("readHelper", "markAndCopyRef") &&
+    // https://github.com/siyuan-note/siyuan/blob/fe4523fff2c84d6b06856331e735cc2938c2c5b0/app/src/plugin/index.ts#L93
+    // 应该是构造时有异步加载的问题，这段逻辑不能正常给 toolbar 添加快捷键。所以需要手动addCommand
+    if (settings.getBySpace("readHelper", "markAndCopyRef")) {
       toolbar.push({
         name: "markAndCopyRef",
         icon: "iconStar",
@@ -17,8 +20,12 @@ export default class ReadHelper implements SubPlugin {
           this.markAndCopyRef(protyle.protyle);
         },
       });
-
-    settings.getBySpace("readHelper", "markAndCopyTextRef") &&
+      plugin.addCommand({
+        langKey: "markAndCopyRef",
+        hotkey: "",
+      });
+    }
+    if (settings.getBySpace("readHelper", "markAndCopyTextRef")) {
       toolbar.push({
         name: "markAndCopyTextRef",
         icon: "iconUp",
@@ -28,7 +35,12 @@ export default class ReadHelper implements SubPlugin {
           this.markAndCopyTextRef(protyle.protyle);
         },
       });
-    settings.getBySpace("readHelper", "markAndCopyTextRefNoHighlight") &&
+      plugin.addCommand({
+        langKey: "markAndCopyTextRef",
+        hotkey: "",
+      });
+    }
+    if (settings.getBySpace("readHelper", "markAndCopyTextRefNoHighlight")) {
       toolbar.push({
         name: "markAndCopyTextRefNoHighlight",
         icon: "iconDown",
@@ -38,7 +50,11 @@ export default class ReadHelper implements SubPlugin {
           this.markAndCopyTextRefNoHighlight(protyle.protyle);
         },
       });
-
+      plugin.addCommand({
+        langKey: "markAndCopyRef",
+        hotkey: "",
+      });
+    }
     return toolbar;
   }
 
