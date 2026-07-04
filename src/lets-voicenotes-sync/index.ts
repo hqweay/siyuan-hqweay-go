@@ -8,6 +8,7 @@ import { convertHtmlToMarkdown, formatDate, getFilenameFromUrl } from "./utils";
 import VoiceNotesApi from "./voicenotes-api";
 import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "../libs/sub-plugin-base";
 
 function getContentFromTranscriptToNextHeading(element) {
   let result = "";
@@ -44,18 +45,18 @@ function getContentFromTranscriptToNextHeading(element) {
   return result.trim();
 }
 
-export default class VoiceNotesPlugin implements SubPlugin {
-  onload(): void {
+export default class VoiceNotesPlugin extends SubPluginBase {
+  override onload(): void {
     if (this.vnApi) return;
     this.vnApi = new VoiceNotesApi({
       token: settings.getBySpace("voiceNotes", "token"),
     });
   }
 
-  onunload(): void {}
+  override onunload(): void {}
   addMenuItem(menu) {
     menu.addItem({
-      label: "同步 VoiceNotes",
+      label: this.label,
       iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" >${this.icon}</div>`,
       click: async () => {
         this.exec();
@@ -64,7 +65,9 @@ export default class VoiceNotesPlugin implements SubPlugin {
   }
 
   id = "hqweay-voicenotes";
-  label = "同步 VoiceNotes";
+  get label() {
+    return this.t("lets-voiceNotes.syncBtn");
+  }
   icon = `<svg t="1737813478703" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248" width="32" height="32"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
 
   syncedNoteCount = 0;
@@ -78,7 +81,7 @@ export default class VoiceNotesPlugin implements SubPlugin {
   public async editortitleiconEvent({ detail }: any) {
     detail.menu.addItem({
       iconHTML: "🧹",
-      label: "将数据同步到voicenotesai",
+      label: this.t("lets-voiceNotes.syncBtn"),
       click: async () => {
         const docId = detail.protyle.block.id;
 
@@ -107,7 +110,7 @@ export default class VoiceNotesPlugin implements SubPlugin {
         }
 
         if (!text || text.length <= 0) {
-          showMessage(`无法获取文本内容，请检查`);
+          showMessage(this.t("lets-voiceNotes.noContent"));
           return;
         }
 
@@ -124,7 +127,7 @@ export default class VoiceNotesPlugin implements SubPlugin {
   public async blockIconEvent({ detail }: any) {
     detail.menu.addItem({
       iconHTML: "",
-      label: "将数据同步到voicenotesai",
+      label: this.t("lets-voiceNotes.syncBtn"),
       click: async () => {
         detail.blockElements.forEach(async (item: HTMLElement) => {
           await this.addOrUpdate(
