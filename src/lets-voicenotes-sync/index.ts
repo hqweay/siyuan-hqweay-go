@@ -13,7 +13,7 @@ function getContentFromTranscriptToNextHeading(element) {
   let result = "";
   const children = element.children;
   let foundTranscript = false;
-  console.log(element);
+  // console.log(element);
   for (let i = 0; i < children.length; i++) {
     const child = children[i];
 
