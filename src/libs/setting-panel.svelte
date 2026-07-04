@@ -29,19 +29,32 @@
 
 <div class="config__tab-container {fn__none}" data-name={group}>
     <slot />
-    {#each settingItems as item (item.key)}
-        <SettingItem
-            type={item.type}
-            title={item.title}
-            description={item.description}
-            settingKey={item.key}
-            settingValue={item.value}
-            placeholder={item?.placeholder}
-            options={item?.options}
-            slider={item?.slider}
-            height={item?.height}
-            on:click={onClick}
-            on:changed={onChanged}
-        />
-    {/each}
+    <div class="settings-card">
+        {#each settingItems as item (item.key)}
+            <SettingItem
+                type={item.type}
+                title={item.title}
+                description={item.description}
+                settingKey={item.key}
+                settingValue={item.value}
+                placeholder={item?.placeholder}
+                options={item?.options}
+                slider={item?.slider}
+                height={item?.height}
+                on:click={onClick}
+                on:changed={onChanged}
+            />
+        {/each}
+    </div>
 </div>
+
+<style lang="scss">
+    .settings-card {
+        background-color: var(--b3-theme-surface);
+        border: 1px solid var(--b3-theme-outline-variant);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        margin-bottom: 16px;
+    }
+</style>

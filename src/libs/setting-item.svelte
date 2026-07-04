@@ -104,7 +104,7 @@
       </select>
     {:else if type == "slider"}
       <!-- Slider -->
-      <div class="b3-tooltips b3-tooltips__n" aria-label={settingValue}>
+      <div class="slider-container">
         <input
           class="b3-slider fn__size200"
           id="fontSize"
@@ -115,11 +115,111 @@
           bind:value={settingValue}
           on:change={changed}
         />
-      </div>
-    {:else if type == "detail"}
-      <div class="b3-tooltips b3-tooltips__n" aria-label={settingValue}>
-        <!-- {description} -->
+        <span class="slider-value">{settingValue}</span>
       </div>
     {/if}
   </label>
 {/if}
+
+<style lang="scss">
+  .b3-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    margin: 0;
+    border-bottom: 1px solid var(--b3-theme-outline-variant);
+    min-height: 58px;
+    box-sizing: border-box;
+    background-color: transparent;
+    transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      background-color: var(--b3-theme-background-hover);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  /* Textarea Specific Layout */
+  .fn__flex-column.b3-label {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-bottom: 18px;
+    
+    &:hover {
+      background-color: transparent; /* Textarea area is large; hover bg-color might look weird */
+    }
+    
+    textarea {
+      width: 100%;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+      background-color: var(--b3-theme-surface-variant, inherit);
+      border: 1px solid var(--b3-theme-outline-variant);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+      &:focus {
+        border-color: var(--b3-theme-primary);
+        box-shadow: 0 0 0 2px var(--b3-theme-primary-opacity, rgba(59, 130, 246, 0.15));
+      }
+    }
+  }
+
+  /* Slider Layout */
+  .slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .slider-value {
+    min-width: 38px;
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--b3-theme-primary);
+    text-align: right;
+  }
+
+  /* Modern input control transitions */
+  .b3-switch, .b3-select, .b3-text-field, .b3-slider {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+  }
+
+  .b3-text-field, .b3-select {
+    border-radius: 6px;
+    height: 30px;
+    box-sizing: border-box;
+  }
+
+  .b3-button--outline {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+    font-weight: 500;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background-color: var(--b3-theme-primary);
+      color: var(--b3-theme-on-primary);
+      border-color: var(--b3-theme-primary);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .b3-switch:active {
+    transform: scale(0.96);
+  }
+</style>
