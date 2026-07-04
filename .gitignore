@@ -14,3 +14,5 @@ sy*
 release-note.md
 public/i18n/zh-CN.json
 public/i18n/en.json
+src/translations/en.ts
+src/translations/zh-CN.ts

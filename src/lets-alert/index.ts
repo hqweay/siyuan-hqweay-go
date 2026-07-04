@@ -23,7 +23,7 @@ export default class LetsAlert implements SubPlugin {
       // 首次安装，只展示最新版本变更
       if (!lastVer) {
         const match = changelog.match(/(##\s+\d+\.\d+\.\d+[^]*?)(?=\n##\s+\d+\.\d+\.\d+|$)/);
-        return match ? match[1].trim() : `## ${currentVer}\n\n- 欢迎使用恐龙工具箱！`;
+        return match ? match[1].trim() : `## ${currentVer}\n\n- ${this.t("lets-alert.welcome")}`;
       }
 
       const lastVerHeader = `## ${lastVer}`;
@@ -73,10 +73,10 @@ export default class LetsAlert implements SubPlugin {
     // 4. 构建弹窗内容
     const dialogContent = `<div class="b3-dialog__content" style="padding: 20px; box-sizing: border-box; font-size: 14px;">
       <h2 style="margin-top: 0; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 18px;">
-        🦖 恐龙工具箱更新啦！
+        ${this.t("lets-alert.title")}
       </h2>
       <div style="font-size: 12px; color: var(--b3-theme-on-surface-light); margin-bottom: 16px;">
-        当前版本: v${currentVersion}
+        ${this.t("lets-alert.currentVersion")}: v${currentVersion}
       </div>
       <div class="fn__hr" style="margin-bottom: 16px;"></div>
       <div style="max-height: 380px; overflow-y: auto; padding-right: 8px;">
@@ -84,12 +84,12 @@ export default class LetsAlert implements SubPlugin {
       </div>
       <div class="fn__hr" style="margin-top: 20px; margin-bottom: 16px;"></div>
       <div style="display: flex; justify-content: flex-end;">
-        <button class="b3-button fn__size200" id="closeChangelogBtn">好的</button>
+        <button class="b3-button fn__size200" id="closeChangelogBtn">${this.t("lets-alert.ok")}</button>
       </div>
     </div>`;
 
     const dialog = new Dialog({
-      title: `更新日志 (v${currentVersion})`,
+      title: `${this.t("lets-alert.dialogTitle")} (v${currentVersion})`,
       content: dialogContent,
       width: isMobile ? "92vw" : "500px",
       height: "460px",
