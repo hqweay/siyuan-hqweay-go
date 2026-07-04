@@ -20,17 +20,17 @@
       设置: [
         {
           type: "button",
-          title: "合并数据",
-          description: "若某些功能无法正常使用，尝试使用此选项。",
+          title: "settings.mergeData",
+          description: "settings.mergeDataDesc",
           key: "mergeData",
-          value: "确认",
+          value: "settings.confirm",
         },
         {
           type: "button",
-          title: "恢复/清理数据",
-          description: "若合并数据后仍有问题，尝试使用此选项。",
+          title: "settings.resetData",
+          description: "settings.resetDataDesc",
           key: "resetData",
-          value: "确认",
+          value: "settings.confirm",
         },
       ],
     };
@@ -92,6 +92,25 @@
     }
   }
 
+  const getGroupLabel = (groupName: string) => {
+    const mainKey = `settings.${groupName}`;
+    if (plugin.i18n[mainKey]) {
+      return plugin.i18n[mainKey];
+    }
+    
+    const pluginRegistry = PluginRegistry.getInstance();
+    const pluginConfigs = pluginRegistry.getPluginConfigs();
+    const found = pluginConfigs.find(
+      (p) => p.displayName === groupName || p.name === groupName
+    );
+    if (found) {
+      const key = `lets-${found.name}.displayName`;
+      return plugin.i18n[key] || found.displayName || found.name;
+    }
+    
+    return groupName;
+  };
+
   /********** Events **********/
   interface ChangeEvent {
     group: string;
@@ -104,11 +123,11 @@
       if ("resetData" === detail.key) {
         await settings.resetData();
         SettingItems = initData();
-        showMessage("配置恢复为默认值");
+        showMessage(plugin.i18n["settings.resetSuccess"] || "配置恢复为默认值");
       } else if ("mergeData" === detail.key) {
         await settings.mergeData();
         SettingItems = initData();
-        showMessage("合并配置为最新配置");
+        showMessage(plugin.i18n["settings.mergeSuccess"] || "合并配置为最新配置");
       }
     } else if ("VoiceNotes 同步" === detail.group) {
       if ("fullSyncVoiceNotes" === detail.key) {
@@ -197,7 +216,7 @@
         }}
         on:keydown={() => {}}
       >
-        <span class="b3-list-item__text_my">{group}</span>
+        <span class="b3-list-item__text_my">{getGroupLabel(group)}</span>
       </li>
     {/each}
   </ul>
@@ -205,7 +224,7 @@
   <!-- Mobile Selector Bar -->
   <!-- svelte-ignore a11y-click-events-have-key-events -->
   <div class="mobile-selector-bar" on:click={() => (showBottomSheet = true)}>
-    <span class="current-category">{focusGroup}</span>
+    <span class="current-category">{getGroupLabel(focusGroup)}</span>
     <span class="arrow-icon">▼</span>
   </div>
 
@@ -215,13 +234,13 @@
     <div class="global-banner">
       <div class="banner-left">
         <span>💡</span>
-        <span>部分功能设置后需重启插件生效.</span>
+        <span>{plugin.i18n["settings.restartWarning"] || "部分功能设置后需重启插件生效."}</span>
       </div>
       <button
         class="b3-button b3-button--outline my-reload-button"
         on:click={lreload}
       >
-        现在重载
+        {plugin.i18n["settings.reloadNow"] || "现在重载"}
       </button>
     </div>
 
@@ -243,7 +262,7 @@
   <div class="bottom-sheet-backdrop" on:click={() => (showBottomSheet = false)}>
     <div class="bottom-sheet-container" on:click|stopPropagation>
       <div class="bottom-sheet-header">
-        <h3>选择设置分类</h3>
+        <h3>{plugin.i18n["settings.selectCategory"] || "选择设置分类"}</h3>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="close-btn" on:click={() => (showBottomSheet = false)}
           >&times;</button
@@ -260,7 +279,7 @@
               showBottomSheet = false;
             }}
           >
-            {group}
+            {getGroupLabel(group)}
           </li>
         {/each}
       </ul>

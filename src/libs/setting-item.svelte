@@ -1,5 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
+  import { plugin } from "../utils";
+
   export let type: string; // Setting Type
   export let title: string; // Displayint Setting Title
   export let description: string; // Displaying Setting Text
@@ -25,21 +27,26 @@
   function changed() {
     dispatch("changed", { key: settingKey, value: settingValue });
   }
+
+  $: tTitle = plugin.i18n[title] || title;
+  $: tDescription = plugin.i18n[description] || description;
+  $: tPlaceholder = plugin.i18n[placeholder] || placeholder;
+  $: tButtonLabel = type === "button" ? (plugin.i18n[settingValue] || settingValue) : settingValue;
 </script>
 
 {#if type === "textarea"}
   <label class="fn__flex-column b3-label" style="min-height: unset;">
     <div>
-      {title}
+      {tTitle}
       <div class="b3-label__text">
-        {@html description}
+        {@html tDescription}
       </div>
     </div>
     <textarea
       style="height: {height ? height : '300px'};"
       class="b3-text-field"
       id={settingKey}
-      {placeholder}
+      placeholder={tPlaceholder}
       bind:value={settingValue}
       on:change={changed}
     />
@@ -48,9 +55,9 @@
 {#if type !== "textarea"}
   <label class="fn__flex b3-label">
     <div class="fn__flex-1">
-      {@html title}
+      {@html tTitle}
       <div class="b3-label__text">
-        {@html description}
+        {@html tDescription}
       </div>
     </div>
     <span class="fn__space" />
@@ -69,7 +76,7 @@
       <input
         class="b3-text-field fn__flex-center fn__size200"
         id={settingKey}
-        {placeholder}
+        placeholder={tPlaceholder}
         bind:value={settingValue}
         on:change={changed}
       />
@@ -88,7 +95,7 @@
         id={settingKey}
         on:click={clicked}
       >
-        {settingValue}
+        {tButtonLabel}
       </button>
     {:else if type === "select"}
       <!-- Dropdown select -->
