@@ -1,4 +1,4 @@
-import { SubPlugin } from "../types/plugin";
+import { SubPlugin, TranslationKey } from "../types/plugin";
 
 /**
  * 子插件基类
@@ -14,7 +14,7 @@ export class SubPluginBase implements SubPlugin {
   version!: string;
   enabled!: boolean;
 
-  t!: (key: string) => string;
+  t!: (key: TranslationKey) => string;
   getSetting!: (key: string) => any;
   setSetting!: (key: string, value: any) => void;
 

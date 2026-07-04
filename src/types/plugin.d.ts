@@ -1,3 +1,7 @@
+import { en } from "../translations/en";
+
+export type TranslationKey = keyof typeof en;
+
 export interface PluginSettingItem {
   type: "checkbox" | "textinput" | "textarea" | "select" | "number" | "button";
   title: string;
@@ -28,7 +32,7 @@ export interface SubPlugin {
   onDataChanged?(): void;
 
   // Injected helpers
-  t?(key: string): string;
+  t?(key: TranslationKey): string;
   getSetting?(key: string): any;
   setSetting?(key: string, value: any): void;
 

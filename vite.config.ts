@@ -6,6 +6,9 @@ import livereload from "rollup-plugin-livereload";
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import zipPack from "vite-plugin-zip-pack";
 import fg from "fast-glob";
+import fs from "fs";
+import { zhCN } from "./src/translations/zh-CN";
+import { en } from "./src/translations/en";
 
 const args = minimist(process.argv.slice(2));
 const isWatch = args.watch || args.w || false;
@@ -25,6 +28,26 @@ export default defineConfig({
 
   plugins: [
     svelte(),
+    {
+      name: "i18n-generate",
+      buildStart() {
+        const i18nDir = resolve(__dirname, "public/i18n");
+        if (!fs.existsSync(i18nDir)) {
+          fs.mkdirSync(i18nDir, { recursive: true });
+        }
+        fs.writeFileSync(
+          resolve(i18nDir, "zh-CN.json"),
+          JSON.stringify(zhCN, null, 2),
+          "utf-8"
+        );
+        fs.writeFileSync(
+          resolve(i18nDir, "en.json"),
+          JSON.stringify(en, null, 2),
+          "utf-8"
+        );
+        console.log("--> [i18n] Generated JSON files from TS definitions.");
+      },
+    },
 
     viteStaticCopy({
       targets: [
@@ -92,6 +115,7 @@ export default defineConfig({
                 async buildStart() {
                   const files = await fg([
                     "public/i18n/**",
+                    "src/translations/**",
                     "./README*.md",
                     "./plugin.json",
                   ]);

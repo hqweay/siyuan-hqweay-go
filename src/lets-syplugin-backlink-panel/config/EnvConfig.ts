@@ -10,7 +10,7 @@ import {
   getFrontend,
 } from "siyuan";
 
-import i18n from "@/lets-syplugin-backlink-panel/i18n/zh_CN.json";
+import i18n from "@/lets-syplugin-backlink-panel/i18n/zh-CN.json";
 export class EnvConfig {
   public static get ins(): EnvConfig {
     return Instance.get(EnvConfig);
