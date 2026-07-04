@@ -14,6 +14,20 @@ const log = getLogger("lets-href-to-ref");
  *   block: operationElement = selected block; searchRoots = editables within it.
  *   page:  operationElement = each NodeParagraph/NodeHeading; searchRoots = [editable inside it].
  */
+/** Every inline type we can convert to text. Single source of truth. */
+export const ALL_INLINE_SELECTORS = [
+  '[data-type~="a"]',
+  '[data-type~="block-ref"]',
+  '[data-type~="strong"]',
+  '[data-type~="mark"]',
+  '[data-type~="tag"]',
+  '[data-type~="em"]',
+  '[data-type~="u"]',
+  '[data-type~="s"]',
+  '[data-type~="sup"]',
+  '[data-type~="sub"]',
+];
+
 export interface TransformGroup {
   nodeId: string;
   operationElement: HTMLElement;

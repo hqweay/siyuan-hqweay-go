@@ -8,6 +8,7 @@ import {
   inlineToText,
   TransformGroup,
   getActiveDocId,
+  ALL_INLINE_SELECTORS,
 } from "./converters";
 import { IOperation } from "siyuan";
 import { getLogger } from "@/libs/logger";
@@ -111,43 +112,34 @@ async function applyToFullDoc(
 
 // ─── Composite transforms ─────────────────────────────────────────────────────
 
-/**
- * Create a combined transform that applies all 6 inline-to-text passes
- * on the same parsed DOM. Each pass mutates in-place, so only the final
- * outerHTML is sent to `updateBlock`.
- */
-function allInlineToTextTransform(
+function inlineToTextTransform(
+  selectors: string[],
   styleNesting: boolean
 ): (groups: TransformGroup[]) => IOperation[] {
-  const SELECTORS = [
-    '[data-type~="a"]',
-    '[data-type~="block-ref"]',
-    '[data-type~="strong"]',
-    '[data-type~="mark"]',
-    '[data-type~="tag"]',
-    '[data-type~="em"]',
-  ];
-
   return (groups: TransformGroup[]): IOperation[] => {
     let changed = false;
-    for (const sel of SELECTORS) {
-      const ops = inlineToText(groups, sel, styleNesting);
-      if (ops.length > 0) changed = true;
+    for (const sel of selectors) {
+      if (inlineToText(groups, sel, styleNesting).length > 0) changed = true;
     }
     if (!changed || groups.length === 0) return [];
-
-    // After all in-place mutations, snapshot the final outerHTML
-    return [
-      {
-        id: groups[0].nodeId,
-        data: groups[0].operationElement.outerHTML,
-        action: "update",
-      },
-    ];
+    return [{ id: groups[0].nodeId, data: groups[0].operationElement.outerHTML, action: "update" }];
   };
 }
 
 // ─── Command registration ─────────────────────────────────────────────────────
+
+const TEXT_COMMANDS = [
+  { key: "cmdHrefToText", selectors: ['[data-type~="a"][data-href^="siyuan://"]', '[data-type~="block-ref"]'] },
+  { key: "cmdHrefToTextIncludeA", selectors: ['[data-type~="a"]', '[data-type~="block-ref"]'] },
+  { key: "cmdStrongToText", selectors: ['[data-type~="strong"]'] },
+  { key: "cmdMarkToText", selectors: ['[data-type~="mark"]'] },
+  { key: "cmdTagToText", selectors: ['[data-type~="tag"]'] },
+  { key: "cmdItalicToText", selectors: ['[data-type~="em"]'] },
+  { key: "cmdUToText", selectors: ['[data-type~="u"]'] },
+  { key: "cmdSToText", selectors: ['[data-type~="s"]'] },
+  { key: "cmdSupToText", selectors: ['[data-type~="sup"]'] },
+  { key: "cmdSubToText", selectors: ['[data-type~="sub"]'] },
+];
 
 /**
  * Register command-palette entries + hotkey slots.
@@ -181,7 +173,18 @@ export function registerCommands(availableBlocks: string[]): void {
     hotkey: "",
     callback: async () => {
       const styleNesting = settings.getBySpace("convert", "styleNesting") as boolean;
-      await applyToFullDoc(availableBlocks, allInlineToTextTransform(styleNesting));
+      await applyToFullDoc(availableBlocks, inlineToTextTransform(ALL_INLINE_SELECTORS, styleNesting));
     },
   });
+
+  for (const { key, selectors } of TEXT_COMMANDS) {
+    plugin.addCommand({
+      langKey: `lets-href-to-ref.${key}`,
+      hotkey: "",
+      callback: async () => {
+        const styleNesting = settings.getBySpace("convert", "styleNesting") as boolean;
+        await applyToFullDoc(availableBlocks, inlineToTextTransform(selectors, styleNesting));
+      },
+    });
+  }
 }

@@ -11,6 +11,7 @@ import {
   inlineToText,
   cleanSelfRef,
   cleanStarRef,
+  ALL_INLINE_SELECTORS,
 } from "./converters";
 
 const log = getLogger("lets-href-to-ref");
@@ -117,14 +118,7 @@ export default class HrefToRef extends SubPluginBase {
           iconHTML: "",
           label: this.t("lets-href-to-ref.allInlineToText"),
           click: () => {
-            this.blockInlineToTextBatch(detail, styleNesting, [
-              '[data-type~="a"]',
-              '[data-type~="block-ref"]',
-              '[data-type~="strong"]',
-              '[data-type~="mark"]',
-              '[data-type~="tag"]',
-              '[data-type~="em"]',
-            ]);
+            this.blockInlineToTextBatch(detail, styleNesting, ALL_INLINE_SELECTORS);
           },
         },
         {
@@ -173,6 +167,34 @@ export default class HrefToRef extends SubPluginBase {
           label: this.t("lets-href-to-ref.italicToText"),
           click: () => {
             this.blockInlineToText(detail, styleNesting, '[data-type~="em"]');
+          },
+        },
+        {
+          iconHTML: "",
+          label: this.t("lets-href-to-ref.uToText"),
+          click: () => {
+            this.blockInlineToText(detail, styleNesting, '[data-type~="u"]');
+          },
+        },
+        {
+          iconHTML: "",
+          label: this.t("lets-href-to-ref.sToText"),
+          click: () => {
+            this.blockInlineToText(detail, styleNesting, '[data-type~="s"]');
+          },
+        },
+        {
+          iconHTML: "",
+          label: this.t("lets-href-to-ref.supToText"),
+          click: () => {
+            this.blockInlineToText(detail, styleNesting, '[data-type~="sup"]');
+          },
+        },
+        {
+          iconHTML: "",
+          label: this.t("lets-href-to-ref.subToText"),
+          click: () => {
+            this.blockInlineToText(detail, styleNesting, '[data-type~="sub"]');
           },
         },
         {
@@ -240,14 +262,7 @@ export default class HrefToRef extends SubPluginBase {
         label: this.t("lets-href-to-ref.allInlineToText"),
         click: () => {
           const groups = pageGroups();
-          for (const sel of [
-            '[data-type~="a"]',
-            '[data-type~="block-ref"]',
-            '[data-type~="strong"]',
-            '[data-type~="mark"]',
-            '[data-type~="tag"]',
-            '[data-type~="em"]',
-          ]) {
+          for (const sel of ALL_INLINE_SELECTORS) {
             commit(inlineToText(groups, sel, styleNesting));
           }
         },
@@ -299,6 +314,30 @@ export default class HrefToRef extends SubPluginBase {
         label: this.t("lets-href-to-ref.italicToText"),
         click: () =>
           commit(inlineToText(pageGroups(), '[data-type~="em"]', styleNesting)),
+      },
+      {
+        iconHTML: "",
+        label: this.t("lets-href-to-ref.uToText"),
+        click: () =>
+          commit(inlineToText(pageGroups(), '[data-type~="u"]', styleNesting)),
+      },
+      {
+        iconHTML: "",
+        label: this.t("lets-href-to-ref.sToText"),
+        click: () =>
+          commit(inlineToText(pageGroups(), '[data-type~="s"]', styleNesting)),
+      },
+      {
+        iconHTML: "",
+        label: this.t("lets-href-to-ref.supToText"),
+        click: () =>
+          commit(inlineToText(pageGroups(), '[data-type~="sup"]', styleNesting)),
+      },
+      {
+        iconHTML: "",
+        label: this.t("lets-href-to-ref.subToText"),
+        click: () =>
+          commit(inlineToText(pageGroups(), '[data-type~="sub"]', styleNesting)),
       },
     ];
   }
