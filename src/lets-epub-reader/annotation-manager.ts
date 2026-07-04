@@ -1,5 +1,7 @@
 import type { Annotation, AnnotationType } from "./types";
 import { extractChapterIdFromCfi } from "./epub-utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 /**
  * 标注管理器类
@@ -18,14 +20,14 @@ export class AnnotationManager {
    * 清除所有现有的标注高亮
    */
   clearAllHighlights(): void {
-    console.log("🧹 [标注管理器] 开始清理所有标注");
+    log.info("🧹 [标注管理器] 开始清理所有标注");
 
     try {
       // 清除 epub.js 标注存储
       this.rendition.annotations.removeAll("highlight");
-      console.log("✅ [标注管理器] epub.js 标注存储已清理");
+      log.info("✅ [标注管理器] epub.js 标注存储已清理");
     } catch (e) {
-      console.warn("⚠️ [标注管理器] 清理 epub.js 标注存储失败:", e);
+      log.warn("⚠️ [标注管理器] 清理 epub.js 标注存储失败:", e);
     }
 
     // 清除基于 DOM 的高亮
@@ -57,7 +59,7 @@ export class AnnotationManager {
     // 重置跟踪状态
     this.appliedAnnotations.clear();
     this.chapterAnnotations.clear();
-    console.log("✅ [标注管理器] 所有标注已清理完成");
+    log.info("✅ [标注管理器] 所有标注已清理完成");
   }
 
   /**
@@ -65,7 +67,7 @@ export class AnnotationManager {
    */
   applyHighlight(annotation: Annotation, onClick?: (e: any) => void): boolean {
     if (!this.rendition || !annotation.cfiRange) {
-      console.warn("⚠️ [标注管理器] 无法应用标注：缺少必要参数", {
+      log.warn("⚠️ [标注管理器] 无法应用标注：缺少必要参数", {
         hasRendition: !!this.rendition,
         hasCfi: !!annotation.cfiRange,
       });
@@ -75,11 +77,11 @@ export class AnnotationManager {
     try {
       // 如果标注已存在，先移除再重新应用
       if (this.appliedAnnotations.has(annotation.id)) {
-        console.log("🔄 [标注管理器] 标注已存在，重新应用:", annotation.id);
+        log.info("🔄 [标注管理器] 标注已存在，重新应用:", annotation.id);
         this.removeHighlight(annotation);
       }
 
-      console.log(
+      log.info(
         "🎨 [标注管理器] 应用标注:",
         annotation.id,
         "CFI:",
@@ -143,10 +145,10 @@ export class AnnotationManager {
         this.chapterAnnotations.get(annotation.chapterId)?.add(annotation.id);
       }
 
-      console.log("✅ [标注管理器] 标注应用成功:", annotation.id);
+      log.info("✅ [标注管理器] 标注应用成功:", annotation.id);
       return true;
     } catch (e) {
-      console.error("❌ [标注管理器] 应用标注失败:", annotation.id, e);
+      log.error("❌ [标注管理器] 应用标注失败:", annotation.id, e);
       return false;
     }
   }
@@ -159,7 +161,7 @@ export class AnnotationManager {
     chapterId: string
   ): Annotation[] {
     return annotations.filter((annotation) => {
-      console.log("🔍 [标注管理器] 检查标注:", annotation.id, annotation.chapterId);
+      log.info("🔍 [标注管理器] 检查标注:", annotation.id, annotation.chapterId);
       // 如果标注有章节ID，直接比较
       if (annotation.chapterId) {
         return annotation.chapterId === chapterId;
@@ -188,14 +190,14 @@ export class AnnotationManager {
 
     try {
       const location = this.rendition.currentLocation();
-      console.log("📌 [标注管理器] 当前位置:", location);
+      log.info("📌 [标注管理器] 当前位置:", location);
       if (!location || !location.start || !location.start.cfi) {
         return null;
       }
 
       const cfi: string = location.start.cfi;
 
-      console.log("📌 [标注管理器] 当前 CFI:", location.start);
+      log.info("📌 [标注管理器] 当前 CFI:", location.start);
 
       // 获取 epub.js 的 book 实例
       const book =
@@ -218,7 +220,7 @@ export class AnnotationManager {
 
           return null;
         } catch (e) {
-          console.warn("使用 book.spine.get 解析章节失败:", e);
+          log.warn("使用 book.spine.get 解析章节失败:", e);
         }
       }
 
@@ -226,7 +228,7 @@ export class AnnotationManager {
       const basePath = extractChapterIdFromCfi(cfi);
       return basePath || null;
     } catch (e) {
-      console.warn("获取当前章节 ID 失败:", e);
+      log.warn("获取当前章节 ID 失败:", e);
       return null;
     }
   }
@@ -237,7 +239,7 @@ export class AnnotationManager {
     const currentChapterId = this.getCurrentChapterId();
     if (!currentChapterId) return;
 
-    console.log(`🧹 [标注管理器] 清除当前章节标注: ${currentChapterId}`);
+    log.info(`🧹 [标注管理器] 清除当前章节标注: ${currentChapterId}`);
 
     const annotationIds = this.chapterAnnotations.get(currentChapterId);
     if (!annotationIds) return;
@@ -248,7 +250,7 @@ export class AnnotationManager {
         this.rendition.annotations.removeAll(); // 清除所有标注
         this.appliedAnnotations.delete(annotationId);
       } catch (e) {
-        console.warn(`移除标注失败: ${annotationId}`, e);
+        log.warn(`移除标注失败: ${annotationId}`, e);
       }
     }
 
@@ -265,11 +267,11 @@ export class AnnotationManager {
   ): { success: number; failed: number } {
     const currentChapterId = this.getCurrentChapterId();
     if (!currentChapterId) {
-      console.log("⚠️ [标注管理器] 无法确定当前章节，跳过标注应用");
+      log.info("⚠️ [标注管理器] 无法确定当前章节，跳过标注应用");
       return { success: 0, failed: 0 };
     }
 
-    console.log(`🎯 [标注管理器] 应用当前章节标注: ${currentChapterId}`);
+    log.info(`🎯 [标注管理器] 应用当前章节标注: ${currentChapterId}`);
 
     // 先清除当前章节的标注
     this.clearCurrentChapterHighlights();
@@ -280,7 +282,7 @@ export class AnnotationManager {
       currentChapterId
     );
 
-    console.log(
+    log.info(
       `📋 [标注管理器] 找到 ${chapterAnnotations.length} 个当前章节的标注`
     );
 
@@ -297,7 +299,7 @@ export class AnnotationManager {
       }
     }
 
-    console.log(
+    log.info(
       `✅ [标注管理器] 当前章节标注应用完成 - 成功: ${success}, 失败: ${failed}`
     );
     return { success, failed };
@@ -310,7 +312,7 @@ export class AnnotationManager {
     annotations: Annotation[],
     onClick?: (annotation: Annotation) => (e: any) => void
   ): { success: number; failed: number } {
-    console.log("📋 [标注管理器] 开始应用所有标注，数量:", annotations.length);
+    log.info("📋 [标注管理器] 开始应用所有标注，数量:", annotations.length);
 
     let success = 0;
     let failed = 0;
@@ -324,7 +326,7 @@ export class AnnotationManager {
       }
     }
 
-    console.log("📊 [标注管理器] 应用结果 - 成功:", success, "失败:", failed);
+    log.info("📊 [标注管理器] 应用结果 - 成功:", success, "失败:", failed);
     return { success, failed };
   }
 
@@ -333,7 +335,7 @@ export class AnnotationManager {
    */
   removeHighlight(annotation: Annotation): boolean {
     try {
-      console.log("🗑️ [标注管理器] 尝试删除标注:", annotation.id);
+      log.info("🗑️ [标注管理器] 尝试删除标注:", annotation.id);
 
       // 使用 epub.js API 移除标注
       const annotationType =
@@ -350,10 +352,10 @@ export class AnnotationManager {
           ?.delete(annotation.id);
       }
 
-      console.log("✅ [标注管理器] 标注已删除:", annotation.id);
+      log.info("✅ [标注管理器] 标注已删除:", annotation.id);
       return true;
     } catch (e) {
-      console.error("❌ [标注管理器] 删除标注失败:", annotation.id, e);
+      log.error("❌ [标注管理器] 删除标注失败:", annotation.id, e);
       return false;
     }
   }
@@ -368,7 +370,7 @@ export class AnnotationManager {
     for (const type of types) {
       try {
         this.rendition.annotations.remove(cfiRange, type);
-        console.log(`✅ [标注管理器] 通过 CFI 移除标注 (${type}):`, cfiRange);
+        log.info(`✅ [标注管理器] 通过 CFI 移除标注 (${type}):`, cfiRange);
         success = true;
       } catch (e) {
         // Ignore errors for types that don't exist at this CFI
@@ -406,7 +408,7 @@ export class AnnotationManager {
     annotations: Annotation[],
     onClick?: (annotation: Annotation) => (e: any) => void
   ): { success: number; failed: number } {
-    console.log("🔄 [标注管理器] 重新应用所有标注");
+    log.info("🔄 [标注管理器] 重新应用所有标注");
 
     // 先清理所有
     this.clearAllHighlights();
@@ -419,7 +421,7 @@ export class AnnotationManager {
    * 销毁管理器并清理资源
    */
   destroy(): void {
-    console.log("🗑️ [标注管理器] 销毁管理器");
+    log.info("🗑️ [标注管理器] 销毁管理器");
     this.clearAllHighlights();
     this.appliedAnnotations.clear();
   }

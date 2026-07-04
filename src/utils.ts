@@ -1,6 +1,8 @@
 import { Client } from "@siyuan-community/siyuan-sdk";
 import { getFrontend } from "siyuan";
 import PluginGo from ".";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("utils");
 
 /**
  * 延迟函数
@@ -76,7 +78,7 @@ export function request(url, method = "GET") {
           }
         )
         .catch((err) => {
-          console.error("请求失败:", err);
+          log.error("请求失败:", err);
         });
     }
   });
@@ -100,7 +102,7 @@ export function getFileContent(path) {
       }
     })
     .catch((error) => {
-      console.error(error);
+      log.error(error);
     });
 }
 

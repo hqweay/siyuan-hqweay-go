@@ -2,6 +2,8 @@ import { getBlockByID, listDocsByPath } from "@/api";
 import { plugin } from "@/utils";
 
 import { openMobileFileById, showMessage } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("navUtil");
 // export function getActiveDoc() {
 //   let tab = document.querySelector(
 //     "div.layout__wnd--active ul.layout-tab-bar>li.item--focus"
@@ -22,7 +24,7 @@ import { openMobileFileById, showMessage } from "siyuan";
 // }
 export const listChildDocs = async (doc: any) => {
   let data = await listDocsByPath(doc.box, doc.path);
-  // console.log(data);
+  // log.info(data);
   return data?.files;
 };
 export const getSibling = async (path: string, box: string) => {

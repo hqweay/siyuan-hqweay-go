@@ -6,6 +6,8 @@ import { clearProtyleGutters, getActiveTab } from "@/lets-syplugin-backlink-pane
 import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { isStrBlank } from "@/lets-syplugin-backlink-panel/utils/string-util";
 import { openTab } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 
 const BACKLINK_TAB_PREFIX = "backlink_tab_"
@@ -23,13 +25,13 @@ export class TabService {
             langText: "显示当前文反链过滤面板页签",
             hotkey: "⌥⇧T",
             editorCallback: (protyle: any) => {
-                // console.log(protyle, "editorCallback");
+                // log.info(protyle, "editorCallback");
                 // let rootId = protyle.block.rootID;
                 let currentDocument: HTMLDivElement = getActiveTab();
                 if (!currentDocument) {
                     return;
                 }
-                // console.log("显示当前文档反链面板页签")
+                // log.info("显示当前文档反链面板页签")
 
                 const docTitleElement = currentDocument.querySelector(".protyle-title");
                 let docTitle = currentDocument.querySelector("div.protyle-title__input").textContent;
@@ -43,7 +45,7 @@ export class TabService {
         // 用来修复反链面板页签新窗口打开时，没有初始化该页签ID，导致显示空白的问题 https://github.com/Misuzu2027/syplugin-backlink-panel/issues/23
         // 初始化时查看有没有销毁的ID，有的话初始化tab。
         // let destoryDocIdArray = CacheManager.ins.getAndRemoveBacklinkDestoryTabDocIdArray();
-        // console.log("destoryDocIdArray ", destoryDocIdArray)
+        // log.info("destoryDocIdArray ", destoryDocIdArray)
         // for (const docId of destoryDocIdArray) {
         //     this.pluginAddTab(docId, null);
         // }
@@ -90,7 +92,7 @@ export class TabService {
 
     public openBacklinkTab(docTitle: string, docId: string, focusBlockId: string) {
         if (isStrBlank(docTitle) || isStrBlank(docId)) {
-            console.log("反链过滤面板插件 打开反链页签错误，参数缺失")
+            log.info("反链过滤面板插件 打开反链页签错误，参数缺失")
             return;
         }
 

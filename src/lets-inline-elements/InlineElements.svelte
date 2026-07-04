@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-inline-elements");
   import { onMount, onDestroy } from "svelte";
   import { Protyle, showMessage } from "siyuan";
   import { plugin } from "@/utils";
@@ -95,7 +97,7 @@
   }
 
   function initProtyleInstances() {
-    console.log("初始化 Protyle 实例", {
+    log.info("初始化 Protyle 实例", {
       paginatedElementsCount: paginatedElements.length,
       protyleContainersKeys: Object.keys(protyleContainers),
       existingInstances: Object.keys(protyleInstances),
@@ -115,7 +117,7 @@
     // 为新的元素创建 Protyle 实例
     paginatedElements.forEach((element) => {
       const container = protyleContainers[element.id];
-      console.log(`检查元素 ${element.id}:`, {
+      log.info(`检查元素 ${element.id}:`, {
         hasContainer: !!container,
         containerTagName: container?.tagName,
         hasExistingInstance: !!protyleInstances[element.id],
@@ -129,7 +131,7 @@
 
   function createProtyleInstance(element: any, container: HTMLElement) {
     try {
-      console.log("尝试创建 Protyle 实例", {
+      log.info("尝试创建 Protyle 实例", {
         elementId: element.id,
         hasProtyle: !!Protyle,
         hasContainer: !!container,
@@ -151,9 +153,9 @@
           },
         });
         protyleInstances[element.id] = protyle;
-        console.log("Protyle 实例创建成功", element.id);
+        log.info("Protyle 实例创建成功", element.id);
       } else {
-        console.warn("无法创建 Protyle 实例", {
+        log.warn("无法创建 Protyle 实例", {
           Protyle: !!Protyle,
           container: !!container,
           plugin: !!plugin,
@@ -164,7 +166,7 @@
         }
       }
     } catch (err) {
-      console.error("创建 Protyle 实例失败", err);
+      log.error("创建 Protyle 实例失败", err);
       // Fallback: 显示简单链接
       container.innerHTML = `<a href=\"siyuan://blocks/${element.id}\">打开块 ${element.id}</a>`;
     }

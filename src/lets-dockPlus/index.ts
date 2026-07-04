@@ -3,12 +3,14 @@ import DockPlugin from "./DockPlugin";
 import pluginMetadata from "./plugin";
 import { Dock } from "siyuan";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dockPlus");
 
 export default class DockPlugins extends SubPluginBase {
   private dockPlugins: DockPlugin[] = [];
   override onload(): void {
     const docks = settings.getBySpace(pluginMetadata.name, "docks")?.trim();
-    console.log(docks);
+    log.info(docks);
     if (!docks) {
       return;
     }
@@ -20,7 +22,7 @@ export default class DockPlugins extends SubPluginBase {
   }
 
   override onLayoutReady(): void {
-    console.log(this.dockPlugins);
+    log.info(this.dockPlugins);
     this.dockPlugins?.forEach((dock) => {
       dock?.onLayoutReady();
     });

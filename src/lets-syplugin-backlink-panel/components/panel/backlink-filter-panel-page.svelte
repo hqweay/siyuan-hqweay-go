@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
   import { CacheManager } from "@/lets-syplugin-backlink-panel/config/CacheManager";
   import { EnvConfig } from "@/lets-syplugin-backlink-panel/config/EnvConfig";
   import {
@@ -642,7 +644,7 @@
     );
 
     backlinkFilterPanelRenderData = backlinkFilterPanelRenderData;
-    // console.log("refreshFilterDisplayData ", backlinkPanelRenderData);
+    // log.info("refreshFilterDisplayData ", backlinkPanelRenderData);
   }
 
   function refreshBacklinkPreview(isNewSearch: boolean = true) {
@@ -1187,12 +1189,12 @@ ${documentName}
     if (clickCount === 1) {
       clearTimeout(clickTimeoutId);
       clickTimeoutId = setTimeout(() => {
-        // console.log(`关联块左键单击 : ${event.type} ${event.button}`);
+        // log.info(`关联块左键单击 : ${event.type} ${event.button}`);
         clickCount = 0;
         addIncludeRelatedDefBlockCondition(defBlock);
       }, doubleClickTimeout);
     } else {
-      // console.log(`关联块左键双击 : ${event.type} ${event.button}`);
+      // log.info(`关联块左键双击 : ${event.type} ${event.button}`);
       clearTimeout(clickTimeoutId);
       clickCount = 0;
       addExcludeRelatedDefBlockCondition(defBlock);
@@ -1201,7 +1203,7 @@ ${documentName}
   function handleRelatedDefBlockContextmenu(event, defBlock: DefBlock) {
     if (event) {
     }
-    // console.log(`关联块右键单击 : ${event.type} ${event.button}`);
+    // log.info(`关联块右键单击 : ${event.type} ${event.button}`);
     addExcludeRelatedDefBlockCondition(defBlock);
   }
 
@@ -1217,12 +1219,12 @@ ${documentName}
     if (clickCount === 1) {
       clearTimeout(clickTimeoutId);
       clickTimeoutId = setTimeout(() => {
-        // console.log(`文档块左键单击 : ${event.type} ${event.button}`);
+        // log.info(`文档块左键单击 : ${event.type} ${event.button}`);
         clickCount = 0;
         addIncludeRelatedDocBlockCondition(defBlock);
       }, doubleClickTimeout);
     } else {
-      // console.log(`文档块左键双击 : ${event.type} ${event.button}`);
+      // log.info(`文档块左键双击 : ${event.type} ${event.button}`);
       clearTimeout(clickTimeoutId);
       clickCount = 0;
       addExcludeRelatedDocBlockCondition(defBlock);
@@ -1232,7 +1234,7 @@ ${documentName}
   function handleRelatedDocBlockContextmenu(event, defBlock: DefBlock) {
     if (event) {
     }
-    // console.log(`文档块右键单击 : ${event.type} ${event.button}`);
+    // log.info(`文档块右键单击 : ${event.type} ${event.button}`);
     addExcludeRelatedDocBlockCondition(defBlock);
   }
 
@@ -1320,7 +1322,7 @@ ${documentName}
     if (!savedQueryParamMap) {
       savedQueryParamMap = new Map();
     }
-    console.log(
+    log.info(
       "handleCriteriaConfirm saveCriteriaInputText : ",
       saveCriteriaInputText,
       " savedQueryParams : ",
@@ -1378,7 +1380,7 @@ ${documentName}
     queryParams.filterPanelBacklinkDocumentKeywords =
       savedQueryParam.filterPanelBacklinkDocumentKeywords;
 
-    console.log("hadnleSavedPanelCriteriaClick", queryParams);
+    log.info("hadnleSavedPanelCriteriaClick", queryParams);
 
     updateRenderData();
   }
@@ -1417,7 +1419,7 @@ ${documentName}
   }
 
   function handleKeyDownDefault(event) {
-    console.log(event.key);
+    log.info(event.key);
   }
 
   function getEditors(): Protyle[] {
@@ -1442,18 +1444,18 @@ ${documentName}
   }
 
   function initScrollListener() {
-    console.log("初始化滚动监听器");
-    // console.log('backlinkULElement:', backlinkULElement);
+    log.info("初始化滚动监听器");
+    // log.info('backlinkULElement:', backlinkULElement);
 
     // 监听最近的具有滚动条的父容器
     const scrollContainer = findScrollableContainer();
     if (scrollContainer) {
       scrollContainer.addEventListener("scroll", handleScroll);
-      console.log("滚动监听器已绑定到:", scrollContainer);
+      log.info("滚动监听器已绑定到:", scrollContainer);
     } else {
       // 如果没有找到合适的容器，监听window
       window.addEventListener("scroll", handleScroll);
-      console.log("滚动监听器已绑定到window");
+      log.info("滚动监听器已绑定到window");
     }
   }
 
@@ -1465,7 +1467,7 @@ ${documentName}
     while (parent) {
       const { scrollHeight, clientHeight } = parent;
       if (scrollHeight > clientHeight) {
-        console.log("找到可滚动容器:", parent);
+        log.info("找到可滚动容器:", parent);
         return parent;
       }
       parent = parent.parentElement;
@@ -1494,7 +1496,7 @@ ${documentName}
       clientHeight = target.clientHeight;
     }
 
-    // console.log('Scroll position:', scrollTop, scrollHeight, clientHeight);
+    // log.info('Scroll position:', scrollTop, scrollHeight, clientHeight);
 
     // 当滚动到距离底部50px时触发加载
     if (scrollTop + clientHeight >= scrollHeight - 50) {
@@ -1521,7 +1523,7 @@ ${documentName}
         }
       );
 
-      console.log("加载更多数据:", moreData);
+      log.info("加载更多数据:", moreData);
 
       if (moreData.rootId != rootId) {
         return;
@@ -1551,7 +1553,7 @@ ${documentName}
         hasMoreData = false;
       }
     } catch (error) {
-      console.error("加载更多数据失败:", error);
+      log.error("加载更多数据失败:", error);
       currentPage--; // 失败时回退页码
     } finally {
       isLoadingMore = false;

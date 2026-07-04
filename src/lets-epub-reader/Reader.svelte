@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
   import { isMobile, plugin } from "@/utils";
   import ePub from "epubjs";
   import { createEventDispatcher, onDestroy, onMount } from "svelte";
@@ -109,7 +111,7 @@
 
     // 直接跳转到指定 CFI
     rendition.display(cfi).then(() => {
-      //console.log("Jumped to new CFI:", cfi);
+      //log.info("Jumped to new CFI:", cfi);
       // Ensure event listeners are attached after jump
       // setupRenditionEvents();
     });
@@ -121,8 +123,8 @@
       return;
     }
 
-    //console.log("File selected:", file);
-    //console.log("Selected file:", file.name, "Size:", file.size);
+    //log.info("File selected:", file);
+    //log.info("Selected file:", file.name, "Size:", file.size);
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith(".epub")) {
@@ -137,7 +139,7 @@
       return;
     }
 
-    // console.log(
+    // log.info(
     //   "开始读取文件:",
     //   file.name,
     //   "大小:",
@@ -156,7 +158,7 @@
     };
     reader.onerror = () => {
       errorMessage = plugin.i18n["lets-epub-reader.fileReadFailed"];
-      console.error("文件读取错误:", reader.error);
+      log.error("文件读取错误:", reader.error);
     };
     reader.readAsArrayBuffer(file);
   }
@@ -183,7 +185,7 @@
         try {
           rendition.destroy();
         } catch (e) {
-          console.warn("清理之前的渲染器失败:", e);
+          log.warn("清理之前的渲染器失败:", e);
         }
         rendition = null;
       }
@@ -191,12 +193,12 @@
         try {
           book.destroy();
         } catch (e) {
-          console.warn("清理之前的书籍失败:", e);
+          log.warn("清理之前的书籍失败:", e);
         }
         book = null;
       }
 
-      //console.log("开始加载EPUB书籍...");
+      //log.info("开始加载EPUB书籍...");
       loadingMessage = plugin.i18n["lets-epub-reader.parsingEpub"];
       loadingProgress = 20;
 
@@ -263,10 +265,10 @@
       book.loaded.navigation
         .then((nav: any) => {
           toc = nav.toc || [];
-          //console.log("目录加载成功:", toc.length, "项");
+          //log.info("目录加载成功:", toc.length, "项");
         })
         .catch((err) => {
-          console.warn("加载目录失败:", err);
+          log.warn("加载目录失败:", err);
           toc = [];
         });
 
@@ -277,14 +279,14 @@
       book.loaded.metadata
         .then((meta: any) => {
           title = meta.title || "";
-          //console.log("书籍标题:", title);
+          //log.info("书籍标题:", title);
         })
         .catch((err) => {
-          console.warn("读取书籍信息失败:", err);
+          log.warn("读取书籍信息失败:", err);
           title = "";
         });
 
-      //console.log("开始加载书籍标题..");
+      //log.info("开始加载书籍标题..");
       // Load bound document
       await loadBoundDoc();
       // Get starting position
@@ -292,13 +294,13 @@
       if (boundDocId) {
         try {
           const progressData = await getReadingProgress(boundDocId);
-          //console.log("📚 [阅读进度] 从数据库读取位置:", progressData);
+          //log.info("📚 [阅读进度] 从数据库读取位置:", progressData);
           if (progressData && progressData.epubPath === epubPath) {
             saved = progressData.cfi;
-            //console.log("📚 [阅读进度] 从文档属性读取位置:", saved);
+            //log.info("📚 [阅读进度] 从文档属性读取位置:", saved);
           }
         } catch (e) {
-          console.warn("读取保存位置失败:", e);
+          log.warn("读取保存位置失败:", e);
         }
       }
       const start = initialCfi || saved || undefined;
@@ -312,7 +314,7 @@
         setupRenditionEvents();
       }
       // formatStyle();
-      //console.log("开始显示书籍，初始位置:", start);
+      //log.info("开始显示书籍，初始位置:", start);
       await rendition.display(start);
 
       loadingMessage = plugin.i18n["lets-epub-reader.completingInit"];
@@ -321,21 +323,21 @@
       // Initialize annotation manager
       annotationManager = new AnnotationManager(rendition);
 
-      //console.log("书籍显示完成，开始加载标注...");
+      //log.info("书籍显示完成，开始加载标注...");
       await loadAnnotations();
 
       // Apply highlights after a delay to ensure everything is ready
       setTimeout(() => {
-        //console.log("开始应用标注...");
+        //log.info("开始应用标注...");
         loadAndApplyAnnotations();
       }, 500);
 
       isReady = true;
       isLoading = false;
       loadingProgress = 100;
-      //console.log("✅ EPUB阅读器初始化完成");
+      //log.info("✅ EPUB阅读器初始化完成");
     } catch (error) {
-      console.error("❌ 加载EPUB失败:", error);
+      log.error("❌ 加载EPUB失败:", error);
       isLoading = false;
       isReady = false;
       errorMessage = `${plugin.i18n["lets-epub-reader.loadingFailed"]}: ${error instanceof Error ? error.message : plugin.i18n["lets-epub-reader.unknownError"]}`;
@@ -431,11 +433,11 @@
         saveReadingProgress(boundDocId, epubPath, currentCfi!, progress, title);
         lastSavedProgress = progress;
         lastSavedTime = now;
-        //console.log(
+        //log.info(
         //   `📚 [优化保存] 进度: ${progress}%, CFI: ${currentCfi!.substring(0, 20)}...`
         // );
       } catch (e) {
-        console.warn("保存阅读位置失败:", e);
+        log.warn("保存阅读位置失败:", e);
       }
     }
   }
@@ -464,7 +466,7 @@
 
       // Re-apply highlights after render (only for current chapter)
       if (annotations.length > 0 && annotationManager) {
-        //console.log(
+        //log.info(
         //   "页面渲染完成，重新应用标注，标注数量:",
         //   annotations.length
         // );
@@ -478,7 +480,7 @@
             annotations,
             createClickHandler
           );
-          //console.log(
+          //log.info(
           //   "✅ [章节渲染] 完成 - 成功应用:",
           //   result.success,
           //   "失败:",
@@ -491,12 +493,12 @@
     });
 
     rendition.on("started", () => {
-      //console.log("渲染开始");
+      //log.info("渲染开始");
       dispatch("started");
     });
 
     rendition.on("failed", (error: any) => {
-      console.error("渲染失败:", error);
+      log.error("渲染失败:", error);
       errorMessage = `${plugin.i18n["lets-epub-reader.loadingFailed"]}: ${error.message || error}`;
       isLoading = false;
     });
@@ -508,7 +510,7 @@
   }
 
   async function loadBoundDoc() {
-    //console.log("Loading bound document for EPUB:", epubPath);
+    //log.info("Loading bound document for EPUB:", epubPath);
     if (epubPath) {
       const docId = await getBoundDocId(epubPath);
       if (docId) {
@@ -521,14 +523,14 @@
     // Use hardcoded docId as requested
 
     try {
-      //console.log("Loading annotations for docId:", boundDocId);
+      //log.info("Loading annotations for docId:", boundDocId);
 
       // Query all blocks containing 标注
       const blocks = await sql(
         `SELECT id, markdown FROM blocks WHERE root_id='${boundDocId}' AND type = 'p' AND markdown LIKE '%epub#epubcfi(%'`
       );
 
-      //console.log("Found blocks with annotations:", blocks?.length || 0);
+      //log.info("Found blocks with annotations:", blocks?.length || 0);
 
       // Parse annotations from blocks
       const loadedAnnotations: Annotation[] = [];
@@ -543,9 +545,9 @@
       }
 
       annotations = loadedAnnotations;
-      //console.log("Loaded annotations:", annotations);
+      //log.info("Loaded annotations:", annotations);
     } catch (e) {
-      console.error("Failed to load annotations:", e);
+      log.error("Failed to load annotations:", e);
       annotations = [];
     }
   }
@@ -555,11 +557,11 @@
    */
   function loadAndApplyAnnotations() {
     if (!annotationManager || !annotations.length) {
-      //console.log("📋 [标注加载] 跳过：没有管理器或标注");
+      //log.info("📋 [标注加载] 跳过：没有管理器或标注");
       return;
     }
 
-    //console.log("📋 [标注加载] 开始应用标注，数量:", annotations.length);
+    //log.info("📋 [标注加载] 开始应用标注，数量:", annotations.length);
 
     // Create click handler for annotations
     const createClickHandler = (annotation: Annotation) => {
@@ -571,7 +573,7 @@
       annotations,
       createClickHandler
     );
-    //console.log(
+    //log.info(
     //   "✅ [标注加载] 完成 - 成功应用:",
     //   result.success,
     //   "失败:",
@@ -580,7 +582,7 @@
   }
 
   function handleHighlightClick(annotation: Annotation, e: MouseEvent) {
-    //console.log("📍 [点击标注] 处理点击事件", {
+    //log.info("📍 [点击标注] 处理点击事件", {
     //   annotationId: annotation.id,
     //   annotationText: annotation.text,
     //   annotationColor: annotation.color,
@@ -608,7 +610,7 @@
     };
 
     showColorPicker = true;
-    //console.log("🎨 [颜色选择器] 显示在位置", colorPickerRect);
+    //log.info("🎨 [颜色选择器] 显示在位置", colorPickerRect);
 
     // 隐藏其他工具栏
     selectionToolbarVisible = false;
@@ -631,7 +633,7 @@
             );
           }
         } catch (e) {
-          //console.log("无法移除iframe监听器:", e);
+          //log.info("无法移除iframe监听器:", e);
         }
       });
     };
@@ -660,7 +662,7 @@
           );
         }
       } catch (e) {
-        //console.log("无法访问iframe内容:", e);
+        //log.info("无法访问iframe内容:", e);
       }
     });
   }
@@ -669,12 +671,12 @@
     event: CustomEvent<{ color: HighlightColor }>
   ) {
     if (!colorPickerAnnotation || !colorPickerAnnotation.blockId) {
-      console.error("❌ [颜色更改] 缺少标注信息", { colorPickerAnnotation });
+      log.error("❌ [颜色更改] 缺少标注信息", { colorPickerAnnotation });
       return;
     }
 
     const { color } = event.detail;
-    //console.log("🎨 [颜色更改] 开始处理", {
+    //log.info("🎨 [颜色更改] 开始处理", {
     //   annotationId: colorPickerAnnotation.id,
     //   newColor: color,
     //   blockId: colorPickerAnnotation.blockId,
@@ -694,22 +696,22 @@
         const clickHandler = (e: any) => handleHighlightClick(annotation, e);
         // 应用新的高亮
         annotationManager.applyHighlight(annotation, clickHandler);
-        //console.log("✅ [颜色更改] 高亮更新已触发");
+        //log.info("✅ [颜色更改] 高亮更新已触发");
       }
 
-      //console.log("✅ [颜色更改] 本地状态已更新");
+      //log.info("✅ [颜色更改] 本地状态已更新");
 
       // 更新数据库中的标注
       await updateAnnotationInDatabase(annotation.blockId, color);
-      //console.log("✅ [颜色更改] 数据库已更新");
+      //log.info("✅ [颜色更改] 数据库已更新");
 
-      //console.log(
+      //log.info(
       //   "🎉 [颜色更改] 标注颜色已更新完成:",
       //   colorPickerAnnotation.id,
       //   color
       // );
     } catch (e) {
-      console.error("❌ [颜色更改] 更新标注颜色失败:", e);
+      log.error("❌ [颜色更改] 更新标注颜色失败:", e);
     }
 
     // showColorPicker = false;
@@ -894,7 +896,7 @@
         clickHandler
       );
       if (!success) {
-        console.warn(
+        log.warn(
           "Failed to apply highlight using annotation manager:",
           annotation.id
         );
@@ -906,7 +908,7 @@
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
-      //console.log("Annotation saved to Siyuan:", annotation.id);
+      //log.info("Annotation saved to Siyuan:", annotation.id);
     }
 
     selectionToolbarVisible = false;
@@ -950,7 +952,7 @@
         clickHandler
       );
       if (!success) {
-        console.warn(
+        log.warn(
           "Failed to apply note highlight using annotation manager:",
           annotation.id
         );
@@ -962,7 +964,7 @@
     if (blockId) {
       annotation.blockId = blockId;
       annotations = [...annotations, annotation];
-      //console.log("Note annotation saved to Siyuan:", annotation.id);
+      //log.info("Note annotation saved to Siyuan:", annotation.id);
 
       // Open float layer for note editing
       setTimeout(() => {
@@ -984,7 +986,7 @@
           isBacklink: false,
         });
       } catch (e2) {
-        console.warn("Fallback float layer also failed:", e2);
+        log.warn("Fallback float layer also failed:", e2);
       }
     }
   }
@@ -1010,12 +1012,12 @@
     try {
       // Validate basic prerequisites
       if (!isReady) {
-        console.warn("📖 Reader is not ready yet");
+        log.warn("📖 Reader is not ready yet");
         return;
       }
 
       if (!boundDocId) {
-        console.warn("📝 Please bind a document first");
+        log.warn("📝 Please bind a document first");
         this?.showMessage?.(plugin.i18n["lets-epub-reader.bindDoc"], "warning");
         return;
       }
@@ -1024,9 +1026,9 @@
       const selectionInfo = getSelectionInfo();
 
       if (!selectionInfo.isValid) {
-        //console.log("📝 Please select text first");
+        //log.info("📝 Please select text first");
         if (selectionInfo.error) {
-          console.warn("Selection error:", selectionInfo.error);
+          log.warn("Selection error:", selectionInfo.error);
         }
         return;
       }
@@ -1040,13 +1042,13 @@
 
       // Validate selection content
       if (!selectionInfo.text || selectionInfo.text.trim().length === 0) {
-        console.warn("📝 Selected text is empty");
+        log.warn("📝 Selected text is empty");
         return;
       }
 
       // Validate CFI range
       if (!selectionInfo.cfiRange) {
-        console.warn("📍 Could not get CFI range for selection");
+        log.warn("📍 Could not get CFI range for selection");
         return;
       }
 
@@ -1065,7 +1067,7 @@
         handleHighlight(highlightEvent);
       });
     } catch (error) {
-      console.error("❌ Error in handleQuickHighlight:", error);
+      log.error("❌ Error in handleQuickHighlight:", error);
       // Optionally show user-friendly error message
       this?.showMessage?.(plugin.i18n["lets-epub-reader.quickHighlightError"], "error");
     }
@@ -1131,7 +1133,7 @@
         error: "No valid selection found",
       };
     } catch (error) {
-      console.warn("Error getting native selection:", error);
+      log.warn("Error getting native selection:", error);
       return {
         isValid: false,
         text: "",
@@ -1151,12 +1153,12 @@
     try {
       // Validate basic prerequisites
       if (!isReady) {
-        console.warn("📖 Reader is not ready yet");
+        log.warn("📖 Reader is not ready yet");
         return;
       }
 
       if (!boundDocId) {
-        console.warn("📝 Please bind a document first");
+        log.warn("📝 Please bind a document first");
         this?.showMessage?.(plugin.i18n["lets-epub-reader.bindDoc"], "warning");
         return;
       }
@@ -1165,9 +1167,9 @@
       const selectionInfo = getSelectionInfo();
 
       if (!selectionInfo.isValid) {
-        //console.log("📝 Please select text first");
+        //log.info("📝 Please select text first");
         if (selectionInfo.error) {
-          console.warn("Selection error:", selectionInfo.error);
+          log.warn("Selection error:", selectionInfo.error);
         }
         return;
       }
@@ -1181,13 +1183,13 @@
 
       // Validate selection content
       if (!selectionInfo.text || selectionInfo.text.trim().length === 0) {
-        console.warn("📝 Selected text is empty");
+        log.warn("📝 Selected text is empty");
         return;
       }
 
       // Validate CFI range
       if (!selectionInfo.cfiRange) {
-        console.warn("📍 Could not get CFI range for selection");
+        log.warn("📍 Could not get CFI range for selection");
         return;
       }
 
@@ -1206,14 +1208,14 @@
         handleNote(noteEvent);
       });
     } catch (error) {
-      console.error("❌ Error in handleQuickNote:", error);
+      log.error("❌ Error in handleQuickNote:", error);
       // Optionally show user-friendly error message
       this?.showMessage?.(plugin.i18n["lets-epub-reader.quickNoteError"], "error");
     }
   }
 
   async function handleRemove() {
-    //console.log("Removing annotation:", colorPickerAnnotation);
+    //log.info("Removing annotation:", colorPickerAnnotation);
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
       const success = await removeAnnotation(colorPickerAnnotation.blockId);
       if (success) {
@@ -1240,31 +1242,31 @@
     markdown: string
   ): Annotation | null {
     try {
-      //console.log("=== PARSING ANNOTATION ===");
-      //console.log("Block ID:", blockId);
-      //console.log("Markdown:", markdown);
+      //log.info("=== PARSING ANNOTATION ===");
+      //log.info("Block ID:", blockId);
+      //log.info("Markdown:", markdown);
 
       // Extract link from the markdown
       const linkMatch = markdown.match(
         /(.*)\[(.*)\]\(((?:[^()]|\([^()]*\))*)\)(.*)/
       );
       if (!linkMatch) {
-        console.warn("❌ No link found in markdown");
+        log.warn("❌ No link found in markdown");
         return null;
       }
 
       const link = linkMatch[3];
-      //console.log("✅ Extracted link:", link);
+      //log.info("✅ Extracted link:", link);
 
       // Parse location string to get CFI, blockId and bgColor
       const parsedLocation = parseLocationFromUrl(link);
       if (!parsedLocation) {
-        console.warn("❌ Failed to parse location string:", link);
+        log.warn("❌ Failed to parse location string:", link);
         return null;
       }
 
       const { cfiRange, blockId: annotationId, bgColor } = parsedLocation;
-      //console.log(
+      //log.info(
       //   "✅ Extracted CFI:",
       //   cfiRange,
       //   "annotationId:",
@@ -1275,7 +1277,7 @@
 
       // Validate CFI format
       if (!cfiRange || cfiRange.length === 0) {
-        console.error("❌ CFI is empty or invalid");
+        log.error("❌ CFI is empty or invalid");
         return null;
       }
 
@@ -1285,7 +1287,7 @@
         ?.replace(/^-\s*/, "")
         .trim()
         .concat(linkMatch[4]?.replace(/^-\s*/, "").trim());
-      //console.log("✅ Extracted text:", text);
+      //log.info("✅ Extracted text:", text);
 
       // Get color from bgColor or default
       const color = bgColor
@@ -1295,11 +1297,11 @@
             bgColor: bgColor,
           }
         : HIGHLIGHT_COLORS[0];
-      //console.log("✅ Matched color:", color);
+      //log.info("✅ Matched color:", color);
 
       // Extract chapter ID from CFI for efficient rendering
       const chapterId = extractChapterIdFromCfi(book, cfiRange);
-      //console.log("✅ Extracted chapter ID:", chapterId);
+      //log.info("✅ Extracted chapter ID:", chapterId);
 
       const annotation = {
         id: annotationId || blockId,
@@ -1314,11 +1316,11 @@
         updatedAt: Date.now(),
       };
 
-      //console.log("🎉 Final annotation object:", annotation);
-      //console.log("=== PARSING COMPLETE ===");
+      //log.info("🎉 Final annotation object:", annotation);
+      //log.info("=== PARSING COMPLETE ===");
       return annotation;
     } catch (e) {
-      console.error("❌ Failed to parse annotation from markdown:", e);
+      log.error("❌ Failed to parse annotation from markdown:", e);
       return null;
     }
   }
@@ -1370,7 +1372,7 @@
   function handleJumpToBlock() {
     if (colorPickerAnnotation && colorPickerAnnotation.blockId) {
       openFloatLayer(colorPickerAnnotation.blockId);
-      //console.log(colorPickerAnnotation);
+      //log.info(colorPickerAnnotation);
       // showColorPicker = false;
       // colorPickerAnnotation = null;
     }
@@ -1403,11 +1405,11 @@
   $: {
     if (url && url !== prevUrl) {
       prevUrl = url;
-      //console.log("url changed", url);
+      //log.info("url changed", url);
       const parsed = parseLocationFromUrl(url);
       if (parsed && parsed.epubPath === epubPath) {
         if (isReady) {
-          //console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+          //log.info("Same EPUB, jump to CFI directly:", parsed.cfiRange);
           jumpTo(parsed.cfiRange);
         } else {
           initialCfi = parsed.cfiRange;
@@ -1429,11 +1431,11 @@
   }
 
   onMount(() => {
-    //console.log("Reader mounted with src:", src);
+    //log.info("Reader mounted with src:", src);
     // const parsed = parseLocationFromUrl(url);
     // if (parsed && parsed.epubPath === epubPath) {
     //   if (isReady) {
-    //     //console.log("Same EPUB, jump to CFI directly:", parsed.cfiRange);
+    //     //log.info("Same EPUB, jump to CFI directly:", parsed.cfiRange);
     //     jumpTo(parsed.cfiRange);
     //   } else {
     //     // 书尚未 ready 的第一次加载，正常流程

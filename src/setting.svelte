@@ -9,6 +9,8 @@
   import { selectIconDialog } from "./myscripts/utils";
   import { PluginRegistry } from "./plugin-registry";
   import { plugin } from "./utils";
+  import { enableLogging, getLogger } from "./libs/logger";
+  const log = getLogger("setting");
 
   const initData = () => {
     const pluginRegistry = PluginRegistry.getInstance();
@@ -18,6 +20,13 @@
     const dynamicSettings: any = {
       开关: [],
       设置: [
+        {
+          type: "checkbox",
+          title: "settings.debugLogging",
+          description: "settings.debugLoggingDesc",
+          key: "debugLogging",
+          value: settings.get("debugLogging") || false,
+        },
         {
           type: "button",
           title: "settings.mergeData",
@@ -35,8 +44,8 @@
       ],
     };
 
-    //console.log("pluginConfigs");
-    //console.log(pluginConfigs);
+    //log.info("pluginConfigs");
+    //log.info(pluginConfigs);
 
     // Add plugin flags
     for (const pluginMeta of pluginConfigs) {
@@ -52,9 +61,9 @@
         hasSetting: pluginMeta.settings ? true : false,
       });
 
-      //console.log(pluginMeta.name);
-      //console.log("pluginMeta.settings");
-      //console.log(pluginMeta.settings);
+      //log.info(pluginMeta.name);
+      //log.info("pluginMeta.settings");
+      //log.info(pluginMeta.settings);
       // 创建新的设置数组，但不修改原对象
       const newSettings = pluginMeta.settings?.map((item) => ({
         ...item,
@@ -67,8 +76,8 @@
       }
     }
 
-    //console.log("dynamicSettings");
-    //console.log(dynamicSettings);
+    //log.info("dynamicSettings");
+    //log.info(dynamicSettings);
     return dynamicSettings;
   };
 
@@ -152,6 +161,11 @@
       }
       // 无论启用还是禁用，均重新载入设置数据
       SettingItems = initData();
+    } else if (detail.group === "设置") {
+      if (detail.key === "debugLogging") {
+        settings.set("debugLogging", detail.value);
+        enableLogging(detail.value);
+      }
     } else if (detail.group === "lets-fetch-code-snippets.displayName" || detail.group === "fetch-code-snippets") {
       settings.setBySpace("codeSnippets", detail.key, detail.value);
 
@@ -172,12 +186,12 @@
       const opItem = SettingItems["开关"].filter((ele) => {
         return ele.title === detail.group;
       });
-      console.log("opItem", opItem);
-      console.log("detail", detail);
+      log.info("opItem", opItem);
+      log.info("detail", detail);
 
       settings.setBySpace(opItem[0].key, detail.key, detail.value);
 
-      console.log(settings.getBySpace(opItem[0].key, detail.key));
+      log.info(settings.getBySpace(opItem[0].key, detail.key));
       // 子组件的配置修改了，立马刷新
       await PluginRegistry.getInstance().beginPlugin(opItem[0].key);
     }
@@ -193,7 +207,7 @@
 
   onDestroy(async () => {
     await settings.save();
-    //console.log("onDestroy");
+    //log.info("onDestroy");
   });
 
   const lreload = () => {

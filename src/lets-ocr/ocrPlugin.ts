@@ -11,6 +11,8 @@ import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { plugin } from "@/utils";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript, tesseractOCR } from "./utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-ocr");
 const path = require("path");
 
 /**
@@ -155,7 +157,7 @@ export async function ocrAssetsUrl(
           }),
         });
       } catch (error) {
-        console.error("设置图片 OCR 文本失败:", error);
+        log.error("设置图片 OCR 文本失败:", error);
       }
 
       return ocrText;
@@ -164,7 +166,7 @@ export async function ocrAssetsUrl(
       return "";
     }
   } catch (error) {
-    console.error(`OCR 失败 [${imgPath}]:`, error);
+    log.error(`OCR 失败 [${imgPath}]:`, error);
     return "";
   }
 }
@@ -214,7 +216,7 @@ export function processOCRText(text: string, config: OCRConfig = {}): string {
       processedLines[processedLines.length - 1] = prevLine + " " + line;
     }
   }
-  console.log("Processed OCR lines:", processedLines);
+  log.info("Processed OCR lines:", processedLines);
   return processedLines.join("\n");
   // return JSON.stringify(processedLines.join("\\n"));
 }
@@ -466,7 +468,7 @@ LIMIT 99999`,
             updateFlag = true;
           }
         } catch (error) {
-          console.error("OCR 识别失败:", error);
+          log.error("OCR 识别失败:", error);
         }
       }
 
@@ -516,7 +518,7 @@ LIMIT 99999`,
 
   // 图片右键菜单事件
   imageMenuEvent(event: any) {
-    console.log(event.detail.element);
+    log.info(event.detail.element);
     const spanImg = event.detail.element as HTMLElement;
     const img = spanImg.querySelector(`img[data-src]`) as HTMLImageElement;
     if (!img) {
@@ -577,7 +579,7 @@ LIMIT 99999`,
             const textNode = document.createTextNode(ocrText);
             spanImg.parentNode.replaceChild(textNode, spanImg);
 
-            console.log(targetElement);
+            log.info(targetElement);
             if (targetElement) {
               doOperations.push({
                 id: targetElement.getAttribute("data-node-id"),
@@ -593,7 +595,7 @@ LIMIT 99999`,
             }
           }
         } catch (error) {
-          console.error("OCR 识别失败:", error);
+          log.error("OCR 识别失败:", error);
         }
       },
     });
@@ -653,7 +655,7 @@ export async function batchOcr(
       // 检查是否应该停止
       if (ocrPlugin && ocrPlugin.shouldStop()) {
         const stopMsg = `${plugin.i18n["lets-ocr.batchOcrStopped"]}\n${i}\n${successful.length}\n${failing.length}\n${skip.length}`;
-        console.log(stopMsg);
+        log.info(stopMsg);
         showMessage(stopMsg, 10000, "info");
         if (ocrPlugin) {
           ocrPlugin.endOcr();
@@ -678,7 +680,7 @@ export async function batchOcr(
           ocrText = await ocrAssetsUrl(imgPath, options.autoRemoveLineBreaks);
         } catch (error) {
           ocrText = "";
-          console.error(`OCR 处理失败 [${imgPath}]:`, error);
+          log.error(`OCR 处理失败 [${imgPath}]:`, error);
         }
 
         if (ocrText) {
@@ -686,7 +688,7 @@ export async function batchOcr(
         } else {
           // 失败一般是丢失的资源
           failing.push(imgPath);
-          console.log("失败", imgPath);
+          log.info("失败", imgPath);
         }
       }
 
@@ -696,14 +698,14 @@ export async function batchOcr(
       ).toFixed(2)}% 成功识别:${successful.length} 失败:${
         failing.length
       } 跳过:${skip.length}`;
-      console.log(msg);
+      log.info(msg);
     }
 
     // 显示最终结果
     const finalMsg = `${plugin.i18n["lets-ocr.batchOcrCompleted"]}\n${assets.length}\n${successful.length}\n${failing.length}\n${skip.length}`;
-    console.log(finalMsg);
+    log.info(finalMsg);
     if (failing.length > 0) {
-      console.log(`以下图片识别失败:`, failing);
+      log.info(`以下图片识别失败:`, failing);
     }
     showMessage(finalMsg, 10000, "info");
 
@@ -712,7 +714,7 @@ export async function batchOcr(
       ocrPlugin.endOcr();
     }
   } catch (error) {
-    console.error("批量 OCR 失败:", error);
+    log.error("批量 OCR 失败:", error);
     showMessage(`${plugin.i18n["lets-ocr.ocrFailed"]}: ${error.message}`, 5000, "error");
 
     // 结束 OCR

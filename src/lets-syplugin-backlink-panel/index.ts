@@ -9,6 +9,8 @@ import { DocumentService } from "./service/plugin/DocumentService";
 import { TabService } from "./service/plugin/TabService";
 import { TopBarService } from "./service/plugin/TopBarService";
 import { SettingService } from "./service/setting/SettingService";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 export default class PluginSample implements SubPlugin {
   addMenuItem(menu) {
@@ -33,7 +35,7 @@ export default class PluginSample implements SubPlugin {
       EnvConfig.ins.lastViewedDocId = e.detail.protyle.block.rootID;
     });
     plugin.eventBus.on("loaded-protyle-static", (e: any) => {
-      // console.log("index loaded-protyle-static ");
+      // log.info("index loaded-protyle-static ");
       if (EnvConfig.ins.isMobile && !EnvConfig.ins.lastViewedDocId) {
         EnvConfig.ins.lastViewedDocId = e.detail.protyle.block.rootID;
       }
@@ -47,7 +49,7 @@ export default class PluginSample implements SubPlugin {
   }
 
   uninstall() {
-    // console.log("uninstall");
+    // log.info("uninstall");
   }
 
   //   openSetting(): void {

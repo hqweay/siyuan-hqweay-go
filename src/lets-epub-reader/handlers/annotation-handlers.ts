@@ -1,4 +1,6 @@
 import type { Annotation, HighlightColor } from '../types';
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 /**
  * 标注处理器集合
@@ -17,7 +19,7 @@ export function createAnnotationClickHandler(
   setSelectedAnnotation: (annotation: Annotation | null) => void
 ) {
   return (e: MouseEvent) => {
-    console.log("📍 [点击标注] 处理点击事件", {
+    log.info("📍 [点击标注] 处理点击事件", {
       annotationId: annotation.id,
       annotationText: annotation.text,
       annotationColor: annotation.color,
@@ -41,7 +43,7 @@ export function createColorChangeHandler(
 ) {
   return async (event: CustomEvent<{ color: HighlightColor }>) => {
     const { color } = event.detail;
-    console.log("🎨 [颜色更改] 开始处理颜色更改", color);
+    log.info("🎨 [颜色更改] 开始处理颜色更改", color);
     
     // 更新标注颜色
     await updateAnnotation(undefined as any, color);
@@ -63,7 +65,7 @@ export function createRemoveHandler(
 ) {
   return async (selectedAnnotation: Annotation) => {
     if (!selectedAnnotation.blockId) {
-      console.warn("❌ [删除标注] 缺少 blockId");
+      log.warn("❌ [删除标注] 缺少 blockId");
       return;
     }
 
@@ -101,7 +103,7 @@ export function createAnnotationCreator(
     const boundDocId = getBoundDocId();
     
     if (!selection || !boundDocId) {
-      console.warn("⚠️ [创建标注] 缺少选择内容或未绑定文档");
+      log.warn("⚠️ [创建标注] 缺少选择内容或未绑定文档");
       return;
     }
 
@@ -120,7 +122,7 @@ export function createAnnotationCreator(
     // 应用高亮
     const success = applyHighlight(annotation);
     if (!success) {
-      console.warn("⚠️ [创建标注] 应用高亮失败:", annotation.id);
+      log.warn("⚠️ [创建标注] 应用高亮失败:", annotation.id);
     }
 
     // 插入到文档
@@ -129,7 +131,7 @@ export function createAnnotationCreator(
     
     if (blockId) {
       annotation.blockId = blockId;
-      console.log(`✅ [创建标注] ${type === 'highlight' ? '标注' : '笔记'}已保存:`, annotation.id);
+      log.info(`✅ [创建标注] ${type === 'highlight' ? '标注' : '笔记'}已保存:`, annotation.id);
 
       // 重新应用所有高亮以确保一致性
       setTimeout(reapplyHighlights, 100);

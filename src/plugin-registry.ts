@@ -1,5 +1,7 @@
 import { settings } from "./settings";
 import { PluginMetadata, SubPlugin } from "./types/plugin";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("plugin-registry");
 
 export class PluginRegistry {
   private static instance: PluginRegistry;
@@ -23,13 +25,13 @@ export class PluginRegistry {
   async reScanPlugins() {
     this.plugins.clear();
     this.pluginConfigs.clear();
-    console.log("重新扫描插件");
-    console.log("this.plugins", this.pluginConfigs);
+    log.info("重新扫描插件");
+    log.info("this.plugins", this.pluginConfigs);
     await this.scanPlugins();
   }
 
   async scanPlugins() {
-    console.log("开始扫描插件");
+    log.info("开始扫描插件");
     // 读取所有符合模式的文件
     const pluginFiles = import.meta.glob(
       ["./lets-*/index.ts", "./lets-*/plugin.ts"],
@@ -66,7 +68,7 @@ export class PluginRegistry {
       if (metadata && PluginClass) {
         this.registerPluginWithConfig(pluginName, metadata, PluginClass);
       } else {
-        console.warn(`插件 ${pluginName} 缺少配置文件`, {
+        log.warn(`插件 ${pluginName} 缺少配置文件`, {
           hasMetadata: !!metadata,
           hasPluginClass: !!PluginClass,
         });
@@ -108,9 +110,9 @@ export class PluginRegistry {
       // Register plugin
       this.registerPlugin(pluginInstance);
 
-      // //console.log(`Loaded plugin: ${name}`);
+      // //log.info(`Loaded plugin: ${name}`);
     } catch (error) {
-      console.warn(`Failed to load plugin ${name}:`, error);
+      log.warn(`Failed to load plugin ${name}:`, error);
     }
   }
 
@@ -122,7 +124,7 @@ export class PluginRegistry {
         try {
           await plugin.onload();
         } catch (error) {
-          console.error(`Error in onload for plugin ${plugin.name}:`, error);
+          log.error(`Error in onload for plugin ${plugin.name}:`, error);
         }
       }
     }
@@ -136,14 +138,14 @@ export class PluginRegistry {
         try {
           await plugin.onunload();
         } catch (error) {
-          console.error(`Error in onunload for plugin ${plugin.name}:`, error);
+          log.error(`Error in onunload for plugin ${plugin.name}:`, error);
         }
       }
     }
   }
 
   async beginPlugin(key: string) {
-    console.log("beginPlugin", key);
+    log.info("beginPlugin", key);
     const plugin = this.getPlugin(key);
     if (plugin) {
       await plugin.onload();

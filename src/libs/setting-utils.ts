@@ -8,6 +8,8 @@
  */
 
 import { Plugin, Setting } from 'siyuan';
+import { getLogger } from "@/libs/logger";
+const log = getLogger("setting-utils");
 
 export class SettingUtils {
     plugin: Plugin;
@@ -47,7 +49,7 @@ export class SettingUtils {
 
     async load() {
         let data = await this.plugin.loadData(this.file);
-        console.debug('Load config:', data);
+        log.debug('Load config:', data);
         if (data) {
             for (let [key, item] of this.settings) {
                 item.value = data?.[key] ?? item.value;
@@ -60,7 +62,7 @@ export class SettingUtils {
     async save() {
         let data = this.dump();
         await this.plugin.saveData(this.file, this.dump());
-        console.debug('Save config:', data);
+        log.debug('Save config:', data);
         return data;
     }
 
@@ -203,7 +205,7 @@ export class SettingUtils {
     private updateValueFromElement(key: string) {
         let item = this.settings.get(key);
         let element = this.elements.get(key) as any;
-        // console.debug(element, element?.value);
+        // log.debug(element, element?.value);
         switch (item.type) {
             case 'checkbox':
                 item.value = element.checked;

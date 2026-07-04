@@ -6,19 +6,21 @@ import { settings } from "@/settings";
 import { plugin } from "@/utils";
 
 import NavigationContainer from "./components/NavigationContainer.svelte";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-nav-helper");
 
 export default class NavHelper extends SubPluginBase {
   private mobileNavigationInstance: any = null;
   private desktopNavigationInstance: any = null;
 
   override onload(): void {
-    console.log("导航助手 - 初始化移动端工具");
+    log.info("导航助手 - 初始化移动端工具");
     // 初始化移动端工具
     mobileUtils.init();
   }
 
   async onLayoutReady(): Promise<void> {
-    console.log("导航助手 - 初始化导航功能");
+    log.info("导航助手 - 初始化导航功能");
 
     // 设置移动端全局变量
     this.setupMobileGlobals();
@@ -33,7 +35,7 @@ export default class NavHelper extends SubPluginBase {
   }
 
   override onunload(): void {
-    console.log("导航助手 - 清理资源");
+    log.info("导航助手 - 清理资源");
 
     // 清理移动端导航栏实例
     if (this.mobileNavigationInstance) {
@@ -56,14 +58,14 @@ export default class NavHelper extends SubPluginBase {
 
   // 移动端键盘显示事件
   mobilekeyboardshowEvent(eventData: any): void {
-    console.log("移动端键盘显示", eventData);
+    log.info("移动端键盘显示", eventData);
     // 隐藏底部导航栏以避免遮挡
     this.hideNavigation();
   }
 
   // 移动端键盘隐藏事件
   mobilekeyboardhideEvent(eventData: any): void {
-    console.log("移动端键盘隐藏", eventData);
+    log.info("移动端键盘隐藏", eventData);
     // 恢复底部导航栏
     if (this.showInMobile()) {
       this.showNavigation();
@@ -132,7 +134,7 @@ export default class NavHelper extends SubPluginBase {
       // 调整页面底部padding以避免内容被遮挡
       this.adjustPagePadding();
     } catch (error) {
-      console.error("创建移动端导航失败:", error);
+      log.error("创建移动端导航失败:", error);
     }
   }
 
@@ -162,7 +164,7 @@ export default class NavHelper extends SubPluginBase {
         },
       });
     } catch (error) {
-      console.error("创建桌面端导航失败:", error);
+      log.error("创建桌面端导航失败:", error);
     }
   }
 

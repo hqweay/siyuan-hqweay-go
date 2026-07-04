@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-nav-helper");
   import { onMount, onDestroy } from "svelte";
   import { isMobile } from "../utils";
   import NavButton from "./NavButton.svelte";
@@ -117,7 +119,7 @@
         mobileUtils.vibrate([100, 50, 100]);
       }
     } catch (error) {
-      console.error("创建今日笔记失败:", error);
+      log.error("创建今日笔记失败:", error);
       showMessage(plugin.i18n["lets-nav-helper.dailyNoteFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
@@ -210,7 +212,7 @@
                   const avHelper = await createSiyuanAVHelper(url);
                   await avHelper.addBlocks([getCurrentDocId()]);
                 } catch (error) {
-                  console.error("初始化或操作失败:", error);
+                  log.error("初始化或操作失败:", error);
                 }
               } else {
                 openByUrl(url);

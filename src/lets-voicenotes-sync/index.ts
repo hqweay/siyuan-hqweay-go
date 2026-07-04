@@ -9,12 +9,14 @@ import VoiceNotesApi from "./voicenotes-api";
 import { cleanSpacesBetweenChineseCharacters } from "@/myscripts/utils";
 import { SubPlugin } from "@/types/plugin";
 import { SubPluginBase } from "../libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-voicenotes-sync");
 
 function getContentFromTranscriptToNextHeading(element) {
   let result = "";
   const children = element.children;
   let foundTranscript = false;
-  // console.log(element);
+  // log.info(element);
   for (let i = 0; i < children.length; i++) {
     const child = children[i];
 
@@ -98,7 +100,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         let text;
         //修改同步过来的数据
         if (recordingid) {
-          console.log(`已有录音ID: ${recordingid}，尝试修改文本`);
+          log.info(`已有录音ID: ${recordingid}，尝试修改文本`);
           text = getContentFromTranscriptToNextHeading(
             detail.protyle.wysiwyg.element
           );
@@ -213,7 +215,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
   async sync(fullSync = false) {
     try {
-      console.log(`Sync running full? ${fullSync}`);
+      log.info(`Sync running full? ${fullSync}`);
 
       this.existingSyncedNotes = await this.getExistingSyncedNotes();
 
@@ -285,11 +287,11 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       //   this.syncedRecordingIds.join(",")
       // );
     } catch (error) {
-      console.error(error);
+      log.error(error);
       if (error.hasOwnProperty("status") !== "undefined") {
-        console.log(`Login token was invalid, please try logging in again.`);
+        log.info(`Login token was invalid, please try logging in again.`);
       } else {
-        console.log(`Error occurred syncing some notes to this vault.`);
+        log.info(`Error occurred syncing some notes to this vault.`);
       }
     }
   }
@@ -306,23 +308,23 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       existingNote.creationscount != newNote.creations.length;
 
     if (needUpdateByTime) {
-      console.log(`需要更新：发现更新时间较新`);
+      log.info(`需要更新：发现更新时间较新`);
       return true;
     }
 
     if (needUpdateByCount) {
-      console.log(`需要更新：creations 数量不同`);
+      log.info(`需要更新：creations 数量不同`);
       return true;
     }
 
-    console.log(`无需更新：时间和数量都未发生变化`);
+    log.info(`无需更新：时间和数量都未发生变化`);
     return false;
   }
 
   async processNote(recording, voiceNotesDir, unsyncedCount) {
     try {
       if (!recording.title) {
-        console.log(`无法获取语音记录，ID: ${recording.id}`);
+        log.info(`无法获取语音记录，ID: ${recording.id}`);
         return;
       }
 
@@ -344,7 +346,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         (note) => note.recordingid === recording.recording_id
       );
 
-      console.log(`${recording.recording_id}, exists: ${!!noteExists}`);
+      log.info(`${recording.recording_id}, exists: ${!!noteExists}`);
 
       // 检查是否包含排除的标签
       if (
@@ -383,7 +385,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
       //
       // const title = recording.title + recording.created_at;
-      console.log(recording);
+      log.info(recording);
       let title = recording.title;
       if (settings.getBySpace("voiceNotes", "formatContent")) {
         title = formatUtil.formatContent(title);
@@ -431,7 +433,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         team_summary,
       } = creations;
 
-      // console.log(team_summary.markdown_content);
+      // log.info(team_summary.markdown_content);
 
       // 处理附件
       let attachments = "";
@@ -556,18 +558,18 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       }
 
       if (settings.getBySpace("voiceNotes", "formatContent")) {
-        // console.log("0" + note);
+        // log.info("0" + note);
         note = formatUtil.formatContent(note);
-        // console.log("1" + note);
+        // log.info("1" + note);
         // note = formatUtil.deleteSpaces(note);
-        // console.log("2" + note);
+        // log.info("2" + note);
         note = formatUtil.insertSpace(note);
 
         //多个空格保留一个
         // note = note.replace(/\s+/g, " ");
       }
 
-      // console.log("3" + note);
+      // log.info("3" + note);
 
       //非文本笔记 会很快过期，还是别同步了，用处也不大
       // if (recording.recording_type != "3") {
@@ -619,7 +621,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
                 .map((tag) => `${tag.name}`)
                 .join(",")
             : "";
-        console.log("creations.length:" + recording.creations.length);
+        log.info("creations.length:" + recording.creations.length);
         await fetch("/api/attr/setBlockAttrs", {
           method: "POST",
           headers: {
@@ -656,24 +658,24 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         //   await this.vnApi.deleteRecording(recording.recording_id);
         // }
       } else {
-        console.error("创建文档失败:", response);
+        log.error("创建文档失败:", response);
       }
     } catch (error) {
-      console.error(error);
+      log.error(error);
       if (error.hasOwnProperty("status") !== "undefined") {
-        console.error(error.status);
+        log.error(error.status);
         if (error.hasOwnProperty("text") !== "undefined") {
-          console.error(error.text);
+          log.error(error.text);
         }
         if (error.hasOwnProperty("json") !== "undefined") {
-          console.error(error.json);
+          log.error(error.json);
         }
         if (error.hasOwnProperty("headers") !== "undefined") {
-          console.error(error.headers);
+          log.error(error.headers);
         }
 
         //this.settings.token = undefined;
-        console.log(`登录令牌无效，请重新登录`);
+        log.info(`登录令牌无效，请重新登录`);
       } else {
         showMessage(`同步笔记时发生错误`);
       }
@@ -727,11 +729,11 @@ export default class VoiceNotesPlugin extends SubPluginBase {
           return null;
         }
       } else {
-        console.error(`检查 HPath 是否存在失败: ${data.msg}`);
+        log.error(`检查 HPath 是否存在失败: ${data.msg}`);
         return null;
       }
     } catch (error) {
-      console.error(`检查 HPath 是否存在失败: ${error}`);
+      log.error(`检查 HPath 是否存在失败: ${error}`);
       return null;
     }
   }

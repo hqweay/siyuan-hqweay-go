@@ -7,6 +7,8 @@ import {
 } from "@frostime/siyuan-plugin-kits";
 import ProtyleComponent from "./quickNote.svelte";
 import { plugin } from "@/utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-how-to-write-diary");
 
 let quickInputWin: any = null;
 
@@ -179,7 +181,7 @@ async function initQuickInputUI() {
   );
 
   if (!blockId) {
-    console.log("创建日记失败");
+    log.info("创建日记失败");
     return null;
   }
 

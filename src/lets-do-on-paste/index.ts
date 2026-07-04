@@ -5,6 +5,8 @@ import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 import { ocrAssetsUrl } from "@/lets-ocr/ocrPlugin";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-do-on-paste");
 export default class doOnPaste extends SubPluginBase {
   override onunload() {
     // 主方法自动执行
@@ -58,7 +60,7 @@ export default class doOnPaste extends SubPluginBase {
   }
 
   private async resizeAndCenterImg(event) {
-    console.log("resizeAndCenterImg");
+    log.info("resizeAndCenterImg");
     const regex = /!\[\]\(([^)]+)\)/g;
     const replaced = event.detail.textPlain
       .trim()

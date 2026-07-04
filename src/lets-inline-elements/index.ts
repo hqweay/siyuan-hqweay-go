@@ -5,6 +5,8 @@ import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import InlineElements from "./InlineElements.svelte";
 import { getCurrentDocId } from "@/myscripts/syUtils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-inline-elements");
 
 interface InlineElement {
   id: string;
@@ -37,10 +39,10 @@ export default class InlineElementsPlugin extends SubPluginBase {
       data: { text: this.t("lets-inline-elements.title") },
       type: "dock_tab" + "_inline_elements",
       resize() {
-        //console.log(DOCK_TYPE + " resize");
+        //log.info(DOCK_TYPE + " resize");
       },
       update() {
-        //console.log(DOCK_TYPE + " update");
+        //log.info(DOCK_TYPE + " update");
       },
       init: (dock) => {
         // 使用闭包来捕获组件实例
@@ -81,7 +83,7 @@ export default class InlineElementsPlugin extends SubPluginBase {
         // this.setupDocumentObserver(componentInstance);
       },
       destroy() {
-        //console.log("destroy dock:", DOCK_TYPE);
+        //log.info("destroy dock:", DOCK_TYPE);
         // 清理逻辑会在组件销毁时自动处理
       },
     });
@@ -100,7 +102,7 @@ export default class InlineElementsPlugin extends SubPluginBase {
     const docId = getCurrentDocId();
 
     if (!docId) {
-      console.warn("未找到当前文档ID");
+      log.warn("未找到当前文档ID");
       return;
     }
 
@@ -117,7 +119,7 @@ export default class InlineElementsPlugin extends SubPluginBase {
       const elements = await this.extractInlineElements(docId);
       this.inlineElements = elements;
     } catch (error) {
-      console.error("提取行内标注失败:", error);
+      log.error("提取行内标注失败:", error);
       this.inlineElements = [];
       showMessage(this.t("lets-inline-elements.loadFailedFallback"), 3000);
     } finally {
@@ -224,7 +226,7 @@ export default class InlineElementsPlugin extends SubPluginBase {
       this.inlineElements = elements;
       showMessage(`${this.t("lets-inline-elements.refreshed")}${elements.length}${this.t("lets-inline-elements.annotationsCount")}`, 2000);
     } catch (error) {
-      console.error("刷新标注失败:", error);
+      log.error("刷新标注失败:", error);
       showMessage(this.t("lets-inline-elements.refreshFailed"), 3000);
     } finally {
       this.isRefreshing = false;

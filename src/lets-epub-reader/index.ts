@@ -14,6 +14,8 @@ import Reader from "./Reader.svelte";
 import { isMobile, plugin } from "@/utils";
 import { parseLocationFromUrl } from "./utils";
 import { saveReadingProgress } from "./annotation-service";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 export default class EpubReaderPlugin extends SubPluginBase {
   private _isEnabled = false;
@@ -83,11 +85,11 @@ export default class EpubReaderPlugin extends SubPluginBase {
    */
   private setupEpubClickHandler() {
     // 监听文档点击事件 - 使用捕获阶段以确保优先处理
-    // console.log("设置 EPUB 点击监听");
+    // log.info("设置 EPUB 点击监听");
 
     // 使用捕获阶段并确保在冒泡阶段也能捕获
     const handleClick = (e: MouseEvent) => {
-      // console.log("EPUB 点击事件被触发");
+      // log.info("EPUB 点击事件被触发");
       this.handleEpubClick(e);
     };
 
@@ -106,9 +108,9 @@ export default class EpubReaderPlugin extends SubPluginBase {
    * @param e 点击事件
    */
   private async handleEpubClick(e: MouseEvent) {
-    // console.log("处理 EPUB 点击事件 - 开始");
-    // console.log("事件目标:", e.target);
-    // console.log("当前目标:", e.currentTarget);
+    // log.info("处理 EPUB 点击事件 - 开始");
+    // log.info("事件目标:", e.target);
+    // log.info("当前目标:", e.currentTarget);
 
     const target = e.target as HTMLElement;
 
@@ -117,31 +119,31 @@ export default class EpubReaderPlugin extends SubPluginBase {
       ? target
       : target.closest('a[href], [data-href], span[data-type="a"]');
 
-    // console.log("找到的链接元素:", linkEl);
+    // log.info("找到的链接元素:", linkEl);
 
     const url =
       linkEl?.getAttribute("data-href") || linkEl?.getAttribute("href");
 
     if (!url) {
-      // console.log("没有找到 URL");
+      // log.info("没有找到 URL");
       return;
     }
 
-    // console.log("提取的 URL:", url);
-    // console.log("提取的 URL:", url);
-    // console.log("是否为 EPUB 文件:", this.isEpubFileUrl(url));
+    // log.info("提取的 URL:", url);
+    // log.info("提取的 URL:", url);
+    // log.info("是否为 EPUB 文件:", this.isEpubFileUrl(url));
 
     if (!url || !this.isEpubFileUrl(url)) {
-      // console.log("不是 EPUB 文件，跳过处理");
+      // log.info("不是 EPUB 文件，跳过处理");
       return;
     }
 
-    // console.log("阻止默认行为和事件传播");
+    // log.info("阻止默认行为和事件传播");
     e.preventDefault();
     e.stopPropagation();
 
     if (url) {
-      // console.log("打开阅读器标签页");
+      // log.info("打开阅读器标签页");
       //通过url获取真实的filePath
       const parsed = parseLocationFromUrl(url);
       const file = await this.fetchFile(parsed.epubPath);
@@ -149,7 +151,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
       // 更新全局状态
       // this.globalReaderState.currentFile = file;
       // this.globalReaderState.currentUrl = url;
-      // console.log(this.globalReaderState.currentUrl);
+      // log.info(this.globalReaderState.currentUrl);
 
       let fileName = parsed.epubPath
         ?.replace("assets/", "")
@@ -177,7 +179,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
                 );
               }
             } catch (e) {
-              console.warn("保存阅读进度失败:", e);
+              log.warn("保存阅读进度失败:", e);
             }
             pannel.$destroy();
           },
@@ -227,7 +229,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
                   );
                 }
               } catch (e) {
-                console.warn("保存阅读进度失败:", e);
+                log.warn("保存阅读进度失败:", e);
               }
               that.epubReaderInstance.$destroy();
               that.epubReaderInstance = null;
@@ -246,7 +248,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
         }
       }
     } else {
-      console.log("无法获取文件对象");
+      log.info("无法获取文件对象");
     }
   }
 
@@ -258,7 +260,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
   private async loadEmbeddedReader(block: HTMLElement, url: string) {
     try {
       // 这里可以实现嵌入式阅读器加载逻辑
-      console.log("加载嵌入式阅读器:", url);
+      log.info("加载嵌入式阅读器:", url);
 
       // 创建嵌入式阅读器容器
       const container = document.createElement("div");
@@ -267,7 +269,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
 
       // 创建 EPUB 阅读器组件 - 传递完整路径
       const fullEpubPath = this.getFullAssetPath(url);
-      console.log("嵌入式阅读器完整 EPUB 路径:", fullEpubPath);
+      log.info("嵌入式阅读器完整 EPUB 路径:", fullEpubPath);
 
       // const embeddedReader = new EpubReader({
       //   target: container,
@@ -285,7 +287,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
         },
       });
     } catch (error) {
-      console.error("加载嵌入式阅读器失败:", error);
+      log.error("加载嵌入式阅读器失败:", error);
       showMessage(this.t("lets-epub-reader.loadEmbeddedFailed"), 3000);
     }
   }
@@ -343,7 +345,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
         });
       }
     } catch (error) {
-      console.error("获取 EPUB 文件列表失败:", error);
+      log.error("获取 EPUB 文件列表失败:", error);
       showMessage(this.t("lets-epub-reader.fetchEpubFailed"), 3000);
     }
   }
@@ -363,7 +365,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
 
       return result.data || [];
     } catch (error) {
-      console.error("查询 EPUB 文件失败:", error);
+      log.error("查询 EPUB 文件失败:", error);
       return [];
     }
   }
@@ -408,7 +410,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
 
       showMessage(`${this.t("lets-epub-reader.openingEpub")}${this.getDisplayName(epubPath)}`, 3000);
     } catch (error) {
-      console.error("打开 EPUB 文件失败:", error);
+      log.error("打开 EPUB 文件失败:", error);
       showMessage(this.t("lets-epub-reader.openFailed"), 3000);
     }
   }
@@ -432,7 +434,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
 
       // 创建 EPUB 阅读器组件 - 传递完整路径
       const fullEpubPath = this.getFullAssetPath(epubPath);
-      console.log("完整 EPUB 路径:", fullEpubPath);
+      log.info("完整 EPUB 路径:", fullEpubPath);
 
       this.epubReaderInstance = new Reader({
         target: tabContainer,
@@ -441,7 +443,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
         },
       });
     } catch (error) {
-      console.error("渲染 EPUB 阅读器失败:", error);
+      log.error("渲染 EPUB 阅读器失败:", error);
       showMessage(this.t("lets-epub-reader.renderEpubFailed"), 3000);
     }
   }
@@ -462,7 +464,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
       await book.ready;
 
       // 这里可以添加 EPUB 渲染逻辑
-      console.log("EPUB 文件加载成功:", book);
+      log.info("EPUB 文件加载成功:", book);
 
       // 通知组件 EPUB 加载完成
       if (this.epubReaderInstance) {
@@ -472,7 +474,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
         });
       }
     } catch (error) {
-      console.error("加载 EPUB 文件失败:", error);
+      log.error("加载 EPUB 文件失败:", error);
       showMessage(this.t("lets-epub-reader.loadEpubFailed"), 3000);
     }
   }
@@ -504,7 +506,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
    */
   public init(plugin: Plugin) {
     // 可以在这里进行一些初始化工作
-    console.log("EPUB Reader plugin initialized");
+    log.info("EPUB Reader plugin initialized");
 
     // 确保 epub.js 已经加载
     this.ensureEpubJsLoaded();
@@ -521,10 +523,10 @@ export default class EpubReaderPlugin extends SubPluginBase {
       script.src =
         "https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js";
       script.onload = () => {
-        console.log("epub.js 加载成功");
+        log.info("epub.js 加载成功");
       };
       script.onerror = () => {
-        console.error("epub.js 加载失败");
+        log.error("epub.js 加载失败");
         showMessage(this.t("lets-epub-reader.epubJsLoadFailed"), 5000);
       };
       document.head.appendChild(script);

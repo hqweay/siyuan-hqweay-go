@@ -3,6 +3,8 @@ import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { showMessage } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-inline");
 
 export default class Read extends SubPluginBase {
   regexOfHighLight = /==([^=]+?)==/g;
@@ -41,7 +43,7 @@ export default class Read extends SubPluginBase {
     if (res) {
       //@ts-ignore
       res.forEach((element) => {
-        // console.log(element);
+        // log.info(element);
 
         if (keepContext) {
           result += `${addOutline ? "- " : ""}${element.markdown}${

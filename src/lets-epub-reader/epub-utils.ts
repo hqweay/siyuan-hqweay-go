@@ -1,4 +1,6 @@
 import type { Annotation } from './types';
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 /**
  * EPUB 工具函数集合
@@ -66,7 +68,7 @@ export function parseCfiString(cfi: string): {
     
     return { base, range };
   } catch (e) {
-    console.warn('解析 CFI 失败:', cfi, e);
+    log.warn('解析 CFI 失败:', cfi, e);
     return null;
   }
 }
@@ -92,28 +94,28 @@ export function extractChapterIdFromCfi(book: any, cfi: string): string | null {
     const section = book.spine.get(cfi);
     
     if (!section) {
-      console.warn('无法从 CFI 获取章节:', cfi);
+      log.warn('无法从 CFI 获取章节:', cfi);
       return null;
     }
     
     // 返回章节的 index（这是最准确的章节标识符）
     // 如果 index 不可用，回退到 href
     if (typeof section.index === 'number') {
-      console.log(`✅ 章节识别成功: CFI=${cfi} -> 章节索引=${section.index}`);
+      log.info(`✅ 章节识别成功: CFI=${cfi} -> 章节索引=${section.index}`);
       return `${section.index}`;
     }
     
     // 回退方案：使用 href
     if (section.href) {
-      console.log(`✅ 章节识别成功: CFI=${cfi} -> href=${section.href}`);
+      log.info(`✅ 章节识别成功: CFI=${cfi} -> href=${section.href}`);
       return section.href;
     }
     
-    console.warn('章节信息不完整:', section);
+    log.warn('章节信息不完整:', section);
     return null;
     
   } catch (e) {
-    console.warn('从 CFI 提取章节 ID 失败:', cfi, e);
+    log.warn('从 CFI 提取章节 ID 失败:', cfi, e);
     return null;
   }
 }
@@ -132,7 +134,7 @@ export function getCurrentChapterInfo(book: any, cfi: string): { index: number; 
     const section = book.spine.get(cfi);
     
     if (!section) {
-      console.warn('无法从 CFI 获取章节:', cfi);
+      log.warn('无法从 CFI 获取章节:', cfi);
       return null;
     }
     
@@ -143,7 +145,7 @@ export function getCurrentChapterInfo(book: any, cfi: string): { index: number; 
     };
     
   } catch (e) {
-    console.warn('获取当前章节信息失败:', cfi, e);
+    log.warn('获取当前章节信息失败:', cfi, e);
     return null;
   }
 }
@@ -175,11 +177,11 @@ export function getCurrentChapterCfi(book: any, cfi: string): string | null {
     // 这里我们使用章节的 spine 位置作为基础 CFI
     const baseCfi = `epubcfi(/spine/${chapterInfo.index}!)`;
     
-    console.log(`✅ 章节基础 CFI: ${cfi} -> ${baseCfi}`);
+    log.info(`✅ 章节基础 CFI: ${cfi} -> ${baseCfi}`);
     return baseCfi;
     
   } catch (e) {
-    console.warn('获取当前章节 CFI 失败:', cfi, e);
+    log.warn('获取当前章节 CFI 失败:', cfi, e);
     return null;
   }
 }

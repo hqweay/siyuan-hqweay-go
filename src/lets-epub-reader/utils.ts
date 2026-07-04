@@ -1,4 +1,6 @@
 import type { SelectionRect } from './types';
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 /**
  * Get the bounding rectangle of a selection relative to a container
@@ -46,7 +48,7 @@ export function applyHighlightStyle(range: Range, style: string): void {
   } catch (e) {
     // If surroundContents fails (e.g., selection spans multiple elements),
     // use a different approach
-    console.warn('Failed to apply highlight with surroundContents, using alternative method');
+    log.warn('Failed to apply highlight with surroundContents, using alternative method');
     const fragment = range.extractContents();
     highlightEl.appendChild(fragment);
     range.insertNode(highlightEl);
@@ -96,10 +98,10 @@ export function getCfiFromSelection(book: any, content: any, selection: Selectio
       }
     }
     
-    console.warn('All CFI generation methods failed');
+    log.warn('All CFI generation methods failed');
     return '';
   } catch (e) {
-    console.warn('Failed to get CFI from selection:', e);
+    log.warn('Failed to get CFI from selection:', e);
     return '';
   }
 }
@@ -130,24 +132,24 @@ export function parseLocationFromUrl(url: string): { epubPath: string; cfiRange?
       // CFI typically starts with '/' or contains epubcfi
       if (cfiPart.startsWith('/') || cfiPart.includes('!') || cfiPart.startsWith('epubcfi(')) {
         cfiRange = cfiPart;
-        // console.log('Parsed CFI from URL:', cfiRange);
+        // log.info('Parsed CFI from URL:', cfiRange);
       }
     }
 
     if (parts.length > 2) {
       blockId = parts[2];
-      // console.log('Parsed block ID from URL:', blockId);
+      // log.info('Parsed block ID from URL:', blockId);
     }
 
     if (parts.length > 3) {
       bgColor = decodeURIComponent(parts[3]);
-      // console.log('Parsed bgColor from URL:', bgColor);
+      // log.info('Parsed bgColor from URL:', bgColor);
     }
 
-    // console.log('Parsed location:', { epubPath, cfiRange, blockId, bgColor });
+    // log.info('Parsed location:', { epubPath, cfiRange, blockId, bgColor });
     return { epubPath, cfiRange, blockId, bgColor };
   } catch (e) {
-    // console.warn('Failed to parse location from URL:', e);
+    // log.warn('Failed to parse location from URL:', e);
     return null;
   }
 }

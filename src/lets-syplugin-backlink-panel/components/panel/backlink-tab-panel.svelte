@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
   import { getBlockAttrs, setBlockAttrs } from "@/api";
   import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
   import { onMount } from "svelte";
@@ -59,7 +61,7 @@
             try {
               savedSqlList = JSON.parse(sqlAttr);
             } catch (e) {
-              console.error("解析保存的SQL数据失败:", e);
+              log.error("解析保存的SQL数据失败:", e);
               savedSqlList = [];
             }
           }
@@ -75,7 +77,7 @@
         }
       }
     } catch (error) {
-      console.error("获取保存的SQL列表失败:", error);
+      log.error("获取保存的SQL列表失败:", error);
       savedSqlList = [];
     } finally {
       isLoadingSql = false;

@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
   import { getBlockAttrs, setBlockAttrs, sql } from "@/api";
   import EntryList from "@/lets-dashboard/EntryList.svelte";
   import ImageGallery from "@/lets-dashboard/ImageGallery.svelte";
@@ -205,7 +207,7 @@
           try {
             savedSqlList = JSON.parse(sqlAttr);
           } catch (e) {
-            console.error("解析保存的SQL数据失败:", e);
+            log.error("解析保存的SQL数据失败:", e);
             savedSqlList = [];
           }
         }
@@ -247,7 +249,7 @@
         alert(`SQL "${name}" 保存成功！`);
       }
     } catch (error) {
-      console.error("保存SQL失败:", error);
+      log.error("保存SQL失败:", error);
       alert("保存失败，请重试");
     } finally {
       isSaving = false;
@@ -295,7 +297,7 @@
           try {
             savedSqlList = JSON.parse(sqlAttr);
           } catch (e) {
-            console.error("解析保存的SQL数据失败:", e);
+            log.error("解析保存的SQL数据失败:", e);
             savedSqlList = [];
           }
         }
@@ -332,7 +334,7 @@
       // 显示成功消息
       alert(`SQL "${name}" 删除成功！`);
     } catch (error) {
-      console.error("删除SQL失败:", error);
+      log.error("删除SQL失败:", error);
       alert("删除失败，请重试");
     } finally {
       isDeleting = false;

@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-send-to");
   import SettingPanel from "@/libs/setting-panel.svelte";
   import { settings } from "@/settings";
   import { plugin } from "@/utils";
@@ -45,10 +47,10 @@
           navigator.clipboard
             .write([clipboardItem])
             .then(function () {
-              console.log("图像已成功复制到剪贴板！");
+              log.info("图像已成功复制到剪贴板！");
             })
             .catch(function (error) {
-              console.error("复制到剪贴板时发生错误:", error);
+              log.error("复制到剪贴板时发生错误:", error);
             });
         }, "image/png");
       }
@@ -156,7 +158,7 @@
       options: Object.entries(
         settings.getBySpaceSub("sendTo", "card", "templates")
       ).reduce((acc, [key, value]) => {
-        // console.log(acc);
+        // log.info(acc);
         acc[key] = key;
         return acc;
       }, {}),
@@ -264,8 +266,8 @@
 
   $: {
     SettingItems = Object.values(settingConfig);
-    console.log("settingConfig");
-    console.log(settingConfig);
+    log.info("settingConfig");
+    log.info(settingConfig);
     if (settingConfig.addTime.value === "byCreated") {
       const now = new Date();
 
@@ -281,7 +283,7 @@
   }
   let SettingItems = [];
   const onChanged = ({ detail }: CustomEvent<ChangeEvent>) => {
-    // console.log(settings.getBySpaceSub("sendTo", "card", "templates"));
+    // log.info(settings.getBySpaceSub("sendTo", "card", "templates"));
     if (detail.key === "template") {
       settingConfig.templateName.value = detail.value;
 
@@ -333,7 +335,7 @@
 
     if (detail.key === "templateName") {
     } else {
-      console.log("save");
+      log.info("save");
       settings.setBySpaceSub("sendTo", "card", detail.key, detail.value);
 
       settings.save();
@@ -388,7 +390,7 @@
   let fotterTime = "";
 
   function initStyle() {
-    console.log("initStyle");
+    log.info("initStyle");
     document.querySelector(".hqweay-go-card") &&
       (document.querySelector(".hqweay-go-card").style.backgroundColor =
         settingConfig.cardBackgroundColor.value);

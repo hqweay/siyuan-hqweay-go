@@ -1,3 +1,5 @@
+import { getLogger } from "@/libs/logger";
+const log = getLogger("dbUtil");
 /**
  * 思源笔记数据库工具类
  * 提供绑定块到数据库的相关操作
@@ -35,9 +37,9 @@ class SiyuanAVHelper {
         this.avId =
           av.map((av) => this._getDataAvIdFromHtml(av.markdown))[0] || "";
       }
-      // console.log(this.avId);
+      // log.info(this.avId);
     } catch (error) {
-      console.error("初始化失败:", error);
+      log.error("初始化失败:", error);
     }
   }
 
@@ -48,11 +50,11 @@ class SiyuanAVHelper {
    */
   async addBlocks(blockIds) {
     if (!this.avId) {
-      console.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
+      log.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
       return;
     }
-    console.log("addBlocks");
-    console.log(blockIds);
+    log.info("addBlocks");
+    log.info(blockIds);
     blockIds = typeof blockIds === "string" ? [blockIds] : blockIds;
 
     const srcs = blockIds.map((blockId) => ({
@@ -71,7 +73,7 @@ class SiyuanAVHelper {
       "/api/av/addAttributeViewBlocks",
       input
     );
-    if (!result || result.code !== 0) console.error(result);
+    if (!result || result.code !== 0) log.error(result);
   }
 
   /**
@@ -82,7 +84,7 @@ class SiyuanAVHelper {
    */
   async addCols(blockIds, cols) {
     if (!this.avId) {
-      console.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
+      log.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
       return;
     }
 
@@ -119,7 +121,7 @@ class SiyuanAVHelper {
           "/api/av/setAttributeViewBlockAttr",
           colData
         );
-        if (!result || result.code !== 0) console.error(result);
+        if (!result || result.code !== 0) log.error(result);
       }
     }
   }
@@ -134,7 +136,7 @@ class SiyuanAVHelper {
    */
   async addBlocksNoBind(blocks, pkKeyID, keyID, otherCols) {
     if (!this.avId) {
-      console.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
+      log.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
       return;
     }
 
@@ -182,7 +184,7 @@ class SiyuanAVHelper {
       "/api/av/appendAttributeViewDetachedBlocksWithValues",
       input
     );
-    if (!result || result.code !== 0) console.error(result);
+    if (!result || result.code !== 0) log.error(result);
   }
 
   /**
@@ -201,7 +203,7 @@ class SiyuanAVHelper {
         id: blockId,
         attrs: attrs,
       });
-      if (!result || result.code !== 0) console.error(result);
+      if (!result || result.code !== 0) log.error(result);
     }
   }
 
@@ -211,7 +213,7 @@ class SiyuanAVHelper {
    */
   async getColumns() {
     if (!this.avId) {
-      console.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
+      log.error("数据库ID未初始化，请检查数据库块ID配置是否正确");
       return [];
     }
 
@@ -229,9 +231,9 @@ class SiyuanAVHelper {
    */
   async getAvBySql(sql) {
     const result = await this._requestApi("/api/query/sql", { stmt: sql });
-    console.log(result);
+    log.info(result);
     if (result.code !== 0) {
-      console.error("查询数据库出错", result.msg);
+      log.error("查询数据库出错", result.msg);
       return [];
     }
     return result.data;

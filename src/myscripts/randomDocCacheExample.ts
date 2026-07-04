@@ -4,6 +4,8 @@
  */
 
 import { RandomDocCache, getRandomDocId, preloadRandomDocCache, randomDocCache } from "./randomDocCache";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("randomDocCacheExample");
 
 /**
  * 示例1: 基本使用 - 获取随机文档ID
@@ -14,15 +16,15 @@ export async function example1_basicUsage() {
     try {
         // 获取一个随机文档ID
         const docId = await getRandomDocId(sql);
-        console.log("随机文档ID:", docId);
+        log.info("随机文档ID:", docId);
         
         // 继续获取更多随机文档ID
         for (let i = 0; i < 5; i++) {
             const id = await getRandomDocId(sql);
-            console.log(`第${i + 1}个随机文档ID:`, id);
+            log.info(`第${i + 1}个随机文档ID:`, id);
         }
     } catch (error) {
-        console.error("获取随机文档失败:", error);
+        log.error("获取随机文档失败:", error);
     }
 }
 
@@ -35,13 +37,13 @@ export async function example2_preloadCache() {
     try {
         // 预加载缓存，提高后续访问速度
         await preloadRandomDocCache(sql);
-        console.log("缓存预加载完成");
+        log.info("缓存预加载完成");
         
         // 现在获取随机文档会更快
         const docId = await getRandomDocId(sql);
-        console.log("从预加载缓存获取的文档ID:", docId);
+        log.info("从预加载缓存获取的文档ID:", docId);
     } catch (error) {
-        console.error("预加载缓存失败:", error);
+        log.error("预加载缓存失败:", error);
     }
 }
 
@@ -61,16 +63,16 @@ export async function example3_customConfig() {
     try {
         // 使用自定义缓存
         const docId = await customCache.getRandomDocId(sql);
-        console.log("自定义缓存获取的文档ID:", docId);
+        log.info("自定义缓存获取的文档ID:", docId);
         
         // 查看缓存统计
         const stats = customCache.getCacheStats();
-        console.log("缓存统计:", stats);
+        log.info("缓存统计:", stats);
         
         // 清理自定义缓存
         customCache.destroy();
     } catch (error) {
-        console.error("自定义缓存使用失败:", error);
+        log.error("自定义缓存使用失败:", error);
     }
 }
 
@@ -88,21 +90,21 @@ export async function example4_cacheManagement() {
         
         // 检查缓存状态
         const hasCache = randomDocCache.hasCache(sql);
-        console.log("是否已有缓存:", hasCache);
+        log.info("是否已有缓存:", hasCache);
         
         const remainingCount = randomDocCache.getRemainingCount(sql);
-        console.log("缓存中剩余ID数量:", remainingCount);
+        log.info("缓存中剩余ID数量:", remainingCount);
         
         // 查看详细统计
         const stats = randomDocCache.getCacheStats();
-        console.log("详细缓存统计:", JSON.stringify(stats, null, 2));
+        log.info("详细缓存统计:", JSON.stringify(stats, null, 2));
         
         // 清理指定SQL的缓存
         randomDocCache.clearCache(sql);
-        console.log("已清理指定SQL的缓存");
+        log.info("已清理指定SQL的缓存");
         
     } catch (error) {
-        console.error("缓存管理失败:", error);
+        log.error("缓存管理失败:", error);
     }
 }
 
@@ -136,10 +138,10 @@ export async function example5_randomNoteFeature() {
         };
         
         const noteId = await getRandomNote();
-        console.log("随机笔记ID:", noteId);
+        log.info("随机笔记ID:", noteId);
         
     } catch (error) {
-        console.error("随机笔记功能失败:", error);
+        log.error("随机笔记功能失败:", error);
     }
 }
 
@@ -158,16 +160,16 @@ export async function example6_batchPreload() {
         const preloadPromises = sqlQueries.map(sql => preloadRandomDocCache(sql));
         await Promise.all(preloadPromises);
         
-        console.log("所有缓存预加载完成");
+        log.info("所有缓存预加载完成");
         
         // 现在可以从任意SQL快速获取随机文档
         for (const sql of sqlQueries) {
             const docId = await getRandomDocId(sql);
-            console.log(`SQL: ${sql.substring(0, 50)}... -> 文档ID: ${docId}`);
+            log.info(`SQL: ${sql.substring(0, 50)}... -> 文档ID: ${docId}`);
         }
         
     } catch (error) {
-        console.error("批量预加载失败:", error);
+        log.error("批量预加载失败:", error);
     }
 }
 
@@ -175,27 +177,27 @@ export async function example6_batchPreload() {
  * 运行所有示例的便利函数
  */
 export async function runAllExamples() {
-    console.log("=== 开始运行随机文档缓存示例 ===");
+    log.info("=== 开始运行随机文档缓存示例 ===");
     
-    console.log("\n--- 示例1: 基本使用 ---");
+    log.info("\n--- 示例1: 基本使用 ---");
     await example1_basicUsage();
     
-    console.log("\n--- 示例2: 预加载缓存 ---");
+    log.info("\n--- 示例2: 预加载缓存 ---");
     await example2_preloadCache();
     
-    console.log("\n--- 示例3: 自定义配置 ---");
+    log.info("\n--- 示例3: 自定义配置 ---");
     await example3_customConfig();
     
-    console.log("\n--- 示例4: 缓存管理 ---");
+    log.info("\n--- 示例4: 缓存管理 ---");
     await example4_cacheManagement();
     
-    console.log("\n--- 示例5: 实际应用 ---");
+    log.info("\n--- 示例5: 实际应用 ---");
     await example5_randomNoteFeature();
     
-    console.log("\n--- 示例6: 批量预加载 ---");
+    log.info("\n--- 示例6: 批量预加载 ---");
     await example6_batchPreload();
     
-    console.log("\n=== 所有示例运行完成 ===");
+    log.info("\n=== 所有示例运行完成 ===");
 }
 
 // 如果直接运行此文件，执行所有示例

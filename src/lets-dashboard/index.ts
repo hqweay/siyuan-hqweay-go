@@ -7,6 +7,8 @@ import DashboardComponent from "./dashboard.svelte";
 import EntryList from "./EntryList.svelte";
 import FlowBoard from "./flowboard.svelte";
 import ImageGallery from "./ImageGallery.svelte";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dashboard");
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -45,7 +47,7 @@ export default class DashBoard extends SubPluginBase {
   addDock() {
     const addToDock = settings.getBySpace("diaryTools", "addToDock");
 
-    //console.log("addToDock", addToDock);
+    //log.info("addToDock", addToDock);
     if (docks.includes(addToDock)) {
       plugin.addDock({
         config: {
@@ -58,10 +60,10 @@ export default class DashBoard extends SubPluginBase {
         data: { text: "This is my custom dock" },
         type: DOCK_TYPE + "aaa",
         resize() {
-          //console.log(DOCK_TYPE + " resize");
+          //log.info(DOCK_TYPE + " resize");
         },
         update() {
-          //console.log(DOCK_TYPE + " update");
+          //log.info(DOCK_TYPE + " update");
         },
         init: (dock) => {
           new DashboardComponent({
@@ -69,7 +71,7 @@ export default class DashBoard extends SubPluginBase {
           });
         },
         destroy() {
-          //console.log("destroy dock:", DOCK_TYPE);
+          //log.info("destroy dock:", DOCK_TYPE);
         },
       });
     }

@@ -2,6 +2,8 @@ import { getFrontend } from "siyuan";
 import { getBlockByID } from "@/api";
 import { plugin } from "@/utils";
 import { getCurrentDocId } from "@/myscripts/syUtils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-nav-helper");
 
 /**
  * 移动端环境检测
@@ -26,7 +28,7 @@ class MobileUtils {
   init(): void {
     if (this.initialized) return;
 
-    console.log("移动端工具初始化");
+    log.info("移动端工具初始化");
     this.initialized = true;
 
     // 设置移动端样式
@@ -42,7 +44,7 @@ class MobileUtils {
   destroy(): void {
     if (!this.initialized) return;
 
-    console.log("移动端工具销毁");
+    log.info("移动端工具销毁");
     this.initialized = false;
   }
 
@@ -61,20 +63,20 @@ class MobileUtils {
     // 监听页面可见性变化
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
-        console.log("页面隐藏");
+        log.info("页面隐藏");
       } else {
-        console.log("页面显示");
+        log.info("页面显示");
       }
     });
 
     // 监听网络状态变化
     if ("navigator" in window && "onLine" in navigator) {
       window.addEventListener("online", () => {
-        console.log("网络连接恢复");
+        log.info("网络连接恢复");
       });
 
       window.addEventListener("offline", () => {
-        console.log("网络连接断开");
+        log.info("网络连接断开");
       });
     }
 
@@ -106,7 +108,7 @@ class MobileUtils {
     try {
       return await getBlockByID(docId);
     } catch (error) {
-      console.error("获取当前文档信息失败:", error);
+      log.error("获取当前文档信息失败:", error);
       throw error;
     }
   }
@@ -123,7 +125,7 @@ class MobileUtils {
         isMobile
       );
     } catch (error) {
-      console.error("检查主文档界面失败:", error);
+      log.error("检查主文档界面失败:", error);
       return false;
     }
   }
@@ -151,7 +153,7 @@ class MobileUtils {
       try {
         navigator.vibrate(pattern);
       } catch (error) {
-        console.warn("振动反馈失败:", error);
+        log.warn("振动反馈失败:", error);
       }
     }
   }
@@ -208,7 +210,7 @@ class MobileUtils {
     try {
       fn();
     } catch (error) {
-      console.error(errorMessage, error);
+      log.error(errorMessage, error);
       this.showMobileMessage(errorMessage, "error");
     }
   }

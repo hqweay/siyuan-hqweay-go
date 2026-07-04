@@ -2,6 +2,8 @@ import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
 import { isMobile } from "@/utils";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dock-show-and-hide");
 
 export default class DockShowAndHide extends SubPluginBase {
   override onunload(): void {}
@@ -61,8 +63,8 @@ export default class DockShowAndHide extends SubPluginBase {
 
     let configFlag = false;
 
-    console.log(items);
-    console.log(detail);
+    log.info(items);
+    log.info(detail);
 
     items.split("\n").forEach((line) => {
       const configs = line.split("====");

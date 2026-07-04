@@ -1,4 +1,6 @@
 <script>
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dashboard");
   import { sql } from "@/api";
   import { onMount } from "svelte";
   import { flip } from "svelte/animate";
@@ -60,7 +62,7 @@
         if (rows.length < pageSize) hasMore = false;
       }
     } catch (err) {
-      console.error("EntryList load error", err);
+      log.error("EntryList load error", err);
     } finally {
       loading = false;
     }

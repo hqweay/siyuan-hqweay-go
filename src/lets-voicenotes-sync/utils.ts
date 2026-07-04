@@ -1,4 +1,6 @@
 import moment from "moment";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-voicenotes-sync");
 
 export function capitalizeFirstLetter(word: string): string {
   return word[0].toUpperCase() + word.slice(1);
@@ -12,7 +14,7 @@ export function getFilenameFromUrl(url: string): string {
 
     return filename || "";
   } catch (error) {
-    console.error("Invalid URL:", error);
+    log.error("Invalid URL:", error);
     return "";
   }
 }
@@ -41,7 +43,7 @@ export function formatDate(date: string, dateFormat: string): string {
   try {
     return moment(date).format(dateFormat);
   } catch (error) {
-    console.error("Error formatting date:", error);
+    log.error("Error formatting date:", error);
     return date;
   }
 }

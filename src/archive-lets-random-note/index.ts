@@ -2,6 +2,8 @@
 import DockPlugin from "@/lets-dockPlus/DockPlugin";
 import { goToRandomBlock } from "@/myscripts/randomDocCache";
 import { settings } from "@/settings";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("index");
 
 class RandomNotePlugin extends DockPlugin {
   location = "toolbar-right";
@@ -11,7 +13,7 @@ class RandomNotePlugin extends DockPlugin {
 
   async onload() {}
   onLayoutReady(): void {
-    console.log("onLayoutReady");
+    log.info("onLayoutReady");
     super.onLayoutReady();
   }
 

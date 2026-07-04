@@ -9,13 +9,15 @@ import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { SubPlugin } from "@/types/plugin";
 import { addProtyleSlash } from "@/myscripts/syUtils";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-typography-go");
 
 // availableBlocks = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "h7", "h8", "h9"];
 const availableBlocks = ["NodeParagraph", "NodeHeading"];
 
 export function formateElement(blockElements, protyle) {
   const doOperations: IOperation[] = [];
-  // console.log(detail.blockElements);
+  // log.info(detail.blockElements);
   blockElements = [].concat(blockElements || []);
   blockElements.forEach((item: HTMLElement) => {
     const editElements = item.querySelectorAll(

@@ -9,6 +9,8 @@ import { openMobileFileById, openTab, showMessage } from "siyuan";
 import { mobileUtils } from "@/lets-nav-helper/utils";
 import { isMobile, plugin } from "@/utils";
 import { navigation } from "@/lets-nav-helper/navigation";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("randomDocCache");
 
 interface CacheEntry {
   ids: string[];
@@ -67,7 +69,7 @@ export class RandomDocCache {
 
     // 如果缓存用完了，重新加载
     if (cacheEntry.currentIndex >= cacheEntry.ids.length) {
-      this.reloadCache(cacheKey, sql).catch(console.error);
+      this.reloadCache(cacheKey, sql).catch(err => log.error(err));
     }
 
     return docId;
@@ -183,9 +185,9 @@ export class RandomDocCache {
 
       this.cache.set(cacheKey, cacheEntry);
 
-      console.log(`随机文档缓存已更新: ${sql} -> ${ids.length} 条记录`);
+      log.info(`随机文档缓存已更新: ${sql} -> ${ids.length} 条记录`);
     } catch (error) {
-      console.error("重新加载随机文档缓存失败:", error);
+      log.error("重新加载随机文档缓存失败:", error);
 
       // 如果加载失败，设置为空缓存以避免重复尝试
       const cacheEntry: CacheEntry = {
@@ -237,7 +239,7 @@ export class RandomDocCache {
     }
 
     if (cleanedCount > 0) {
-      console.log(`自动清理完成: 清理了 ${cleanedCount} 个过期缓存`);
+      log.info(`自动清理完成: 清理了 ${cleanedCount} 个过期缓存`);
     }
   }
 }
@@ -279,7 +281,7 @@ export const goToRandomBlock = async (sql: string) => {
     showMessage("已跳转到随机文档");
     mobileUtils.vibrate(50);
   } catch (error) {
-    console.error("跳转到随机文档失败:", error);
+    log.error("跳转到随机文档失败:", error);
     showMessage("跳转到随机文档失败");
   }
 };

@@ -1,4 +1,6 @@
 <script>
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dashboard");
   import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
   import { openByUrl } from "@/myscripts/syUtils";
   import { plugin } from "@/utils";
@@ -80,7 +82,7 @@
       });
       isProtyleLoaded = true;
     } catch (err) {
-      console.error("EntryItem loadProtyle error", err);
+      log.error("EntryItem loadProtyle error", err);
     }
   }
 

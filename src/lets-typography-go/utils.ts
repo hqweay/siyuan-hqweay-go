@@ -1,4 +1,6 @@
 import { fetchSyncPost } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-typography-go");
 
 interface IgnoreBlock {
   start: number;
@@ -208,8 +210,8 @@ class FormatUtil {
   }
 
   replacePunctuations(content: any) {
-    //console.log("start");
-    //console.log(content);
+    //log.info("start");
+    //log.info(content);
     // `, \ . : ; ? !` 改成 `，、。：；？！`
 
     //... 替换为中文省略号  add
@@ -399,8 +401,8 @@ class FormatUtil {
       content = content.replace(ele.key, ele.value);
     });
 
-    //console.log("end");
-    //console.log(content);
+    //log.info("end");
+    //log.info(content);
 
     return content;
     // let lines = content.split("\n");
@@ -434,8 +436,8 @@ class FormatUtil {
 
     const imageCenter = settings.getBySpace("typography", "imageCenter");
     if (imageCenter && imageCenter >= 10 && imageCenter <= 100) {
-      // //console.log(content);
-      // //console.log(formatImage.test(content));
+      // //log.info(content);
+      // //log.info(formatImage.test(content));
       //图片样式新增
       // content = content.replace(
       //   formatImage,
@@ -452,7 +454,7 @@ class FormatUtil {
         // return `${p1}{: parent-style=\"width: ${imageCenter}%;min-width: calc(100% - 0.1em);\"}`;
         return `${p1}{: style=\"width: calc(${imageCenter}% - 8px);\" parent-style=\"min-width: calc(100% - 0.1em);\"}`;
       });
-      // //console.log(content);
+      // //log.info(content);
     }
 
     // 每行操作
@@ -496,17 +498,17 @@ class FormatUtil {
           }
         }
 
-        //console.log("111");
-        //console.log(line);
+        //log.info("111");
+        //log.info(line);
 
         // if (formatPattern.exec(line)) {
         //   line = line.replace(formatPattern, (match, p1, p2) => {
-        //     // //console.log(p1);
-        //     // //console.log(p2);
+        //     // //log.info(p1);
+        //     // //log.info(p2);
         //     return `${this.replacePunctuations(p1)}${p2}`;
         //   });
-        //   //console.log("2222");
-        //   //console.log(line);
+        //   //log.info("2222");
+        //   //log.info(line);
         //   return line;
         // }
 
@@ -518,9 +520,9 @@ class FormatUtil {
             return `${this.replacePunctuations(match)}`;
           });
 
-          //console.log("matches");
-          //console.log(matches.length);
-          //console.log(nonMatches.length);
+          //log.info("matches");
+          //log.info(matches.length);
+          //log.info(nonMatches.length);
           let result = uppercasedNonMatches[0];
           for (let i = 0; i < matches.length; i++) {
             result += matches[i] + uppercasedNonMatches[i + 1];
@@ -528,8 +530,8 @@ class FormatUtil {
           line = result;
           return line;
         }
-        //console.log("333");
-        //console.log(line);
+        //log.info("333");
+        //log.info(line);
 
         // if (matches) {
         //   if (matches[1]) {
@@ -554,23 +556,23 @@ class FormatUtil {
         const spaceMatched = line.match(/^(\s*?)(\S.*?\S?)(\s*)$/);
 
         if (spaceMatched) {
-          //console.log("spaceMatched");
-          //console.log(spaceMatched);
+          //log.info("spaceMatched");
+          //log.info(spaceMatched);
           line =
             spaceMatched[1] +
             this.deleteSpaces(this.replacePunctuations(spaceMatched[2]));
           //最后的空格可以不要吧
           // +spaceMatched[3];
         } else if (line.match(/^\s*$/)) {
-          //console.log("空数据" + line);
+          //log.info("空数据" + line);
           return line;
         } else {
           line = this.replacePunctuations(line);
           line = this.deleteSpaces(line);
         }
 
-        //console.log("最终结果");
-        //console.log(line);
+        //log.info("最终结果");
+        //log.info(line);
 
         // 将无编号列表的“* ”改成 “- ”
         // 将无编号列表的“- ”改成 “- ”
@@ -582,11 +584,11 @@ class FormatUtil {
         // 将有编号列表的“1.  ”改成 “1. ”
         // line = line.replace(/^(\s*)(\d\.)\s+(\S)/, "$1$2 $3");
 
-        // //console.log("更新后的");
-        // //console.log(line);
-        // //console.log("更新后的");
-        //console.log("删除空格最终结果");
-        //console.log(line);
+        // //log.info("更新后的");
+        // //log.info(line);
+        // //log.info("更新后的");
+        //log.info("删除空格最终结果");
+        //log.info(line);
         return line;
       })
       .join("\n");

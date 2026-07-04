@@ -2,6 +2,8 @@ import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-random-header-image");
 
 const fs = require("fs");
 const path = require("path");
@@ -25,7 +27,7 @@ class RandomHeaderImagePlugin extends SubPluginBase {
 
   onProtyleLoaded(event) {
     this.customEvent = event;
-    //console.log("onProtyleLoaded", event);
+    //log.info("onProtyleLoaded", event);
   }
 
   async changeImage(event, ele?) {
@@ -181,7 +183,7 @@ class RandomHeaderImagePlugin extends SubPluginBase {
             }
           )
           .catch((err) => {
-            console.error("请求失败:", err);
+            log.error("请求失败:", err);
           });
       }
     });

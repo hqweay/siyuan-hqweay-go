@@ -35,6 +35,8 @@ import { CacheManager } from "@/lets-syplugin-backlink-panel/config/CacheManager
 import { SettingService } from "../setting/SettingService";
 import { stringToDom } from "@/lets-syplugin-backlink-panel/utils/html-util";
 import { getQueryStrByBlock, NewNodeID } from "@/lets-syplugin-backlink-panel/utils/siyuan-util";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 
 export async function getBacklinkPanelRenderData(
@@ -108,7 +110,7 @@ export async function getBacklinkPanelRenderData(
 
     const endTime = performance.now(); // 记录结束时间
     const executionTime = endTime - startTime; // 计算时间差
-    console.log(
+    log.info(
         `反链面板 生成渲染数据 消耗时间 : ${executionTime} ms `,
         // `, backlinkPanelRenderDataResult `, backlinkPanelRenderDataResult,
     );
@@ -154,7 +156,7 @@ export async function getTurnPageBacklinkPanelRenderData(
     };
     const endTime = performance.now(); // 记录结束时间
     const executionTime = endTime - startTime; // 计算时间差
-    console.log(
+    log.info(
         `反链面板 翻页 消耗时间 : ${executionTime} ms `,
         // `, backlinkPanelRenderDataResult `, backlinkPanelRenderDataResult,
     );
@@ -448,8 +450,8 @@ async function getBatchBacklinkDoc(
 
     // 碰到一种奇怪的现象， getBacklinkDoc 接口返回数据不全时，调用一下 getBacklink2 就好了。。
     if (backlinkBlockNodeArray.length > backlinkDcoDataResult.length) {
-        console.log("反链过滤面板插件 疑似 getBacklinkDoc 接口数据不全，如果清除缓存刷新后还是不全，请反馈开发者。 ");
-        console.log("backlinkBlockNodeArray ", backlinkBlockNodeArray, " ,backlinkDcoDataResult ", backlinkDcoDataResult);
+        log.info("反链过滤面板插件 疑似 getBacklinkDoc 接口数据不全，如果清除缓存刷新后还是不全，请反馈开发者。 ");
+        log.info("backlinkBlockNodeArray ", backlinkBlockNodeArray, " ,backlinkDcoDataResult ", backlinkDcoDataResult);
         getBacklink2(curRootId, "", "", "3", "3")
     }
 
@@ -457,7 +459,7 @@ async function getBatchBacklinkDoc(
 
     const endTime = performance.now(); // 记录结束时间
     const executionTime = endTime - startTime; // 计算时间差
-    // console.log(
+    // log.info(
     //     `反链面板 批量获取反链文档信息 消耗时间 : ${executionTime} ms `,
     // );
     return result;
@@ -746,7 +748,7 @@ export async function getBacklinkPanelData(
 
     const endTime = performance.now(); // 记录结束时间
     const executionTime = endTime - startTime; // 计算时间差
-    console.log(
+    log.info(
         `反链面板 获取和处理数据 消耗时间 : ${executionTime} ms `,
         // `, 数据 : backlinkPanelData `, backlinkPanelData
     );
@@ -758,7 +760,7 @@ export async function getBacklinkPanelData(
         && executionTime > cacheAfterResponseMs) {
         CacheManager.ins.setBacklinkPanelBaseData(rootId, backlinkPanelData, cacheExpirationTime);
     }
-    // console.log(" blockTreeNodeArray : ", backlinkPanelData)
+    // log.info(" blockTreeNodeArray : ", backlinkPanelData)
 
     return backlinkPanelData;
 }
@@ -1075,10 +1077,10 @@ async function buildBacklinkPanelData(
         let inAttrConcat = parentBlock.inAttrConcat;
         if (parentBlock.type == 'i' && parentBlock.subMarkdown) {
             markdown = parentBlock.subMarkdown;
-            // console.log("backlinkParentBlockArray subMarkdown  ", markdown)
+            // log.info("backlinkParentBlockArray subMarkdown  ", markdown)
         }
         markdown += inAttrConcat;
-        // console.log("backlinkParentBlockArray markdown  ", markdown)
+        // log.info("backlinkParentBlockArray markdown  ", markdown)
 
         let backlnikParentDefBlockIdArray = getRefBlockId(markdown);
         let backlinkBlockId = parentBlock.childIdPath.split("->")[0];
@@ -1174,7 +1176,7 @@ async function buildBacklinkPanelData(
             refBlockInfo.dynamicAnchor = dnaymicAnchor
             refBlockInfo.staticAnchor = staticAnchor;
             refBlockInfo.selectionStatus = DefinitionBlockStatus.OPTIONAL
-            // console.log("不存在的定义块 : ", refBlockInfo)
+            // log.info("不存在的定义块 : ", refBlockInfo)
             relatedDefBlockArray.push(refBlockInfo);
         }
     }
@@ -1411,10 +1413,10 @@ export async function defBlockArrayTypeAndKeywordFilter(
     if (defBLockType) {
         for (const defBlock of defBlockArray) {
             if (defBLockType == "dynamicAnchorText" && isStrBlank(defBlock.dynamicAnchor)) {
-                console.log("dynamicAnchorText defBlock ", defBlock)
+                log.info("dynamicAnchorText defBlock ", defBlock)
                 defBlock.filterStatus = true;
             } else if (defBLockType == "staticAnchorText" && isStrBlank(defBlock.staticAnchor)) {
-                console.log("staticAnchorText defBlock ", defBlock)
+                log.info("staticAnchorText defBlock ", defBlock)
                 defBlock.filterStatus = true;
             }
         }

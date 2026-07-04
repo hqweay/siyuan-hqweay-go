@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
   import { setBlockAttrs } from "@/api";
   import { createEventDispatcher, onMount } from "svelte";
 
@@ -37,7 +39,7 @@
       newSqlContent = "";
       showAddForm = false;
     } catch (error) {
-      console.error("保存SQL失败:", error);
+      log.error("保存SQL失败:", error);
       alert("保存失败，请重试");
     }
   }

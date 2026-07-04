@@ -1,4 +1,6 @@
 <script>
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dashboard");
   import { sql } from "@/api";
   import { onMount, createEventDispatcher, tick } from "svelte";
   import { plugin } from "@/utils";
@@ -148,7 +150,7 @@
         }, 0);
       }
     } catch (err) {
-      console.error("Heatmap load error", err);
+      log.error("Heatmap load error", err);
     }
   }
 

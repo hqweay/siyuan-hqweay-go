@@ -7,13 +7,15 @@ import { plugin } from "@/utils";
 import ShowCustomPropertiesUnderTitle from "./ShowCustomPropertiesUnderTitle";
 import Memo from "./Memo";
 import pluginMetadata from "./plugin";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-block-attr");
 
 function parseArrayString(str) {
   if (str.trim() == "") return [];
   try {
     return new Function(`return ${str}`)();
   } catch (error) {
-    console.error("解析失败:", error);
+    log.error("解析失败:", error);
     return [];
   }
 }
@@ -64,9 +66,9 @@ export default class BlockAttr extends SubPluginBase {
     settings.getBySpace(pluginMetadata.name, "customProperties") &&
       this.showCustomPropertiesUnderTitlePlugin.onload();
 
-      console.log('sss');
-      console.log(settings.get(pluginMetadata.name));
-    console.log(settings.getBySpace(pluginMetadata.name, "memoIds"));
+      log.info('sss');
+      log.info(settings.get(pluginMetadata.name));
+    log.info(settings.getBySpace(pluginMetadata.name, "memoIds"));
     settings.getBySpace(pluginMetadata.name, "memoIds") &&
       this.memoPlugin.onload();
   }
@@ -77,12 +79,12 @@ export default class BlockAttr extends SubPluginBase {
   }
 
   public loadSlashOfAttrs = () => {
-    console.log("加载块属性快捷设置 Slash");
+    log.info("加载块属性快捷设置 Slash");
     menus = parseArrayString(settings.getBySpace(pluginMetadata.name, "attrs"));
     menus
       .filter((menu) => menu.enabled && menu.name.startsWith("@"))
       .forEach((menu) => {
-        console.log(menu);
+        log.info(menu);
         addProtyleSlash({
           filter: [`${menu.name}`],
           html: getMenuLabel(menu),

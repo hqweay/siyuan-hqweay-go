@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
     import { getSettingTabArray } from "@/lets-syplugin-backlink-panel/models/setting-constant";
     import SettingItem from "./setting-item.svelte";
     import { TabProperty } from "@/lets-syplugin-backlink-panel/models/setting-model";
@@ -12,7 +14,7 @@
     SettingService.ins.init();
 
     function handleKeyDownDefault(event) {
-        console.log(event.key);
+        log.info(event.key);
     }
 </script>
 

@@ -1,4 +1,6 @@
 import { showMessage } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-ocr");
 
 type umi_ocr_res = {
   code: number;
@@ -73,7 +75,7 @@ export async function umiOCR(
     // 拼接所有识别的文字
     return res.data.map((item) => item.text).join("\n");
   } catch (error) {
-    console.error("umi-ocr error:", error);
+    log.error("umi-ocr error:", error);
     throw error;
   }
 }

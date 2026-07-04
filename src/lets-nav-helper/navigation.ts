@@ -7,6 +7,8 @@ import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import pluginMetadata from "./plugin";
 import { isMobile, mobileUtils } from "./utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-nav-helper");
 
 /**
  * 移动端导航类
@@ -20,7 +22,7 @@ class MobileNavigation {
   init(): void {
     if (this.historyInitialized) return;
 
-    console.log("移动端导航初始化");
+    log.info("移动端导航初始化");
     this.historyInitialized = true;
 
     // 监听文档切换事件
@@ -89,7 +91,7 @@ class MobileNavigation {
       openBlockByID(parentDoc.id);
       mobileUtils.vibrate(50);
     } catch (error) {
-      console.error("跳转到父文档失败:", error);
+      log.error("跳转到父文档失败:", error);
       showMessage(plugin.i18n["lets-nav-helper.jumpToParentFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
@@ -119,7 +121,7 @@ class MobileNavigation {
       openBlockByID(children[0].id);
       mobileUtils.vibrate(50);
     } catch (error) {
-      console.error("跳转到子文档失败:", error);
+      log.error("跳转到子文档失败:", error);
       showMessage(plugin.i18n["lets-nav-helper.jumpToChildFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
@@ -164,7 +166,7 @@ class MobileNavigation {
       openBlockByID(siblings[newIndex].id);
       mobileUtils.vibrate(50);
     } catch (error) {
-      console.error("跳转到兄弟文档失败:", error);
+      log.error("跳转到兄弟文档失败:", error);
       showMessage(plugin.i18n["lets-nav-helper.jumpToSiblingFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
@@ -209,7 +211,7 @@ class MobileNavigation {
   goToHome(): void {
     try {
       const link = settings.getBySpace(pluginMetadata.name, "dashBoardLink");
-      console.log("尝试打开仪表盘:", link);
+      log.info("尝试打开仪表盘:", link);
       // 尝试打开仪表盘
       PluginRegistry.getInstance()
         .getPlugin("dashBoard")
@@ -219,7 +221,7 @@ class MobileNavigation {
           },
         });
     } catch (error) {
-      console.error("打开仪表盘失败:", error);
+      log.error("打开仪表盘失败:", error);
       showMessage(plugin.i18n["lets-nav-helper.openDashFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
@@ -233,7 +235,7 @@ class MobileNavigation {
       const data = await listDocsByPath(doc.box, doc.path);
       return data?.files || [];
     } catch (error) {
-      console.error("获取子文档列表失败:", error);
+      log.error("获取子文档列表失败:", error);
       return [];
     }
   }
@@ -257,7 +259,7 @@ class MobileNavigation {
       const siblings = await this.listChildDocs({ path: parentPath, box });
       return siblings;
     } catch (error) {
-      console.error("获取兄弟文档列表失败:", error);
+      log.error("获取兄弟文档列表失败:", error);
       return [];
     }
   }
@@ -277,7 +279,7 @@ class MobileNavigation {
         return await getBlockByID(id);
       }
     } catch (error) {
-      console.error("获取父文档失败:", error);
+      log.error("获取父文档失败:", error);
       return null;
     }
   }

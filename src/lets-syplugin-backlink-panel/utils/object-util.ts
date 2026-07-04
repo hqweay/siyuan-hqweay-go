@@ -1,3 +1,5 @@
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 export function getObjectSizeInKB(obj: any): number {
     try {
         // 将 JSON 对象转换为字符串
@@ -10,7 +12,7 @@ export function getObjectSizeInKB(obj: any): number {
         const kilobytes = bytes / 1024;
         return kilobytes;
     } catch (err) {
-        console.log("计算对象大小报错")
+        log.info("计算对象大小报错")
     }
     return 0;
 }

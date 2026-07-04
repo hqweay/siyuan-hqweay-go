@@ -8,6 +8,8 @@
 
 import { fetchSyncPost, IWebSocketData } from "siyuan";
 import { isBoolean } from "./object-util";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 
 
@@ -15,7 +17,7 @@ async function request(url: string, data: any) {
     let response: IWebSocketData = await fetchSyncPost(url, data);
     let res = response.code === 0 ? response.data : null;
     if (response.code != 0) {
-        console.log(`反链面板插件接口异常 url : ${url} , msg : ${response.msg}`)
+        log.info(`反链面板插件接口异常 url : ${url} , msg : ${response.msg}`)
     }
     return res;
 }
@@ -283,7 +285,7 @@ export async function getBlockIsFolded(id: string): Promise<boolean> {
     } else {
         result = response.isFolded;
     }
-    // console.log(`getBlockIsFolded response : ${JSON.stringify(response)}, result : ${result} `)
+    // log.info(`getBlockIsFolded response : ${JSON.stringify(response)}, result : ${result} `)
     return result;
 };
 
@@ -315,7 +317,7 @@ export async function getBatchBlockIdIndex(ids: string[]): Promise<Map<BlockId, 
         }
     } catch (err) {
         getSuccess = false;
-        console.error("批量获取块索引报错，可能是旧版本不支持批量接口 : ", err)
+        log.error("批量获取块索引报错，可能是旧版本不支持批量接口 : ", err)
     }
 
     if (!getSuccess) {
@@ -324,7 +326,7 @@ export async function getBatchBlockIdIndex(ids: string[]): Promise<Map<BlockId, 
             try {
                 index = await getBlockIndex(id);
             } catch (err) {
-                console.error("获取块索引报错 : ", err)
+                log.error("获取块索引报错 : ", err)
             }
             idMap.set(id, index)
         }

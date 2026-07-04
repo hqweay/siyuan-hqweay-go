@@ -1,3 +1,5 @@
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-ocr");
 /**
  * 调用 macOS Vision OCR
  * @param imagePath 本地图片绝对路径
@@ -30,7 +32,7 @@ export function macOCRByAppleScript(imagePath: string): Promise<string> {
           reject(err);
         } else {
           let text = stdout.toString("utf8").trim();
-          console.log(text); // 打印真实文本
+          log.info(text); // 打印真实文本
           resolve(text);
         }
       }
@@ -45,8 +47,8 @@ export function macOCRBySwift(imagePath: string): Promise<string> {
     exec(cmd, { encoding: "buffer" }, (err, stdout) => {
       if (err) reject(err);
       else {
-        console.log(stdout.toString("utf8").trim());
-        console.log(stdout);
+        log.info(stdout.toString("utf8").trim());
+        log.info(stdout);
         resolve(stdout.toString("utf8").trim());
       }
     });
@@ -66,7 +68,7 @@ export async function tesseractOCR(imagePath: string): Promise<string> {
           reject(err);
         } else {
           let text = stdout.toString("utf8").trim();
-          console.log(text); // 打印真实文本
+          log.info(text); // 打印真实文本
           resolve(text);
         }
       }
@@ -79,8 +81,8 @@ async function testOCR() {
   const imgPath = "/Users/yourname/Desktop/test.png"; // 替换为图片路径
   try {
     const text = await macOCRBySwift(imgPath);
-    console.log("OCR结果：", text);
+    log.info("OCR结果：", text);
   } catch (e) {
-    console.error("OCR失败：", e);
+    log.error("OCR失败：", e);
   }
 }

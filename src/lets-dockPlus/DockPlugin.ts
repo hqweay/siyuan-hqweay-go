@@ -1,5 +1,7 @@
 import { openByUrl } from "@/myscripts/syUtils";
 import { SubPlugin } from "@/types/plugin";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dockPlus");
 
 export default class DockPlugin implements SubPlugin {
   location = "dockLeft-top";
@@ -36,7 +38,7 @@ export default class DockPlugin implements SubPlugin {
     const [x, y] = this.location.split("-");
 
     const dockEles = document.getElementById(`${x}`);
-    console.log("dockEles", dockEles);
+    log.info("dockEles", dockEles);
     if (!dockEles) {
       return;
     }

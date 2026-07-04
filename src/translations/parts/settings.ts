@@ -11,7 +11,9 @@ export const en = {
   "settings.mergeSuccess": "Configuration merged to latest version successfully.",
   "settings.restartWarning": "Some changes require a plugin restart to take effect.",
   "settings.reloadNow": "Reload Now",
-  "settings.selectCategory": "Select Setting Category"
+  "settings.selectCategory": "Select Setting Category",
+  "settings.debugLogging": "Debug Logging",
+  "settings.debugLoggingDesc": "Enable verbose console output for debugging. Keep disabled in normal use.",
 };
 
 export const zhCN: typeof en = {
@@ -26,5 +28,7 @@ export const zhCN: typeof en = {
   "settings.mergeSuccess": "合并配置为最新配置",
   "settings.restartWarning": "部分功能设置后需重启插件生效.",
   "settings.reloadNow": "现在重载",
-  "settings.selectCategory": "选择设置分类"
+  "settings.selectCategory": "选择设置分类",
+  "settings.debugLogging": "调试日志",
+  "settings.debugLoggingDesc": "开启后在控制台输出详细日志，日常使用请保持关闭。",
 };

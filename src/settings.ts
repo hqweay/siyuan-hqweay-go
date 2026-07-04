@@ -2,6 +2,8 @@ import { fetchSyncPost } from "siyuan";
 import { deepMerge, plugin } from "./utils";
 import { scale } from "svelte/transition";
 import { PluginRegistry } from "./plugin-registry";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("settings");
 // import { template } from "@siyuan-community/siyuan-sdk/dist/types/kernel/api";
 
 //配置文件名称
@@ -14,7 +16,7 @@ function generateDefaultConfig(pluginRegistry: PluginRegistry) {
   // 从插件注册表获取所有插件配置
   const pluginConfigs = pluginRegistry.getPluginConfigs();
 
-  console.log("pluginConfigs", pluginConfigs);
+  log.info("pluginConfigs", pluginConfigs);
 
   // 为每个插件添加默认配置
   for (const pluginMeta of pluginConfigs) {
@@ -31,7 +33,7 @@ function generateDefaultConfig(pluginRegistry: PluginRegistry) {
       // config[configKey] = { ...pluginMeta.defaultConfig };
     }
   }
-  console.log("config", config);
+  log.info("config", config);
   return config;
 }
 
@@ -60,11 +62,11 @@ class Settings {
 
     //插件加载时 merge
     if (!mergedFlag) {
-      //console.log("mergeData", plugin.data[CONFIG]);
+      //log.info("mergeData", plugin.data[CONFIG]);
       await this.mergeData();
       mergedFlag = true;
     } else {
-      // //console.log("loadData", plugin.data[CONFIG]);
+      // //log.info("loadData", plugin.data[CONFIG]);
       await this.load();
     }
   }

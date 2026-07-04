@@ -5,6 +5,8 @@ import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { getCreateBlocksParentIdIdxSql } from "../backlink/backlink-sql";
 import { setReplacer } from "@/lets-syplugin-backlink-panel/utils/json-util";
 import { mergeObjects } from "@/lets-syplugin-backlink-panel/utils/object-util";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 const SettingFileName = 'backlink-panel-setting.json';
 
@@ -28,7 +30,7 @@ export class SettingService {
     public async init() {
         let persistentConfig = await getPersistentConfig();
         this._settingConfig = mergeObjects(persistentConfig, getDefaultSettingConfig());
-        // console.log("init this._settingConfig ", this._settingConfig)
+        // log.info("init this._settingConfig ", this._settingConfig)
 
         if (this._settingConfig.usePraentIdIdx) {
             this.createBlocksParentIdIdx();
@@ -43,7 +45,7 @@ export class SettingService {
     //         return this.settingConfig;
     //     }
     //     let defaultSettingConfig = getDefaultSettingConfig();
-    //     console.error(`反链面板 异常，返回默认设置: `, defaultSettingConfig);
+    //     log.error(`反链面板 异常，返回默认设置: `, defaultSettingConfig);
     //     return defaultSettingConfig;
     // }
 
@@ -59,7 +61,7 @@ export class SettingService {
         if (!plugin) {
             return;
         }
-        console.log(`反链面板 更新设置配置文件: ${paramJson}`);
+        log.info(`反链面板 更新设置配置文件: ${paramJson}`);
         plugin.saveData(SettingFileName, paramJson);
     }
 
@@ -77,7 +79,7 @@ export class SettingService {
         if (paramJson == curSettingConfigJson) {
             return;
         }
-        console.log(`反链面板 更新设置配置文件: ${paramJson}`);
+        log.info(`反链面板 更新设置配置文件: ${paramJson}`);
         this._settingConfig = { ...settingConfigParam };
         plugin.saveData(SettingFileName, paramJson);
     }
@@ -112,7 +114,7 @@ async function getPersistentConfig(): Promise<SettingConfig> {
                 setKeyValue(settingConfig, key, loaded[key]);
             }
         } catch (error_msg) {
-            console.log(`Setting load error: ${error_msg}`);
+            log.info(`Setting load error: ${error_msg}`);
         }
     }
     return settingConfig;
@@ -120,7 +122,7 @@ async function getPersistentConfig(): Promise<SettingConfig> {
 
 function setKeyValue(settingConfig, key: any, value: any) {
     if (!(key in settingConfig)) {
-        console.error(`"${key}" is not a setting`);
+        log.error(`"${key}" is not a setting`);
         return;
     }
     settingConfig[key] = value;

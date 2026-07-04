@@ -9,6 +9,8 @@ import {
 import type { Annotation, HighlightColor, BookBinding } from "./types";
 import { HIGHLIGHT_COLORS } from "./types";
 import { settings } from "@/settings";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-epub-reader");
 
 const EPUB_BINDING_ATTR = "custom-bind-epub";
 
@@ -72,7 +74,7 @@ export function parseLocationString(locationStr: string): {
 
     return { epubPath, cfiRange, blockId, bgColor };
   } catch (e) {
-    console.error("Failed to parse location string:", e);
+    log.error("Failed to parse location string:", e);
     return null;
   }
 }
@@ -142,7 +144,7 @@ export async function insertAnnotation(
     }
     return null;
   } catch (e) {
-    console.error("Failed to insert annotation:", e);
+    log.error("Failed to insert annotation:", e);
     return null;
   }
 }
@@ -155,7 +157,7 @@ export async function removeAnnotation(blockId: string): Promise<boolean> {
     await deleteBlock(blockId);
     return true;
   } catch (e) {
-    console.error("Failed to remove annotation:", e);
+    log.error("Failed to remove annotation:", e);
     return false;
   }
 }
@@ -175,7 +177,7 @@ export async function getBoundDocId(epubPath: string): Promise<string | null> {
     }
     return null;
   } catch (e) {
-    console.error("Failed to get bound doc:", e);
+    log.error("Failed to get bound doc:", e);
     return null;
   }
 }
@@ -193,7 +195,7 @@ export async function bindDocToEpub(
     });
     return true;
   } catch (e) {
-    console.error("Failed to bind doc to epub:", e);
+    log.error("Failed to bind doc to epub:", e);
     return false;
   }
 }
@@ -206,7 +208,7 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
     const attrs = await getBlockAttrs(docId);
     return attrs?.[EPUB_BINDING_ATTR] || null;
   } catch (e) {
-    console.error("Failed to get epub binding:", e);
+    log.error("Failed to get epub binding:", e);
     return null;
   }
 }
@@ -235,7 +237,7 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
 
 //     return annotations;
 //   } catch (e) {
-//     console.error("Failed to query annotations:", e);
+//     log.error("Failed to query annotations:", e);
 //     return [];
 //   }
 // }
@@ -249,27 +251,27 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
 // ): Annotation | null {
 //   try {
 //     const content = block.content || "";
-//     console.log("Parsing annotation content:", content);
+//     log.info("Parsing annotation content:", content);
 
 //     // Extract link from the content
 //     const linkMatch = content.match(/\[◎\]\(([^)]+)\)/);
 //     if (!linkMatch) {
-//       console.warn("No link found in content:", content);
+//       log.warn("No link found in content:", content);
 //       return null;
 //     }
 
 //     const link = linkMatch[1];
-//     console.log("Extracted link:", link);
+//     log.info("Extracted link:", link);
 
 //     // Parse location string to get CFI, blockId and bgColor
 //     const parsedLocation = parseLocationString(link);
 //     if (!parsedLocation) {
-//       console.warn("Failed to parse location string:", link);
+//       log.warn("Failed to parse location string:", link);
 //       return null;
 //     }
 
 //     const { cfiRange, blockId, bgColor } = parsedLocation;
-//     console.log(
+//     log.info(
 //       "Extracted CFI:",
 //       cfiRange,
 //       "blockId:",
@@ -280,11 +282,11 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
 
 //     // Extract text - everything before the link
 //     const text = content.split("[◎]")[0].replace(/^-\s*/, "").trim();
-//     console.log("Extracted text:", text);
+//     log.info("Extracted text:", text);
 
 //     // Get color from bgColor or default
 //     const color = bgColor ? getColorByBgColor(bgColor) : HIGHLIGHT_COLORS[0];
-//     console.log("Matched color:", color);
+//     log.info("Matched color:", color);
 
 //     return {
 //       id: blockId || block.id,
@@ -299,7 +301,7 @@ export async function getEpubBinding(docId: string): Promise<string | null> {
 //       updatedAt: new Date(block.updated).getTime(),
 //     };
 //   } catch (e) {
-//     console.error("Failed to parse annotation from block:", e);
+//     log.error("Failed to parse annotation from block:", e);
 //     return null;
 //   }
 // }
@@ -331,7 +333,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
       document.body.removeChild(textarea);
       return true;
     } catch (e2) {
-      console.error("Failed to copy to clipboard:", e2);
+      log.error("Failed to copy to clipboard:", e2);
       return false;
     }
   }
@@ -364,7 +366,7 @@ export async function updateAnnotationColor(
     }
     return false;
   } catch (e) {
-    console.error("Failed to update annotation color:", e);
+    log.error("Failed to update annotation color:", e);
     return false;
   }
 }
@@ -376,7 +378,7 @@ function updateMarkdownColor(
   markdown: string,
   newColor: HighlightColor
 ): string {
-  console.log("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
+  log.info("🔄 [颜色更改] 更新 Markdown 颜色:", { markdown, newColor });
   const annotationRegex =
     /\[(.*?)\]\((assets\/.*\.epub)#(epubcfi\(.*\))#(ann-.*)#(.*?)\)/;
 
@@ -400,7 +402,7 @@ async function updateBlockContent(
     // Use API to update block content
     await updateBlock("markdown", markdown, blockId);
   } catch (e) {
-    console.error("Failed to update block content:", e);
+    log.error("Failed to update block content:", e);
     throw e;
   }
 }
@@ -428,10 +430,10 @@ export async function saveReadingProgress(
       "custom-epub-reading-progress": JSON.stringify(progressData),
     });
     
-    console.log("📚 [阅读进度] 已保存到文档属性:", progressData);
+    log.info("📚 [阅读进度] 已保存到文档属性:", progressData);
     return true;
   } catch (e) {
-    console.error("Failed to save reading progress:", e);
+    log.error("Failed to save reading progress:", e);
     return false;
   }
 }
@@ -454,13 +456,13 @@ export async function getReadingProgress(
     
     if (progressData) {
       const parsed = JSON.parse(progressData);
-      console.log("📚 [阅读进度] 从文档属性读取:", parsed);
+      log.info("📚 [阅读进度] 从文档属性读取:", parsed);
       return parsed;
     }
     
     return null;
   } catch (e) {
-    console.error("Failed to get reading progress:", e);
+    log.error("Failed to get reading progress:", e);
     return null;
   }
 }
@@ -473,10 +475,10 @@ export async function clearReadingProgress(docId: string): Promise<boolean> {
     await setBlockAttrs(docId, {
       "custom-epub-reading-progress": "",
     });
-    console.log("📚 [阅读进度] 已清除");
+    log.info("📚 [阅读进度] 已清除");
     return true;
   } catch (e) {
-    console.error("Failed to clear reading progress:", e);
+    log.error("Failed to clear reading progress:", e);
     return false;
   }
 }

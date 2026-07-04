@@ -2,6 +2,8 @@ import { forwardProxy } from "../api";
 import getElectronPageTitle from "./electron-scraper";
 import { DEFAULT_SETTINGS } from "./linkSettings";
 import { fetchGet, IWebSocketData } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-do-on-paste");
 function blank(text: string): boolean {
   return text === undefined || text === null || text === "";
 }
@@ -98,7 +100,7 @@ export default class AutoLinkTitleUtil {
 
       return title.innerText.replace(/(\r\n|\n|\r)/gm, "").trim();
     } catch (ex) {
-      console.error(ex);
+      log.error(ex);
       return "";
     }
   }

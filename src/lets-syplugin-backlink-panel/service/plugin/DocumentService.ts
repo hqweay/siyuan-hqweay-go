@@ -17,6 +17,8 @@ import { NewNodeID } from "@/lets-syplugin-backlink-panel/utils/siyuan-util";
 import { Menu } from "siyuan";
 import { generateGetDefBlockArraySql } from "../backlink/backlink-sql";
 import { isMobile } from "@/utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 let backlinkPanelPageSvelteMap: Map<string, any> = new Map();
 let documentProtyleElementMap: Map<string, HTMLElement> = new Map();
@@ -29,12 +31,12 @@ export class DocumentService {
   public init() {
     // 加载时不需要处理了吧？有点bug，先注释掉
     EnvConfig.ins.plugin.eventBus.on("loaded-protyle-static", (e: any) => {
-        // console.log("loaded-protyle-static e : ", e)
+        // log.info("loaded-protyle-static e : ", e)
         handleSwitchProtyleOrLoadedProtyleStatic(e);
     });
 
     EnvConfig.ins.plugin.eventBus.on("switch-protyle", (e: any) => {
-      // console.log("switch-protyle e : ", e)
+      // log.info("switch-protyle e : ", e)
       handleSwitchProtyleOrLoadedProtyleStatic(e);
     });
 
@@ -50,7 +52,7 @@ export class DocumentService {
     //     langText: "始终显示底部反链面板",
     //     hotkey: "⌥⇧⌘A",
     //     editorCallback: (protyle: any) => {
-    //         console.log(protyle, "editorCallback");
+    //         log.info(protyle, "editorCallback");
     //     },
     // });
 
@@ -216,7 +218,7 @@ async function addBacklinkPanelToBottom(
     backlinkPanelBottomElement.classList.add("document-panel-plugin-mobile");
   }
 
-  // console.log("handleDestroyProtyle setAttribute rootId ", rootId)
+  // log.info("handleDestroyProtyle setAttribute rootId ", rootId)
   docuemntContentElement.appendChild(backlinkPanelBottomElement);
   let panelId = NewNodeID();
   backlinkPanelBottomElement.setAttribute("data-root-id", rootId);
@@ -397,7 +399,7 @@ function intervalSetNodePaddingBottom() {
       ) {
         let paddingWidthPx = paddingWidthSize + "px";
         if (paddingWidthSize == undefined || paddingWidthSize == null) {
-          // console.log("intervalSetNodePaddingBottom")
+          // log.info("intervalSetNodePaddingBottom")
           paddingWidthPx = protyleElement.style.paddingLeft;
         }
         panelElement.style.paddingLeft = paddingWidthPx;

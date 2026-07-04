@@ -4,6 +4,8 @@ import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import BacklinkPanelDockSvelte from "@/lets-syplugin-backlink-panel/components/dock/backlink-filter-panel-dock.svelte";
 import { SettingService } from "@/lets-syplugin-backlink-panel/service/setting/SettingService";
 import { clearProtyleGutters } from "@/lets-syplugin-backlink-panel/utils/html-util";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 const BACKLINK_PANEL_DOCK_TYPE = "backlink-panel-dock";
 export class DockService {
@@ -23,7 +25,7 @@ export class DockService {
 
 function addBacklinkPanelDock() {
     if (!EnvConfig.ins || !EnvConfig.ins.plugin) {
-        console.log("添加反链面板 dock 失败。")
+        log.info("添加反链面板 dock 失败。")
         return;
     }
     let dockDisplay = SettingService.ins.SettingConfig.dockDisplay;

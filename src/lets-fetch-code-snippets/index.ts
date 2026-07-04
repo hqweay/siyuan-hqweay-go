@@ -4,6 +4,8 @@ import { getFileContent } from "@/utils";
 import { fetchSyncPost } from "siyuan";
 import pluginMetadata from "./plugin";
 import { settings } from "@/settings";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-fetch-code-snippets");
 export default class FetchCodeSnippets extends SubPluginBase {
   codeSnippets = [];
   override onunload() {
@@ -22,7 +24,7 @@ export default class FetchCodeSnippets extends SubPluginBase {
   override async onload() {
     //这里注入CSS和JS - 需要保留代码片段功能
 
-    console.log("FetchCodeSnippets onload");
+    log.info("FetchCodeSnippets onload");
     await this.getCodeSnippets();
     let codeSettings = this.codeSnippets.map((ele) => {
       return {
@@ -48,7 +50,7 @@ export default class FetchCodeSnippets extends SubPluginBase {
 
   //App 准备好时加载
   override async onLayoutReady() {
-    console.log("FetchCodeSnippets onLayoutReady");
+    log.info("FetchCodeSnippets onLayoutReady");
     // TODO: Handle code snippets injection
 
     this.codeSnippets.forEach((ele) => {
@@ -111,7 +113,7 @@ export default class FetchCodeSnippets extends SubPluginBase {
         }
       })
       .catch((error) => {
-        console.error(error);
+        log.error(error);
       });
   }
   // async insertSingleCSSByKey(key) {
@@ -135,7 +137,7 @@ export default class FetchCodeSnippets extends SubPluginBase {
       return ele.id === id;
     });
 
-    console.log(cssConfig);
+    log.info(cssConfig);
 
     let styleElement = document.createElement("style");
     styleElement.id = `snippetCSS-hqweay-${cssConfig.id}`;
@@ -145,8 +147,8 @@ export default class FetchCodeSnippets extends SubPluginBase {
   }
 
   async onunloadCSSByID(id) {
-    console.log("onunload");
-    console.log(id);
+    log.info("onunload");
+    log.info(id);
     const styleElement = document.getElementById(`snippetCSS-hqweay-${id}`);
 
     if (styleElement) {

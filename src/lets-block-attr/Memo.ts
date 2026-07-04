@@ -1,11 +1,13 @@
 import InsertCSS from "@/myscripts/insertCSS";
 import { settings } from "@/settings";
 import pluginMetadata from "./plugin";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-block-attr");
 export default class Memo extends InsertCSS {
   id = "snippetCSS-hqweay-memo";
 
   onload() {
-    console.log("memo onload");
+    log.info("memo onload");
     const memoIds = settings.getBySpace(pluginMetadata.name, "memoIds");
 
     const ids = memoIds.trim().split("\n");

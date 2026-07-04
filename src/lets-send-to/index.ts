@@ -4,6 +4,8 @@ import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import CardView from "./pages/card.svelte";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-send-to");
 export default class SendToPlugin extends SubPluginBase {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
@@ -69,7 +71,7 @@ export default class SendToPlugin extends SubPluginBase {
     if (settings.getBySpace("sendTo", "isToClipboard") && navigator.clipboard) {
       navigator.clipboard.writeText(resultText).then(
         function () {
-          console.log("文本已成功复制到剪贴板");
+          log.info("文本已成功复制到剪贴板");
         },
         function (err) {
           // 创建一个临时输入元素
@@ -89,7 +91,7 @@ export default class SendToPlugin extends SubPluginBase {
         }
       );
     } else {
-      console.warn("浏览器不支持 Clipboard API");
+      log.warn("浏览器不支持 Clipboard API");
     }
   }
 
@@ -155,7 +157,7 @@ export default class SendToPlugin extends SubPluginBase {
     var cardPanel = dialog.element.querySelector("#cardPanel") as HTMLElement;
     if (cardPanel) {
       cardPanel.style.margin = "0 auto";
-      // console.log(resultText);
+      // log.info(resultText);
       // TODO: Implement CardView component
       let pannel = new CardView({
         props: {

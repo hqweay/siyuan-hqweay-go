@@ -3,6 +3,8 @@ import { removeStyleDom, updateStyleDom } from "@frostime/siyuan-plugin-kits";
 import { Protyle } from "siyuan";
 import { plugin } from "@/utils";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-docky");
 
 class DockyPlugin extends SubPluginBase {
   override onload() {
@@ -24,14 +26,14 @@ class DockyPlugin extends SubPluginBase {
       return;
     }
     const lines = rules.split("\n");
-    console.log(lines);
+    log.info(lines);
     lines.forEach((line: string) => {
       line = line.trim();
       let block = this.parseProtyle(line);
       if (block) {
         this.addToDock(block);
       } else {
-        console.warn(`Not a valid protyle rule: ${line}`);
+        log.warn(`Not a valid protyle rule: ${line}`);
       }
     });
 
@@ -82,7 +84,7 @@ class DockyPlugin extends SubPluginBase {
     protyleContainer.dataset.nodeId = id;
     protyleContainer.style.height = "100%";
     protyleContainer.style.width = "100%";
-    //console.log("initDockPanel", id, ele);
+    //log.info("initDockPanel", id, ele);
     new Protyle(plugin.app, protyleContainer, {
       blockId: id,
       action: ["cb-get-all"],
@@ -103,7 +105,7 @@ class DockyPlugin extends SubPluginBase {
   }
 
   private addToDock(dock: any) {
-    // console.log("addToDock", dock);
+    // log.info("addToDock", dock);
     // document
     //   .querySelector(`[data-type="siyuan-hqweay-go_docky_${dock.id}"]`)
     //   ?.remove();
@@ -121,8 +123,8 @@ class DockyPlugin extends SubPluginBase {
       },
       data: {},
       init: (dockEle) => {
-        // console.log("init", dockEle);
-        // console.log("init", dock);
+        // log.info("init", dockEle);
+        // log.info("init", dock);
         // initDockPanel will be called with the correct element
 
         this.initDockPanel(dock, (dockEle as any).element);

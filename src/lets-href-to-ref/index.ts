@@ -1,6 +1,8 @@
 import { settings } from "@/settings";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { IOperation } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-href-to-ref");
 
 export default class HrefToRef extends SubPluginBase {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
@@ -32,7 +34,7 @@ export default class HrefToRef extends SubPluginBase {
         // 只获取笔记内部的引用
         .querySelectorAll('[data-type="block-ref"]')
         .forEach((ele) => {
-          // console.log(ele);
+          // log.info(ele);
           if (exec(ele)) {
             ele.remove();
             count++;
@@ -92,7 +94,7 @@ export default class HrefToRef extends SubPluginBase {
             // 只获取笔记内部的引用
             .querySelectorAll('[data-type="block-ref"]')
             .forEach((ele) => {
-              // console.log(ele);
+              // log.info(ele);
               if (ele.getAttribute("data-id") === docID) {
                 // 往父级遍历，找到第一个 data-type="NodeList" 的元素
                 let parentElement = ele.parentElement;
@@ -184,8 +186,8 @@ export default class HrefToRef extends SubPluginBase {
               iconHTML: "",
               label: this.t("lets-href-to-ref.wikiToLink"),
               click: () => {
-                // console.log(menuItem);
-                // console.log(this);
+                // log.info(menuItem);
+                // log.info(this);
                 const doOperations: IOperation[] = [];
                 const editElements =
                   detail.protyle.wysiwyg.element.querySelectorAll(
@@ -517,7 +519,7 @@ export default class HrefToRef extends SubPluginBase {
                   // 只获取笔记内部的引用
                   .querySelectorAll('[data-type="block-ref"]')
                   .forEach((ele) => {
-                    // console.log(ele);
+                    // log.info(ele);
                     if (ele.getAttribute("data-id") === docID) {
                       let parentElement = ele.parentElement;
                       ele.remove();
@@ -604,7 +606,7 @@ export default class HrefToRef extends SubPluginBase {
                   // 只获取笔记内部的引用
                   .querySelectorAll('[data-type="block-ref"]')
                   .forEach((ele) => {
-                    // console.log(ele);
+                    // log.info(ele);
                     if (ele.textContent == "*") {
                       ele.remove();
                     }

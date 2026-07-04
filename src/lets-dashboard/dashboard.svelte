@@ -1,4 +1,6 @@
 <script lang="ts">
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-dashboard");
   import { sql } from "@/api";
   import { settings } from "@/settings";
   import { isMobile, plugin } from "@/utils";
@@ -269,7 +271,7 @@ order by attributes.value desc`,
       ) {
         return selectedConfig;
       } else {
-        console.warn(
+        log.warn(
           `Invalid numeric index ${selectedConfig}, using default 0`
         );
         return 0;
@@ -282,7 +284,7 @@ order by attributes.value desc`,
         if (foundIndex !== -1) {
           return foundIndex;
         } else {
-          console.warn(
+          log.warn(
             `Config with name "${selectedConfig}" not found, using default 0`
           );
           return 0;
@@ -307,7 +309,7 @@ order by attributes.value desc`,
       }
       return sqlConfigs[internalSelectedConfig];
     } catch (error) {
-      console.error("Error setting currentConfig:", error);
+      log.error("Error setting currentConfig:", error);
       return null;
     }
   })();
@@ -522,7 +524,7 @@ order by attributes.value desc`,
       diaryHasImageEntriesCount = countImg[0]?.count || 0;
       await updateSpecialDaysCounts();
     } catch (error) {
-      console.error("Error loading diary entries:", error);
+      log.error("Error loading diary entries:", error);
     }
   }
 
@@ -557,7 +559,7 @@ order by attributes.value desc`,
       thisMonthInHistoryCount = thisMonthCountRes[0]?.count || 0;
       thisWeekInHistoryCount = thisWeekCountRes[0]?.count || 0;
     } catch (error) {
-      console.error("Error updating special days counts:", error);
+      log.error("Error updating special days counts:", error);
     }
   }
 

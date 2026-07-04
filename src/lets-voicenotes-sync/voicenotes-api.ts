@@ -1,5 +1,7 @@
 import { showMessage } from "siyuan";
 import { User, VoiceNoteRecordings, VoiceNoteSignedUrl } from "./types";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-voicenotes-sync");
 
 const VOICENOTES_API_URL = "https://api.voicenotes.com/api";
 
@@ -115,7 +117,7 @@ export default class VoiceNotesApi {
   }): Promise<string> {
     if (options.username && options.password) {
       const loginUrl = `${VOICENOTES_API_URL}/auth/login`;
-      console.log(`loginUrl: ${loginUrl}`);
+      log.info(`loginUrl: ${loginUrl}`);
 
       const response = await this.request({
         url: loginUrl,
@@ -175,7 +177,7 @@ export default class VoiceNotesApi {
   }
 
   async getRecordingsFromLink(link: string): Promise<VoiceNoteRecordings> {
-    console.log(link);
+    log.info(link);
     if (this.token) {
       const data = await this.request({
         url: link.replace("http:", "https:"),
@@ -219,7 +221,7 @@ export default class VoiceNotesApi {
         });
         return data.json;
       } catch (error) {
-        console.error(error);
+        log.error(error);
       }
     }
     return null;
@@ -227,7 +229,7 @@ export default class VoiceNotesApi {
 
   // 请求函数
   async request({ url, data = null, method = "GET", headers = {} }) {
-    console.log("发送请求:", url);
+    log.info("发送请求:", url);
     try {
       const response = await fetch(url, {
         method,
@@ -247,7 +249,7 @@ export default class VoiceNotesApi {
         response,
       };
     } catch (error) {
-      console.error("请求失败:", error);
+      log.error("请求失败:", error);
       showMessage(`请求失败: ${error}`);
       throw error;
     }

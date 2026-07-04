@@ -6,6 +6,8 @@ import Instance from "@/lets-syplugin-backlink-panel/utils/Instance";
 import { SettingService } from "./SettingService";
 import { setReplacer, setReviver } from "@/lets-syplugin-backlink-panel/utils/json-util";
 import { mergeObjects } from "@/lets-syplugin-backlink-panel/utils/object-util";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-syplugin-backlink-panel");
 
 const BACKLINK_FILTER_PANEL_LAST_CRITERIA_ATTRIBUTE_KEY = "custom-backlink-filter-panel-last-criteria";
 const BACKLINK_FILTER_PANEL_SAVED_CRITERIA_ATTRIBUTE_KEY = "custom-backlink-filter-panel-saved-criteria";
@@ -53,7 +55,7 @@ export class BacklinkFilterPanelAttributeService {
         documentPanelCriteria.queryParams = queryParams;
 
 
-        // console.log("getBacklinkPanelFilterCriteria queryParams", queryParams)
+        // log.info("getBacklinkPanelFilterCriteria queryParams", queryParams)
         return documentPanelCriteria;
     }
 
@@ -91,7 +93,7 @@ export class BacklinkFilterPanelAttributeService {
         }
 
         let attrsMap = await getBlockAttrs(rootId);
-        // console.log("getPanelSavedCriteriaMap attrsMap : ", attrsMap)
+        // log.info("getPanelSavedCriteriaMap attrsMap : ", attrsMap)
         if (attrsMap && Object.keys(attrsMap).includes(BACKLINK_FILTER_PANEL_SAVED_CRITERIA_ATTRIBUTE_KEY)) {
             let json = attrsMap[BACKLINK_FILTER_PANEL_SAVED_CRITERIA_ATTRIBUTE_KEY];
             let parseObject = JSON.parse(json, setReviver);

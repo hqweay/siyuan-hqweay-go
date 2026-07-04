@@ -7,6 +7,8 @@ import { settings } from "./settings";
 import { isMobile, setPlugin } from "./utils";
 import { registerPlugin } from "@frostime/siyuan-plugin-kits";
 import { PluginRegistry } from "./plugin-registry";
+import { enableLogging, getLogger } from "./libs/logger";
+const log = getLogger("index");
 
 export default class PluginLetsGo extends Plugin {
   private pluginRegistry = PluginRegistry.getInstance();
@@ -32,7 +34,7 @@ export default class PluginLetsGo extends Plugin {
         try {
           plugin[eventName](eventData);
         } catch (error) {
-          console.error(
+          log.error(
             `Error in ${eventName} for plugin ${plugin.name}:`,
             error,
           );
@@ -70,9 +72,9 @@ export default class PluginLetsGo extends Plugin {
 
   //App 准备好时加载
   public async onLayoutReady() {
-    console.log("onLayoutReady");
+    log.info("onLayoutReady");
     const plugins = this.pluginRegistry.getAllPlugins();
-    console.log("plugins", plugins);
+    log.info("plugins", plugins);
     // 默认添加 topBar，方便实时加载
     let needAddTopBar = false;
     for (const plugin of plugins) {
@@ -101,7 +103,7 @@ export default class PluginLetsGo extends Plugin {
                 .querySelector("#barPlugins")
                 .getBoundingClientRect();
             }
-            //console.log("rect", rect);
+            //log.info("rect", rect);
             this.addMenu(rect);
           }
         },
@@ -109,16 +111,16 @@ export default class PluginLetsGo extends Plugin {
     }
 
     // Call onLayoutReady for enabled plugins
-    // //console.log("onLayoutReady");
+    // //log.info("onLayoutReady");
 
-    // //console.log("onLayoutReady", plugins);
+    // //log.info("onLayoutReady", plugins);
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.onLayoutReady) {
-        // //console.log("onLayoutReady", plugin.name);
+        // //log.info("onLayoutReady", plugin.name);
         try {
           await plugin.onLayoutReady();
         } catch (error) {
-          console.error(
+          log.error(
             `Failed to call onLayoutReady for plugin ${plugin.name}:`,
             error,
           );
@@ -140,7 +142,7 @@ export default class PluginLetsGo extends Plugin {
         try {
           plugin.addMenuItem(menu);
         } catch (error) {
-          console.error(
+          log.error(
             `Failed to call onLayoutReady for plugin ${plugin.name}:`,
             error,
           );
@@ -185,14 +187,16 @@ export default class PluginLetsGo extends Plugin {
 
   //App 启动时加载
   public async onload() {
-    console.log("PluginLetsGo onload");
+    log.info("PluginLetsGo onload");
     this.init();
 
-    //console.log("onload");
+    //log.info("onload");
     //载入配置
     await settings.load();
+    // 恢复上次 debugLogging 状态
+    enableLogging(settings.get("debugLogging") || false);
 
-    //console.log("initData", plugin.data);
+    //log.info("initData", plugin.data);
 
     // Scan and load all plugins
     await this.pluginRegistry.scanPlugins();
@@ -267,7 +271,7 @@ export default class PluginLetsGo extends Plugin {
   }
 
   async onDataChanged() {
-    //console.log("onDataChanged");
+    //log.info("onDataChanged");
 
     // Handle plugin enable/disable changes
     await this.pluginRegistry.initializeEnabledPlugins();
@@ -280,7 +284,7 @@ export default class PluginLetsGo extends Plugin {
         try {
           await plugin.onDataChanged();
         } catch (error) {
-          console.error(
+          log.error(
             `Error in onDataChanged for plugin ${plugin.name}:`,
             error,
           );
@@ -299,7 +303,7 @@ export default class PluginLetsGo extends Plugin {
           await plugin.onunload();
         }
       } catch (error) {
-        console.error(`Error in onunload for plugin ${plugin.name}:`, error);
+        log.error(`Error in onunload for plugin ${plugin.name}:`, error);
       }
     }
   }
@@ -319,7 +323,7 @@ export default class PluginLetsGo extends Plugin {
       content: `<div id="hqweay-setting-pannel" style="height: 600px;"></div>`,
       width: "800px",
       destroyCallback: (options) => {
-        //console.log("destroyCallback", options);
+        //log.info("destroyCallback", options);
         pannel.$destroy();
       },
     });
@@ -332,13 +336,13 @@ export default class PluginLetsGo extends Plugin {
   updateProtyleToolbar(toolbar: Array<string | any>) {
     const plugins = this.pluginRegistry?.getAllPlugins();
     if (!plugins) return toolbar;
-    // //console.log("updateProtyleToolbar", plugins);
+    // //log.info("updateProtyleToolbar", plugins);
     for (const plugin of plugins) {
       if (plugin.enabled && plugin.updateProtyleToolbar) {
         try {
           toolbar = plugin.updateProtyleToolbar(toolbar);
         } catch (error) {
-          console.error(
+          log.error(
             `Error in updateProtyleToolbar for plugin ${plugin.name}:`,
             error,
           );

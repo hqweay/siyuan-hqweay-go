@@ -9,6 +9,8 @@ import {
 } from "siyuan";
 import { goToRandomBlock } from "./randomDocCache";
 import { openByMobile } from "./utils";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("syUtils");
 /**
  * 获取笔记本的日记模板路径
  */
@@ -51,7 +53,7 @@ export async function getRenderedDailyNotePath(
 
     return renderedPath;
   } catch (error) {
-    console.error("获取日记路径失败:", error);
+    log.error("获取日记路径失败:", error);
     // 降级方案：返回默认渲染路径（使用指定日期）
     const defaultTemplate = `/daily note/{{ "${dateString}" | toDate "2006-01-02" | date "2006/01"}}/{{ "${dateString}" | toDate "2006-01-02" | date "2006-01-02"}}`;
     const defaultPath = await renderSprigTemplate(defaultTemplate);
@@ -151,7 +153,7 @@ export function openBlockByID(id: string) {
 
 export function openByUrl(url) {
   url = url.trim();
-  console.log("openByUrl:", url);
+  log.info("openByUrl:", url);
   if (!url) {
     showMessage("url为空");
     return;

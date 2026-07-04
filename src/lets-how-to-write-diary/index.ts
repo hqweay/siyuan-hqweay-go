@@ -6,6 +6,8 @@ import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
 import { showMessage } from "siyuan";
 import { quickNoteOnload } from "./quick-note/quickNote";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("lets-how-to-write-diary");
 
 const TAB_TYPE = "custom_tab";
 const DOCK_TYPE = "dock_tab";
@@ -58,7 +60,7 @@ export default class DiaryTools extends SubPluginBase {
 
   //获取天气并插入当前文档属性
   getTodayWeatherInfo(data) {
-    console.log(data);
+    log.info(data);
     const today = data.data.forecast[0]; //  forecast数组第一个就是当天的预报
     const baseInfo = data.data;
     return {
@@ -98,7 +100,7 @@ export default class DiaryTools extends SubPluginBase {
   addMenuItem(menu) {
     // 添加获取天气并插入当前文档属性选项
     if (settings.getBySpace("diaryTools", "topBar")) {
-      console.log("addMenuItem");
+      log.info("addMenuItem");
       menu.addItem({
         label: this.t("lets-how-to-write-diary.getWeatherMenu"),
         iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.label}" >${this.icon}</div>`,
@@ -110,7 +112,7 @@ export default class DiaryTools extends SubPluginBase {
             ?.getAttribute("data-node-id");
 
           if (!docID) {
-            console.warn("无法获取当前文档ID，操作取消");
+            log.warn("无法获取当前文档ID，操作取消");
             return;
           }
 

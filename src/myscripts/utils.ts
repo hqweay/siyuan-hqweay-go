@@ -1,4 +1,6 @@
 import { Dialog, showMessage } from "siyuan";
+import { getLogger } from "@/libs/logger";
+const log = getLogger("utils");
 
 export function cleanSpacesBetweenChineseCharacters(text) {
   return (
@@ -88,7 +90,7 @@ export async function executeTransaction(operationsForAPI) {
 
     return result;
   } catch (error) {
-    console.error("Transaction执行失败", {
+    log.error("Transaction执行失败", {
       error: error.message,
       operationsForAPI: operationsForAPI,
     });
