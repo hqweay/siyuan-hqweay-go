@@ -5,8 +5,13 @@ export class PluginRegistry {
   private static instance: PluginRegistry;
   private plugins: Map<string, SubPlugin> = new Map();
   private pluginConfigs: Map<string, PluginMetadata> = new Map();
+  private mainPlugin: any;
 
   private constructor() {}
+
+  setMainPlugin(plugin: any) {
+    this.mainPlugin = plugin;
+  }
 
   static getInstance(): PluginRegistry {
     if (!PluginRegistry.instance) {
@@ -91,6 +96,14 @@ export class PluginRegistry {
         metadata.enabled ||
         false;
       // enabled will be read from settings when needed
+
+      // Dynamically inject helper methods for sub-plugins
+      pluginInstance.t = (key: string) => this.mainPlugin?.t(key);
+      pluginInstance.getSetting = (key: string) => settings.getBySpace(metadata.name, key);
+      pluginInstance.setSetting = (key: string, value: any) => {
+        settings.setBySpace(metadata.name, key, value);
+        settings.save();
+      };
 
       // Register plugin
       this.registerPlugin(pluginInstance);

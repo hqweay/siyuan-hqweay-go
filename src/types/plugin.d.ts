@@ -27,6 +27,11 @@ export interface SubPlugin {
   onLayoutReady?(): void;
   onDataChanged?(): void;
 
+  // Injected helpers
+  t?(key: string): string;
+  getSetting?(key: string): any;
+  setSetting?(key: string, value: any): void;
+
   // Event handlers
   addMenuItem?(menu: Menu): void;
   editortitleiconEvent?(detail: any): void;

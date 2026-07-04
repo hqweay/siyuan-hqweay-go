@@ -19,6 +19,7 @@ export default class PluginLetsGo extends Plugin {
   init() {
     const plugin = registerPlugin(this);
     setPlugin(plugin);
+    this.pluginRegistry.setMainPlugin(this);
   }
 
   _name = "siyuan-hqweay-go";
