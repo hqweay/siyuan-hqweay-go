@@ -2,32 +2,30 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "docky",
-  displayName: "侧边栏展示文档或块",
-  description: "在侧边栏中展示指定的文档或块内容",
+  displayName: "lets-docky.displayName",
+  description: "lets-docky.description",
   version: "1.0.0",
   reference: "@frotstime",
   settings: [
     {
       type: "number",
-      title: "缩放程度",
-      description: "缩放程度，100 为原始大小",
+      title: "lets-docky.zoomScale",
+      description: "lets-docky.zoomScaleDesc",
       key: "zoomScale",
       value: 100,
       placeholder: "100",
     },
     {
       type: "button",
-      title: "选择图标",
-      description: "选择图标",
+      title: "lets-docky.selectIcon",
+      description: "lets-docky.selectIconDesc",
       key: "selectIcon",
-      value: "选择图标",
+      value: "lets-docky.selectIcon",
     },
     {
       type: "textarea",
-      title: "配置",
-      description: `e.g. id: xxx, name: hello, position: xxx, icon?: xxx, hotkey?: xxx
-position: LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight
-`,
+      title: "lets-docky.config",
+      description: "lets-docky.configDesc",
       key: "rules",
       value: `id:20251126002344-r4jzwns,name:haha,position: RightTop`,
       placeholder: `id:20251126002344-r4jzwns,position:RightTop`,

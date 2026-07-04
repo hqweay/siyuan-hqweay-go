@@ -2,6 +2,7 @@
   import type { SelectionRect, HighlightColor, ToolbarAction } from "./types";
   import { HIGHLIGHT_COLORS } from "./types";
   import { createEventDispatcher } from "svelte";
+  import { plugin } from "@/utils";
 
   export let visible = false;
   export let rect: SelectionRect = { top: 0, left: 0, width: 0, height: 0 };
@@ -72,7 +73,7 @@
     style="top: {toolbarTop}px; left: {toolbarLeft}px;"
     on:mousedown
     role="toolbar"
-    aria-label="EPUB阅读工具栏"
+    aria-label={plugin.i18n["lets-epub-reader.epubReaderToolbar"]}
     tabindex="0"
   >
     <div class="toolbar-actions">
@@ -81,7 +82,7 @@
         <button
           class="action-btn highlight-btn"
           on:click={handleHighlight}
-          title="标注（使用默认颜色）"
+          title={plugin.i18n["lets-epub-reader.highlightDefault"]}
         >
           🖍️
         </button>
@@ -89,12 +90,12 @@
         <button
           class="action-btn note-btn"
           on:click={handleNote}
-          title="笔记（使用默认颜色）"
+          title={plugin.i18n["lets-epub-reader.noteDefault"]}
         >
           📝
         </button>
 
-        <button class="action-btn copy-btn" on:click={handleCopy} title="复制">
+        <button class="action-btn copy-btn" on:click={handleCopy} title={plugin.i18n["lets-epub-reader.copy"]}>
           📋
         </button>
 
@@ -102,7 +103,7 @@
           <button
             class="action-btn remove-btn"
             on:click={handleRemoveAnnotation}
-            title="删除"
+            title={plugin.i18n["lets-epub-reader.delete"]}
           >
             🗑️
           </button>
@@ -112,7 +113,7 @@
         <button
           class="action-btn remove-btn"
           on:click={handleRemoveAnnotation}
-          title="取消标注"
+          title={plugin.i18n["lets-epub-reader.cancelAnnotation"]}
         >
           🗑️
         </button>
@@ -120,7 +121,7 @@
         <button
           class="action-btn float-btn"
           on:click|stopPropagation={handleJumpToBlock}
-          title="打开块浮窗"
+          title={plugin.i18n["lets-epub-reader.openBlockFloat"]}
         >
           📄
         </button>
@@ -128,7 +129,7 @@
         <button
           class="action-btn copy-btn"
           on:click={handleCopyAnnotation}
-          title="复制标注文本"
+          title={plugin.i18n["lets-epub-reader.copyAnnotationText"]}
         >
           📋
         </button>
@@ -137,7 +138,7 @@
       <!-- 悬浮颜色选择器 -->
       {#if showColorPicker}
         <div class="hover-color-picker">
-          <div class="color-picker-title">更改颜色</div>
+          <div class="color-picker-title">{plugin.i18n["lets-epub-reader.changeColor"]}</div>
           <div class="color-options">
             {#each HIGHLIGHT_COLORS as color}
               <button

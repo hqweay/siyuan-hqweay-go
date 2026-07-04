@@ -1,15 +1,15 @@
 import { settings } from "@/settings";
 import { removeStyleDom, updateStyleDom } from "@frostime/siyuan-plugin-kits";
 import { Protyle } from "siyuan";
-import { SubPlugin } from "@/types/plugin";
 import { plugin } from "@/utils";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
-class DockyPlugin implements SubPlugin {
-  onload() {
+class DockyPlugin extends SubPluginBase {
+  override onload() {
     this.loadDocky();
   }
 
-  onunload() {
+  override onunload() {
     this.unloadDocky();
     document
       .querySelectorAll('*[data-type^="siyuan-hqweay-go_docky_"]')

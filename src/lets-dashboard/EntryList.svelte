@@ -6,6 +6,7 @@
   import StatCard from "./StatCard.svelte";
   import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
   import { showMessage } from "siyuan";
+  import { plugin } from "@/utils";
 
   export let idSQL = null; // a query that returns rows with `id` and optionally `created`
   export let pageSize = 12;
@@ -94,7 +95,7 @@
     <StatCard
       type="text"
       asButton={true}
-      label="折叠"
+      label={plugin.i18n["lets-dashboard.collapse"]}
       active={isExpanded}
       activeBackground="rgba(16, 185, 129, 0.12)"
       fixedWidth="15%"
@@ -106,7 +107,7 @@
     <StatCard
       type="text"
       asButton={true}
-      label="固定高度"
+      label={plugin.i18n["lets-dashboard.fixedHeight"]}
       fixedWidth="15%"
       active={fixedHeight}
       activeBackground="rgba(16, 185, 129, 0.12)"
@@ -118,7 +119,7 @@
     <StatCard
       type="text"
       asButton={true}
-      label="展示标题"
+      label={plugin.i18n["lets-dashboard.showTitle"]}
       fixedWidth="15%"
       active={showTitle}
       activeBackground="rgba(16, 185, 129, 0.12)"
@@ -131,7 +132,7 @@
       <StatCard
         type="text"
         asButton={true}
-        label="复制文档流链接"
+        label={plugin.i18n["lets-dashboard.copyFlowLink"]}
         fixedWidth="15%"
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
@@ -139,14 +140,14 @@
           copyToClipboard(
             `[${title}](siyuan://plugins/siyuan-hqweay-go/flow-entry?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(idSQL)})`
           );
-          showMessage(`文档流访问链接已复制到剪贴板～`);
+          showMessage(plugin.i18n["lets-dashboard.flowLinkCopied"]);
         }}
       />
     {:else}
       <StatCard
         type="text"
         asButton={true}
-        label="刷新"
+        label={plugin.i18n["lets-dashboard.refresh"]}
         fixedWidth="15%"
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
@@ -174,9 +175,9 @@
 
   <div class="list-loading">
     {#if loading}
-      <div class="loading-text">加载中…</div>
+      <div class="loading-text">{plugin.i18n["lets-dashboard.loading"]}</div>
     {:else if !hasMore}
-      <div class="loading-text">没有更多条目</div>
+      <div class="loading-text">{plugin.i18n["lets-dashboard.noMoreEntries"]}</div>
     {/if}
     <div bind:this={sentinel} class="sentinel" aria-hidden="true"></div>
   </div>

@@ -2,14 +2,14 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "title",
-  displayName: "标题",
-  description: "块菜单/文档菜单打开事件增加标题层级转换",
+  displayName: "lets-adjust-title.displayName",
+  description: "lets-adjust-title.description",
   version: "1.0.0",
   settings: [
     {
       type: "checkbox",
-      title: "调整标题层级",
-      description: "块菜单/文档菜单打开事件增加标题层级转换",
+      title: "lets-adjust-title.settingsTitle",
+      description: "lets-adjust-title.settingsDescription",
       key: "adjustTitleLevel",
       value: false,
     },

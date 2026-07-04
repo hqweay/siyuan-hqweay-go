@@ -1,5 +1,5 @@
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { isMobile, plugin } from "@/utils";
 import { Dialog, openTab } from "siyuan";
 
@@ -19,44 +19,27 @@ const docks = [
   "BottomRight",
 ];
 
-export default class DashBoard implements SubPlugin {
+export default class DashBoard extends SubPluginBase {
   private id = "hqweay-diary-tools";
-  private label = "获取天气并插入当前文档属性";
   private icon = `<svg t="1765029926763" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4692" width="32" height="32"><path d="M961.60872 479.928a501.152 501.152 0 0 0-266.304-266.344 497.48 497.48 0 0 0-194.816-39.328 498.448 498.448 0 0 0-194.856 39.376 501.28 501.28 0 0 0-159.112 107.184A494.544 494.544 0 0 0 39.32872 479.968 497.52 497.52 0 0 0 0.00072 674.704h56.6c0-244.736 199.112-443.848 443.896-443.848 244.776 0 443.888 199.112 443.888 443.848h56.592a498.336 498.336 0 0 0-39.368-194.776zM122.83272 883.448h752.984v56.6H122.83272z" fill="#7BC6EF" p-id="4693"></path><path d="M477.96872 804.032l108.568 0.752-0.752-108.52-282.072-174.128 174.256 281.944v-0.048z m51.552-56.216l-19.808-0.12-31.696-51.424 51.384 31.696 0.12 19.848z" fill="#58BB9A" p-id="4694"></path><path d="M106.31272 726.128h78.784v56.64h-78.784zM176.00872 471.296l40.04-40.04 55.68 55.72-40.048 40.04-55.672-55.68zM728.08872 486.976l55.68-55.68 40.04 40.04-55.72 55.68-40.04-40.04zM471.96072 282.032h56.6v78.496h-56.6zM815.29672 726.168h78.744v56.6h-78.744z" fill="#EC6329" p-id="4695"></path></svg>`;
   private thisElement: HTMLElement | null = null;
 
-  addMenuItem(menu) {
+  override addMenuItem(menu) {
     menu.addItem({
-      label: "打开仪表盘",
-      iconHTML: `<div id="${this.id}-dashboard" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开仪表盘" >${this.icon}</div>`,
+      label: this.t("lets-dashboard.openDashboard"),
+      iconHTML: `<div id="${this.id}-dashboard" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.t("lets-dashboard.openDashboard")}" >${this.icon}</div>`,
       click: async () => {
         this.openDashBoard("", "");
       },
     });
 
     menu.addItem({
-      label: "打开 Flow 浏览界面",
-      iconHTML: `<div id="${this.id}-flow" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="打开 Flow 浏览界面" >${this.icon}</div>`,
+      label: this.t("lets-dashboard.openFlowBoard"),
+      iconHTML: `<div id="${this.id}-flow" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="${this.t("lets-dashboard.openFlowBoard")}" >${this.icon}</div>`,
       click: async () => {
         this.openFlowboard("Let it flow ～");
       },
     });
-
-    // menu.addItem({
-    //   label: "打开 文档流",
-    //   iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="文档流" >${this.icon}</div>`,
-    //   click: async () => {
-    //     this.openFlowEntry("", "文档流");
-    //   },
-    // });
-
-    // menu.addItem({
-    //   label: "打开 图片流",
-    //   iconHTML: `<div id="${this.id}" class="toolbar__item b3-tooltips b3-tooltips__se" aria-label="图片流" >${this.icon}</div>`,
-    //   click: async () => {
-    //     this.openFlowImage("", "图片流");
-    //   },
-    // });
   }
 
   addDock() {
@@ -69,7 +52,7 @@ export default class DashBoard implements SubPlugin {
           position: addToDock,
           size: { width: 200, height: 0 },
           icon: "iconAttr",
-          title: "仪表盘",
+          title: this.t("lets-dashboard.dashboard"),
           hotkey: "⌥⌘W",
         },
         data: { text: "This is my custom dock" },
@@ -92,8 +75,8 @@ export default class DashBoard implements SubPlugin {
     }
   }
 
-  onload(): void {}
-  async onLayoutReady() {
+  override onload(): void {}
+  override async onLayoutReady() {
     this.addDock();
   }
 
@@ -101,7 +84,7 @@ export default class DashBoard implements SubPlugin {
     const urlObj = new URL(detail.url);
     const method = urlObj.pathname.split("/").pop();
     if (method === "flow-board") {
-      const title = urlObj.searchParams.get("title") || "SQL 查询面板";
+      const title = urlObj.searchParams.get("title") || this.t("lets-dashboard.sqlQueryPanel");
       this.openFlowboard(title);
     }
   }
@@ -148,7 +131,7 @@ export default class DashBoard implements SubPlugin {
     }
   }
 
-  onunload(): void {
+  override onunload(): void {
     // 查询所有匹配的元素并删除
     document
       .querySelectorAll('[id^="plugin_siyuan-hqweay-go_"]')
@@ -181,7 +164,7 @@ export default class DashBoard implements SubPlugin {
   openDashBoard(index, type) {
     if (isMobile) {
       let dialog = new Dialog({
-        title: typeof index === "string" ? index : "仪表盘",
+        title: typeof index === "string" ? index : this.t("lets-dashboard.dashboard"),
         content: `<div id="hqweay-diary-dashboard" class="hqweay-diary-flow-entry" style="height: 700px;"></div>`,
         width: "400px",
         destroyCallback: (options) => {
@@ -211,7 +194,7 @@ export default class DashBoard implements SubPlugin {
         app: plugin.app,
         custom: {
           icon: "",
-          title: typeof index === "string" && index !== "" ? index : "仪表盘",
+          title: typeof index === "string" && index !== "" ? index : this.t("lets-dashboard.dashboard"),
           data: {},
           id: plugin.name + `lets-dashboard-${index}`,
         },

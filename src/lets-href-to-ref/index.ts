@@ -1,13 +1,12 @@
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
-import { plugin } from "@/utils";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { IOperation } from "siyuan";
 
-export default class HrefToRef implements SubPlugin {
+export default class HrefToRef extends SubPluginBase {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
-  onunload(): void {}
-  public onload() {
+  override onunload(): void {}
+  override public onload() {
     //太多了，添加好麻烦，算了
     // 添加全局快捷键命令
     // plugin.addCommand({
@@ -53,15 +52,15 @@ export default class HrefToRef implements SubPlugin {
 
   covertSubMenu = [
     {
-      key: "标题块中",
+      key: "lets-href-to-ref.headingBlocks",
       availableBlocks: ["NodeHeading"],
     },
     {
-      key: "段落块中",
+      key: "lets-href-to-ref.paragraphBlocks",
       availableBlocks: ["NodeParagraph"],
     },
     {
-      key: "以上所有块中",
+      key: "lets-href-to-ref.allBlocks",
       availableBlocks: ["NodeParagraph", "NodeHeading"],
     },
   ];
@@ -69,7 +68,7 @@ export default class HrefToRef implements SubPlugin {
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "🧹",
-      label: plugin.i18n.cleanRefSelf,
+      label: this.t("lets-href-to-ref.cleanRefSelf"),
       click: () => {
         const doOperations: IOperation[] = [];
 
@@ -162,7 +161,7 @@ export default class HrefToRef implements SubPlugin {
 
     detail.menu.addItem({
       iconHTML: "",
-      label: "清理文档的 * 引用",
+      label: this.t("lets-href-to-ref.cleanStarRef"),
       click: () => {
         this.cleanRef({
           detail,
@@ -175,15 +174,15 @@ export default class HrefToRef implements SubPlugin {
 
     detail.menu.addItem({
       iconHTML: "",
-      label: plugin.i18n.convertMenu,
+      label: this.t("lets-href-to-ref.convertMenu"),
       submenu: this.covertSubMenu.map((menuItem) => {
         return {
           iconHTML: "",
-          label: `${menuItem.key}`,
+          label: this.t(menuItem.key),
           submenu: [
             {
               iconHTML: "",
-              label: plugin.i18n.wikiToLink,
+              label: this.t("lets-href-to-ref.wikiToLink"),
               click: () => {
                 // console.log(menuItem);
                 // console.log(this);
@@ -226,7 +225,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.linkToWiki,
+              label: this.t("lets-href-to-ref.linkToWiki"),
               click: () => {
                 const doOperations: IOperation[] = [];
 
@@ -271,7 +270,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: "下列所有行内元素👉文本",
+              label: this.t("lets-href-to-ref.allInlineToText"),
               click: () => {
                 this.pageToText(menuItem, detail, '[data-type~="a"]');
                 this.pageToText(menuItem, detail, '[data-type~="block-ref"]');
@@ -283,7 +282,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.hrefToText,
+              label: this.t("lets-href-to-ref.hrefToText"),
               click: () => {
                 // 获取引用和笔记内块超链接
                 this.pageToText(
@@ -296,7 +295,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.hrefToTextIncludeA,
+              label: this.t("lets-href-to-ref.hrefToTextIncludeA"),
               click: () => {
                 // 获取引用和笔记内链接
                 // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
@@ -306,7 +305,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.strongToText,
+              label: this.t("lets-href-to-ref.strongToText"),
               click: () => {
                 // 获取粗体
                 // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
@@ -315,7 +314,7 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.markToText,
+              label: this.t("lets-href-to-ref.markToText"),
               click: () => {
                 // 获取高亮
                 // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
@@ -324,14 +323,14 @@ export default class HrefToRef implements SubPlugin {
             },
             {
               iconHTML: "",
-              label: plugin.i18n.tagToText,
+              label: this.t("lets-href-to-ref.tagToText"),
               click: () => {
                 this.pageToText(menuItem, detail, '[data-type~="tag"]');
               },
             },
             {
               iconHTML: "",
-              label: "斜体👉文本",
+              label: this.t("lets-href-to-ref.italicToText"),
               click: () => {
                 this.pageToText(menuItem, detail, '[data-type~="em"]');
               },
@@ -345,11 +344,11 @@ export default class HrefToRef implements SubPlugin {
   public blockIconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
-      label: plugin.i18n.convertMenu,
+      label: this.t("lets-href-to-ref.convertMenu"),
       submenu: [
         {
           iconHTML: "",
-          label: plugin.i18n.wikiToLink,
+          label: this.t("lets-href-to-ref.wikiToLink"),
           click: () => {
             const doOperations: IOperation[] = [];
 
@@ -389,7 +388,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.linkToWiki,
+          label: this.t("lets-href-to-ref.linkToWiki"),
           click: () => {
             const doOperations: IOperation[] = [];
 
@@ -431,7 +430,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: "下列所有行内元素👉文本",
+          label: this.t("lets-href-to-ref.allInlineToText"),
           click: () => {
             this.blockToText(detail, '[data-type~="a"]');
             this.blockToText(detail, '[data-type~="block-ref"]');
@@ -443,7 +442,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.hrefToText,
+          label: this.t("lets-href-to-ref.hrefToText"),
           click: () => {
             // 获取引用和笔记内块超链接
             this.blockToText(
@@ -455,7 +454,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.hrefToTextIncludeA,
+          label: this.t("lets-href-to-ref.hrefToTextIncludeA"),
           click: () => {
             // 获取引用和笔记内链接
             // @todo data-type="a" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
@@ -465,7 +464,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.strongToText,
+          label: this.t("lets-href-to-ref.strongToText"),
           click: () => {
             // @todo data-type="strong" 使用全匹配，避免 [data-type="a strong"] 这类情况转换后失去样式
             this.blockToText(detail, '[data-type~="strong"]');
@@ -473,7 +472,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.markToText,
+          label: this.t("lets-href-to-ref.markToText"),
           click: () => {
             // @todo data-type="mark" 使用全匹配，避免 [data-type="a mark"] 这类情况转换后失去样式
             this.blockToText(detail, '[data-type~="mark"]');
@@ -481,21 +480,21 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: plugin.i18n.tagToText,
+          label: this.t("lets-href-to-ref.tagToText"),
           click: () => {
             this.blockToText(detail, '[data-type~="tag"]');
           },
         },
         {
           iconHTML: "",
-          label: "斜体👉文本",
+          label: this.t("lets-href-to-ref.italicToText"),
           click: () => {
             this.blockToText(detail, '[data-type~="em"]');
           },
         },
         {
           iconHTML: "",
-          label: plugin.i18n.cleanRefSelf,
+          label: this.t("lets-href-to-ref.cleanRefSelf"),
           click: () => {
             const doOperations: IOperation[] = [];
 
@@ -587,7 +586,7 @@ export default class HrefToRef implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: "清理 * 引用",
+          label: this.t("lets-href-to-ref.cleanStarRefSimple"),
           click: () => {
             const doOperations: IOperation[] = [];
 

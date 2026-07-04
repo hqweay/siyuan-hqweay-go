@@ -2,6 +2,7 @@
   import { app } from "@frostime/siyuan-plugin-kits";
   import { Protyle } from "siyuan";
   import { onDestroy, onMount } from "svelte";
+  import { plugin } from "@/utils";
 
   export let blockId: string;
 
@@ -22,7 +23,7 @@
 
       isLoading = false;
     } catch (err) {
-      error = err.message || "未知错误";
+      error = err.message || plugin.i18n["lets-how-to-write-diary.unknownError"];
       isLoading = false;
     }
   });
@@ -66,7 +67,7 @@
       <button
         class="tool-btn {isPinned ? 'active' : ''}"
         on:click={togglePin}
-        title={isPinned ? "取消置顶" : "置顶"}
+        title={isPinned ? plugin.i18n["lets-how-to-write-diary.unpin"] : plugin.i18n["lets-how-to-write-diary.pin"]}
       >
         {#if isPinned}
           📌
@@ -81,14 +82,14 @@
   {#if isLoading}
     <div class="status-container">
       <div class="loading-spinner"></div>
-      <p>编辑器加载中...</p>
+      <p>{plugin.i18n["lets-how-to-write-diary.editorLoading"]}</p>
     </div>
   {:else if error}
     <div class="status-container">
       <div class="error-icon">⚠️</div>
-      <p>加载失败: {error}</p>
+      <p>{plugin.i18n["lets-how-to-write-diary.loadFailed"]}: {error}</p>
       <button class="retry-btn" on:click={() => window.location.reload()}
-        >重试</button
+        >{plugin.i18n["lets-how-to-write-diary.retry"]}</button
       >
     </div>
   {/if}

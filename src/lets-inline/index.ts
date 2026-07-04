@@ -1,17 +1,17 @@
 import { createDocWithMd, sql } from "@/api";
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { showMessage } from "siyuan";
 
-export default class Read implements SubPlugin {
+export default class Read extends SubPluginBase {
   regexOfHighLight = /==([^=]+?)==/g;
   // regexOfMemo = /\^\((.*?)\)\^|\^（(.*?)）\^/g;
   regexOfMemo = /(.*?)<sup>[(（](.*?)[)）]<\/sup>/g;
 
-  onload(): void {}
+  override onload(): void {}
 
-  onunload(): void {}
+  override onunload(): void {}
 
   private async getHighLight({ detail, keepContext, extractPath, addRef }) {
     const addOutline = settings.getBySpace("extractInline", "addOutline");
@@ -61,7 +61,7 @@ export default class Read implements SubPlugin {
       });
       result = result.trim();
       if (!result) {
-        showMessage(`当前文档无标注喔`);
+        showMessage(this.t("lets-inline.noHighlight"));
         return;
       }
 
@@ -118,7 +118,7 @@ export default class Read implements SubPlugin {
       });
       result = result.trim();
       if (!result) {
-        showMessage(`当前文档无备注喔`);
+        showMessage(this.t("lets-inline.noMemo"));
         return;
       }
 
@@ -165,11 +165,11 @@ export default class Read implements SubPlugin {
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
-      label: "提取元素至新文档",
+      label: this.t("lets-inline.extractMenu"),
       submenu: [
         {
           iconHTML: "",
-          label: "提取标注和备注（含上下文）",
+          label: this.t("lets-inline.extractAllWithContext"),
           click: async () => {
             const extractPath = settings.getBySpace(
               "extractInline",
@@ -201,7 +201,7 @@ export default class Read implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: "提取标注和备注（无上下文）",
+          label: this.t("lets-inline.extractAllNoContext"),
           click: async () => {
             const extractPath = settings.getBySpace(
               "extractInline",
@@ -235,7 +235,7 @@ export default class Read implements SubPlugin {
 
         {
           iconHTML: "",
-          label: "提取标注（无上下文）",
+          label: this.t("lets-inline.extractHighlightNoContext"),
           click: async () => {
             const extractPath = settings.getBySpace(
               "extractInline",
@@ -252,7 +252,7 @@ export default class Read implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: "提取标注（含上下文）",
+          label: this.t("lets-inline.extractHighlightWithContext"),
           click: async () => {
             const extractPath = settings.getBySpace(
               "extractInline",
@@ -269,7 +269,7 @@ export default class Read implements SubPlugin {
         },
         {
           iconHTML: "",
-          label: "提取备注",
+          label: this.t("lets-inline.extractMemo"),
           click: async () => {
             const extractPath = settings.getBySpace(
               "extractInline",

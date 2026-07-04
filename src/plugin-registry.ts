@@ -98,7 +98,7 @@ export class PluginRegistry {
       // enabled will be read from settings when needed
 
       // Dynamically inject helper methods for sub-plugins
-      pluginInstance.t = (key: string) => this.mainPlugin?.t(key);
+      pluginInstance.t = (key: string) => this.mainPlugin?.i18n?.[key] ?? key;
       pluginInstance.getSetting = (key: string) => settings.getBySpace(metadata.name, key);
       pluginInstance.setSetting = (key: string, value: any) => {
         settings.setBySpace(metadata.name, key, value);

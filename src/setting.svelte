@@ -105,7 +105,7 @@
     );
     if (found) {
       const key = `lets-${found.name}.displayName`;
-      return plugin.i18n[key] || found.displayName || found.name;
+      return plugin.i18n[key] || plugin.i18n[found.displayName] || found.displayName || found.name;
     }
     
     return groupName;
@@ -153,7 +153,7 @@
       }
       // 无论启用还是禁用，均重新载入设置数据
       SettingItems = initData();
-    } else if (detail.group === "代码片段托管") {
+    } else if (detail.group === "lets-fetch-code-snippets.displayName" || detail.group === "fetch-code-snippets") {
       settings.setBySpace("codeSnippets", detail.key, detail.value);
 
       if (detail.value) {

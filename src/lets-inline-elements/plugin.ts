@@ -1,22 +1,22 @@
 export default {
   name: "inline-elements",
-  displayName: "侧边栏展示标注",
-  description: "侧边栏展示 highlight 标注",
+  displayName: "lets-inline-elements.displayName",
+  description: "lets-inline-elements.description",
   version: "1.0.0",
   author: "hqweay",
   settings: [
     {
       type: "number",
-      title: "每页加载数量",
-      description: "Protyle 模式下的分页加载数量",
+      title: "lets-inline-elements.pageSize",
+      description: "lets-inline-elements.pageSizeDesc",
       key: "pageSize",
       value: 20,
       placeholder: "20",
     },
     {
       type: "checkbox",
-      title: "切换文档自动刷新",
-      description: "标注列表在切换文档时自动刷新",
+      title: "lets-inline-elements.autoRefresh",
+      description: "lets-inline-elements.autoRefreshDesc",
       key: "autoRefresh",
       value: false,
     },

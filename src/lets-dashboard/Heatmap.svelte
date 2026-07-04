@@ -1,6 +1,7 @@
 <script>
   import { sql } from "@/api";
   import { onMount, createEventDispatcher, tick } from "svelte";
+  import { plugin } from "@/utils";
   export let sqlQuery = null;
   export let daysRange = 99999; // show more by default for weekly columns
   export let selectedDays = []; // Array of YYYYMMDD to highlight
@@ -189,7 +190,7 @@
                 class="heat-cell {selectedDays.includes(day.dayKey)
                   ? 'selected'
                   : ''}"
-                title={`${day.date.toLocaleDateString()} 创建了 ${day.count} 条数据`}
+                title={`${day.date.toLocaleDateString()} ${plugin.i18n["lets-dashboard.createdCount"].replace("{count}", day.count)}`}
                 style={`background: ${colorForCount(day.count)}`}
                 on:click={() => onDayClick(day)}
                 aria-pressed={selectedDays.includes(day.dayKey)}
@@ -206,12 +207,12 @@
   </div>
 
   <div class="heatmap-legend">
-    <span>少</span>
+    <span>{plugin.i18n["lets-dashboard.legendLess"]}</span>
     <div class="legend-box" style="background: hsl(120 85% 85%)"></div>
     <div class="legend-box" style="background: hsl(120 85% 70%)"></div>
     <div class="legend-box" style="background: hsl(120 85% 55%)"></div>
     <div class="legend-box" style="background: hsl(120 85% 40%)"></div>
-    <span>多</span>
+    <span>{plugin.i18n["lets-dashboard.legendMore"]}</span>
   </div>
 </div>
 

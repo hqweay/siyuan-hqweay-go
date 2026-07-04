@@ -2,16 +2,15 @@ import { PluginMetadata } from "@/types/plugin";
 
 const pluginMetadata: PluginMetadata = {
   name: "nav-helper",
-  displayName: "【实验】导航助手",
-  description:
-    "支持 PC、移动端。快捷前进、后退、今日日记、父文档、保存至数据库……",
+  displayName: "lets-nav-helper.displayName",
+  description: "lets-nav-helper.description",
   version: "1.0.0",
   author: "hqweay",
   settings: [
     {
       type: "select",
-      title: "启用底部导航栏",
-      description: "移动端、PC 端",
+      title: "lets-nav-helper.enableBottomNav",
+      description: "lets-nav-helper.enableBottomNavDesc",
       key: "enableBottomNav",
       value: "both",
       options: {
@@ -22,22 +21,22 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "checkbox",
-      title: "仅在主界面显示导航",
-      description: "导航栏只在主文档界面显示（进入设置页等隐藏）",
+      title: "lets-nav-helper.navJustInMain",
+      description: "lets-nav-helper.navJustInMainDesc",
       key: "navJustInMain",
       value: false,
     },
     {
       type: "checkbox",
-      title: "点击后隐藏子菜单",
-      description: "比方说点击「导航」里的「跳转到父文档」后是否隐藏子菜单",
+      title: "lets-nav-helper.hideSubmenu",
+      description: "lets-nav-helper.hideSubmenuDesc",
       key: "hideSubmenu",
       value: false,
     },
     {
       type: "select",
-      title: "显示返回按钮",
-      description: "在导航栏中显示返回按钮",
+      title: "lets-nav-helper.showBackButton",
+      description: "lets-nav-helper.showBackButtonDesc",
       key: "showBackButton",
       value: "both",
       options: {
@@ -49,16 +48,16 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "textinput",
-      title: "笔记本ID",
-      description: "指定导航的默认笔记本ID（可选）",
+      title: "lets-nav-helper.noteBookID",
+      description: "lets-nav-helper.noteBookIDDesc",
       key: "noteBookID",
       value: "20240330144726-gs2xey6",
       placeholder: "",
     },
     {
       type: "select",
-      title: "显示前进按钮",
-      description: "在导航栏中显示前进按钮",
+      title: "lets-nav-helper.showForwardButton",
+      description: "lets-nav-helper.showForwardButtonDesc",
       key: "showForwardButton",
       value: "both",
       options: {
@@ -70,8 +69,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示仪表盘按钮",
-      description: "在导航栏中显示仪表盘按钮",
+      title: "lets-nav-helper.showDashBoard",
+      description: "lets-nav-helper.showDashBoardDesc",
       key: "showDashBoard",
       value: "both",
       options: {
@@ -83,9 +82,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "textarea",
-      title: "仪表盘按钮配置",
-      description:
-        "支持 siyuan://plugins/siyuan-hqweay-go/flow 或 siyuan://plugins/siyuan-hqweay-go/open",
+      title: "lets-nav-helper.dashBoardLink",
+      description: "lets-nav-helper.dashBoardLinkDesc",
       key: "dashBoardLink",
       value: "siyuan://plugins/siyuan-hqweay-go/open",
       placeholder: "siyuan://plugins/siyuan-hqweay-go/open",
@@ -93,8 +91,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示随机按钮",
-      description: "在导航栏中显示随机文档按钮",
+      title: "lets-nav-helper.showRandomButton",
+      description: "lets-nav-helper.showRandomButtonDesc",
       key: "showRandomButton",
       value: "both",
       options: {
@@ -106,8 +104,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示自定义链接按钮",
-      description: "在导航栏中显示自定义链接按钮",
+      title: "lets-nav-helper.showCustomLinksButton",
+      description: "lets-nav-helper.showCustomLinksButtonDesc",
       key: "showCustomLinksButton",
       value: "both",
       options: {
@@ -119,8 +117,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示今日笔记按钮",
-      description: "在导航栏中显示今日笔记按钮",
+      title: "lets-nav-helper.showDailyNoteButton",
+      description: "lets-nav-helper.showDailyNoteButtonDesc",
       key: "showDailyNoteButton",
       value: "both",
       options: {
@@ -132,8 +130,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示导航菜单按钮",
-      description: "在导航栏中显示导航菜单按钮",
+      title: "lets-nav-helper.showNavigationMenuButton",
+      description: "lets-nav-helper.showNavigationMenuButtonDesc",
       key: "showNavigationMenuButton",
       value: "both",
       options: {
@@ -145,8 +143,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "select",
-      title: "显示上下文按钮",
-      description: "在导航栏中显示上下文导航按钮",
+      title: "lets-nav-helper.showContextButton",
+      description: "lets-nav-helper.showContextButtonDesc",
       key: "showContextButton",
       value: "both",
       options: {
@@ -158,32 +156,32 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "textinput",
-      title: "导航栏高度",
-      description: "设置底部导航栏的高度",
+      title: "lets-nav-helper.navBarHeight",
+      description: "lets-nav-helper.navBarHeightDesc",
       key: "navBarHeight",
       value: "60px",
       placeholder: "60px",
     },
     {
       type: "textinput",
-      title: "背景颜色",
-      description: "导航栏背景颜色",
+      title: "lets-nav-helper.backgroundColor",
+      description: "lets-nav-helper.backgroundColorDesc",
       key: "backgroundColor",
       value: "#ffffff",
       placeholder: "#ffffff",
     },
     {
       type: "textinput",
-      title: "按钮颜色",
-      description: "导航栏按钮默认颜色",
+      title: "lets-nav-helper.buttonColor",
+      description: "lets-nav-helper.buttonColorDesc",
       key: "buttonColor",
       value: "#333333",
       placeholder: "#333333",
     },
     {
       type: "textinput",
-      title: "激活按钮颜色",
-      description: "导航栏激活按钮颜色",
+      title: "lets-nav-helper.activeButtonColor",
+      description: "lets-nav-helper.activeButtonColorDesc",
       key: "activeButtonColor",
       value: "#007aff",
       placeholder: "#007aff",
@@ -198,8 +196,8 @@ const pluginMetadata: PluginMetadata = {
     // },
     {
       type: "textarea",
-      title: "自定义链接",
-      description: "自定义链接配置，每行一个，格式：标题====链接",
+      title: "lets-nav-helper.customLinks",
+      description: "lets-nav-helper.customLinksDesc",
       key: "customLinks",
       value: `养恐龙====https://leay.net/====🐊
 日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'

@@ -2,20 +2,20 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "sendTo",
-  displayName: "发送到",
-  description: "将内容发送到指定的位置、应用或链接",
+  displayName: "lets-sendTo.displayName",
+  description: "lets-sendTo.description",
   version: "1.0.0",
   settings: [
     {
       type: "checkbox",
-      title: "写入剪贴板？",
+      title: "lets-sendTo.isToClipboard",
       description: "",
       key: "isToClipboard",
       value: false,
     },
     {
       type: "textinput",
-      title: "多行内容分隔符",
+      title: "lets-sendTo.separator",
       description: "",
       key: "separator",
       value: ``,
@@ -23,7 +23,7 @@ export const pluginMetadata: PluginMetadata = {
     },
     {
       type: "textarea",
-      title: "自定义链接",
+      title: "lets-sendTo.inputArea",
       description: "",
       key: "inputArea",
       value: `Gemini 总结====shortcuts://run-shortcut?name=Gemini 总结剪贴板

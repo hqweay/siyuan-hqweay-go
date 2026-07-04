@@ -1,9 +1,9 @@
 import { request, sql } from "@/api";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { IOperation, showMessage } from "siyuan";
-export default class AdjustTitleLevel implements SubPlugin {
-  onload(): void {}
-  onunload(): void {}
+export default class AdjustTitleLevel extends SubPluginBase {
+  override onload(): void {}
+  override onunload(): void {}
 
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
@@ -12,11 +12,11 @@ export default class AdjustTitleLevel implements SubPlugin {
   public editortitleiconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
-      label: "调整所有标题",
+      label: this.t("lets-adjust-title.adjustAllHeadings"),
       submenu: [
         {
           iconHTML: "",
-          label: `调整所有标题为`,
+          label: this.t("lets-adjust-title.adjustAllHeadingsTo"),
           submenu: Array.from(
             { length: this.maxTitleLevel },
             (v, i) => i + 1
@@ -44,7 +44,7 @@ export default class AdjustTitleLevel implements SubPlugin {
           (originNum) => {
             return {
               iconHTML: "",
-              label: `调整 H${originNum} 为`,
+              label: this.t("lets-adjust-title.adjustHTo").replace("{originNum}", String(originNum)),
               submenu: Array.from(
                 { length: this.maxTitleLevel },
                 (v, i) => i + 1
@@ -72,7 +72,7 @@ export default class AdjustTitleLevel implements SubPlugin {
 
     detail.menu.addItem({
       iconHTML: "",
-      label: "调整所有标题（带子标题）",
+      label: this.t("lets-adjust-title.adjustAllHeadingsWithSub"),
       submenu: [
         // {
         //   iconHTML: "",
@@ -99,7 +99,7 @@ export default class AdjustTitleLevel implements SubPlugin {
           (originNum) => {
             return {
               iconHTML: "",
-              label: `调整 H${originNum} 为`,
+              label: this.t("lets-adjust-title.adjustHTo").replace("{originNum}", String(originNum)),
               submenu: Array.from(
                 { length: this.maxTitleLevel },
                 (v, i) => i + 1
@@ -129,12 +129,12 @@ export default class AdjustTitleLevel implements SubPlugin {
   public blockIconEvent({ detail }) {
     detail.menu.addItem({
       iconHTML: "",
-      label: "调整标题",
+      label: this.t("lets-adjust-title.adjustHeading"),
       submenu: Array.from({ length: this.maxTitleLevel }, (v, i) => i + 1).map(
         (num) => {
           return {
             iconHTML: "",
-            label: `调整为 H${num}`,
+            label: this.t("lets-adjust-title.adjustToH").replace("{num}", String(num)),
             click: () => {
               this.adjustTitle(detail, `h${num}`);
             },
@@ -172,7 +172,7 @@ export default class AdjustTitleLevel implements SubPlugin {
     toTitleLevel,
     includeSub = true
   ) {
-    showMessage(`调整标题中……`);
+    showMessage(this.t("lets-adjust-title.adjusting"));
     let res = await sql(
       `select id from blocks where root_id = '${detail.data.rootID}' and subtype = 'h${originTitleLevel}'`
     );
@@ -217,6 +217,6 @@ export default class AdjustTitleLevel implements SubPlugin {
         id: detail.data.rootID,
         preview: false,
       }));
-    showMessage(`调整标题完成！`);
+    showMessage(this.t("lets-adjust-title.done"));
   }
 }

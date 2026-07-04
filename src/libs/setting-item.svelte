@@ -106,7 +106,7 @@
         on:change={changed}
       >
         {#each Object.entries(options) as [value, text]}
-          <option {value}>{text}</option>
+          <option {value}>{plugin.i18n[text] || text}</option>
         {/each}
       </select>
     {:else if type == "slider"}

@@ -2,6 +2,7 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   // epubjs（安装：npm i epubjs）
   import ePub from 'epubjs';
+  import { plugin } from "@/utils";
 
   // Props
   export let src = null; // 可为URL或ArrayBuffer或File
@@ -233,36 +234,36 @@
 
 <div class="reader-root">
   <div class="toolbar">
-    <button on:click={prev} disabled={!isReady}>上一页</button>
-    <button on:click={next} disabled={!isReady}>下一页</button>
+    <button on:click={prev} disabled={!isReady}>{plugin.i18n["lets-epub-reader.prevPage"]}</button>
+    <button on:click={next} disabled={!isReady}>{plugin.i18n["lets-epub-reader.nextPage"]}</button>
 
-    <label class="small">字号</label>
+    <label class="small">{plugin.i18n["lets-epub-reader.testFontSize"]}</label>
     <input type="range" min="60" max="200" bind:value={fontSize} on:input={(e)=>setFontSize(e.target.value)} />
     <span class="small">{fontSize}%</span>
 
-    <button on:click={toggleTheme}>切换主题（{theme}）</button>
+    <button on:click={toggleTheme}>{plugin.i18n["lets-epub-reader.testToggleTheme"]}{theme}）</button>
 
     <div style="flex:1"></div>
 
     <div class="small">{title}</div>
 
     <div style="display:flex;align-items:center;gap:8px;margin-left:12px;">
-      <div class="progress-bar" title="进度">
+      <div class="progress-bar" title={plugin.i18n["lets-epub-reader.progress"]}>
         <div class="progress-fill" style="width:{progress}%"></div>
       </div>
       <div class="small">{progress}%</div>
     </div>
 
     <input bind:this={fileInput} type="file" accept=".epub" style="display:none" on:change={(e)=>openFile(e.target.files[0])} />
-    <button on:click={()=>fileInput.click()}>打开本地 EPUB</button>
+    <button on:click={()=>fileInput.click()}>{plugin.i18n["lets-epub-reader.testOpenLocal"]}</button>
   </div>
 
   <div class="viewer-wrapper">
     <div class="viewer" bind:this={containerEl}></div>
     <div class="toc">
-      <div class="small">目录</div>
+      <div class="small">{plugin.i18n["lets-epub-reader.testToc"]}</div>
       {#if toc.length === 0}
-        <div class="small">(无目录或加载中)</div>
+        <div class="small">{plugin.i18n["lets-epub-reader.testTocEmpty"]}</div>
       {/if}
       <ul>
         {#each toc as item}

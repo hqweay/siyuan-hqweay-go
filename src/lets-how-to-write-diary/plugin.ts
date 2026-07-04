@@ -2,15 +2,14 @@ import { PluginMetadata } from "@/types/plugin";
 
 export const pluginMetadata: PluginMetadata = {
   name: "diaryTools",
-  displayName: "日记相关工具",
-  description:
-    "提供日记相关的工具，包括快捷小窗录入日记、slash 新增快捷创建指定日期日记、天气信息插入等功能",
+  displayName: "lets-how-to-write-diary.displayName",
+  description: "lets-how-to-write-diary.description",
   version: "1.0.0",
   author: "hqweay",
   settings: [
     {
       type: "textinput",
-      title: "创建日记的笔记本id",
+      title: "lets-how-to-write-diary.noteBookID",
       description: "",
       key: "noteBookID",
       value: "20240330144726-gs2xey6",
@@ -18,29 +17,28 @@ export const pluginMetadata: PluginMetadata = {
     },
     {
       type: "checkbox",
-      title: "快捷小窗录入日记（默认快捷键F10）",
+      title: "lets-how-to-write-diary.quickInput",
       description: "",
       key: "quickInput",
       value: true,
     },
     {
       type: "checkbox",
-      title:
-        "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
+      title: "lets-how-to-write-diary.slashDiaryNote",
       description: "",
       key: "slashDiaryNote",
       value: true,
     },
     {
       type: "checkbox",
-      title: "顶栏按钮快捷操作",
+      title: "lets-how-to-write-diary.topBar",
       description: "",
       key: "topBar",
       value: false,
     },
     {
       type: "textinput",
-      title: "顶栏-获取天气并插入当前文档属性",
+      title: "lets-how-to-write-diary.getWeather",
       description: "https://www.sojson.com/blog/305.html",
       key: "getWeatherSetAttrs",
       value: "101270101",

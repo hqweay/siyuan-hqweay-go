@@ -1,14 +1,15 @@
 <script lang="ts">
   import type { TocItem } from './types';
+  import { plugin } from "@/utils";
 
   export let toc: TocItem[] = [];
   export let onGoToToc: (item: TocItem) => void;
 </script>
 
 <div class="toc">
-  <div class="toc-title">目录</div>
+  <div class="toc-title">{plugin.i18n["lets-epub-reader.tocTitle"]}</div>
   {#if toc.length === 0}
-    <div class="toc-empty">(无目录或加载中)</div>
+    <div class="toc-empty">{plugin.i18n["lets-epub-reader.tocEmpty"]}</div>
   {/if}
   <ul class="toc-list">
     {#each toc as item}

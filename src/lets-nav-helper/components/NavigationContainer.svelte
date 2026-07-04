@@ -6,6 +6,7 @@
   import ToggleButton from "./ToggleButton.svelte";
   import { navigation } from "../navigation";
   import { settings } from "@/settings";
+  import { plugin } from "@/utils";
   import pluginMetadata from "../plugin";
   import { mobileUtils } from "../utils";
   import { createDailynote } from "@frostime/siyuan-plugin-kits";
@@ -34,21 +35,21 @@
     {
       key: "showBackButton",
       icon: "←",
-      label: "返回",
+      label: plugin.i18n["lets-nav-helper.back"],
       show: settings.getBySpace(pluginMetadata.name, "showBackButton"),
       action: () => navigation.goBack(),
     },
     {
       key: "showDailyNoteButton",
       icon: "📅",
-      label: "今日",
+      label: plugin.i18n["lets-nav-helper.dailyNote"],
       show: settings.getBySpace(pluginMetadata.name, "showDailyNoteButton"),
       action: () => createDailyNote(),
     },
     {
       key: "showNavigationMenuButton",
       icon: "🧭",
-      label: "导航",
+      label: plugin.i18n["lets-nav-helper.navigation"],
       show: settings.getBySpace(
         pluginMetadata.name,
         "showNavigationMenuButton"
@@ -59,21 +60,21 @@
     {
       key: "showForwardButton",
       icon: "→",
-      label: "前进",
+      label: plugin.i18n["lets-nav-helper.forward"],
       show: settings.getBySpace(pluginMetadata.name, "showForwardButton"),
       action: () => navigation.goForward(),
     },
     {
       key: "showDashBoard",
       icon: "🏠",
-      label: "首页",
+      label: plugin.i18n["lets-nav-helper.home"],
       show: settings.getBySpace(pluginMetadata.name, "showDashBoard"),
       action: () => navigation.goToHome(),
     },
     {
       key: "showCustomLinksButton",
       icon: "🔗",
-      label: "链接",
+      label: plugin.i18n["lets-nav-helper.links"],
       show: settings.getBySpace(pluginMetadata.name, "showCustomLinksButton"),
       action: (event) => showCustomLinksSubmenu(event),
       hasSubmenu: true,
@@ -109,15 +110,15 @@
 
       if (dailyNoteId) {
         openBlockByID(dailyNoteId);
-        showMessage("今日笔记已创建并打开");
+        showMessage(plugin.i18n["lets-nav-helper.dailyNoteCreated"]);
         mobileUtils.vibrate(50);
       } else {
-        showMessage("创建今日笔记失败");
+        showMessage(plugin.i18n["lets-nav-helper.dailyNoteFailed"]);
         mobileUtils.vibrate([100, 50, 100]);
       }
     } catch (error) {
       console.error("创建今日笔记失败:", error);
-      showMessage("创建今日笔记失败");
+      showMessage(plugin.i18n["lets-nav-helper.dailyNoteFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
   }
@@ -129,7 +130,7 @@
     submenuItems = [
       {
         icon: "⬆️",
-        label: "跳转到父文档",
+        label: plugin.i18n["lets-nav-helper.jumpToParent"],
         action: async () => {
           await navigation.goToParent();
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
@@ -139,7 +140,7 @@
       },
       {
         icon: "⤴️",
-        label: "跳转到上一个文档",
+        label: plugin.i18n["lets-nav-helper.jumpToPrevSibling"],
         action: async () => {
           await navigation.goToSibling(-1);
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
@@ -149,7 +150,7 @@
       },
       {
         icon: "🎲",
-        label: "随机",
+        label: plugin.i18n["lets-nav-helper.random"],
         action: async () => {
           await goToRandomBlock("SELECT * FROM blocks WHERE type = 'd'");
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
@@ -159,7 +160,7 @@
       },
       {
         icon: "⤵️",
-        label: "跳转到下一个文档",
+        label: plugin.i18n["lets-nav-helper.jumpToNextSibling"],
         action: async () => {
           await navigation.goToSibling(1);
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
@@ -169,7 +170,7 @@
       },
       {
         icon: "⬇️",
-        label: "跳转到子文档",
+        label: plugin.i18n["lets-nav-helper.jumpToChild"],
         action: async () => {
           await navigation.goToChild();
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
@@ -189,7 +190,7 @@
     const links = linksConfig.split("\n").filter((line: string) => line.trim());
 
     if (links.length === 0) {
-      showMessage("暂无自定义链接配置");
+      showMessage(plugin.i18n["lets-nav-helper.noCustomLinks"]);
       return;
     }
 

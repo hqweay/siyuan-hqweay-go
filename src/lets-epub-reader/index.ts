@@ -7,7 +7,7 @@ import {
   showMessage,
 } from "siyuan";
 
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
 import Reader from "./Reader.svelte";
 
@@ -15,25 +15,24 @@ import { isMobile, plugin } from "@/utils";
 import { parseLocationFromUrl } from "./utils";
 import { saveReadingProgress } from "./annotation-service";
 
-export default class EpubReaderPlugin implements SubPlugin {
+export default class EpubReaderPlugin extends SubPluginBase {
   private _isEnabled = false;
 
   id = "hqweay-epub-reader";
-  label = "EPUB 阅读器";
-  icon = "📖"; // 书本图标
+  get label() { return this.t("lets-epub-reader.displayName"); }
+  icon = "📖";
   type = "barMode";
 
   private epubReaderInstance: any = null;
 
-  // 全局状态管理：存储当前应该显示的书籍信息
   private globalReaderState = {
     currentFile: null as File | null,
     currentUrl: "" as string,
   };
 
   constructor() {
+    super();
     this.id = "hqweay-epub-reader";
-    this.label = "EPUB 阅读器";
     this.icon = "📖";
     this.type = "barMode";
   }
@@ -43,7 +42,7 @@ export default class EpubReaderPlugin implements SubPlugin {
     this.openEpubFileSelector();
   }
 
-  async onload() {
+  override async onload() {
     const that = this;
 
     // 设置 EPUB 点击监听
@@ -51,7 +50,7 @@ export default class EpubReaderPlugin implements SubPlugin {
   }
   onLayoutReady(): void {}
 
-  onunload() {
+  override onunload() {
     // 清理资源
     if (this.epubReaderInstance) {
       this.epubReaderInstance.$destroy();
@@ -287,7 +286,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       });
     } catch (error) {
       console.error("加载嵌入式阅读器失败:", error);
-      showMessage("加载嵌入式阅读器失败", 3000);
+      showMessage(this.t("lets-epub-reader.loadEmbeddedFailed"), 3000);
     }
   }
 
@@ -318,7 +317,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       const epubFiles = await this.getEpubFilesFromAssets();
 
       if (epubFiles.length === 0) {
-        showMessage("未找到任何 EPUB 文件", 3000);
+        showMessage(this.t("lets-epub-reader.noEpubFiles"), 3000);
         return;
       }
 
@@ -345,7 +344,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       }
     } catch (error) {
       console.error("获取 EPUB 文件列表失败:", error);
-      showMessage("获取 EPUB 文件列表失败", 3000);
+      showMessage(this.t("lets-epub-reader.fetchEpubFailed"), 3000);
     }
   }
 
@@ -407,7 +406,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       // 在新标签页中渲染 EPUB 阅读器
       await this.renderEpubReader(tab, epubPath);
 
-      showMessage(`正在打开 EPUB 文件: ${this.getDisplayName(epubPath)}`, 3000);
+      showMessage(`${this.t("lets-epub-reader.openingEpub")}${this.getDisplayName(epubPath)}`, 3000);
     } catch (error) {
       console.error("打开 EPUB 文件失败:", error);
       showMessage("打开 EPUB 文件失败", 3000);
@@ -443,7 +442,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       });
     } catch (error) {
       console.error("渲染 EPUB 阅读器失败:", error);
-      showMessage("渲染 EPUB 阅读器失败", 3000);
+      showMessage(this.t("lets-epub-reader.renderEpubFailed"), 3000);
     }
   }
 
@@ -474,7 +473,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       }
     } catch (error) {
       console.error("加载 EPUB 文件失败:", error);
-      showMessage("加载 EPUB 文件失败", 3000);
+      showMessage(this.t("lets-epub-reader.loadEpubFailed"), 3000);
     }
   }
 
@@ -526,7 +525,7 @@ export default class EpubReaderPlugin implements SubPlugin {
       };
       script.onerror = () => {
         console.error("epub.js 加载失败");
-        showMessage("epub.js 加载失败，EPUB 阅读器无法工作", 5000);
+        showMessage(this.t("lets-epub-reader.epubJsLoadFailed"), 5000);
       };
       document.head.appendChild(script);
     }

@@ -1,10 +1,10 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
 import { isMobile } from "@/utils";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
-export default class DockShowAndHide implements SubPlugin {
-  onunload(): void {}
+export default class DockShowAndHide extends SubPluginBase {
+  override onunload(): void {}
 
   leftWidthRegex = /left\[(.*?)\]/;
   rightWidthRegex = /right\[(.*?)\]/;
@@ -14,7 +14,7 @@ export default class DockShowAndHide implements SubPlugin {
   originRightWidth;
 
   usedFlag = false;
-  onload(): void {}
+  override onload(): void {}
 
   onLayoutReady() {
     if (!isMobile) {
@@ -141,7 +141,7 @@ export default class DockShowAndHide implements SubPlugin {
     if (!configFlag && this.usedFlag) {
       let otherDocs = settings.getBySpace("dockShowAndHide", "otherDocs");
       //保持当前配置
-      if (otherDocs === "恢复上次使用配置") {
+      if (otherDocs === "lets-dock-show-and-hide.restorePrevious") {
         window.siyuan.config.uiLayout.hideDock = this.originHideDock;
         window.siyuan.layout.leftDock.layout.element.style.width =
           this.originLeftWidth;

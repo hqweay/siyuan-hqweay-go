@@ -1,11 +1,12 @@
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
 const fs = require("fs");
 const path = require("path");
 
-class RandomHeaderImagePlugin implements SubPlugin {
+class RandomHeaderImagePlugin extends SubPluginBase {
   changeImageBindThis = this.changeImage.bind(this);
   customEvent;
   cachedImages = {};
@@ -14,11 +15,11 @@ class RandomHeaderImagePlugin implements SubPlugin {
     // Bind methods
   }
 
-  async onload() {
+  override async onload() {
     document.addEventListener("contextmenu", this.changeImageBindThis);
   }
 
-  async onunload() {
+  override async onunload() {
     document.removeEventListener("contextmenu", this.changeImageBindThis);
   }
 
@@ -84,7 +85,7 @@ class RandomHeaderImagePlugin implements SubPlugin {
     }
 
     if (imageFolders.length <= 0) {
-      showMessage("请检查随机图片文件夹的路径配置～");
+      showMessage(this.t("lets-randomHeaderImage.checkFolderPath"));
       return;
     }
     const folderIndex =
@@ -111,7 +112,7 @@ class RandomHeaderImagePlugin implements SubPlugin {
     }
 
     if (!fs.existsSync(folderPath)) {
-      showMessage("请检查随机图片的配置～");
+      showMessage(this.t("lets-randomHeaderImage.checkConfig"));
       return;
     }
 

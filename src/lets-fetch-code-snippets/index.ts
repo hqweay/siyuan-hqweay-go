@@ -1,12 +1,12 @@
 import { PluginRegistry } from "@/plugin-registry";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { getFileContent } from "@/utils";
 import { fetchSyncPost } from "siyuan";
 import pluginMetadata from "./plugin";
 import { settings } from "@/settings";
-export default class FetchCodeSnippets implements SubPlugin {
+export default class FetchCodeSnippets extends SubPluginBase {
   codeSnippets = [];
-  onunload() {
+  override onunload() {
     // 获取所有的 style 元素
     const styles = document.querySelectorAll("style");
     // 遍历所有 style 元素
@@ -19,7 +19,7 @@ export default class FetchCodeSnippets implements SubPlugin {
     });
   }
 
-  async onload() {
+  override async onload() {
     //这里注入CSS和JS - 需要保留代码片段功能
 
     console.log("FetchCodeSnippets onload");
@@ -47,7 +47,7 @@ export default class FetchCodeSnippets implements SubPlugin {
   }
 
   //App 准备好时加载
-  async onLayoutReady() {
+  override async onLayoutReady() {
     console.log("FetchCodeSnippets onLayoutReady");
     // TODO: Handle code snippets injection
 

@@ -1,12 +1,12 @@
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
 import DockPlugin from "./DockPlugin";
 import pluginMetadata from "./plugin";
 import { Dock } from "siyuan";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
-export default class DockPlugins implements SubPlugin {
+export default class DockPlugins extends SubPluginBase {
   private dockPlugins: DockPlugin[] = [];
-  onload(): void {
+  override onload(): void {
     const docks = settings.getBySpace(pluginMetadata.name, "docks")?.trim();
     console.log(docks);
     if (!docks) {
@@ -19,14 +19,14 @@ export default class DockPlugins implements SubPlugin {
     });
   }
 
-  onLayoutReady(): void {
+  override onLayoutReady(): void {
     console.log(this.dockPlugins);
     this.dockPlugins?.forEach((dock) => {
       dock?.onLayoutReady();
     });
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.dockPlugins?.forEach((dock) => {
       dock?.onunload();
     });

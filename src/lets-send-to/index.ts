@@ -2,13 +2,14 @@ import { showMessage, Dialog } from "siyuan";
 import { plugin } from "@/utils";
 import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import CardView from "./pages/card.svelte";
-export default class SendToPlugin implements SubPlugin {
+export default class SendToPlugin extends SubPluginBase {
   availableBlocks = ["NodeParagraph", "NodeHeading"];
 
-  async onload() {}
+  override async onload() {}
 
-  async onunload() {}
+  override async onunload() {}
 
   public blockIconEvent({ detail }) {
     let resultText = this.getContent(detail);
@@ -50,17 +51,16 @@ export default class SendToPlugin implements SubPlugin {
     return [
       {
         iconHTML: "",
-        label: "卡片分享",
+        label: this.t("lets-sendTo.cardShare"),
         click: () => {
-          // showMessage("尚未实现");
           this.showDialog(resultText, detail);
         },
       },
       {
         iconHTML: "",
-        label: "自定义脚本处理",
+        label: this.t("lets-sendTo.customScript"),
         click: () => {
-          showMessage("尚未实现");
+          showMessage(this.t("lets-sendTo.notImplemented"));
         },
       },
     ];
@@ -106,7 +106,7 @@ export default class SendToPlugin implements SubPlugin {
       .map((line) => {
         const item = line.split("====");
         if (item.length !== 2) {
-          showMessage(`配置有误，请检查`);
+          showMessage(this.t("lets-sendTo.configError"));
         }
 
         if (item[1].includes("${content}")) {
@@ -142,7 +142,7 @@ export default class SendToPlugin implements SubPlugin {
 
   private showDialog(resultText, detail) {
     let dialog = new Dialog({
-      title: `卡片分享`,
+      title: this.t("lets-sendTo.dialogTitle"),
       content: `<div id="cardPanel" class="b3-dialog__content"></div>`,
       // width: plugin.isMobile ? "92vw" : "720px",
       width: "720px",

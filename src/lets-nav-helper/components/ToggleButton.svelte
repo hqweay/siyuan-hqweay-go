@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { plugin } from "@/utils";
   
   export let isCollapsed: boolean = false;
   export let deviceType: 'mobile' | 'desktop';
@@ -15,7 +16,7 @@
   class="toggle-button {deviceType}"
   class:collapsed={isCollapsed}
   on:click={handleClick}
-  title={isCollapsed ? '展开导航栏' : '收起导航栏'}
+  title={isCollapsed ? plugin.i18n["lets-nav-helper.expandNav"] : plugin.i18n["lets-nav-helper.collapseNav"]}
 >
   <span class="icon">
     {#if isCollapsed}

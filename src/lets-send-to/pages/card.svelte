@@ -148,7 +148,7 @@
   let settingConfig = {
     template: {
       type: "select",
-      title: "切换模板",
+      title: plugin.i18n["lets-sendTo.template"],
       description: "",
       key: "template",
       value: settings.getBySpaceSub("sendTo", "card", "template"),
@@ -163,72 +163,72 @@
     },
     hideLi: {
       type: "checkbox",
-      title: "隐藏大纲元素前面的小点",
+      title: plugin.i18n["lets-sendTo.hideLi"],
       description: "",
       key: "hideLi",
       value: settings.getBySpaceSub("sendTo", "card", "hideLi"),
     },
     pLineHeight: {
       type: "number",
-      title: "调整段落间距",
-      description: "大于等于 0 则清除段落默认间距并以新的数字调整间距",
+      title: plugin.i18n["lets-sendTo.pLineHeight"],
+      description: plugin.i18n["lets-sendTo.pLineHeightDesc"],
       key: "pLineHeight",
       value: settings.getBySpaceSub("sendTo", "card", "pLineHeight"),
     },
     addDOCTitle: {
       type: "select",
-      title: "添加文档标题",
+      title: plugin.i18n["lets-sendTo.addDOCTitle"],
       description: "",
       key: "addDOCTitle",
       value: settings.getBySpaceSub("sendTo", "card", "addDOCTitle"),
       options: {
-        none: "无",
-        center: "居中",
-        left: "居左",
+        none: plugin.i18n["lets-sendTo.none"],
+        center: plugin.i18n["lets-sendTo.center"],
+        left: plugin.i18n["lets-sendTo.left"],
       },
     },
     author: {
       type: "textinput",
-      title: "添加一个作者名",
+      title: plugin.i18n["lets-sendTo.author"],
       description: "",
       key: "author",
       value: settings.getBySpaceSub("sendTo", "card", "author"),
     },
     addTime: {
       type: "select",
-      title: "添加一个时间",
+      title: plugin.i18n["lets-sendTo.addTime"],
       description: "",
       key: "addTime",
       value: settings.getBySpaceSub("sendTo", "card", "addTime"),
       options: {
-        byCreated: "当前时间",
-        none: "无",
+        byCreated: plugin.i18n["lets-sendTo.byCreated"],
+        none: plugin.i18n["lets-sendTo.none"],
       },
     },
     cardBackgroundColor: {
       type: "textinput",
-      title: "卡片颜色",
+      title: plugin.i18n["lets-sendTo.cardBackgroundColor"],
       description: "",
       key: "cardBackgroundColor",
       value: settings.getBySpaceSub("sendTo", "card", "cardBackgroundColor"),
     },
     innerBackgroundColor: {
       type: "textinput",
-      title: "内容块颜色",
+      title: plugin.i18n["lets-sendTo.innerBackgroundColor"],
       description: "",
       key: "innerBackgroundColor",
       value: settings.getBySpaceSub("sendTo", "card", "innerBackgroundColor"),
     },
     fontColor: {
       type: "textinput",
-      title: "内容字体颜色",
+      title: plugin.i18n["lets-sendTo.fontColor"],
       description: "",
       key: "fontColor",
       value: settings.getBySpaceSub("sendTo", "card", "fontColor"),
     },
     hfColor: {
       type: "textinput",
-      title: "头尾字体颜色",
+      title: plugin.i18n["lets-sendTo.hfColor"],
       description: "",
       key: "hfColor",
       value: settings.getBySpaceSub("sendTo", "card", "hfColor"),
@@ -236,28 +236,28 @@
 
     saveTemplate: {
       type: "button",
-      title: "保存为模板",
+      title: plugin.i18n["lets-sendTo.saveTemplate"],
       description: "",
       key: "saveTemplate",
-      value: "确认",
+      value: plugin.i18n["lets-sendTo.confirm"],
       ignore: true,
     },
     templateName: {
       type: "textinput",
-      title: "模板名",
+      title: plugin.i18n["lets-sendTo.templateName"],
       description: "",
       key: "templateName",
-      placeholder: "输入保存的模板名",
+      placeholder: plugin.i18n["lets-sendTo.templateNamePlaceholder"],
       value: "",
       ignore: true,
     },
 
     deleteTemplate: {
       type: "button",
-      title: "删除当前模板",
+      title: plugin.i18n["lets-sendTo.deleteTemplate"],
       description: "",
       key: "deleteTemplate",
-      value: "确认",
+      value: plugin.i18n["lets-sendTo.confirm"],
       ignore: true,
     },
   };
@@ -343,7 +343,7 @@
   const onClick = async ({ detail }: CustomEvent<ChangeEvent>) => {
     if ("saveTemplate" === detail.key) {
       if (!settingConfig.templateName.value) {
-        showMessage("请输入模板名");
+        showMessage(plugin.i18n["lets-sendTo.pleaseEnterName"]);
         return;
       }
       const templateKey = settingConfig.templateName.value;
@@ -368,7 +368,7 @@
       }, {});
     } else if ("deleteTemplate" === detail.key) {
       if (!settingConfig.template.value) {
-        showMessage("尚未选择模板");
+        showMessage(plugin.i18n["lets-sendTo.noTemplateSelected"]);
         return;
       }
 
@@ -425,10 +425,10 @@
 
 <div class="menu">
   <div class="left">
-    <button class="btn" on:click={downloadCard}>下载</button>
-    <button class="btn" on:click={copy}>复制到剪切板</button>
+    <button class="btn" on:click={downloadCard}>{plugin.i18n["lets-sendTo.download"]}</button>
+    <button class="btn" on:click={copy}>{plugin.i18n["lets-sendTo.copyToClipboard"]}</button>
   </div>
-  <button class="btn" on:click={toggleSetting}>设置</button>
+  <button class="btn" on:click={toggleSetting}>{plugin.i18n["lets-sendTo.settings"]}</button>
 </div>
 
 {#if showSetting}

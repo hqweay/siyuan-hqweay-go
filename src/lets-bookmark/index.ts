@@ -1,11 +1,11 @@
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { IOperation } from "siyuan";
 
-export default class Bookmark implements SubPlugin {
-  onload(): void {}
-  onunload(): void {}
+export default class Bookmark extends SubPluginBase {
+  override onload(): void {}
+  override onunload(): void {}
   regexOfHighLight = /==([^=]+)==/;
 
   private async addTo({ detail, bookmarkName }) {
@@ -33,7 +33,7 @@ export default class Bookmark implements SubPlugin {
 
     detail.menu.addItem({
       iconHTML: "",
-      label: "添加到书签",
+      label: this.t("lets-bookmark.addToBookmark"),
       click: () => {
         this.addTo({ detail, bookmarkName: bookNames[0] });
       },

@@ -2,7 +2,6 @@ import { setBlockAttrs } from "@/api";
 import InsertCSS from "@/myscripts/insertCSS";
 import { addProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
 
 import ShowCustomPropertiesUnderTitle from "./ShowCustomPropertiesUnderTitle";
 import Memo from "./Memo";
@@ -20,14 +19,14 @@ function parseArrayString(str) {
 
 let menus = [];
 
-export default class BlockAttr extends InsertCSS implements SubPlugin {
+export default class BlockAttr extends InsertCSS {
   private showCustomPropertiesUnderTitlePlugin =
     new ShowCustomPropertiesUnderTitle();
   private memoPlugin = new Memo();
   public blockIconEvent({ detail }: any) {
     detail.menu.addItem({
       iconHTML: "",
-      label: "快捷添加属性",
+      label: this.t("lets-block-attr.quickAddAttr"),
       submenu: menus
         .filter((menu) => menu.enabled)
         .map((menu) => ({
@@ -49,7 +48,7 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
     }
   }
 
-  onload(): void {
+  override onload(): void {
     this.loadSlashOfAttrs();
 
     settings.getBySpace(pluginMetadata.name, "customProperties") &&
@@ -62,7 +61,7 @@ export default class BlockAttr extends InsertCSS implements SubPlugin {
       this.memoPlugin.onload();
   }
 
-  onunload(): void {
+  override onunload(): void {
     this.showCustomPropertiesUnderTitlePlugin.onunload();
     this.memoPlugin.onunload();
   }

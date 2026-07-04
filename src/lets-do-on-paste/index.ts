@@ -4,13 +4,14 @@ import { plugin } from "@/utils";
 import { settings } from "@/settings";
 import { showMessage } from "siyuan";
 import { ocrAssetsUrl } from "@/lets-ocr/ocrPlugin";
-export default class doOnPaste {
-  onunload() {
+import { SubPluginBase } from "@/libs/sub-plugin-base";
+export default class doOnPaste extends SubPluginBase {
+  override onunload() {
     // 主方法自动执行
     // plugin.eventBus.off("paste", () => {});
   }
 
-  public async onload() {
+  override async onload() {
     // if (!settings.getBySpace("pluginFlag", "doOnPaste")) {
     //   return;
     // }
@@ -50,7 +51,7 @@ export default class doOnPaste {
       event.stopPropagation();
       clipboardText = clipboardText.replace(pattern, replacement);
       // document.execCommand("insertText", false, clipboardText);
-      showMessage("粘贴时清理空行");
+      showMessage(this.t("lets-do-on-paste.cleanEmptyLines"));
       return true;
     }
     return false;
@@ -78,28 +79,28 @@ export default class doOnPaste {
     } else if (recAnnoType === "pinImg") {
       replaced = clipboardText.replace(regex, `<<$1 "📌">>![]($3)`);
     } else if (recAnnoType === "ocrTextPin") {
-      showMessage("正在识别OCR，请稍候...", 2000);
+      showMessage(this.t("lets-do-on-paste.ocrProcessing"), 2000);
       const ocrText = await ocrAssetsUrl(
         Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
         undefined
       );
       replaced = clipboardText.replace(regex, `<<$1 "📌">>\n${ocrText}`);
     } else if (recAnnoType === "pinOcrText") {
-      showMessage("正在识别OCR，请稍候...", 2000);
+      showMessage(this.t("lets-do-on-paste.ocrProcessing"), 2000);
       const ocrText = await ocrAssetsUrl(
         Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
         undefined
       );
       replaced = clipboardText.replace(regex, `${ocrText}<<$1 "📌">>`);
     } else if (recAnnoType === "ocrText") {
-      showMessage("正在识别OCR，请稍候...", 2000);
+      showMessage(this.t("lets-do-on-paste.ocrProcessing"), 2000);
       const ocrText = await ocrAssetsUrl(
         Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
         undefined
       );
       replaced = clipboardText.replace(regex, `<<$1 "${ocrText}">>`);
     } else if (recAnnoType === "calloutPinText") {
-      showMessage("正在识别OCR，请稍候...", 2000);
+      showMessage(this.t("lets-do-on-paste.ocrProcessing"), 2000);
       const ocrText = await ocrAssetsUrl(
         Array.from(clipboardText.matchAll(regex), (match) => match[3])[0],
         undefined

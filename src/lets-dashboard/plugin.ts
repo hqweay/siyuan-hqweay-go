@@ -2,25 +2,24 @@ import { PluginMetadata } from "@/types/plugin";
 
 const pluginMetadata: PluginMetadata = {
   name: "dashBoard",
-  displayName: "【实验】仪表盘",
-  description:
-    "提供一个仪表盘，主要为了复刻日记软件的流程；支持通过链接单独打开文档流、图片流",
+  displayName: "lets-dashboard.displayName",
+  description: "lets-dashboard.description",
   version: "1.0.0",
   author: "hqweay",
   settings: [
     {
       type: "textinput",
-      title: "添加到 Dock",
+      title: "lets-dashboard.addToDockTitle",
       description:
         "LeftTop | LeftBottom | RightTop | RightBottom | BottomLeft | BottomRight",
       key: "addToDock",
       value: "",
-      placeholder: "为空不添加",
+      placeholder: "lets-dashboard.addToDockPlaceholder",
     },
     {
       type: "textarea",
-      title: "文档流/图片流模式",
-      description: "提供一个面板通过输入的 SQL 查询……",
+      title: "lets-dashboard.flowModeTitle",
+      description: "lets-dashboard.flowModeDescription",
       key: "flowMode",
       value: `[
         {
@@ -52,8 +51,8 @@ const pluginMetadata: PluginMetadata = {
     },
     {
       type: "textarea",
-      title: "仪表盘配置",
-      description: "参考默认配置……",
+      title: "lets-dashboard.configsTitle",
+      description: "lets-dashboard.configsDescription",
       key: "configs",
       value: `[
     {
@@ -137,7 +136,7 @@ const pluginMetadata: PluginMetadata = {
       mainSQL: "select blocks.* from blocks join attributes on blocks.id = attributes.block_id where attributes.name like 'custom-dailynote%' order by attributes.value desc",
     },
   ]`,
-      placeholder: "参考默认配置……",
+      placeholder: "lets-dashboard.configsPlaceholder",
     },
   ],
 };

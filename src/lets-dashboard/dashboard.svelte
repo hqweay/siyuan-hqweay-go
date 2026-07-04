@@ -719,7 +719,7 @@ order by attributes.value desc`,
       />
       <StatCard
         type="icon-stat"
-        label="总图片数"
+        label={plugin.i18n["lets-dashboard.totalImages"]}
         number={diaryHasImageEntriesCount || 0}
         backgroundColor={showMedia ? "rgba(59, 130, 246, 0.12)" : "transparent"}
         clickable={true}
@@ -729,7 +729,7 @@ order by attributes.value desc`,
     {#if showOnThisDay}
       <StatCard
         type="icon-stat"
-        label="那年今日"
+        label={plugin.i18n["lets-dashboard.thisDayInHistory"]}
         number={thisDayInHistoryCount}
         backgroundColor={specialDayType === SpecialDayType.ThisDayInHistory
           ? "rgba(59, 130, 246, 0.12)"
@@ -739,7 +739,7 @@ order by attributes.value desc`,
       />
       <StatCard
         type="icon-stat"
-        label="那月今日"
+        label={plugin.i18n["lets-dashboard.thisMonthInHistory"]}
         number={thisMonthInHistoryCount}
         backgroundColor={specialDayType === SpecialDayType.ThisMonthInHistory
           ? "rgba(59, 130, 246, 0.12)"
@@ -749,7 +749,7 @@ order by attributes.value desc`,
       />
       <StatCard
         type="icon-stat"
-        label="那周今日"
+        label={plugin.i18n["lets-dashboard.thisWeekInHistory"]}
         number={thisWeekInHistoryCount}
         backgroundColor={specialDayType === SpecialDayType.ThisWeekInHistory
           ? "rgba(59, 130, 246, 0.12)"
@@ -793,14 +793,14 @@ order by attributes.value desc`,
       {#if selectedDays.length > 0 || specialDayType !== SpecialDayType.None}
         <div class="day-filter">
           {#if specialDayType === SpecialDayType.ThisDayInHistory}
-            <span>已筛选：那年今日</span>
+            <span>{plugin.i18n["lets-dashboard.filteredThisDayInHistory"]}</span>
           {:else if specialDayType === SpecialDayType.ThisMonthInHistory}
-            <span>已筛选：那月今日</span>
+            <span>{plugin.i18n["lets-dashboard.filteredThisMonthInHistory"]}</span>
           {:else if specialDayType === SpecialDayType.ThisWeekInHistory}
-            <span>已筛选：那周今日</span>
+            <span>{plugin.i18n["lets-dashboard.filteredThisWeekInHistory"]}</span>
           {/if}
           {#if selectedDays.length > 0}
-            <span>已筛选：{selectedDays.join(", ")}</span>
+            <span>{plugin.i18n["lets-dashboard.filteredDays"]}{selectedDays.join(", ")}</span>
           {/if}
           <button
             class="clear-filter"
@@ -809,7 +809,7 @@ order by attributes.value desc`,
               selectedDays = [];
             }}
           >
-            清除
+            {plugin.i18n["lets-dashboard.clearFilter"]}
           </button>
         </div>
       {/if}

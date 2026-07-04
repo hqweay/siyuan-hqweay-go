@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { plugin } from "@/utils";
 
   export let data: any[] = [];
   export let imgEl: HTMLImageElement;
@@ -37,7 +38,7 @@
         >
           <span class="ocr-word-text">{item.words}</span>
           {#if copied}
-            <div class="ocr-copied-tip">已复制</div>
+            <div class="ocr-copied-tip">{plugin.i18n["lets-ocr.copied"]}</div>
           {/if}
         </div>
       {/each}

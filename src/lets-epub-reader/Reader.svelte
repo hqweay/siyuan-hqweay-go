@@ -117,7 +117,7 @@
 
   function openFile(file: File) {
     if (!file) {
-      errorMessage = "未选择文件";
+      errorMessage = plugin.i18n["lets-epub-reader.fileNotSelected"];
       return;
     }
 
@@ -126,14 +126,14 @@
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith(".epub")) {
-      errorMessage = "请选择有效的EPUB文件";
+      errorMessage = plugin.i18n["lets-epub-reader.selectValidEpub"];
       return;
     }
 
     // Validate file size (max 100MB)
     const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
-      errorMessage = "文件过大，请选择小于100MB的EPUB文件";
+      errorMessage = plugin.i18n["lets-epub-reader.fileTooLarge"];
       return;
     }
 
@@ -151,11 +151,11 @@
       if (arrayBuffer) {
         await openBook(arrayBuffer);
       } else {
-        errorMessage = "文件读取失败";
+        errorMessage = plugin.i18n["lets-epub-reader.fileReadFailed"];
       }
     };
     reader.onerror = () => {
-      errorMessage = "文件读取失败";
+      errorMessage = plugin.i18n["lets-epub-reader.fileReadFailed"];
       console.error("文件读取错误:", reader.error);
     };
     reader.readAsArrayBuffer(file);
@@ -168,7 +168,7 @@
       isReady = false;
       errorMessage = "";
       loadingProgress = 0;
-      loadingMessage = "正在初始化阅读器...";
+      loadingMessage = plugin.i18n["lets-epub-reader.initReader"];
 
       // 重置阅读进度跟踪变量
       lastSavedProgress = 0;
@@ -197,7 +197,7 @@
       }
 
       //console.log("开始加载EPUB书籍...");
-      loadingMessage = "正在解析EPUB文件...";
+      loadingMessage = plugin.i18n["lets-epub-reader.parsingEpub"];
       loadingProgress = 20;
 
       // Create book instance - handle URLs with fragments
@@ -207,7 +207,7 @@
       }
       book = ePub(bookSource);
 
-      loadingMessage = "正在准备渲染...";
+      loadingMessage = plugin.i18n["lets-epub-reader.preparingRender"];
       loadingProgress = 40;
 
       // Create rendition with view mode
@@ -231,7 +231,7 @@
       await book.locations.generate();
 
       // Register themes
-      loadingMessage = "正在加载主题...";
+      loadingMessage = plugin.i18n["lets-epub-reader.loadingTheme"];
       loadingProgress = 50;
 
       rendition.themes.register("light", {
@@ -257,7 +257,7 @@
       rendition.themes.fontSize(`${fontSize}%`);
 
       // Load navigation
-      loadingMessage = "正在加载目录...";
+      loadingMessage = plugin.i18n["lets-epub-reader.loadingToc"];
       loadingProgress = 60;
 
       book.loaded.navigation
@@ -271,7 +271,7 @@
         });
 
       // Load metadata
-      loadingMessage = "正在读取书籍信息...";
+      loadingMessage = plugin.i18n["lets-epub-reader.readingBookInfo"];
       loadingProgress = 70;
 
       book.loaded.metadata
@@ -304,7 +304,7 @@
       const start = initialCfi || saved || undefined;
 
       // Display the book
-      loadingMessage = "正在渲染内容...";
+      loadingMessage = plugin.i18n["lets-epub-reader.renderingContent"];
       loadingProgress = 80;
 
       // Set up event listeners
@@ -315,7 +315,7 @@
       //console.log("开始显示书籍，初始位置:", start);
       await rendition.display(start);
 
-      loadingMessage = "正在完成初始化...";
+      loadingMessage = plugin.i18n["lets-epub-reader.completingInit"];
       loadingProgress = 90;
 
       // Initialize annotation manager
@@ -338,7 +338,7 @@
       console.error("❌ 加载EPUB失败:", error);
       isLoading = false;
       isReady = false;
-      errorMessage = `加载EPUB失败: ${error instanceof Error ? error.message : "未知错误"}`;
+      errorMessage = `${plugin.i18n["lets-epub-reader.loadingFailed"]}: ${error instanceof Error ? error.message : plugin.i18n["lets-epub-reader.unknownError"]}`;
 
       // Show error to user
       // if (typeof window !== "undefined" && window.siyuan?.showMessage) {
@@ -497,7 +497,7 @@
 
     rendition.on("failed", (error: any) => {
       console.error("渲染失败:", error);
-      errorMessage = `渲染失败: ${error.message || error}`;
+      errorMessage = `${plugin.i18n["lets-epub-reader.loadingFailed"]}: ${error.message || error}`;
       isLoading = false;
     });
 
@@ -860,7 +860,7 @@
   ) {
     if (!currentSelection || !boundDocId) {
       if (!boundDocId) {
-        alert("请先在设置中绑定文档");
+        alert(plugin.i18n["lets-epub-reader.bindDoc"]);
         sidebarTab = "settings";
         sidebarVisible = true;
       }
@@ -916,7 +916,7 @@
   async function handleNote(event: CustomEvent<{ color: HighlightColor }>) {
     if (!currentSelection || !boundDocId) {
       if (!boundDocId) {
-        alert("请先在设置中绑定文档");
+        alert(plugin.i18n["lets-epub-reader.bindDoc"]);
         sidebarTab = "settings";
         sidebarVisible = true;
       }
@@ -1016,7 +1016,7 @@
 
       if (!boundDocId) {
         console.warn("📝 Please bind a document first");
-        this?.showMessage?.("请先在设置中绑定文档", "warning");
+        this?.showMessage?.(plugin.i18n["lets-epub-reader.bindDoc"], "warning");
         return;
       }
 
@@ -1067,7 +1067,7 @@
     } catch (error) {
       console.error("❌ Error in handleQuickHighlight:", error);
       // Optionally show user-friendly error message
-      this?.showMessage?.("标注功能出现错误，请重试", "error");
+      this?.showMessage?.(plugin.i18n["lets-epub-reader.quickHighlightError"], "error");
     }
   }
 
@@ -1157,7 +1157,7 @@
 
       if (!boundDocId) {
         console.warn("📝 Please bind a document first");
-        this?.showMessage?.("请先在设置中绑定文档", "warning");
+        this?.showMessage?.(plugin.i18n["lets-epub-reader.bindDoc"], "warning");
         return;
       }
 
@@ -1208,7 +1208,7 @@
     } catch (error) {
       console.error("❌ Error in handleQuickNote:", error);
       // Optionally show user-friendly error message
-      this?.showMessage?.("笔记功能出现错误，请重试", "error");
+      this?.showMessage?.(plugin.i18n["lets-epub-reader.quickNoteError"], "error");
     }
   }
 
@@ -1486,7 +1486,7 @@
 
 <div class="reader-root">
   <div class="toolbar">
-    <button class="toolbar-btn" on:click={toggleSidebar} title="切换侧栏">
+    <button class="toolbar-btn" on:click={toggleSidebar} title={plugin.i18n["lets-epub-reader.toggleSidebar"]}>
       {sidebarVisible ? "◀" : "▶"}
     </button>
 
@@ -1494,14 +1494,14 @@
       <button
         class="toolbar-btn"
         on:click={handleQuickHighlight}
-        title="标注"
+        title={plugin.i18n["lets-epub-reader.highlight"]}
         disabled={!isReady}>🖍️</button
       >
 
       <button
         class="toolbar-btn"
         on:click={handleQuickNote}
-        title="笔记"
+        title={plugin.i18n["lets-epub-reader.note"]}
         disabled={!isReady}>📝</button
       >
     {/if}
@@ -1511,13 +1511,13 @@
         class="toolbar-btn"
         on:click={prev}
         disabled={!isReady}
-        title="上一页">◀</button
+        title={plugin.i18n["lets-epub-reader.prevPage"]}>◀</button
       >
       <button
         class="toolbar-btn"
         on:click={next}
         disabled={!isReady}
-        title="下一页">▶</button
+        title={plugin.i18n["lets-epub-reader.nextPage"]}>▶</button
       >
     {/if}
 
@@ -1549,7 +1549,7 @@
     <!-- <div class="title-text" {title}>{title}</div> -->
 
     <div class="progress-wrapper">
-      <div class="progress-bar" title="进度 {progress}%">
+      <div class="progress-bar" title="{plugin.i18n["lets-epub-reader.progress"]} {progress}%">
         <div class="progress-fill" style="width:{progress}%"></div>
       </div>
       <span class="progress-text">{progress}%</span>
@@ -1593,7 +1593,7 @@
           <div class="error-icon">⚠️</div>
           <div class="error-message">{errorMessage}</div>
           <button class="error-btn" on:click={() => (errorMessage = "")}
-            >关闭</button
+            >{plugin.i18n["lets-epub-reader.close"]}</button
           >
         </div>
       </div>

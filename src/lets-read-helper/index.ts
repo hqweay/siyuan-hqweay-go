@@ -1,10 +1,11 @@
 import { settings } from "@/settings";
 import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 
-export default class ReadHelper implements SubPlugin {
-  onload(): void {}
+export default class ReadHelper extends SubPluginBase {
+  override onload(): void {}
 
-  onunload(): void {}
+  override onunload(): void {}
 
   updateProtyleToolbar(toolbar) {
     if (settings.getBySpace("readHelper", "markAndCopyRef")) {
@@ -12,7 +13,7 @@ export default class ReadHelper implements SubPlugin {
         name: "markAndCopyRef",
         icon: "iconStar",
         tipPosition: "n",
-        tip: "标注并复制块引",
+        tip: this.t("lets-readHelper.markAndCopyRef"),
         click: (protyle) => {
           this.markAndCopyRef(protyle.protyle);
         },
@@ -23,7 +24,7 @@ export default class ReadHelper implements SubPlugin {
         name: "markAndCopyTextRef",
         icon: "iconUp",
         tipPosition: "n",
-        tip: "标注并复制 Text*",
+        tip: this.t("lets-readHelper.markAndCopyTextRef"),
         click: (protyle) => {
           this.markAndCopyTextRef(protyle.protyle);
         },
@@ -34,7 +35,7 @@ export default class ReadHelper implements SubPlugin {
         name: "markAndCopyTextRefNoHighlight",
         icon: "iconDown",
         tipPosition: "n",
-        tip: "标注并复制 *",
+        tip: this.t("lets-readHelper.markAndCopyTextRefNoHighlight"),
         click: (protyle) => {
           this.markAndCopyTextRefNoHighlight(protyle.protyle);
         },

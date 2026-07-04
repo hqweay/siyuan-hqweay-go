@@ -4,6 +4,7 @@
   import StatCard from "./StatCard.svelte";
   import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
   import { showMessage } from "siyuan";
+  import { plugin } from "@/utils";
 
   export let imgSQL;
   export let layout = "grid"; // 'grid' | 'masonry'
@@ -136,7 +137,7 @@
     <StatCard
       type="text"
       asButton={true}
-      label="网格"
+      label={plugin.i18n["lets-dashboard.gridView"]}
       active={layout === "grid"}
       activeBackground="rgba(16, 185, 129, 0.12)"
       fixedWidth="15%"
@@ -148,7 +149,7 @@
     <StatCard
       type="text"
       asButton={true}
-      label="瀑布流"
+      label={plugin.i18n["lets-dashboard.masonryView"]}
       fixedWidth="15%"
       active={layout === "masonry"}
       activeBackground="rgba(16, 185, 129, 0.12)"
@@ -161,7 +162,7 @@
       <StatCard
         type="text"
         asButton={true}
-        label="复制图片流链接"
+        label={plugin.i18n["lets-dashboard.copyImageFlowLink"]}
         fixedWidth="15%"
         activeBackground="rgba(16, 185, 129, 0.12)"
         clickable={true}
@@ -169,7 +170,7 @@
           copyToClipboard(
             `[${title}](siyuan://plugins/siyuan-hqweay-go/flow-image?title=${encodeURIComponent(title)}&sql=${encodeURIComponent(imgSQL)})`
           );
-          showMessage(`文档流访问链接已复制到剪贴板～`);
+          showMessage(plugin.i18n["lets-dashboard.flowLinkCopied"]);
         }}
       />
     {/if}
@@ -181,7 +182,7 @@
         <div class="image-item" title={formatTimestamp(img.created)}>
           <a href={"siyuan://blocks/" + img.id}>
             {#each img.url ? [img.url] : img.urls || [] as url, index}
-              <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
+              <img src={url} alt={`${plugin.i18n["lets-dashboard.diaryImageAlt"]} ${index + 1}`} loading="lazy" />
             {/each}
           </a>
           <div class="image-overlay">
@@ -196,7 +197,7 @@
         {#each img.url ? [img.url] : img.urls || [] as url, index}
           <div class="image-item" title={formatTimestamp(img.created)}>
             <a href={"siyuan://blocks/" + img.id}>
-              <img src={url} alt="日记图片 {index + 1}" loading="lazy" />
+              <img src={url} alt={`${plugin.i18n["lets-dashboard.diaryImageAlt"]} ${index + 1}`} loading="lazy" />
             </a>
             <div class="image-overlay">
               <span class="image-date">{formatTimestamp(img.updated)}</span>
@@ -209,9 +210,9 @@
 
   <div class="images-loading">
     {#if loading}
-      <div class="loading-text">加载中...</div>
+      <div class="loading-text">{plugin.i18n["lets-dashboard.loadingImages"]}</div>
     {:else if !hasMore}
-      <div class="loading-text">没有更多图片</div>
+      <div class="loading-text">{plugin.i18n["lets-dashboard.noMoreImages"]}</div>
     {/if}
     <div bind:this={sentinel} class="sentinel" aria-hidden="true"></div>
   </div>

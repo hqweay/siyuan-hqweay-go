@@ -1,169 +1,170 @@
 <script>
   import StatCard from "./StatCard.svelte";
+  import { plugin } from "@/utils";
 </script>
 
 <div class="examples-container">
-  <h2>StatCard 组件使用示例</h2>
+  <h2>{plugin.i18n["lets-dashboard.examplesTitle"]}</h2>
 
   <div class="examples-grid">
     <!-- 基础类型 -->
     <div class="example-section">
-      <h3>基础类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesBasicType"]}</h3>
       <div class="cards-row">
-        <StatCard type="text" label="纯文字卡片" hover="这是一个纯文字卡片" />
-        <StatCard type="number" number={42} hover="显示数字 42" />
+        <StatCard type="text" label={plugin.i18n["lets-dashboard.textCard"]} hover={plugin.i18n["lets-dashboard.textCard"]} />
+        <StatCard type="number" number={42} hover={plugin.i18n["lets-dashboard.showsNumber"]} />
         <StatCard
           type="text+number"
           number={128}
-          label="总数"
-          hover="总共 128 项"
+          label={plugin.i18n["lets-dashboard.totalLabel"]}
+          hover={plugin.i18n["lets-dashboard.total128"]}
         />
       </div>
     </div>
 
     <!-- 进度类型 -->
     <div class="example-section">
-      <h3>进度相关类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesProgressType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="progress"
-          label="任务完成度"
+          label={plugin.i18n["lets-dashboard.taskCompletion"]}
           percentage={75}
-          hover="已完成 75% 的任务"
+          hover={plugin.i18n["lets-dashboard.completed75"]}
         />
         <StatCard
           type="percentage"
-          label="完成率"
+          label={plugin.i18n["lets-dashboard.completionRate"]}
           percentage={68}
-          hover="整体完成率 68%"
+          hover={plugin.i18n["lets-dashboard.overall68"]}
         />
       </div>
     </div>
 
     <!-- 趋势类型 -->
     <div class="example-section">
-      <h3>趋势类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesTrendType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="trend"
-          label="本月销量"
+          label={plugin.i18n["lets-dashboard.monthlySales"]}
           number={1250}
           trend="up"
-          hover="比上月增长 25%"
+          hover={plugin.i18n["lets-dashboard.grew25"]}
         />
         <StatCard
           type="trend"
-          label="错误率"
+          label={plugin.i18n["lets-dashboard.errorRate"]}
           number={3.2}
           trend="down"
-          hover="比上月降低 1.5%"
+          hover={plugin.i18n["lets-dashboard.decreased15"]}
         />
         <StatCard
           type="trend"
-          label="用户数"
+          label={plugin.i18n["lets-dashboard.userCount"]}
           number={8420}
           trend="stable"
-          hover="用户数保持稳定"
+          hover={plugin.i18n["lets-dashboard.stableUsers"]}
         />
       </div>
     </div>
 
     <!-- 图标类型 -->
     <div class="example-section">
-      <h3>图标类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesIconType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="icon"
           icon="💡"
           number={25}
-          label="新想法"
-          hover="今天产生了 25 个新想法"
+          label={plugin.i18n["lets-dashboard.newIdeas"]}
+          hover={plugin.i18n["lets-dashboard.generated25"]}
         />
         <StatCard
           type="icon"
           icon="⭐"
           number={8}
-          label="收藏"
-          hover="收藏了 8 篇文章"
+          label={plugin.i18n["lets-dashboard.favorites"]}
+          hover={plugin.i18n["lets-dashboard.favorited8"]}
         />
         <StatCard
           type="icon"
           icon="🔥"
           number={156}
-          label="连续天数"
-          hover="连续写作 156 天"
+          label={plugin.i18n["lets-dashboard.streakDays"]}
+          hover={plugin.i18n["lets-dashboard.writing156"]}
         />
       </div>
     </div>
 
     <!-- 状态类型 -->
     <div class="example-section">
-      <h3>状态类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesStatusType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="status"
           number={15}
-          label="在线用户"
+          label={plugin.i18n["lets-dashboard.onlineUsers"]}
           status="success"
-          hover="当前有 15 个用户在线"
+          hover={plugin.i18n["lets-dashboard.users15Online"]}
         />
         <StatCard
           type="status"
           number={3}
-          label="待处理"
+          label={plugin.i18n["lets-dashboard.pending"]}
           status="warning"
-          hover="有 3 个任务待处理"
+          hover={plugin.i18n["lets-dashboard.tasks3Pending"]}
         />
         <StatCard
           type="status"
           number={1}
-          label="错误任务"
+          label={plugin.i18n["lets-dashboard.errorTasks"]}
           status="error"
-          hover="检测到 1 个错误任务"
+          hover={plugin.i18n["lets-dashboard.detected1Error"]}
         />
       </div>
     </div>
 
     <!-- 时间类型 -->
     <div class="example-section">
-      <h3>时间类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesTimeType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="time"
-          label="今日写作时间"
+          label={plugin.i18n["lets-dashboard.todayWritingTime"]}
           time="2:34:15"
-          hover="今天已经写了 2 小时 34 分钟"
+          hover={plugin.i18n["lets-dashboard.written2h34m"]}
         />
         <StatCard
           type="time"
-          label="平均响应时间"
+          label={plugin.i18n["lets-dashboard.avgResponseTime"]}
           time="156ms"
-          hover="系统平均响应时间 156 毫秒"
+          hover={plugin.i18n["lets-dashboard.response156ms"]}
         />
       </div>
     </div>
 
     <!-- 徽章类型 -->
     <div class="example-section">
-      <h3>徽章类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesBadgeType"]}</h3>
       <div class="cards-row">
-        <StatCard type="badge" number={42} label="新消息" status="normal" />
-        <StatCard type="badge" number={8} label="系统通知" status="warning" />
+        <StatCard type="badge" number={42} label={plugin.i18n["lets-dashboard.newMessages"]} status="normal" />
+        <StatCard type="badge" number={8} label={plugin.i18n["lets-dashboard.systemNotifications"]} status="warning" />
       </div>
     </div>
 
     <!-- 多数字对比类型 -->
     <div class="example-section">
-      <h3>多数字对比类型</h3>
+      <h3>{plugin.i18n["lets-dashboard.examplesMultiNumberType"]}</h3>
       <div class="cards-row">
         <StatCard
           type="multi-number"
-          label="今日对比"
+          label={plugin.i18n["lets-dashboard.todayComparison"]}
           subNumbers={{ left: 25, right: 18 }}
         />
         <StatCard
           type="multi-number"
-          label="性能对比"
+          label={plugin.i18n["lets-dashboard.performanceComparison"]}
           subNumbers={{ left: 95, right: 87 }}
         />
       </div>

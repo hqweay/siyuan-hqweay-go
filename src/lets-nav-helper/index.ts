@@ -1,4 +1,4 @@
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { isMobile, mobileUtils } from "./utils";
 import { navigation } from "./navigation";
 import pluginMetadata from "./plugin";
@@ -7,11 +7,11 @@ import { plugin } from "@/utils";
 
 import NavigationContainer from "./components/NavigationContainer.svelte";
 
-export default class NavHelper implements SubPlugin {
+export default class NavHelper extends SubPluginBase {
   private mobileNavigationInstance: any = null;
   private desktopNavigationInstance: any = null;
 
-  onload(): void {
+  override onload(): void {
     console.log("导航助手 - 初始化移动端工具");
     // 初始化移动端工具
     mobileUtils.init();
@@ -32,7 +32,7 @@ export default class NavHelper implements SubPlugin {
     this.registerEventListeners();
   }
 
-  onunload(): void {
+  override onunload(): void {
     console.log("导航助手 - 清理资源");
 
     // 清理移动端导航栏实例

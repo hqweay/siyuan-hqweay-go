@@ -1,11 +1,10 @@
 import { sql } from "@/api";
 import { settings } from "@/settings";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import InlineElements from "./InlineElements.svelte";
 import { getCurrentDocId } from "@/myscripts/syUtils";
-import { get } from "http";
 
 interface InlineElement {
   id: string;
@@ -18,7 +17,7 @@ interface InlineElement {
   updated: number;
 }
 
-export default class InlineElementsPlugin implements SubPlugin {
+export default class InlineElementsPlugin extends SubPluginBase {
   regexOfHighLight = /==([^=]+?)==/g;
 
   private currentDocId: string = "";
@@ -26,16 +25,16 @@ export default class InlineElementsPlugin implements SubPlugin {
   private isRefreshing: boolean = false;
   private inlineElements: InlineElement[] = [];
 
-  onload(): void {
+  override onload(): void {
     plugin.addDock({
       config: {
         position: "RightTop",
         size: { width: 300, height: 0 },
         icon: `iconMark`,
-        title: "文档标注",
+        title: this.t("lets-inline-elements.title"),
         hotkey: "⌥⌘W",
       },
-      data: { text: "当前文档的行内标注元素" },
+      data: { text: this.t("lets-inline-elements.title") },
       type: "dock_tab" + "_inline_elements",
       resize() {
         //console.log(DOCK_TYPE + " resize");
@@ -88,7 +87,7 @@ export default class InlineElementsPlugin implements SubPlugin {
     });
   }
 
-  onunload(): void {}
+  override onunload(): void {}
 
   /**
    * 提取当前文档的行内标注元素
@@ -120,7 +119,7 @@ export default class InlineElementsPlugin implements SubPlugin {
     } catch (error) {
       console.error("提取行内标注失败:", error);
       this.inlineElements = [];
-      showMessage("提取行内标注失败", 3000);
+      showMessage(this.t("lets-inline-elements.loadFailedFallback"), 3000);
     } finally {
       this.isLoading = false;
       this.updateComponentProps(componentInstance);
@@ -223,10 +222,10 @@ export default class InlineElementsPlugin implements SubPlugin {
     try {
       const elements = await this.extractInlineElements(this.currentDocId);
       this.inlineElements = elements;
-      showMessage(`已刷新，找到 ${elements.length} 个标注`, 2000);
+      showMessage(`${this.t("lets-inline-elements.refreshed")}${elements.length}${this.t("lets-inline-elements.annotationsCount")}`, 2000);
     } catch (error) {
       console.error("刷新标注失败:", error);
-      showMessage("刷新标注失败", 3000);
+      showMessage(this.t("lets-inline-elements.refreshFailed"), 3000);
     } finally {
       this.isRefreshing = false;
       this.updateComponentProps(componentInstance);

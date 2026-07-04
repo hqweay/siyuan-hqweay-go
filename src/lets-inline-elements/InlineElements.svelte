@@ -179,7 +179,7 @@
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
-      showMessage("已复制到剪贴板", 2000);
+      showMessage(plugin.i18n["lets-inline-elements.copied"], 2000);
     });
   }
 
@@ -224,18 +224,18 @@
           d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 2 2 2h11c.67 0 1.27-.33 1.63-.84L22 12L17.63 5.84z"
         />
       </svg>
-      <span>文档标注</span>
+      <span>{plugin.i18n["lets-inline-elements.title"]}</span>
       {#if useProtyle}
         <span class="mode-badge simple">Protyle</span>
       {:else}
-        <span class="mode-badge simple">简单</span>
+        <span class="mode-badge simple">{plugin.i18n["lets-inline-elements.switchToSimple"]}</span>
       {/if}
     </div>
     <div class="header-actions">
       <!-- 刷新按钮 -->
       <button
         class="refresh-btn"
-        title="刷新标注列表"
+        title={plugin.i18n["lets-inline-elements.refresh"]}
         on:click={handleRefresh}
         disabled={isRefreshing}
       >
@@ -244,7 +244,7 @@
       <!-- 模式切换按钮 -->
       <button
         class="mode-toggle-btn"
-        title={useProtyle ? "切换到简单模式" : "切换到 Protyle 模式"}
+        title={useProtyle ? plugin.i18n["lets-inline-elements.switchToSimple"] : plugin.i18n["lets-inline-elements.switchToProtyle"]}
         on:click={() => (useProtyle = !useProtyle)}
       >
         {useProtyle ? "🔧" : "📝"}
@@ -265,15 +265,15 @@
       <input
         type="text"
         placeholder={useProtyle
-          ? "输入搜索关键词，按 Enter 键搜索"
-          : "搜索标注内容..."}
+          ? plugin.i18n["lets-inline-elements.searchPlaceholderProtyle"]
+          : plugin.i18n["lets-inline-elements.searchPlaceholderSimple"]}
         bind:value={searchText}
         on:keydown={handleSearchKeydown}
         class="search-input"
       />
 
       {#if searchText}
-        <button on:click={clearSearch} class="clear-btn" title="清空">
+        <button on:click={clearSearch} class="clear-btn" title={plugin.i18n["lets-inline-elements.clear"]}>
           ×
         </button>
       {/if}
@@ -284,16 +284,16 @@
     {#if isLoading}
       <div class="loading-state">
         <div class="loading-spinner"></div>
-        <span>加载中...</span>
+        <span>{plugin.i18n["lets-inline-elements.loading"]}</span>
       </div>
     {:else if filteredElements.length === 0}
       <div class="empty-state">
         {#if inlineElements.length === 0}
           <div class="empty-icon">📝</div>
-          <div class="empty-text">当前文档暂无标注</div>
-          <div class="empty-hint">使用 ==文本== 格式添加标注</div>
+          <div class="empty-text">{plugin.i18n["lets-inline-elements.noAnnotations"]}</div>
+          <div class="empty-hint">{plugin.i18n["lets-inline-elements.addHint"]}</div>
         {:else}
-          <div class="empty-text">未找到匹配的标注</div>
+          <div class="empty-text">{plugin.i18n["lets-inline-elements.noMatch"]}</div>
         {/if}
       </div>
     {:else if useProtyle}
@@ -313,7 +313,7 @@
                 <div class="element-actions">
                   <button
                     class="action-btn"
-                    title="复制 ID"
+                    title={plugin.i18n["lets-inline-elements.copyId"]}
                     on:click={() => copyToClipboard(element.id)}
                   >
                     📋
@@ -338,7 +338,7 @@
         {#if hasMore}
           <div class="load-more-container">
             <button class="load-more-btn" on:click={loadMore}>
-              加载更多 ({uniqueElementsById.length - paginatedElements.length} 剩余)
+              {plugin.i18n["lets-inline-elements.loadMore"]} ({uniqueElementsById.length - paginatedElements.length} {plugin.i18n["lets-inline-elements.remaining"]})
             </button>
           </div>
         {/if}
@@ -360,7 +360,7 @@
                                     </button>
                                     <button 
                                         class="action-btn" 
-                                        title="跳转到位置"
+                    title={plugin.i18n["lets-inline-elements.jumpTo"]}
                                         on:click={() => jumpToElement(element.id)}
                                     >
                                         🔗

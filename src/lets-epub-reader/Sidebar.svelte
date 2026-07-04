@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { TocItem, Annotation, SidebarTab } from './types';
+  import { plugin } from "@/utils";
 
   export let toc: TocItem[] = [];
   export let annotations: Annotation[] = [];
@@ -53,7 +54,7 @@
 
   function handleDeleteAnnotation(annotation: Annotation, e: Event) {
     e.stopPropagation();
-    if (confirm('确定要删除这条标注吗？')) {
+    if (confirm(plugin.i18n["lets-epub-reader.confirmDelete"])) {
       dispatch('deleteAnnotation', { annotation });
     }
   }
@@ -85,7 +86,7 @@
     <div class="search-bar">
       <input
         type="text"
-        placeholder={activeTab === 'toc' ? '搜索目录...' : activeTab === 'annotations' ? '搜索标注...' : ''}
+        placeholder={activeTab === 'toc' ? plugin.i18n["lets-epub-reader.searchToc"] : activeTab === 'annotations' ? plugin.i18n["lets-epub-reader.searchAnnotations"] : ''}
         bind:value={searchQuery}
         on:input={handleSearch}
       />
@@ -98,21 +99,21 @@
         class:active={activeTab === 'toc'}
         on:click={() => activeTab = 'toc'}
       >
-        📖 目录
+        📖 {plugin.i18n["lets-epub-reader.toc"]}
       </button>
       <button
         class="tab-btn"
         class:active={activeTab === 'annotations'}
         on:click={() => activeTab = 'annotations'}
       >
-        🖍️ 标注
+        🖍️ {plugin.i18n["lets-epub-reader.annotations"]}
       </button>
       <button
         class="tab-btn"
         class:active={activeTab === 'settings'}
         on:click={() => activeTab = 'settings'}
       >
-        ⚙️ 设置
+        ⚙️ {plugin.i18n["lets-epub-reader.settings"]}
       </button>
     </div>
 
@@ -122,7 +123,7 @@
         <div class="toc-list">
           {#if filteredToc.length === 0}
             <div class="empty-state">
-              {searchQuery ? '未找到匹配的目录项' : '暂无目录'}
+              {searchQuery ? plugin.i18n["lets-epub-reader.noMatchingToc"] : plugin.i18n["lets-epub-reader.noToc"]}
             </div>
           {:else}
             <ul class="toc-items">
@@ -152,7 +153,7 @@
         <div class="annotations-list">
           {#if filteredAnnotations.length === 0}
             <div class="empty-state">
-              {searchQuery ? '未找到匹配的标注' : '暂无标注'}
+              {searchQuery ? plugin.i18n["lets-epub-reader.noMatchingAnnotations"] : plugin.i18n["lets-epub-reader.noAnnotations"]}
             </div>
           {:else}
             {#each filteredAnnotations as annotation}
@@ -167,7 +168,7 @@
                     style="background-color: {annotation.color.bgColor}"
                   ></span>
                   <span class="annotation-type">
-                    {annotation.type === 'note' ? '📝 笔记' : '🖍️ 标注'}
+                    {annotation.type === 'note' ? `📝 ${plugin.i18n["lets-epub-reader.noteType"]}` : `🖍️ ${plugin.i18n["lets-epub-reader.highlightType"]}`}
                   </span>
                   <span class="annotation-date">{formatDate(annotation.createdAt)}</span>
                   <button
@@ -190,14 +191,14 @@
       {:else if activeTab === 'settings'}
         <div class="settings-panel">
           <div class="setting-group">
-            <label class="setting-label" for="doc-id-input">绑定文档</label>
+            <label class="setting-label" for="doc-id-input">{plugin.i18n["lets-epub-reader.bindDoc"]}</label>
             <p class="setting-desc">
-              将此书籍与思源笔记文档绑定，标注和笔记将自动插入到绑定的文档中。
+              {plugin.i18n["lets-epub-reader.bindDocDesc"]}
             </p>
             
             {#if boundDocId}
               <div class="bound-doc">
-                <span class="bound-label">已绑定:</span>
+                <span class="bound-label">{plugin.i18n["lets-epub-reader.bound"]}</span>
                 <code class="doc-id">{boundDocId}</code>
               </div>
             {/if}
@@ -206,23 +207,23 @@
               <input
                 id="doc-id-input"
                 type="text"
-                placeholder="输入文档 ID"
+                placeholder={plugin.i18n["lets-epub-reader.enterDocId"]}
                 bind:value={docIdInput}
                 class="doc-id-input"
               />
               <button class="bind-btn" on:click={handleBindDoc}>
-                {boundDocId ? '更换绑定' : '绑定文档'}
+                {boundDocId ? plugin.i18n["lets-epub-reader.changeBind"] : plugin.i18n["lets-epub-reader.bindDocBtn"]}
               </button>
             </div>
             
             <p class="setting-hint">
-              提示: 在思源笔记中右键点击文档，选择"复制块引用"获取文档 ID
+              {plugin.i18n["lets-epub-reader.bindDocHint"]}
             </p>
           </div>
 
           <div class="setting-group">
-            <span class="setting-label">书籍路径</span>
-            <code class="epub-path">{epubPath || '未知'}</code>
+            <span class="setting-label">{plugin.i18n["lets-epub-reader.bookPath"]}</span>
+            <code class="epub-path">{epubPath || plugin.i18n["lets-epub-reader.unknown"]}</code>
           </div>
         </div>
       {/if}

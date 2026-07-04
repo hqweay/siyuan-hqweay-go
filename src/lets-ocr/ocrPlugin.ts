@@ -7,7 +7,8 @@ import { settings } from "@/settings";
 import { formatUtil } from "@/lets-typography-go/utils";
 import { html2ele } from "@frostime/siyuan-plugin-kits";
 import { fetchSyncPost, IOperation, Menu, showMessage } from "siyuan";
-import { SubPlugin } from "@/types/plugin";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { plugin } from "@/utils";
 import { umiOCR } from "./umi-ocr";
 import { macOCRByAppleScript, tesseractOCR } from "./utils";
 const path = require("path");
@@ -218,24 +219,23 @@ export function processOCRText(text: string, config: OCRConfig = {}): string {
   // return JSON.stringify(processedLines.join("\\n"));
 }
 
-export default class OCRPlugin implements SubPlugin {
+export default class OCRPlugin extends SubPluginBase {
   private _isEnabled = false;
 
   private id = "hqweay-ocr";
-  private label = "批量 OCR";
+  get label() { return this.t("lets-ocr.batchOcrLabel"); }
   private icon = "®️";
   private thisElement: HTMLElement | null = null;
 
-  // OCR 运行状态控制
   private isOcrRunning = false;
   private shouldStopOcr = false;
 
-  async onload() {
+  override async onload() {
     // Add icon to toolbar
     this.addIconToToolbar();
   }
 
-  onunload() {
+  override onunload() {
     // Clean up
     if (this.thisElement) {
       this.thisElement.remove();
@@ -286,7 +286,7 @@ export default class OCRPlugin implements SubPlugin {
     const menu = new Menu("hqweay-ocr-menu");
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（强制 OCR 所有） + 自动换行",
+      label: this.t("lets-ocr.ocrCurrentDocForceAutoLineBreak"),
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -308,7 +308,7 @@ export default class OCRPlugin implements SubPlugin {
     });
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（强制 OCR 所有） + 不配置自动换行",
+      label: this.t("lets-ocr.ocrCurrentDocForceNoLineBreak"),
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -330,7 +330,7 @@ export default class OCRPlugin implements SubPlugin {
     });
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（跳过 已 OCR） + 配置自动换行",
+      label: this.t("lets-ocr.ocrCurrentDocSkipAutoLineBreak"),
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -352,7 +352,7 @@ export default class OCRPlugin implements SubPlugin {
     });
 
     menu.addItem({
-      label: "OCR 当前文档 的图片（跳过 已 OCR） + 不配置自动换行",
+      label: this.t("lets-ocr.ocrCurrentDocSkipNoLineBreak"),
       click: async () => {
         const currentDocId = document
           .querySelector(
@@ -374,7 +374,7 @@ export default class OCRPlugin implements SubPlugin {
     });
 
     menu.addItem({
-      label: "OCR 所有 图片（跳过 已 OCR）",
+      label: this.t("lets-ocr.ocrAllSkip"),
       click: async () => {
         await batchOcr(
           `SELECT * FROM assets
@@ -392,14 +392,14 @@ LIMIT 99999`,
     });
 
     menu.addItem({
-      label: "将当前文档的所有图片替换为 OCR 识别内容（若存在）",
+      label: this.t("lets-ocr.replaceAllWithOcr"),
       click: async () => {
         await this.replaceAllImagesWithOcrText(false);
       },
     });
 
     menu.addItem({
-      label: "将当前文档的所有图片替换为 OCR 识别内容（无 OCR 则识别）",
+      label: this.t("lets-ocr.replaceAllWithOcrForce"),
       click: async () => {
         await this.replaceAllImagesWithOcrText(true);
       },
@@ -484,7 +484,7 @@ LIMIT 99999`,
   // 停止 OCR
   stopOcr() {
     this.shouldStopOcr = true;
-    showMessage("正在停止 OCR...", 2000);
+    showMessage(this.t("lets-ocr.stoppingOcr"), 2000);
   }
 
   // 检查是否应该停止
@@ -499,7 +499,7 @@ LIMIT 99999`,
     // 更新按钮标签提示可以停止
     const btn = document.getElementById(this.id);
     if (btn) {
-      btn.setAttribute("aria-label", "点击停止 OCR");
+      btn.setAttribute("aria-label", this.t("lets-ocr.clickToStop"));
     }
   }
 
@@ -529,35 +529,35 @@ LIMIT 99999`,
     }
 
     (globalThis.window.siyuan.menus.menu as Menu).addItem({
-      label: "OCR 识别",
+      label: this.t("lets-ocr.ocrImage"),
       click: async () => {
         const ocrText = await ocrAssetsUrl(imgSrc, undefined);
         if (ocrText) {
-          showMessage(`OCR 识别成功`);
+          showMessage(this.t("lets-ocr.ocrSuccess"));
           navigator.clipboard.writeText(ocrText);
-          showMessage("OCR 内容已复制到剪贴板", 2000);
+          showMessage(this.t("lets-ocr.ocrCopied"), 2000);
         } else {
-          showMessage(`OCR 识别失败`);
+          showMessage(this.t("lets-ocr.ocrFailed"));
         }
       },
     });
     (globalThis.window.siyuan.menus.menu as Menu).addItem({
-      label: "复制 OCR 内容",
+      label: this.t("lets-ocr.copyOcrContent"),
       click: async () => {
         const existingOCR = await request("/api/asset/getImageOCRText", {
           path: imgSrc,
         });
         if (existingOCR?.text?.trim()) {
           navigator.clipboard.writeText(existingOCR.text);
-          showMessage("OCR 内容已复制到剪贴板", 2000);
+          showMessage(this.t("lets-ocr.ocrCopied"), 2000);
         } else {
-          showMessage("该图片暂无 OCR 内容", 2000);
+          showMessage(this.t("lets-ocr.noOcrContent"), 2000);
         }
       },
     });
 
     (globalThis.window.siyuan.menus.menu as Menu).addItem({
-      label: "用 OCR 内容替换图片",
+      label: this.t("lets-ocr.replaceImageWithOcr"),
       click: async (element, event) => {
         const doOperations: IOperation[] = [];
         try {
@@ -588,7 +588,7 @@ LIMIT 99999`,
               // 点击按钮后思源会触发一次保存操作，这里延时一秒执行事务，避免冲突
               setTimeout(async () => {
                 await executeTransaction(doOperations);
-                showMessage("图片已被 OCR 内容替换", 2000);
+                showMessage(this.t("lets-ocr.replacedByOcr"), 2000);
               }, 1000);
             }
           }
@@ -628,7 +628,7 @@ export async function batchOcr(
     }> = await sql(sqlStr);
 
     if (assets.length === 0) {
-      showMessage("未找到图片资源", 3000);
+      showMessage(plugin.i18n["lets-ocr.noImages"], 3000);
       return;
     }
 
@@ -645,14 +645,14 @@ export async function batchOcr(
     }
 
     showMessage(
-      `开始批量 OCR，共 ${assets.length} 张图片。可以打开开发者工具查看进度，点击工具栏 OCR 按钮可停止`,
+      `${plugin.i18n["lets-ocr.batchOcrStarted"]} ${assets.length} ${plugin.i18n["lets-ocr.batchOcrCompleted"]}`,
       5000
     );
 
     for (const img of assets) {
       // 检查是否应该停止
       if (ocrPlugin && ocrPlugin.shouldStop()) {
-        const stopMsg = `OCR 已停止！\n总计: ${assets.length}\n已处理: ${i}\n成功: ${successful.length}\n失败: ${failing.length}\n跳过: ${skip.length}`;
+        const stopMsg = `${plugin.i18n["lets-ocr.batchOcrStopped"]}\n${i}\n${successful.length}\n${failing.length}\n${skip.length}`;
         console.log(stopMsg);
         showMessage(stopMsg, 10000, "info");
         if (ocrPlugin) {
@@ -700,7 +700,7 @@ export async function batchOcr(
     }
 
     // 显示最终结果
-    const finalMsg = `批量 OCR 完成！\n总计: ${assets.length}\n成功: ${successful.length}\n失败: ${failing.length}\n跳过: ${skip.length}`;
+    const finalMsg = `${plugin.i18n["lets-ocr.batchOcrCompleted"]}\n${assets.length}\n${successful.length}\n${failing.length}\n${skip.length}`;
     console.log(finalMsg);
     if (failing.length > 0) {
       console.log(`以下图片识别失败:`, failing);
@@ -713,7 +713,7 @@ export async function batchOcr(
     }
   } catch (error) {
     console.error("批量 OCR 失败:", error);
-    showMessage(`批量 OCR 失败: ${error.message}`, 5000, "error");
+    showMessage(`${plugin.i18n["lets-ocr.ocrFailed"]}: ${error.message}`, 5000, "error");
 
     // 结束 OCR
     if (ocrPlugin) {

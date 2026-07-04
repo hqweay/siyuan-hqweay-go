@@ -1,14 +1,14 @@
 export default {
   name: "epubReader",
-  displayName: "【实验】EPUB 阅读器",
-  description: "支持 EPUB 文件的阅读，支持手机端，支持反链做笔记",
+  displayName: "lets-epub-reader.displayName",
+  description: "lets-epub-reader.description",
   version: "1.0.0",
   author: "hqweay",
   settings: [
     {
       type: "textarea",
-      title: "自定义链接",
-      description: "支持占位符 ${link} ${text}",
+      title: "lets-epub-reader.annotionFormat",
+      description: "lets-epub-reader.annotionFormatDesc",
       key: "annotionFormat",
       value: "- [◎](${link}) ${text}",
       //       value: `> [!NOTE] 📚 摘录

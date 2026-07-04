@@ -2,6 +2,7 @@
   import EntryList from "./EntryList.svelte";
   import ImageGallery from "./ImageGallery.svelte";
   import { settings } from "@/settings";
+  import { plugin } from "@/utils";
 
   import pluginMetadata from "./plugin";
 
@@ -14,7 +15,7 @@
 
   async function executeSQL() {
     if (!inputSQL.trim()) {
-      error = "请输入 SQL 语句";
+      error = plugin.i18n["lets-dashboard.pleaseInputSQL"];
       return;
     }
 
@@ -31,7 +32,7 @@
       }
       inputExecuteSQL = inputSQL;
     } catch (e) {
-      error = "SQL 执行错误: " + e.message;
+      error = plugin.i18n["lets-dashboard.sqlError"] + e.message;
     } finally {
       loading = false;
     }
@@ -138,23 +139,23 @@
 <div class="flowboard-container">
   <!-- SQL 输入区域 -->
   <div class="sql-input-section">
-    <h3>自定义 SQL 查询</h3>
+    <h3>{plugin.i18n["lets-dashboard.customSQLQuery"]}</h3>
     <div class="input-group">
       <textarea
         bind:value={inputSQL}
-        placeholder="请输入 SQL 语句..."
+        placeholder={plugin.i18n["lets-dashboard.sqlPlaceholder"]}
         rows="2"
         class="sql-input"
       ></textarea>
       <button on:click={executeSQL} disabled={loading} class="execute-btn">
-        {loading ? "执行中..." : "执行查询"}
+        {loading ? plugin.i18n["lets-dashboard.executing"] : plugin.i18n["lets-dashboard.executeQuery"]}
       </button>
     </div>
 
     <!-- 示例 SQL -->
     <div class="examples-dropdown-container">
       {#if exampleSQLs.length <= 4}
-        <span class="examples-label">示例 SQL:</span>
+        <span class="examples-label">{plugin.i18n["lets-dashboard.exampleSQL"]}</span>
 
         <!-- 少量示例时直接显示 -->
         {#each exampleSQLs as example}
@@ -175,7 +176,7 @@
             on:click={toggleExamplesDropdown}
             disabled={loading}
           >
-            示例 SQL ({exampleSQLs.length})
+             {plugin.i18n["lets-dashboard.exampleSQLCount"].replace("{count}", exampleSQLs.length)}
             <span class="arrow" class:rotated={showExamplesDropdown}>▼</span>
           </button>
 
@@ -218,7 +219,7 @@
           <div class="entries-column">
             <EntryList
               idSQL={inputExecuteSQL}
-              title="自定义查询结果"
+              title={plugin.i18n["lets-dashboard.customQueryResult"]}
               pageSize={10}
               fromFlow={false}
             />
@@ -227,7 +228,7 @@
           <div class="media-column">
             <ImageGallery
               imgSQL={inputExecuteSQL}
-              title="自定义查询结果"
+              title={plugin.i18n["lets-dashboard.customQueryResult"]}
               pageSize={30}
               fromFlow={false}
             />
@@ -237,7 +238,7 @@
     {/key}
   {:else if !loading && !error}
     <div class="empty-state">
-      <p>请输入 SQL 语句并点击执行按钮</p>
+      <p>{plugin.i18n["lets-dashboard.pleaseExecuteSQL"]}</p>
     </div>
   {/if}
 </div>

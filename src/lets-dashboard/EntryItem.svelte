@@ -104,7 +104,7 @@
     <button
       class="toggle-btn"
       on:click={handleToggleCollapse}
-      title={isExpanded ? "折叠" : "展开"}
+      title={isExpanded ? plugin.i18n["lets-dashboard.collapse"] : plugin.i18n["lets-dashboard.expand"]}
     >
       <span class="arrow">{isExpanded ? "➡️" : "⬇️"}</span>
     </button>
@@ -114,7 +114,7 @@
       class="entry-id"
       on:click={() => {
         copyToClipboard(blockId);
-        showMessage(`id:${blockId}复制到剪贴板～`);
+        showMessage(`id:${blockId}${plugin.i18n["lets-dashboard.copiedToClipboard"]}`);
       }}>{blockId}</span
     >
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -130,7 +130,7 @@
       on:click={() => {
         fixedHeight = !fixedHeight;
       }}
-      title={fixedHeight ? "固定高度" : "展开"}
+      title={fixedHeight ? plugin.i18n["lets-dashboard.fixedHeight"] : plugin.i18n["lets-dashboard.expand"]}
     >
       <span class="arrow">{fixedHeight ? "🔒" : "🔧"}</span>
     </button>
