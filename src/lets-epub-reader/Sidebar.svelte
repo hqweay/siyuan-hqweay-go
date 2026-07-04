@@ -173,7 +173,7 @@
                   <span class="annotation-date">{formatDate(annotation.createdAt)}</span>
                   <button
                     class="delete-btn"
-                    title="删除"
+                    title={plugin.i18n["lets-epub-reader.delete"]}
                     on:click={(e) => handleDeleteAnnotation(annotation, e)}
                   >
                     🗑️

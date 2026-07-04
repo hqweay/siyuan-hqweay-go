@@ -21,7 +21,9 @@ PluginLetsGo scans `src/lets-*/plugin.ts` -> PluginRegistry auto-instantiates Su
 
 1. SiYuan `Plugin` class has `i18n` property but **NO `t()` method**. Injection in `plugin-registry.ts:101` uses `this.mainPlugin?.i18n?.[key] ?? key`; calling `this.mainPlugin?.t(key)` crashes with `_a2.t is not a function`.
 2. `tsconfig` has `useDefineForClassFields: true`. SubPluginBase fields like `t!: ...` are `undefined` during constructor. Injection is done after instantiation in PluginRegistry.
-3. `setting.svelte` `getGroupLabel` uses `plugin.i18n[found.displayName]` as fallback because `found.name` (camelCase) may not match the kebab i18n key.
+# Known Issues
+
+- `src/lets-block-attr/plugin.ts` customProperties default has Chinese labels (`"创建时间"`, `"更新时间"`). These are CSS content strings in user-configurable textarea — i18n-izing them requires resolving keys at CSS generation time in `ShowCustomPropertiesUnderTitle.ts`, which is a larger refactor beyond simple key substitution.
 
 # Release
 

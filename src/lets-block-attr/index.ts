@@ -1,7 +1,8 @@
 import { setBlockAttrs } from "@/api";
-import InsertCSS from "@/myscripts/insertCSS";
 import { addProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
+import { SubPluginBase } from "@/libs/sub-plugin-base";
+import { plugin } from "@/utils";
 
 import ShowCustomPropertiesUnderTitle from "./ShowCustomPropertiesUnderTitle";
 import Memo from "./Memo";
@@ -17,9 +18,18 @@ function parseArrayString(str) {
   }
 }
 
+function getMenuLabel(menu: any): string {
+  const raw = menu.name;
+  const isSlash = raw.startsWith("@");
+  const key = isSlash ? raw.slice(1) : raw;
+  const translated = plugin.i18n[key];
+  if (translated) return isSlash ? `@${translated}` : translated;
+  return raw;
+}
+
 let menus = [];
 
-export default class BlockAttr extends InsertCSS {
+export default class BlockAttr extends SubPluginBase {
   private showCustomPropertiesUnderTitlePlugin =
     new ShowCustomPropertiesUnderTitle();
   private memoPlugin = new Memo();
@@ -31,7 +41,7 @@ export default class BlockAttr extends InsertCSS {
         .filter((menu) => menu.enabled)
         .map((menu) => ({
           iconHTML: "",
-          label: menu.name,
+          label: getMenuLabel(menu),
           click: () => {
             ViewMonitor(detail.blockElements[0], menu);
           },
@@ -75,7 +85,7 @@ export default class BlockAttr extends InsertCSS {
         console.log(menu);
         addProtyleSlash({
           filter: [`${menu.name}`],
-          html: `${menu.name}`,
+          html: getMenuLabel(menu),
           id: menu.name,
           callback: async (event, node) => {
             ViewMonitor(node, menu);

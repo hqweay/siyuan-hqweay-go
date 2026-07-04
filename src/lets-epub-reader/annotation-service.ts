@@ -25,7 +25,7 @@ export function generateAnnotationId(): string {
 export function getColorByBgColor(bgColor: string): HighlightColor {
   return (
     HIGHLIGHT_COLORS.find((c) => c.bgColor === bgColor) || {
-      name: "自定义",
+      name: "lets-epub-reader.customColor",
       color: "#000",
       bgColor: bgColor,
     }

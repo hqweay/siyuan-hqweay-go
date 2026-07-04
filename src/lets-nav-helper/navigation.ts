@@ -3,6 +3,7 @@ import { getBlockByID, listDocsByPath } from "@/api";
 import { getCurrentDocId, openBlockByID } from "@/myscripts/syUtils";
 import { PluginRegistry } from "@/plugin-registry";
 import { settings } from "@/settings";
+import { plugin } from "@/utils";
 import { showMessage } from "siyuan";
 import pluginMetadata from "./plugin";
 import { isMobile, mobileUtils } from "./utils";
@@ -71,7 +72,7 @@ class MobileNavigation {
     try {
       const currentDocId = getCurrentDocId();
       if (!currentDocId) {
-        showMessage("无法获取当前文档ID");
+        showMessage(plugin.i18n["lets-nav-helper.cannotGetDocId"]);
         return;
       }
 
@@ -79,7 +80,7 @@ class MobileNavigation {
       const parentDoc = await this.getParentDocument(currentDoc.path);
 
       if (!parentDoc) {
-        showMessage("没有父文档");
+        showMessage(plugin.i18n["lets-nav-helper.noParentDoc"]);
         mobileUtils.vibrate([100, 50, 100]);
         return;
       }
@@ -89,7 +90,7 @@ class MobileNavigation {
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到父文档失败:", error);
-      showMessage("跳转到父文档失败");
+      showMessage(plugin.i18n["lets-nav-helper.jumpToParentFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
   }
@@ -101,7 +102,7 @@ class MobileNavigation {
     try {
       const currentDocId = getCurrentDocId();
       if (!currentDocId) {
-        showMessage("无法获取当前文档ID");
+        showMessage(plugin.i18n["lets-nav-helper.cannotGetDocId"]);
         return;
       }
 
@@ -109,7 +110,7 @@ class MobileNavigation {
       const children = await this.listChildDocs(currentDoc);
 
       if (children.length === 0) {
-        showMessage("没有子文档");
+        showMessage(plugin.i18n["lets-nav-helper.noChildDoc"]);
         mobileUtils.vibrate([100, 50, 100]);
         return;
       }
@@ -119,7 +120,7 @@ class MobileNavigation {
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到子文档失败:", error);
-      showMessage("跳转到子文档失败");
+      showMessage(plugin.i18n["lets-nav-helper.jumpToChildFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
   }
@@ -131,7 +132,7 @@ class MobileNavigation {
     try {
       const currentDocId = getCurrentDocId();
       if (!currentDocId) {
-        showMessage("无法获取当前文档ID");
+        showMessage(plugin.i18n["lets-nav-helper.cannotGetDocId"]);
         return;
       }
 
@@ -139,7 +140,7 @@ class MobileNavigation {
       const siblings = await this.getSibling(currentDoc.path, currentDoc.box);
 
       if (siblings.length <= 1) {
-        showMessage("没有兄弟文档");
+        showMessage(plugin.i18n["lets-nav-helper.noSiblingDoc"]);
         mobileUtils.vibrate([100, 50, 100]);
         return;
       }
@@ -150,13 +151,13 @@ class MobileNavigation {
       // 边界处理
       if (newIndex < 0) {
         newIndex = siblings.length - 1;
-        showMessage("已跳转到最后一个文档");
+        showMessage(plugin.i18n["lets-nav-helper.jumpedToLast"]);
       } else if (newIndex >= siblings.length) {
         newIndex = 0;
-        showMessage("已跳转到第一个文档");
+        showMessage(plugin.i18n["lets-nav-helper.jumpedToFirst"]);
       } else {
-        const direction = delta > 0 ? "下一个" : "上一个";
-        showMessage(`跳转到${direction}文档`);
+        const direction = delta > 0 ? plugin.i18n["lets-nav-helper.next"] : plugin.i18n["lets-nav-helper.prev"];
+        showMessage(plugin.i18n["lets-nav-helper.jumpedToDirection"].replace("{direction}", direction));
       }
 
       // 跳转到目标兄弟文档
@@ -164,7 +165,7 @@ class MobileNavigation {
       mobileUtils.vibrate(50);
     } catch (error) {
       console.error("跳转到兄弟文档失败:", error);
-      showMessage("跳转到兄弟文档失败");
+      showMessage(plugin.i18n["lets-nav-helper.jumpToSiblingFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
   }
@@ -174,13 +175,13 @@ class MobileNavigation {
    */
   goBack(): void {
     if (window.siyuan?.backStack?.length <= 0) {
-      showMessage("已到达最顶层文档");
+      showMessage(plugin.i18n["lets-nav-helper.atTopmost"]);
       mobileUtils.vibrate([100, 50, 100]);
       return;
     }
     this.forwardStack.push(getCurrentDocId());
     (window as any).goBack();
-    showMessage("已返回上一页");
+    showMessage(plugin.i18n["lets-nav-helper.backToPrev"]);
     mobileUtils.vibrate(50);
   }
 
@@ -189,7 +190,7 @@ class MobileNavigation {
    */
   goForward(): void {
     if (this.forwardStack.length <= 0) {
-      showMessage("已到达最新文档");
+      showMessage(plugin.i18n["lets-nav-helper.atLatest"]);
       mobileUtils.vibrate([100, 50, 100]);
       return;
     }
@@ -198,7 +199,7 @@ class MobileNavigation {
     if (nextId) {
       openBlockByID(nextId);
     }
-    showMessage("已前进到下一页");
+    showMessage(plugin.i18n["lets-nav-helper.forwardToNext"]);
     mobileUtils.vibrate(50);
   }
 
@@ -219,7 +220,7 @@ class MobileNavigation {
         });
     } catch (error) {
       console.error("打开仪表盘失败:", error);
-      showMessage("打开仪表盘失败");
+      showMessage(plugin.i18n["lets-nav-helper.openDashFailed"]);
       mobileUtils.vibrate([100, 50, 100]);
     }
   }

@@ -100,7 +100,7 @@ class MobileUtils {
   async getCurrentDoc(): Promise<any> {
     const docId = getCurrentDocId();
     if (!docId) {
-      throw new Error("无法获取当前文档ID");
+      throw new Error(plugin.i18n["lets-nav-helper.cannotGetDocId"]);
     }
 
     try {
@@ -204,7 +204,7 @@ class MobileUtils {
   /**
    * 安全执行函数
    */
-  safeExecute(fn: () => void, errorMessage: string = "执行失败"): void {
+  safeExecute(fn: () => void, errorMessage: string = plugin.i18n["lets-nav-helper.execFailed"]): void {
     try {
       fn();
     } catch (error) {

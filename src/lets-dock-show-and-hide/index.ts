@@ -141,7 +141,7 @@ export default class DockShowAndHide extends SubPluginBase {
     if (!configFlag && this.usedFlag) {
       let otherDocs = settings.getBySpace("dockShowAndHide", "otherDocs");
       //保持当前配置
-      if (otherDocs === "lets-dock-show-and-hide.restorePrevious") {
+      if (otherDocs === "lets-dock-show-and-hide.restorePrevious" || otherDocs === "恢复上次使用配置") {
         window.siyuan.config.uiLayout.hideDock = this.originHideDock;
         window.siyuan.layout.leftDock.layout.element.style.width =
           this.originLeftWidth;

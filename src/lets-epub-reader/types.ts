@@ -33,11 +33,11 @@ export interface HighlightColor {
 }
 
 export const HIGHLIGHT_COLORS: HighlightColor[] = [
-  { name: '黄色', color: '#000', bgColor: '#ffeb3b' },
-  { name: '绿色', color: '#000', bgColor: '#a5d6a7' },
-  { name: '蓝色', color: '#000', bgColor: '#90caf9' },
-  { name: '粉色', color: '#000', bgColor: '#f48fb1' },
-  { name: '橙色', color: '#000', bgColor: '#ffcc80' },
+  { name: 'lets-epub-reader.colorYellow', color: '#000', bgColor: '#ffeb3b' },
+  { name: 'lets-epub-reader.colorGreen', color: '#000', bgColor: '#a5d6a7' },
+  { name: 'lets-epub-reader.colorBlue', color: '#000', bgColor: '#90caf9' },
+  { name: 'lets-epub-reader.colorPink', color: '#000', bgColor: '#f48fb1' },
+  { name: 'lets-epub-reader.colorOrange', color: '#000', bgColor: '#ffcc80' },
 ];
 
 // Annotation types

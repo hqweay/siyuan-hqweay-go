@@ -5,11 +5,19 @@ export const en = {
   "lets-block-attr.customPropertiesTitle": "Attribute Display Config Under Headings",
   "lets-block-attr.customPropertiesDescription": "Configured attribute values will be displayed under headings",
   "lets-block-attr.attrsTitle": "Quick Add Attribute Config",
-  "lets-block-attr.attrsDescription": "",
+  "lets-block-attr.attrsDescription": "JSON array of quick-add menu items. Each item: { name, key, value, keyvalues, enabled }. Names starting with @ register as slash commands.",
   "lets-block-attr.memoIdsTitle": "Memo - Configure Block/Doc ID - Sub-items under reference will show time on top-right",
   "lets-block-attr.memoIdsDescription": "Multiple IDs separated by newlines<br/>After configuring memo ID as below, the top-right corner of hello will show creation time (generated from block ID truncation)<br/>- [[memo]]<br/>- - hello",
   "lets-block-attr.activeDocTitle": "Memo - Also show creation time for elements under this document?",
   "lets-block-attr.activeDocDescription": "Show creation time for sub-items under the document itself",
+
+  "lets-block-attr.menuTestMultiAttrs": "Test: Set Multiple Attributes (registers to slash)",
+  "lets-block-attr.menuRestoreEffect": "Restore Effect",
+  "lets-block-attr.menuConvertTable": "Convert to Table",
+  "lets-block-attr.menuConvertMindmap": "Convert to Mindmap",
+  "lets-block-attr.menuConvertTimeline": "Convert to Timeline",
+  "lets-block-attr.menuConvertKanban": "Convert to Kanban",
+  "lets-block-attr.menuConvertTab": "Convert to Tab",
 };
 
 export const zhCN: typeof en = {
@@ -19,9 +27,17 @@ export const zhCN: typeof en = {
   "lets-block-attr.customPropertiesTitle": "标题下展示属性配置",
   "lets-block-attr.customPropertiesDescription": "这里配置的属性的值会在标题下展示",
   "lets-block-attr.attrsTitle": "快捷添加属性配置",
-  "lets-block-attr.attrsDescription": "",
+  "lets-block-attr.attrsDescription": "JSON 数组格式的快捷添加属性配置。每项格式：{ name, key, value, keyvalues, enabled }。以 @ 开头的 name 会注册到斜杠菜单。",
   "lets-block-attr.memoIdsTitle": "碎碎念-配置块/文档 ID-引用下的子项将在右上角展示时间",
   "lets-block-attr.memoIdsDescription": "多个 ID 换行分隔<br/>如下配置 memo 的 ID 后，hello 的右上角将展示（由块 ID 截取生成的）创建时间<br/>- [[memo]]<br/>- - hello",
   "lets-block-attr.activeDocTitle": "碎碎念-该文档下的元素也展示创建时间？",
   "lets-block-attr.activeDocDescription": "文档本身下面的子项也展示创建时间",
+
+  "lets-block-attr.menuTestMultiAttrs": "测试配置多个属性-@开头会注册进slash",
+  "lets-block-attr.menuRestoreEffect": "恢复转换效果",
+  "lets-block-attr.menuConvertTable": "转换为表格",
+  "lets-block-attr.menuConvertMindmap": "转换为导图",
+  "lets-block-attr.menuConvertTimeline": "转换为时间线",
+  "lets-block-attr.menuConvertKanban": "转换为看板",
+  "lets-block-attr.menuConvertTab": "转换为Tab",
 };

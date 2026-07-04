@@ -144,7 +144,7 @@
               <button
                 class="color-btn"
                 style="background-color: {color.bgColor}"
-                title={color.name}
+                title={plugin.i18n[color.name] || color.name}
                 on:click={() => handleColorChange(color)}
               >
                 ✓

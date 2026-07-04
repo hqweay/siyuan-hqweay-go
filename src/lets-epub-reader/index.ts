@@ -395,7 +395,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
       const tab = workspace.createTab({
         app: {
           id: "hqweay-epub-reader",
-          name: "EPUB 阅读器",
+          name: this.t("lets-epub-reader.tabName"),
           icon: "📖",
         },
         data: {
@@ -409,7 +409,7 @@ export default class EpubReaderPlugin extends SubPluginBase {
       showMessage(`${this.t("lets-epub-reader.openingEpub")}${this.getDisplayName(epubPath)}`, 3000);
     } catch (error) {
       console.error("打开 EPUB 文件失败:", error);
-      showMessage("打开 EPUB 文件失败", 3000);
+      showMessage(this.t("lets-epub-reader.openFailed"), 3000);
     }
   }
 

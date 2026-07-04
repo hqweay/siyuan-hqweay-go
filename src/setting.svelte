@@ -104,8 +104,7 @@
       (p) => p.displayName === groupName || p.name === groupName
     );
     if (found) {
-      const key = `lets-${found.name}.displayName`;
-      return plugin.i18n[key] || plugin.i18n[found.displayName] || found.displayName || found.name;
+      return plugin.i18n[found.displayName] || found.displayName || found.name;
     }
     
     return groupName;
@@ -262,7 +261,7 @@
   <div class="bottom-sheet-backdrop" on:click={() => (showBottomSheet = false)}>
     <div class="bottom-sheet-container" on:click|stopPropagation>
       <div class="bottom-sheet-header">
-        <h3>{plugin.i18n["settings.selectCategory"] || "选择设置分类"}</h3>
+        <h3>{plugin.i18n["settings.selectCategory"] || "settings.selectCategory"}</h3>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="close-btn" on:click={() => (showBottomSheet = false)}
           >&times;</button

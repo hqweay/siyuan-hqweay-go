@@ -77,6 +77,16 @@ export const en = {
   "lets-epub-reader.testToc": "目录",
   "lets-epub-reader.testTocEmpty": "(无目录或加载中)",
   "lets-epub-reader.testOpenLocal": "打开本地 EPUB",
+
+  "lets-epub-reader.tabName": "EPUB Reader",
+  "lets-epub-reader.openFailed": "Failed to open EPUB file",
+
+  "lets-epub-reader.colorYellow": "Yellow",
+  "lets-epub-reader.colorGreen": "Green",
+  "lets-epub-reader.colorBlue": "Blue",
+  "lets-epub-reader.colorPink": "Pink",
+  "lets-epub-reader.colorOrange": "Orange",
+  "lets-epub-reader.customColor": "Custom",
 };
 
 export const zhCN: typeof en = {
@@ -158,4 +168,14 @@ export const zhCN: typeof en = {
   "lets-epub-reader.testToc": "目录",
   "lets-epub-reader.testTocEmpty": "(无目录或加载中)",
   "lets-epub-reader.testOpenLocal": "打开本地 EPUB",
+
+  "lets-epub-reader.tabName": "EPUB 阅读器",
+  "lets-epub-reader.openFailed": "打开 EPUB 文件失败",
+
+  "lets-epub-reader.colorYellow": "黄色",
+  "lets-epub-reader.colorGreen": "绿色",
+  "lets-epub-reader.colorBlue": "蓝色",
+  "lets-epub-reader.colorPink": "粉色",
+  "lets-epub-reader.colorOrange": "橙色",
+  "lets-epub-reader.customColor": "自定义",
 };
