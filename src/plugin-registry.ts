@@ -35,7 +35,7 @@ export class PluginRegistry {
     );
 
     // 使用 Map 按插件名分组
-    const pluginMap = new Map<string, { config?: any; plugin?: any }>();
+    const pluginMap = new Map<string, { metadata?: any; PluginClass?: any }>();
 
     Object.entries(pluginFiles).forEach(([path, module]) => {
       // 注意这里的正则：lets- 后面是插件名
@@ -49,21 +49,21 @@ export class PluginRegistry {
 
         const pluginData = pluginMap.get(pluginName)!;
         if (fileType === "index") {
-          pluginData.config = module;
+          pluginData.PluginClass = module;
         } else {
-          pluginData.plugin = module;
+          pluginData.metadata = module;
         }
       }
     });
 
     // 注册所有插件
-    for (const [pluginName, { config, plugin }] of pluginMap) {
-      if (config && plugin) {
-        this.registerPluginWithConfig(pluginName, plugin, config);
+    for (const [pluginName, { metadata, PluginClass }] of pluginMap) {
+      if (metadata && PluginClass) {
+        this.registerPluginWithConfig(pluginName, metadata, PluginClass);
       } else {
         console.warn(`插件 ${pluginName} 缺少配置文件`, {
-          hasConfig: !!config,
-          hasPlugin: !!plugin,
+          hasMetadata: !!metadata,
+          hasPluginClass: !!PluginClass,
         });
       }
     }
@@ -71,24 +71,24 @@ export class PluginRegistry {
 
   private registerPluginWithConfig(
     name: string,
-    config: PluginMetadata,
+    metadata: PluginMetadata,
     PluginClass: any
   ) {
     try {
       // Register configuration
-      this.registerPluginConfig(name, config);
+      this.registerPluginConfig(name, metadata);
 
       // Instantiate plugin
       const pluginInstance = new PluginClass();
 
       // Copy metadata from config to plugin instance
-      pluginInstance.name = config.name;
-      pluginInstance.displayName = config.displayName;
-      pluginInstance.description = config.description;
-      pluginInstance.version = config.version;
+      pluginInstance.name = metadata.name;
+      pluginInstance.displayName = metadata.displayName;
+      pluginInstance.description = metadata.description;
+      pluginInstance.version = metadata.version;
       pluginInstance.enabled =
         settings.getBySpace(pluginInstance.name, "enabled") ||
-        config.enabled ||
+        metadata.enabled ||
         false;
       // enabled will be read from settings when needed
 

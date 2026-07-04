@@ -288,36 +288,14 @@ export default class PluginLetsGo extends Plugin {
     }
   }
 
-  //卸载逻辑
+  // 卸载逻辑
   async onunload() {
-    // Call onunload for all plugins (both enabled and disabled)
+    // Call onunload for all enabled sub-plugins
     const plugins = this.pluginRegistry.getAllPlugins();
     for (const plugin of plugins) {
       try {
-        if (!settings.getBySpace(plugin.name, "enabled")) {
-          await plugin?.onunload();
-          // Clean up global event listeners
-          this.eventBus.off("click-blockicon", (event) =>
-            this.blockIconEvent(event),
-          );
-          this.eventBus.off("switch-protyle", (event) =>
-            this.switchProtyleEvent(event),
-          );
-          this.eventBus.off("click-editortitleicon", (event) =>
-            this.editortitleiconEvent(event),
-          );
-          this.eventBus.off("mobile-keyboard-show", (event) =>
-            this.mobilekeyboardshowEvent(event),
-          );
-          this.eventBus.off("mobile-keyboard-hide", (event) =>
-            this.mobilekeyboardhideEvent(event),
-          );
-          this.eventBus.off("open-siyuan-url-plugin", (event) =>
-            this.openSiyuanUrlPluginEvent(event),
-          );
-          this.eventBus.off("open-menu-image", (event) =>
-            this.imageMenuEvent(event),
-          );
+        if (plugin.enabled) {
+          await plugin.onunload();
         }
       } catch (error) {
         console.error(`Error in onunload for plugin ${plugin.name}:`, error);
