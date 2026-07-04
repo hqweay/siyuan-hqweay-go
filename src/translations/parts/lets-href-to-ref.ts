@@ -26,6 +26,7 @@ export const en = {
   "lets-href-to-ref.cleanStarRefSimple": "清理 * 引用",
   "lets-href-to-ref.cmdRefToLink": "Reference → Block Link (Whole Doc)",
   "lets-href-to-ref.cmdLinkToRef": "Block Link → Reference (Whole Doc)",
+  "lets-href-to-ref.cmdAllInlineToText": "All Inline → Text (Whole Doc)",
 };
 
 export const zhCN: typeof en = {
@@ -56,4 +57,5 @@ export const zhCN: typeof en = {
   "lets-href-to-ref.cleanStarRefSimple": "清理 * 引用",
   "lets-href-to-ref.cmdRefToLink": "引用👉块超链接（全文）",
   "lets-href-to-ref.cmdLinkToRef": "块超链接👉引用（全文）",
+  "lets-href-to-ref.cmdAllInlineToText": "所有行内元素👉文本（全文）",
 };

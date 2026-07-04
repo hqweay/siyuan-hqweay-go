@@ -1,7 +1,14 @@
+import { settings } from "@/settings";
 import { plugin } from "@/utils";
 import { sql, updateBlock } from "@/api";
 import { fetchSyncPost } from "siyuan";
-import { refToLink, linkToRef, TransformGroup, getActiveDocId } from "./converters";
+import {
+  refToLink,
+  linkToRef,
+  inlineToText,
+  TransformGroup,
+  getActiveDocId,
+} from "./converters";
 import { IOperation } from "siyuan";
 import { getLogger } from "@/libs/logger";
 
@@ -102,6 +109,44 @@ async function applyToFullDoc(
   }
 }
 
+// ─── Composite transforms ─────────────────────────────────────────────────────
+
+/**
+ * Create a combined transform that applies all 6 inline-to-text passes
+ * on the same parsed DOM. Each pass mutates in-place, so only the final
+ * outerHTML is sent to `updateBlock`.
+ */
+function allInlineToTextTransform(
+  styleNesting: boolean
+): (groups: TransformGroup[]) => IOperation[] {
+  const SELECTORS = [
+    '[data-type~="a"]',
+    '[data-type~="block-ref"]',
+    '[data-type~="strong"]',
+    '[data-type~="mark"]',
+    '[data-type~="tag"]',
+    '[data-type~="em"]',
+  ];
+
+  return (groups: TransformGroup[]): IOperation[] => {
+    let changed = false;
+    for (const sel of SELECTORS) {
+      const ops = inlineToText(groups, sel, styleNesting);
+      if (ops.length > 0) changed = true;
+    }
+    if (!changed || groups.length === 0) return [];
+
+    // After all in-place mutations, snapshot the final outerHTML
+    return [
+      {
+        id: groups[0].nodeId,
+        data: groups[0].operationElement.outerHTML,
+        action: "update",
+      },
+    ];
+  };
+}
+
 // ─── Command registration ─────────────────────────────────────────────────────
 
 /**
@@ -128,6 +173,15 @@ export function registerCommands(availableBlocks: string[]): void {
     hotkey: "",
     callback: async () => {
       await applyToFullDoc(availableBlocks, linkToRef);
+    },
+  });
+
+  plugin.addCommand({
+    langKey: "lets-href-to-ref.cmdAllInlineToText",
+    hotkey: "",
+    callback: async () => {
+      const styleNesting = settings.getBySpace("convert", "styleNesting") as boolean;
+      await applyToFullDoc(availableBlocks, allInlineToTextTransform(styleNesting));
     },
   });
 }
