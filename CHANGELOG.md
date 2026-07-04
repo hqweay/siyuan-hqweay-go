@@ -1,5 +1,5 @@
-fetch('/api/block/appendBlock', {
-        dataType: 'markdown',
-        data: '- haha',
-        parentID: '20251223003427-rzjle8m'
-    });
+# siyuan-hqweay-go
+
+## 0.21.5
+
+- 初始重构版本，支持主子插件架构优化与设置页面全新设计。

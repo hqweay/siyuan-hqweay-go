@@ -9,6 +9,6 @@ dist
 build
 tmp
 temp.txt
-link.sh
 siyuan-*/
 sy*
+release-note.md
