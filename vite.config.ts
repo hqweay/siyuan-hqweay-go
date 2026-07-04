@@ -82,7 +82,10 @@ export default defineConfig({
       plugins: [
         ...(isWatch
           ? [
-              livereload(devDistDir),
+              livereload({
+                watch: devDistDir,
+                clientUrl: "http://localhost:35729/livereload.js?snipver=1",
+              }),
               {
                 //监听静态资源文件
                 name: "watch-external",
