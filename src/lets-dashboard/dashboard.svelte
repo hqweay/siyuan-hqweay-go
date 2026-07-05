@@ -851,6 +851,7 @@ order by attributes.value desc`,
         <div class="media-column">
           <ImageGallery
             imgSQL={filteredImgSQL}
+            dataReady={isDataReady}
             title={currentConfig.name}
             {layout}
             pageSize={30}

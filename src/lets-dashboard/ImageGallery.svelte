@@ -7,6 +7,7 @@
   import { plugin } from "@/utils";
 
   export let imgSQL;
+  export let dataReady = true;
   export let layout = "grid"; // 'grid' | 'masonry'
   export let pageSize = 30;
   export let selectedDays = []; // Array of YYYYMMDD to filter images by day
@@ -73,7 +74,7 @@
 
   // 加载数据（响应 imgSQL 或 selectedDays 的变化）
   async function loadImages() {
-    if (!imgSQL) return;
+    if (!imgSQL || !dataReady) return;
     page = 1;
     images = [];
     displayedImages = [];
@@ -99,8 +100,9 @@
     updateDisplayedImages();
   }
 
-  $: if (imgSQL) loadImages();
-  $: if (selectedDays !== undefined) loadImages();
+  $: if (dataReady && (imgSQL || selectedDays !== undefined)) {
+    loadImages();
+  }
 
   onMount(() => {
     const observer = new IntersectionObserver(
@@ -209,7 +211,7 @@
   {/if}
 
   <div class="images-loading">
-    {#if loading}
+    {#if !dataReady || loading}
       <div class="loading-text">{plugin.i18n["lets-dashboard.loadingImages"]}</div>
     {:else if !hasMore}
       <div class="loading-text">{plugin.i18n["lets-dashboard.noMoreImages"]}</div>
