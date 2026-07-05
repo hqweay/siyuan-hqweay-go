@@ -28,13 +28,18 @@ export class SettingService {
     }
 
     public async init() {
-        let persistentConfig = await getPersistentConfig();
-        this._settingConfig = mergeObjects(persistentConfig, getDefaultSettingConfig());
-        // log.info("init this._settingConfig ", this._settingConfig)
-
-        if (this._settingConfig.usePraentIdIdx) {
-            this.createBlocksParentIdIdx();
+        let plugin = EnvConfig.ins.plugin;
+        let settingConfigParam = await getPersistentConfig();
+        if (settingConfigParam == null) {
+            this._settingConfig = { ...getDefaultSettingConfig() };
+        } else {
+            this._settingConfig = { ...getDefaultSettingConfig(), ...settingConfigParam };
         }
+        await plugin.saveData(SettingFileName, JSON.stringify(this._settingConfig, setReplacer));
+
+        // Create missing database indexes when plugin starts
+        this.createDatabaseIndexes();
+        // this.initCommand();
     }
 
     // public async getSettingConfig(): Promise<SettingConfig> {
@@ -84,9 +89,15 @@ export class SettingService {
         plugin.saveData(SettingFileName, paramJson);
     }
 
-    public async createBlocksParentIdIdx() {
-        let createdSql = getCreateBlocksParentIdIdxSql();
-        sql(createdSql);
+    public async createDatabaseIndexes() {
+        let createdBlocksSql = getCreateBlocksParentIdIdxSql();
+        await sql(createdBlocksSql);
+        
+        let createdRefsDefSql = getCreateRefsDefBlockIdIdxSql();
+        await sql(createdRefsDefSql);
+
+        let createdRefsBlockSql = getCreateRefsBlockIdIdxSql();
+        await sql(createdRefsBlockSql);
     }
 
 }
@@ -138,7 +149,7 @@ function getDefaultSettingConfig() {
 
     defaultConfig.cacheAfterResponseMs = -1;
     defaultConfig.cacheExpirationTime = 5 * 60;
-    defaultConfig.usePraentIdIdx = false;
+
     defaultConfig.doubleClickTimeout = 0;
 
 

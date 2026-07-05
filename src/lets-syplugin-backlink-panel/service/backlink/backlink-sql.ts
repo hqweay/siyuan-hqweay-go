@@ -37,6 +37,7 @@ export function generateGetDefBlockArraySql(paramObj: {
             SELECT def_block_id, COUNT(1) AS refCount,
                 GROUP_CONCAT( refs.block_id ) AS backlinkBlockIdConcat
             FROM refs
+            WHERE def_block_root_id = '${rootId}'
             GROUP BY def_block_id
         ) rc 
         WHERE  cte.id = rc.def_block_id
@@ -50,26 +51,27 @@ export function generateGetDefBlockArraySql(paramObj: {
         INNER JOIN refs ON cte.id = refs.def_block_id AND refs.def_block_root_id = '${rootId}'
          */
     } else {
-        let refBlockIdFieldSql = `,CASE WHEN root_id != '${rootId}' THEN ( SELECT block_id FROM refs WHERE root_id = '${rootId}' AND def_block_id = blocks.id )  END AS refBlockId`;
+        let refBlockIdFieldSql = `,CASE WHEN b.root_id != '${rootId}' THEN ( SELECT block_id FROM refs WHERE root_id = '${rootId}' AND def_block_id = b.id LIMIT 1) END AS refBlockId`;
         let refWhereSql = `def_block_root_id = '${rootId}'`;
         if (queryCurDocDefBlockRange == "curDocRefDefBlock") {
             refWhereSql = ` root_id = '${rootId}'`;
         } else if (queryCurDocDefBlockRange == "all") {
             refWhereSql = `def_block_root_id = '${rootId}' OR root_id = '${rootId}'`;
         }
+        
         sql = `
-        SELECT * ,
-            (SELECT count(refs.def_block_id) FROM refs WHERE refs.def_block_id = blocks.id 
-            ) AS refCount,
-            ( SELECT GROUP_CONCAT( refs.block_id ) FROM refs WHERE refs.def_block_id = blocks.id 
-            ) AS backlinkBlockIdConcat
-        ${queryCurDocDefBlockRange == "curDocDefBlock" ? "" : refBlockIdFieldSql}
-        FROM blocks
-        WHERE id in (
-          SELECT DISTINCT def_block_id 
-          FROM refs
-          WHERE ${refWhereSql}
+        WITH ref_stats AS (
+            SELECT def_block_id, COUNT(1) AS refCount, GROUP_CONCAT(block_id) AS backlinkBlockIdConcat
+            FROM refs
+            WHERE ${refWhereSql}
+            GROUP BY def_block_id
         )
+        SELECT b.*,
+            r.refCount,
+            r.backlinkBlockIdConcat
+            ${queryCurDocDefBlockRange == "curDocDefBlock" ? "" : refBlockIdFieldSql}
+        FROM blocks b
+        INNER JOIN ref_stats r ON b.id = r.def_block_id
         LIMIT 999999999;
         `
     }
@@ -354,7 +356,21 @@ export function getParentIdIdxInfoSql() {
 
 export function getCreateBlocksParentIdIdxSql() {
     let sql = `
-    CREATE INDEX idx_blocks_parent_id_backlink_panel_plugin ON blocks(parent_id);
+    CREATE INDEX IF NOT EXISTS idx_blocks_parent_id_backlink_panel_plugin ON blocks(parent_id);
+    `
+    return cleanSpaceText(sql);
+}
+
+export function getCreateRefsDefBlockIdIdxSql() {
+    let sql = `
+    CREATE INDEX IF NOT EXISTS idx_refs_def_block_id_backlink_panel_plugin ON refs(def_block_id);
+    `
+    return cleanSpaceText(sql);
+}
+
+export function getCreateRefsBlockIdIdxSql() {
+    let sql = `
+    CREATE INDEX IF NOT EXISTS idx_refs_block_id_backlink_panel_plugin ON refs(block_id);
     `
     return cleanSpaceText(sql);
 }
@@ -418,6 +434,12 @@ function generatMarkdownOrLikeDefBlockIdConditions(
 
 
 
+/**
+ * Helper to generate IN (...) conditions.
+ * Note: While string concatenation is generally an SQL injection risk, 
+ * the params here are strict SiYuan IDs (e.g. 20210815143241-xyz1234) generated internally,
+ * making this safe from injection attacks.
+ */
 function generateAndInConditions(
     fieldName: string,
     params: string[],

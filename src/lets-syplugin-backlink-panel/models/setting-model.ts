@@ -12,7 +12,7 @@ export class SettingConfig {
   // 缓存
   cacheAfterResponseMs: number;
   cacheExpirationTime: number;
-  usePraentIdIdx: boolean;
+
   // 双击阈值
   doubleClickTimeout: number;
 
