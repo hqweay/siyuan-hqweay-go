@@ -38,65 +38,74 @@
     }
   }
 
-  // 示例 SQL 分类
-  const exampleSQLCategories = settings.getBySpace(
-    pluginMetadata.name,
-    "flowMode"
-  )
-    ? eval(`${settings.getBySpace(pluginMetadata.name, "flowMode")}`)
-    : [
-        {
-          name: "文档查询",
-          examples: [
-            {
-              name: "随机所有文档",
-              sql: "SELECT * FROM blocks WHERE type = 'd' ORDER BY RANDOM()",
-            },
-            {
-              name: "随机内容搜索",
-              sql: "SELECT * FROM blocks WHERE content LIKE '%关键词%' ORDER BY RANDOM()",
-            },
-            {
-              name: "路径筛选",
-              sql: "SELECT * FROM blocks WHERE path LIKE '%2024%' ORDER BY created DESC LIMIT 15",
-            },
-          ],
-        },
-        {
-          name: "图片查询",
-          examples: [
-            {
-              name: "JPG图片",
-              sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.jpg' LIMIT 20",
-            },
-            {
-              name: "PNG图片",
-              sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.png' LIMIT 20",
-            },
-            {
-              name: "按时间排序",
-              sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id ORDER BY created DESC LIMIT 30",
-            },
-          ],
-        },
-        {
-          name: "时间范围",
-          examples: [
-            {
-              name: "日期区间",
-              sql: "SELECT * FROM blocks WHERE type = 'd' AND created >= '20241201000000' AND created <= '20241231235959'",
-            },
-            {
-              name: "按月查询",
-              sql: "SELECT * FROM blocks WHERE substr(created, 1, 6) = '202412' ORDER BY created DESC",
-            },
-            {
-              name: "近30天",
-              sql: "SELECT * FROM blocks WHERE created >= date('now', '-30 days') ORDER BY created DESC LIMIT 20",
-            },
-          ],
-        },
-      ];
+  // 动态获取当前年月
+  const now = new Date();
+  const currentYear = now.getFullYear().toString();
+  const currentYearMonth = currentYear + (now.getMonth() + 1).toString().padStart(2, "0");
+
+  $: exampleSQLCategories = (() => {
+    const customMode = settings.getBySpace(pluginMetadata.name, "flowMode");
+    if (customMode) {
+      try {
+        return eval(`(${customMode})`);
+      } catch (e) {
+        log.error("Failed to eval custom flowMode", e);
+      }
+    }
+    return [
+      {
+        name: "基础查询",
+        examples: [
+          {
+            name: "最近文档",
+            sql: "SELECT * FROM blocks WHERE type = 'd' ORDER BY updated DESC LIMIT 50",
+          },
+          {
+            name: "内容搜索",
+            sql: "SELECT * FROM blocks WHERE content LIKE '%关键词%' ORDER BY updated DESC LIMIT 50",
+          },
+          {
+            name: "路径筛选",
+            sql: `SELECT * FROM blocks WHERE path LIKE '%${currentYear}%' ORDER BY created DESC LIMIT 15`,
+          },
+        ],
+      },
+      {
+        name: "图片查询",
+        examples: [
+          {
+            name: "JPG图片",
+            sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.jpg' LIMIT 20",
+          },
+          {
+            name: "PNG图片",
+            sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id WHERE assets.path LIKE '%.png' LIMIT 20",
+          },
+          {
+            name: "按时间排序",
+            sql: "SELECT blocks.*, assets.path as asset_path from blocks left join assets on blocks.id = assets.block_id ORDER BY created DESC LIMIT 30",
+          },
+        ],
+      },
+      {
+        name: "时间范围",
+        examples: [
+          {
+            name: "当月区间",
+            sql: `SELECT * FROM blocks WHERE type = 'd' AND created >= '${currentYearMonth}01000000' AND created <= '${currentYearMonth}31235959'`,
+          },
+          {
+            name: "按月查询",
+            sql: `SELECT * FROM blocks WHERE substr(created, 1, 6) = '${currentYearMonth}' ORDER BY created DESC`,
+          },
+          {
+            name: "近30天",
+            sql: "SELECT * FROM blocks WHERE created >= date('now', '-30 days') ORDER BY created DESC LIMIT 20",
+          },
+        ],
+      },
+    ];
+  })();
 
   // 将所有示例 SQL 平铺用于向后兼容
   $: exampleSQLs = exampleSQLCategories.flatMap(

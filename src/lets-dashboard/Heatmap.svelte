@@ -4,6 +4,7 @@ const log = getLogger("lets-dashboard");
   import { sql } from "@/api";
   import { onMount, createEventDispatcher, tick } from "svelte";
   import { plugin } from "@/utils";
+  export let blocks = null; // optional array of blocks {created}
   export let sqlQuery = null;
   export let daysRange = 99999; // show more by default for weekly columns
   export let selectedDays = []; // Array of YYYYMMDD to highlight
@@ -32,22 +33,49 @@ const log = getLogger("lets-dashboard");
   }
 
   async function loadData() {
-    if (!sqlQuery) return;
+    if (!sqlQuery && !blocks) return;
     try {
-      const rows = await sql(`select * from (${sqlQuery}) order by day desc`);
       countsMap = new Map();
-      rows.forEach((r) => {
-        const day = r.day || r.date || r.DAY || r.day_key;
-        const cnt = Number(r.cnt || r.count || r.CNT || r.COUNT || 0);
-        if (day) countsMap.set(day.toString(), cnt);
-      });
+      let firstDayStr = "";
+      
+      if (blocks && Array.isArray(blocks)) {
+        if (blocks.length === 0) {
+          weeks = [];
+          return;
+        }
+        // Calculate counts from blocks array
+        blocks.forEach((b) => {
+          if (!b.created) return;
+          const day = b.created.toString().substring(0, 8);
+          countsMap.set(day, (countsMap.get(day) || 0) + 1);
+        });
+        
+        // Find the earliest date
+        // block.created is like "20241201000000", so we can sort string keys to find earliest
+        const sortedDays = Array.from(countsMap.keys()).sort();
+        firstDayStr = sortedDays[0];
+      } else {
+        const rows = await sql(`select * from (${sqlQuery}) order by day desc`);
+        if (rows.length === 0) return;
+        rows.forEach((r) => {
+          const day = r.day || r.date || r.DAY || r.day_key;
+          const cnt = Number(r.cnt || r.count || r.CNT || r.COUNT || 0);
+          if (day) countsMap.set(day.toString(), cnt);
+        });
+        firstDayStr = rows[rows.length - 1].day;
+      }
+
+      if (countsMap.size === 0) {
+        weeks = [];
+        return;
+      }
 
       // build date range
       const today = new Date();
       const start = new Date(
-        parseInt(rows[rows.length - 1].day.substring(0, 4)), // 年
-        parseInt(rows[rows.length - 1].day.substring(4, 6)) - 1, // 月（注意月份从0开始）
-        parseInt(rows[rows.length - 1].day.substring(6, 8)) // 日
+        parseInt(firstDayStr.substring(0, 4)), // 年
+        parseInt(firstDayStr.substring(4, 6)) - 1, // 月（注意月份从0开始）
+        parseInt(firstDayStr.substring(6, 8)) // 日
       );
       const firstWeekStart = new Date(start);
       const end = new Date(today);
@@ -154,10 +182,12 @@ const log = getLogger("lets-dashboard");
     }
   }
 
-  $: if (sqlQuery) loadData();
-
+  $: if (sqlQuery || blocks) {
+    loadData();
+  } 
+  
   onMount(() => {
-    if (sqlQuery) loadData();
+    if (sqlQuery || blocks) loadData();
   });
 
   function onDayClick(day) {

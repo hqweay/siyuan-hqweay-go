@@ -88,7 +88,7 @@ const pluginMetadata: PluginMetadata = {
         },
         {
           type: "text",
-          label: "select blocks.* from blocks where type = 'p' order BY RANDOM() LIMIT 1",
+          label: "select blocks.* from blocks where type = 'p' order BY updated DESC LIMIT 1",
           onClick: (card) => {
             if (window.diaryTools.isMobile) {
               window.diaryTools.openMobileFileById(window.diaryTools.plugin.app, card.labelBlocks[0]?.id);
@@ -116,14 +116,14 @@ const pluginMetadata: PluginMetadata = {
       imgSQL: null,
     },
     {
-      name: "🎲 随机！",
-      indexLabel: "随机文档",
+      name: "✨ 最近更新",
+      indexLabel: "最近更新文档",
       showEntries: true,
       showMedia: false,
       showMainStatics: true,
       showOnThisDay: true,
       showHeatmap: true,
-      mainSQL: "select blocks.* from blocks where type = 'd' ORDER BY RANDOM() LIMIT " + (Math.floor(Math.random() * 51) + 50),
+      mainSQL: "select blocks.* from blocks where type = 'd' ORDER BY updated DESC LIMIT 100",
     },
     {
       name: "Daily Notes",

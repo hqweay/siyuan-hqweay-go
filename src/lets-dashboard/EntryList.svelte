@@ -9,8 +9,8 @@ const log = getLogger("lets-dashboard");
   import { copyToClipboard } from "@/lets-epub-reader/annotation-service";
   import { showMessage } from "siyuan";
   import { plugin } from "@/utils";
-
   export let idSQL = null; // a query that returns rows with `id` and optionally `created`
+  export let blocks = null; // array of blocks passed directly
   export let pageSize = 12;
   export let fromFlow = false;
   export let title = "😝";
@@ -44,22 +44,36 @@ const log = getLogger("lets-dashboard");
   }
 
   async function loadNext() {
-    if (!idSQL || loading || !hasMore) return;
+    if ((!idSQL && !blocks) || loading || !hasMore) return;
 
     loading = true;
     const offset = page * pageSize;
-    // Wrap idSQL to safely apply LIMIT/OFFSET
-    const final = `select * from (${idSQL}) as sub limit ${pageSize} offset ${offset}`;
+    
     try {
-      const rows = await sql(final, true);
-
-      if (!rows || rows.length === 0) {
-        hasMore = false;
+      if (blocks && Array.isArray(blocks)) {
+        // JS based pagination
+        const newRows = blocks.slice(offset, offset + pageSize);
+        if (!newRows || newRows.length === 0) {
+          hasMore = false;
+        } else {
+          const newIds = newRows.map((r) => r.id).filter((id) => !ids.includes(id));
+          ids = [...ids, ...newIds];
+          page += 1;
+          if (newRows.length < pageSize) hasMore = false;
+        }
       } else {
-        const newIds = rows.map((r) => r.id).filter((id) => !ids.includes(id));
-        ids = [...ids, ...newIds]; // 重新赋值触发更新
-        page += 1;
-        if (rows.length < pageSize) hasMore = false;
+        // SQL based pagination
+        const final = `select * from (${idSQL}) as sub limit ${pageSize} offset ${offset}`;
+        const rows = await sql(final, true);
+
+        if (!rows || rows.length === 0) {
+          hasMore = false;
+        } else {
+          const newIds = rows.map((r) => r.id).filter((id) => !ids.includes(id));
+          ids = [...ids, ...newIds]; // 重新赋值触发更新
+          page += 1;
+          if (rows.length < pageSize) hasMore = false;
+        }
       }
     } catch (err) {
       log.error("EntryList load error", err);
@@ -68,8 +82,8 @@ const log = getLogger("lets-dashboard");
     }
   }
 
-  $: if (idSQL) {
-    // reset when query changes
+  $: if (idSQL || blocks) {
+    // reset when query or blocks change
     ids = [];
     page = 0;
     hasMore = true;

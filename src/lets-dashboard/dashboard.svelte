@@ -314,11 +314,12 @@ order by attributes.value desc`,
     }
   })();
 
-  $: mainSQL = currentConfig.mainSQL;
-  $: mainCountSQL = `select count(mainSQL.id) as count from (${mainSQL}) as mainSQL`;
-  $: imgSQL = currentConfig.imgSQL || generateImgSQL(mainSQL); // 自定义优先，否则生成
-  $: imgCountSQL = `select count(imgSQL.id) as count from (${imgSQL}) as imgSQL`;
-  $: heatmapSQL = `SELECT substr(created,1,8) as day, count(*) as cnt FROM (${mainSQL}) as t GROUP BY day ORDER BY day`;
+  $: mainSQL = currentConfig?.mainSQL;
+  // 核心数据存储
+  const MAX_BLOCKS = 2000;
+  let mainBlocks = [];
+  let blockIdsStr = "";
+  $: imgSQL = (currentConfig?.imgSQL) || generateFastImgSQL(blockIdsStr);
   // 仅支持通过链接打开传入
   let showConfigTabs = true;
   $: showMedia =
@@ -336,23 +337,31 @@ order by attributes.value desc`,
   $: showHeatmap =
     currentConfig?.showHeatmap == undefined ? true : currentConfig.showHeatmap;
 
-  $: idListBaseSQL = `select mainSQL.id, mainSQL.created from (${mainSQL}) as mainSQL`;
-  $: idListSQL = `${idListBaseSQL} order by created desc`;
-
   // 支持特殊日历筛选（那年今日、那月今日、那周今日）和普通多日筛选
-  $: filteredIdListSQL =
-    specialDayType !== SpecialDayType.None
-      ? getSpecialDaySQL(specialDayType, idListSQL)
-      : selectedDays.length > 0
-        ? `select * from (${idListSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
-        : idListSQL;
+  $: filteredBlocks = (() => {
+    let filtered = mainBlocks;
+    if (specialDayType !== SpecialDayType.None) {
+      let keys = [];
+      if (specialDayType === SpecialDayType.ThisDayInHistory) {
+        keys = getThisDayInHistoryKeys();
+      } else if (specialDayType === SpecialDayType.ThisMonthInHistory) {
+        keys = getThisMonthInHistoryKeys();
+      } else if (specialDayType === SpecialDayType.ThisWeekInHistory) {
+        keys = getThisWeekInHistoryKeys();
+      }
+      filtered = filtered.filter(b => keys.some(k => b.created && b.created.toString().startsWith(k)));
+    } else if (selectedDays.length > 0) {
+      filtered = filtered.filter(b => selectedDays.some(d => b.created && b.created.toString().startsWith(d)));
+    }
+    return filtered;
+  })();
 
-  $: filteredImgSQL =
-    specialDayType !== SpecialDayType.None
-      ? getSpecialDaySQL(specialDayType, imgSQL)
+  $: filteredBlockIdsStr = filteredBlocks.map((b) => `'${b.id}'`).join(",");
+  $: filteredImgSQL = (currentConfig?.imgSQL) ? (specialDayType !== SpecialDayType.None
+      ? getSpecialDaySQL(specialDayType, currentConfig.imgSQL)
       : selectedDays.length > 0
-        ? `select * from (${imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
-        : imgSQL;
+        ? `select * from (${currentConfig.imgSQL}) as sub where substr(created,1,8) in (${selectedDays.map((day) => `'${day}'`).join(", ")})`
+        : currentConfig.imgSQL) : generateFastImgSQL(filteredBlockIdsStr);
   $: customCards = [];
   $: if (currentConfig) {
     loadData();
@@ -479,9 +488,15 @@ order by attributes.value desc`,
     });
     return Array.from(keys);
   }
-  // 生成 imgSQL 的默认函数
+  // 生成 imgSQL 的默认函数 (向后兼容 fromFlow 等模式)
   const generateImgSQL = (mainSQL) =>
     `select mainSQL.* , assets.PATH as asset_path from (${mainSQL.replace(`'d'`, `'p'`)}) as mainSQL left join assets on mainSQL.id= assets.block_id where (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
+
+  // 基于已知 ID 列表生成极速图片查询
+  const generateFastImgSQL = (idsStr) => {
+    if (!idsStr) return `select * from assets where 1=0`;
+    return `SELECT DISTINCT assets.*, blocks.content, blocks.created, blocks.updated, assets.PATH as asset_path FROM assets JOIN blocks ON assets.block_id = blocks.id WHERE (blocks.root_id IN (${idsStr}) OR blocks.id IN (${idsStr})) AND (assets.PATH LIKE '%.png' OR assets.PATH LIKE '%.jpg' OR assets.PATH LIKE '%.jpeg' OR assets.PATH LIKE '%.gif' OR assets.PATH LIKE '%.bmp' OR assets.PATH LIKE '%.webp')`;
+  };
 
   // 计算特殊日期SQL片段
   function getSpecialDaySQL(type, baseSQL) {
@@ -518,46 +533,37 @@ order by attributes.value desc`,
   // 修改 loadData 函数，添加调试信息
   async function loadData() {
     try {
-      const countAll = await sql(mainCountSQL);
-      diaryAllEntriesCount = countAll[0]?.count || 0;
-      const countImg = await sql(imgCountSQL);
-      diaryHasImageEntriesCount = countImg[0]?.count || 0;
+      if (!mainSQL) return;
+      let blocks = await sql(mainSQL);
+      if (blocks.length > MAX_BLOCKS) {
+        blocks = blocks.slice(0, MAX_BLOCKS);
+        log.warn(`[lets-dashboard] 结果已被截断为前 ${MAX_BLOCKS} 条以保护性能`);
+      }
+      mainBlocks = blocks;
+      blockIdsStr = mainBlocks.map((b) => `'${b.id}'`).join(",");
+
+      diaryAllEntriesCount = mainBlocks.length;
+      
+      // We don't query image counts directly via SQL anymore for perf reasons.
+      // ImageGallery will compute it, but for main statics we can just fallback to 0 or remove it.
+      diaryHasImageEntriesCount = 0; 
+      
       await updateSpecialDaysCounts();
     } catch (error) {
       log.error("Error loading diary entries:", error);
     }
   }
 
-  // 根据当前的 selectedDays 重新计算特殊日期的统计
+  // 根据当前的 mainBlocks 重新计算特殊日期的统计
   async function updateSpecialDaysCounts() {
     try {
-      // 统计"那年今日"、"那月今日"、"那周今日"数量
-      const thisDayIdListSQL = getSpecialDaySQL(
-        SpecialDayType.ThisDayInHistory,
-        idListSQL
-      );
-      const thisMonthIdListSQL = getSpecialDaySQL(
-        SpecialDayType.ThisMonthInHistory,
-        idListSQL
-      );
-      const thisWeekIdListSQL = getSpecialDaySQL(
-        SpecialDayType.ThisWeekInHistory,
-        idListSQL
-      );
+      const thisDayKeys = getThisDayInHistoryKeys();
+      const thisMonthKeys = getThisMonthInHistoryKeys();
+      const thisWeekKeys = getThisWeekInHistoryKeys();
 
-      const thisDayCountSQL = `select count(*) as count from (${thisDayIdListSQL})`;
-      const thisMonthCountSQL = `select count(*) as count from (${thisMonthIdListSQL})`;
-      const thisWeekCountSQL = `select count(*) as count from (${thisWeekIdListSQL})`;
-
-      const [thisDayCountRes, thisMonthCountRes, thisWeekCountRes] =
-        await Promise.all([
-          sql(thisDayCountSQL),
-          sql(thisMonthCountSQL),
-          sql(thisWeekCountSQL),
-        ]);
-      thisDayInHistoryCount = thisDayCountRes[0]?.count || 0;
-      thisMonthInHistoryCount = thisMonthCountRes[0]?.count || 0;
-      thisWeekInHistoryCount = thisWeekCountRes[0]?.count || 0;
+      thisDayInHistoryCount = mainBlocks.filter(b => thisDayKeys.some(k => b.created && b.created.toString().startsWith(k))).length;
+      thisMonthInHistoryCount = mainBlocks.filter(b => thisMonthKeys.some(k => b.created && b.created.toString().startsWith(k))).length;
+      thisWeekInHistoryCount = mainBlocks.filter(b => thisWeekKeys.some(k => b.created && b.created.toString().startsWith(k))).length;
     } catch (error) {
       log.error("Error updating special days counts:", error);
     }
@@ -786,7 +792,7 @@ order by attributes.value desc`,
   <div class="main-row">
     {#if showHeatmap}
       <Heatmap
-        sqlQuery={heatmapSQL}
+        blocks={mainBlocks}
         daysRange={9999}
         {selectedDays}
         on:dayclick={handleDayClick}
@@ -820,7 +826,7 @@ order by attributes.value desc`,
       {#if showEntries}
         <div class="entries-column">
           <EntryList
-            idSQL={filteredIdListSQL}
+            blocks={filteredBlocks}
             title={currentConfig.name}
             pageSize={10}
           />
