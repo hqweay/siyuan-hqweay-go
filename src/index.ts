@@ -35,10 +35,7 @@ export default class PluginLetsGo extends Plugin {
         try {
           plugin[eventName](eventData);
         } catch (error) {
-          log.error(
-            `Error in ${eventName} for plugin ${plugin.name}:`,
-            error,
-          );
+          log.error(`Error in ${eventName} for plugin ${plugin.name}:`, error);
         }
       }
     }
@@ -291,10 +288,7 @@ export default class PluginLetsGo extends Plugin {
         try {
           await plugin.onDataChanged();
         } catch (error) {
-          log.error(
-            `Error in onDataChanged for plugin ${plugin.name}:`,
-            error,
-          );
+          log.error(`Error in onDataChanged for plugin ${plugin.name}:`, error);
         }
       }
     }

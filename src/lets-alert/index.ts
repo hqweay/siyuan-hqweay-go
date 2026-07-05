@@ -19,30 +19,47 @@ export default class LetsAlert implements SubPlugin {
     }
 
     // 2. 根据用户上次已阅版本，动态切片截取错过的所有版本日志
+    const compareVersions = (v1: string, v2: string) => {
+      const p1 = v1.split('.').map(Number);
+      const p2 = v2.split('.').map(Number);
+      for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+        const n1 = p1[i] || 0;
+        const n2 = p2[i] || 0;
+        if (n1 > n2) return 1;
+        if (n1 < n2) return -1;
+      }
+      return 0;
+    };
+
     const getChangelogSegment = (changelog: string, lastVer: string | null, currentVer: string): string => {
       // 首次安装，只展示最新版本变更
       if (!lastVer) {
-        const match = changelog.match(/(##\s+\d+\.\d+\.\d+[^]*?)(?=\n##\s+\d+\.\d+\.\d+|$)/);
+        const match = changelog.match(/(##\s+v?\d+\.\d+\.\d+[^]*?)(?=\n##\s+v?\d+\.\d+\.\d+|$)/);
         return match ? match[1].trim() : `## ${currentVer}\n\n- ${this.t("lets-alert.welcome")}`;
       }
 
-      const lastVerHeader = `## ${lastVer}`;
-      const lastVerIndex = changelog.indexOf(lastVerHeader);
-      
-      // 如果没有找到上次已阅的版本标题，说明落后太多或者本地配置有误，降级为只展示最新一版
-      if (lastVerIndex === -1) {
-        const match = changelog.match(/(##\s+\d+\.\d+\.\d+[^]*?)(?=\n##\s+\d+\.\d+\.\d+|$)/);
-        return match ? match[1].trim() : `## ${currentVer}`;
+      const headerRegex = /^##\s+v?(\d+\.\d+\.\d+)/gm;
+      let match;
+      let targetIndex = -1;
+
+      // 遍历所有版本号，找到第一个 <= lastVer 的版本
+      while ((match = headerRegex.exec(changelog)) !== null) {
+        const ver = match[1];
+        if (compareVersions(ver, lastVer) <= 0) {
+          targetIndex = match.index;
+          break;
+        }
       }
 
-      // 提取从第一个 "## " 标题到 "## [lastVersion]" 之间的所有内容
-      const firstHeaderMatch = changelog.match(/##\s+\d+\.\d+\.\d+/);
-      if (!firstHeaderMatch) {
-        return `## ${currentVer}`;
+      const firstHeaderMatch = changelog.match(/##\s+v?\d+\.\d+\.\d+/);
+      const firstHeaderIndex = firstHeaderMatch ? (firstHeaderMatch.index || 0) : 0;
+
+      // 如果没找到比 lastVer 小或等的版本，说明落后太多，展示整个 changelog（去除开头的部分）
+      if (targetIndex === -1) {
+        return changelog.substring(firstHeaderIndex).trim();
       }
 
-      const firstHeaderIndex = firstHeaderMatch.index || 0;
-      return changelog.substring(firstHeaderIndex, lastVerIndex).trim();
+      return changelog.substring(firstHeaderIndex, targetIndex).trim();
     };
 
     const changelogSegment = getChangelogSegment(changelogText, lastVersion, currentVersion);
