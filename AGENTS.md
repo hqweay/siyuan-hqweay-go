@@ -127,3 +127,11 @@ Zero matches before finalising any sub-plugin (excluding the parts file itself).
 - `fetchSyncPost` 来自 `"siyuan"` 包，用于调用 `src/api.ts` 中尚未封装的 kernel API。
 - `plugin.addCommand` 的 `callback` / `globalCallback` 出现在命令面板；`editorCallback` **仅响应快捷键触发，不出现在命令面板**。
 - 全文处理块内容时，使用 SQL 查 block ID + `/api/block/getBlockDOM` 获取真实 DOM，不依赖前端懒加载的 wysiwyg 元素。
+
+# UI & Icons
+
+- **原生图标 (Native Icons)**: 避免在 UI 中硬编码 Emoji。思源笔记内置了名为 `litheness` 的 SVG 图标库。
+  - 用法: 在 Svelte 组件中，使用 `<svg><use xlink:href="#iconXxx"></use></svg>` (例如 `#iconWorkspace` 表示首页/工作区，`#iconStar` 表示收藏/快捷操作，`#iconLeft`/`#iconRight` 表示前进后退等)。
+  - 如果允许用户在设置中自定义图标，建议检测配置值是否以 `#icon` 开头，动态渲染为 `<svg>` 或后备显示纯文本。
+- **布局 (Layout)**: 配置项的自定义字段（如 `SettingListItem`）若需使用 `flex` 弹性布局，切忌给 `flex-basis`（如 `flex: 0 0 1fr`）传入 `1fr`。`1fr` 仅支持 CSS Grid。在 Flexbox 中必须使用合法长度值 (如 `px`, `%`)，或单纯用 `flex: 1` 占据剩余空间。
+- **移动端滚动监听 (Mobile Scroll)**: 移动端思源的滚动事件往往挂载在 `document` 或 `window` (或者是 `.protyle-content`)，而非 `.protyle-scroll`。监听全局滚动时，须做兼容处理（`event.target === document || event.target === window`），不能死板地仅过滤 `.protyle-scroll`。
