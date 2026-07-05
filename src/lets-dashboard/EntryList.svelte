@@ -11,6 +11,7 @@ const log = getLogger("lets-dashboard");
   import { plugin } from "@/utils";
   export let idSQL = null; // a query that returns rows with `id` and optionally `created`
   export let blocks = null; // array of blocks passed directly
+  export let dataReady = true; // for external loading states
   export let pageSize = 12;
   export let fromFlow = false;
   export let title = "😝";
@@ -82,7 +83,7 @@ const log = getLogger("lets-dashboard");
     }
   }
 
-  $: if (idSQL || blocks) {
+  $: if (dataReady && (idSQL || blocks)) {
     // reset when query or blocks change
     ids = [];
     page = 0;
@@ -190,7 +191,7 @@ const log = getLogger("lets-dashboard");
   {/each}
 
   <div class="list-loading">
-    {#if loading}
+    {#if !dataReady || loading}
       <div class="loading-text">{plugin.i18n["lets-dashboard.loading"]}</div>
     {:else if !hasMore}
       <div class="loading-text">{plugin.i18n["lets-dashboard.noMoreEntries"]}</div>

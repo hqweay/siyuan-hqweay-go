@@ -530,8 +530,11 @@ order by attributes.value desc`,
 
   // 图片展示已移入独立组件 ImageGallery
 
+  let isDataReady = false;
+
   // 修改 loadData 函数，添加调试信息
   async function loadData() {
+    isDataReady = false;
     try {
       if (!mainSQL) return;
       let blocks = await sql(mainSQL);
@@ -542,15 +545,25 @@ order by attributes.value desc`,
       mainBlocks = blocks;
       blockIdsStr = mainBlocks.map((b) => `'${b.id}'`).join(",");
 
-      diaryAllEntriesCount = mainBlocks.length;
+      // 统计所有文档的真实总数（去掉可能导致慢查询的 ORDER BY 以提升 count 速度）
+      const cleanMainSQL = mainSQL.replace(/order\s+by.+$/i, "");
+      const countAll = await sql(`select count(*) as count from (${cleanMainSQL})`);
+      diaryAllEntriesCount = countAll[0]?.count || mainBlocks.length;
       
-      // We don't query image counts directly via SQL anymore for perf reasons.
-      // ImageGallery will compute it, but for main statics we can just fallback to 0 or remove it.
-      diaryHasImageEntriesCount = 0; 
+      // 极速统计当前文档列表相关的图片总数
+      const fastImgSQL = generateFastImgSQL(blockIdsStr);
+      if (fastImgSQL.includes("1=0")) {
+        diaryHasImageEntriesCount = 0;
+      } else {
+        const countImg = await sql(`select count(distinct assets.id) as count from (${fastImgSQL}) as imgSQL`);
+        diaryHasImageEntriesCount = countImg[0]?.count || 0;
+      }
       
       await updateSpecialDaysCounts();
     } catch (error) {
       log.error("Error loading diary entries:", error);
+    } finally {
+      isDataReady = true;
     }
   }
 
@@ -827,6 +840,7 @@ order by attributes.value desc`,
         <div class="entries-column">
           <EntryList
             blocks={filteredBlocks}
+            dataReady={isDataReady}
             title={currentConfig.name}
             pageSize={10}
           />
