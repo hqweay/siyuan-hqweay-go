@@ -61,20 +61,20 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     font-family: inherit;
     position: relative;
-    border-radius: 8px;
   }
 
   .nav-button.mobile {
-    background: none;
+    background: transparent;
     border: none;
     font-size: 18px;
-    padding: 8px;
-    gap: 0;
+    padding: 6px 12px;
+    gap: 2px;
     min-width: 50px;
     min-height: 50px;
+    border-radius: 16px;
   }
 
   .nav-button.desktop {
@@ -85,10 +85,11 @@
     gap: 2px;
     min-width: 45px;
     min-height: 38px;
+    border-radius: 8px;
   }
 
   .nav-button:active, .nav-button.pressed {
-    transform: scale(0.95);
+    transform: scale(0.85);
   }
 
   .nav-button.mobile:active {

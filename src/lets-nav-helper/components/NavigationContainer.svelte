@@ -32,6 +32,30 @@ const log = getLogger("lets-nav-helper");
   // Collapse/expand state management - only enable on desktop
   let isCollapsed = deviceType === "mobile" ? false : false;
 
+  // 滚动隐藏逻辑
+  let isScrollingDown = false;
+  let lastScrollTop = 0;
+
+  function handleScroll(event: Event) {
+    if (deviceType !== "mobile") return;
+    
+    const target = event.target as HTMLElement;
+    // SiYuan 的滚动往往发生在特定的容器内部，通过捕获阶段获取 scrollTop
+    if (target.scrollTop === undefined) return;
+    
+    const currentScrollTop = target.scrollTop;
+    // 设置一个防抖阈值，避免太敏感
+    if (Math.abs(currentScrollTop - lastScrollTop) < 10) return;
+
+    if (currentScrollTop > lastScrollTop) {
+      isScrollingDown = true;
+    } else {
+      isScrollingDown = false;
+    }
+    
+    lastScrollTop = currentScrollTop;
+  }
+
   // 导航按钮配置
   const buttonConfigs = [
     {
@@ -265,11 +289,13 @@ const log = getLogger("lets-nav-helper");
 
   onMount(() => {
     window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleScroll, true); // 使用 capture 捕获内部滚动
     handleResize();
   });
 
   onDestroy(() => {
     window.removeEventListener("resize", handleResize);
+    window.removeEventListener("scroll", handleScroll, true);
   });
 </script>
 
@@ -277,6 +303,7 @@ const log = getLogger("lets-nav-helper");
   <div
     class="navigation-container {deviceType}"
     class:collapsed={isCollapsed}
+    class:scrolling-down={isScrollingDown}
     style="
       --nav-height: {getConfig().height};
       --nav-bg: {getConfig().backgroundColor || 'var(--b3-theme-surface, rgba(248, 249, 250, 0.95))'};
@@ -339,12 +366,23 @@ const log = getLogger("lets-nav-helper");
   }
 
   .navigation-container.mobile {
-    bottom: 0;
-    left: 0;
-    right: 0;
+    bottom: env(safe-area-inset-bottom, 16px);
+    left: 16px;
+    right: 16px;
     height: var(--nav-height);
-    width: 100%;
+    width: auto;
     justify-content: space-around;
+    border-radius: 999px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  }
+
+  .navigation-container.mobile.scrolling-down {
+    transform: translateY(150%);
+    opacity: 0.5;
+    pointer-events: none;
   }
 
   .navigation-container.desktop {

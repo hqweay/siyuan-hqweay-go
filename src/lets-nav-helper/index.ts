@@ -19,7 +19,6 @@ export default class NavHelper extends SubPluginBase {
   private wsMainListener: (event: any) => void = () => {};
   private resizeTimeout: NodeJS.Timeout | null = null;
 
-
   override onload(): void {
     log.info("导航助手 - 初始化移动端工具");
     // 初始化移动端工具
@@ -115,7 +114,10 @@ export default class NavHelper extends SubPluginBase {
     if (shouldShowMobile) {
       if (this.mobileNavigationInstance) {
         // 如果实例已存在，只更新 props 而非销毁重建
-        this.mobileNavigationInstance.$set({ deviceType: "mobile", isVisible: true });
+        this.mobileNavigationInstance.$set({
+          deviceType: "mobile",
+          isVisible: true,
+        });
         this.adjustPagePadding();
       } else {
         this.createMobileNavigation();
@@ -123,7 +125,10 @@ export default class NavHelper extends SubPluginBase {
     } else if (shouldShowDesktop) {
       if (this.desktopNavigationInstance) {
         // 如果实例已存在，只更新 props
-        this.desktopNavigationInstance.$set({ deviceType: "desktop", isVisible: true });
+        this.desktopNavigationInstance.$set({
+          deviceType: "desktop",
+          isVisible: true,
+        });
       } else {
         this.createDesktopNavigation();
       }
@@ -215,14 +220,12 @@ export default class NavHelper extends SubPluginBase {
 
   // 调整页面底部padding
   private adjustPagePadding(): void {
-    const navHeight = parseInt(
-      settings.getBySpace(pluginMetadata.name, "navBarHeight") || "60px"
-    );
-    const editor = document.querySelector("#editor");
-    if (editor) {
-      (editor as HTMLElement).style.paddingBottom = `${navHeight}px`;
-      // (editor as HTMLElement).style.paddingBottom = `${navHeight + 20}px`;
-    }
+    // 现代悬浮栏设计下，由于思源本体在文档末尾通常留有足够的空白，
+    // 强制增加 #editor 的 padding 会导致编辑器的白底向下延伸，产生“遮罩”Bug。
+    // 因此这里不再强制添加 paddingBottom。
+    
+    // 如果后续发现某些特定主题下最后一行字被遮挡，可以考虑给 .protyle-content 
+    // 添加 margin-bottom，而不是修改 #editor。
   }
 
   // 注册事件监听器
