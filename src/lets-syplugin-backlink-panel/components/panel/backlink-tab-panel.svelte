@@ -10,6 +10,12 @@ const log = getLogger("lets-syplugin-backlink-panel");
   export let rootId: string;
   export let focusBlockId: string;
   export let currentTab: any;
+  export let isExpanded: boolean = true;
+
+  let hasBeenExpanded = isExpanded;
+  $: if (isExpanded) {
+    hasBeenExpanded = true;
+  }
 
   // Tab状态管理
   let activeTab: "backlink" | "sql" = "backlink";
@@ -113,6 +119,9 @@ const log = getLogger("lets-syplugin-backlink-panel");
 
   async function switchTab(tabId: string) {
     activeTab = tabId as any;
+    if (!isExpanded) {
+      isExpanded = true;
+    }
 
     await setBlockAttrs(rootId, {
       "custom-tab-panel-active-tab": tabId,
@@ -136,7 +145,7 @@ const log = getLogger("lets-syplugin-backlink-panel");
 
 <div class="tab-panel-container">
   <!-- Tab头部 -->
-  <div class="tab-header">
+  <div class="tab-header" style="display: flex; align-items: center; justify-content: space-between;">
     <div class="tab-nav">
       {#each tabs as tab (tab.id)}
         <button
@@ -150,43 +159,74 @@ const log = getLogger("lets-syplugin-backlink-panel");
         </button>
       {/each}
     </div>
+    <div 
+      class="collapse-toggle" 
+      on:click={() => isExpanded = !isExpanded} 
+      title={isExpanded ? "折叠面板" : "展开面板"}
+    >
+      <svg class="toggle-icon" style="transform: {isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'}; transition: transform 0.2s;">
+        <use xlink:href="#iconRight"></use>
+      </svg>
+    </div>
   </div>
 
   <!-- Tab内容区域 -->
-  <div class="tab-content">
-    <!-- {#if activeTab === "backlink"} -->
-    <div class:is-hidden={activeTab !== "backlink"}>
-      <BacklinkFilterPanelPage
-        {rootId}
-        {focusBlockId}
-        {currentTab}
-        {activeTab}
-      />
-    </div>
-    <!-- {:else} -->
-    <!-- 查找当前激活的Tab配置 -->
-    {#each tabs as tab (tab.id)}
-      <!-- {#if tab.id === activeTab} -->
-      <div class:is-hidden={tab.id !== activeTab} class="custom-sql-panel-tab">
-        {#if tab.component === CustomSqlPanel}
-          <CustomSqlPanel
-            presetSql={tab.presetSql}
-            saveSqlName={tab.name}
-            id={tab.id}
-            {rootId}
-            on:sqlUpdated={loadSavedSqlList}
-          />
-        {/if}
+  {#if hasBeenExpanded}
+    <div class="tab-content" class:is-hidden={!isExpanded}>
+      <!-- {#if activeTab === "backlink"} -->
+      <div class:is-hidden={activeTab !== "backlink"}>
+        <BacklinkFilterPanelPage
+          {rootId}
+          {focusBlockId}
+          {currentTab}
+          {activeTab}
+        />
       </div>
+      <!-- {:else} -->
+      <!-- 查找当前激活的Tab配置 -->
+      {#each tabs as tab (tab.id)}
+        <!-- {#if tab.id === activeTab} -->
+        <div class:is-hidden={tab.id !== activeTab} class="custom-sql-panel-tab">
+          {#if tab.component === CustomSqlPanel}
+            <CustomSqlPanel
+              presetSql={tab.presetSql}
+              saveSqlName={tab.name}
+              id={tab.id}
+              {rootId}
+              on:sqlUpdated={loadSavedSqlList}
+            />
+          {/if}
+        </div>
+        <!-- {/if} -->
+      {/each}
       <!-- {/if} -->
-    {/each}
-    <!-- {/if} -->
-  </div>
+    </div>
+  {/if}
 </div>
 
 <style>
+  .collapse-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 8px;
+    color: var(--b3-theme-on-surface);
+    transition: background-color 0.2s;
+  }
+  .collapse-toggle:hover {
+    background-color: var(--b3-theme-background-light);
+  }
+  .toggle-icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+  }
   .is-hidden {
-    display: none;
+    display: none !important;
   }
   .tab-panel-container {
     display: flex;

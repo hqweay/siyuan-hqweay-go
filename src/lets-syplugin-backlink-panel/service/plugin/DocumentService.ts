@@ -236,6 +236,7 @@ async function addBacklinkPanelToBottom(
       rootId: rootId,
       focusBlockId: focusBlockId,
       currentTab: null,
+      isExpanded: docBottomBacklinkPanelViewExpand,
     },
   });
   backlinkPanelBottomElement.parentElement.addEventListener("scroll", () => {

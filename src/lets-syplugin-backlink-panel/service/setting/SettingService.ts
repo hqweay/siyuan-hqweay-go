@@ -168,7 +168,7 @@ function getDefaultSettingConfig() {
 
 
     // 反链面板
-    defaultConfig.docBottomBacklinkPanelViewExpand = true;
+    defaultConfig.docBottomBacklinkPanelViewExpand = false;
     defaultConfig.pageSize = 8;
     defaultConfig.backlinkBlockSortMethod = "modifiedDesc";
     defaultConfig.hideBacklinkProtyleBreadcrumb = false;
