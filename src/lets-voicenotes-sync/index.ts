@@ -70,7 +70,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
   get label() {
     return this.t("lets-voiceNotes.syncBtn");
   }
-  icon = `<svg t="1737813478703" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248" width="32" height="32"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
+  icon = `<svg t="1737813478703" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4248"><path d="M487.648 240a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v546.784a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V240z m155.84 89.04a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04z m155.824 144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v123.824a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16v-123.84z m-467.488-144.704a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v346.432a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V329.04zM176 473.76a16 16 0 0 1 16-16h16a16 16 0 0 1 16 16v112.688a16 16 0 0 1-16 16h-16a16 16 0 0 1-16-16V473.76z" fill="#000000" p-id="4249"></path></svg>`;
 
   syncedNoteCount = 0;
 
@@ -82,7 +82,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
   public async editortitleiconEvent({ detail }: any) {
     detail.menu.addItem({
-      iconHTML: "🧹",
+      iconHTML: this.icon.replace("<svg ", "<svg class='b3-menu__icon' "),
       label: this.t("lets-voiceNotes.syncBtn"),
       click: async () => {
         const docId = detail.protyle.block.id;
@@ -102,7 +102,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         if (recordingid) {
           log.info(`已有录音ID: ${recordingid}，尝试修改文本`);
           text = getContentFromTranscriptToNextHeading(
-            detail.protyle.wysiwyg.element
+            detail.protyle.wysiwyg.element,
           );
         }
         //修改同步过去的数据
@@ -128,7 +128,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
   public async blockIconEvent({ detail }: any) {
     detail.menu.addItem({
-      iconHTML: "",
+      iconHTML: this.icon.replace("<svg ", "<svg class='b3-menu__icon' "),
       label: this.t("lets-voiceNotes.syncBtn"),
       click: async () => {
         detail.blockElements.forEach(async (item: HTMLElement) => {
@@ -136,7 +136,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
             item.getAttribute("custom-recordingid"),
             item.dataset.nodeId,
             item.innerText.trim(),
-            []
+            [],
           );
         });
       },
@@ -162,7 +162,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       await setBlockAttrs(nodeId, {
         [`custom-updatedat`]: formatDate(
           response.updated_at,
-          settings.getBySpace("voiceNotes", "dateFormat")
+          settings.getBySpace("voiceNotes", "dateFormat"),
         ),
       });
       showMessage(`该笔记已修改`);
@@ -178,7 +178,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
           [`custom-recordingid`]: response.recording.id,
           [`custom-createdat`]: formatDate(
             response.recording.created_at,
-            settings.getBySpace("voiceNotes", "dateFormat")
+            settings.getBySpace("voiceNotes", "dateFormat"),
           ),
         });
       } else {
@@ -196,7 +196,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
   async getExistingSyncedNotes() {
     const existingRecordings = await sql(
-      `SELECT * FROM blocks WHERE ial like '%custom-recordingid%'`
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingid%'`,
     );
 
     return existingRecordings.map((item) => {
@@ -238,9 +238,8 @@ export default class VoiceNotesPlugin extends SubPluginBase {
           (syncPageCount < 0 || pageCounter < syncPageCount) // 调整条件以包括当前页
         ) {
           showMessage(`正在进行同步 ${nextPage}`);
-          const moreRecordings = await this.vnApi.getRecordingsFromLink(
-            nextPage
-          );
+          const moreRecordings =
+            await this.vnApi.getRecordingsFromLink(nextPage);
           recordings.data.push(...moreRecordings.data);
           nextPage = moreRecordings.links.next;
           pageCounter++;
@@ -250,13 +249,10 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       //按时间顺序
       recordings.data.sort(
         (a, b) =>
-          new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+          new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
       );
 
-      const syncDirectory = settings.getBySpace(
-        "voiceNotes",
-        "syncDirectory"
-      );
+      const syncDirectory = settings.getBySpace("voiceNotes", "syncDirectory");
       if (recordings) {
         for (const recording of recordings.data) {
           const dateStr = formatDate(recording.created_at, "YYYY-MM-DD");
@@ -270,7 +266,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
               await this.processNote(
                 subnote,
                 `${voiceNotesDir}`,
-                unsyncedCount
+                unsyncedCount,
               );
             }
           }
@@ -278,7 +274,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       }
 
       showMessage(
-        `同步完成。由于排除标签，${unsyncedCount.count}条记录未被同步。`
+        `同步完成。由于排除标签，${unsyncedCount.count}条记录未被同步。`,
       );
 
       // settings.setBySpace(
@@ -343,7 +339,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
       // Check if the note already exists
       const noteExists = this.existingSyncedNotes.find(
-        (note) => note.recordingid === recording.recording_id
+        (note) => note.recordingid === recording.recording_id,
       );
 
       log.info(`${recording.recording_id}, exists: ${!!noteExists}`);
@@ -357,7 +353,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
                 .getBySpace("voiceNotes", "excludeTags")
                 .split(",")
                 .includes(tag.name)
-            : false
+            : false,
         )
       ) {
         unsyncedCount.count++;
@@ -453,7 +449,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
                   ? `- ![${filename}](${data.url})`
                   : `- [${filename}](${data.url})`;
               }
-            })
+            }),
           )
         ).join("\n");
       }
@@ -471,7 +467,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
                   `### Todo ${index + 1}\n` +
                   todoItem.content.data
                     .map(
-                      (data) => `- [ ] ${data}`
+                      (data) => `- [ ] ${data}`,
                       // (data) =>
                       // `- [ ] ${data}${
                       //   this.settings.todoTag ? " #" + this.settings.todoTag : ""
@@ -502,7 +498,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
         title: title,
         date: formatDate(
           recording.created_at,
-          settings.getBySpace("voiceNotes", "dateFormat")
+          settings.getBySpace("voiceNotes", "dateFormat"),
         ),
         // duration: formatDuration(recording.duration),
         // created_at: formatDate(
@@ -548,7 +544,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
       // 渲染模板
       let note = jinja.render(
         settings.getBySpace("voiceNotes", "noteTemplate"),
-        context
+        context,
       );
 
       if (settings.getBySpace("voiceNotes", "newLineNewBlock")) {
@@ -634,11 +630,11 @@ export default class VoiceNotesPlugin extends SubPluginBase {
               "custom-duration": `${recording.duration}`,
               "custom-createdat": formatDate(
                 recording.created_at,
-                settings.getBySpace("voiceNotes", "dateFormat")
+                settings.getBySpace("voiceNotes", "dateFormat"),
               ),
               "custom-updatedat": formatDate(
                 recording.updated_at,
-                settings.getBySpace("voiceNotes", "dateFormat")
+                settings.getBySpace("voiceNotes", "dateFormat"),
               ),
               "custom-recordingid": recording.recording_id,
               //通过 creations length 判断是否需要更新
@@ -690,7 +686,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
           (item, index) =>
             `### ${item.title ? item.title : `${h3Title} ${index + 1}`}\n${
               item.markdown_content
-            }`
+            }`,
         )
         .join("\n");
     } else if (!Array.isArray(custom)) {
@@ -702,7 +698,7 @@ export default class VoiceNotesPlugin extends SubPluginBase {
 
   async searchRelatedNotes(relatedNote) {
     let res = await sql(
-      `SELECT * FROM blocks WHERE ial like '%custom-recordingid="${relatedNote.id}"%'`
+      `SELECT * FROM blocks WHERE ial like '%custom-recordingid="${relatedNote.id}"%'`,
     );
     if (res.length > 0) {
       return `- ((${res[0].id} "${res[0].content}"))`;

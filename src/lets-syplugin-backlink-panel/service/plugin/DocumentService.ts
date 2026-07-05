@@ -315,7 +315,7 @@ function destroyAllPanel() {
 
 function hadnleClickEditorTitleIcon(e) {
   (e.detail.menu as Menu).addItem({
-    icon: "BacklinkPanelFilter",
+    icon: "iconBacklinkPanelFilter",
     type: "submenu",
     label: "反链过滤面板",
     submenu: getDocumentBlockIconMenus(e),
@@ -329,6 +329,7 @@ function getDocumentBlockIconMenus(e) {
   }
   let submenus = [];
   submenus.push({
+    icon: "iconUndo",
     label: "恢复默认",
     click: async () => {
       await BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
@@ -351,6 +352,7 @@ function getDocumentBlockIconMenus(e) {
     },
   });
   submenus.push({
+    icon: "iconEye",
     label: "始终显示该文档底部反链",
     click: async () => {
       await BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
@@ -364,6 +366,7 @@ function getDocumentBlockIconMenus(e) {
     },
   });
   submenus.push({
+    icon: "iconEyeoff",
     label: "始终隐藏该文档底部反链",
     click: async () => {
       BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
