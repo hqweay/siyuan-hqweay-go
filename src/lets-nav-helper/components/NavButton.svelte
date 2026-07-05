@@ -7,10 +7,7 @@
     hasSubmenu?: boolean;
   };
   export let deviceType: 'mobile' | 'desktop';
-  export let config: {
-    buttonColor: string;
-    activeButtonColor: string;
-  };
+  export let config: any;
 
   let isPressed = false;
 
@@ -37,8 +34,8 @@
   class="nav-button {deviceType}"
   class:pressed={isPressed}
   style="
-    --btn-color: {config.buttonColor || 'var(--b3-theme-on-surface, inherit)'};
-    --btn-active-color: {config.activeButtonColor || 'var(--b3-theme-primary, #007aff)'};
+    --btn-color: var(--b3-theme-on-surface, inherit);
+    --btn-active-color: var(--b3-theme-primary, #007aff);
   "
   on:click={handleClick}
   on:touchstart={handleTouchStart}

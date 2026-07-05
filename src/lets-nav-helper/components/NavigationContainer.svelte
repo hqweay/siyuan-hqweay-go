@@ -109,14 +109,6 @@ const log = getLogger("lets-nav-helper");
   // 获取配置
   function getConfig() {
     return {
-      height:
-        settings.getBySpace(pluginMetadata.name, "navBarHeight") || "60px",
-      backgroundColor:
-        settings.getBySpace(pluginMetadata.name, "backgroundColor") || "",
-      buttonColor:
-        settings.getBySpace(pluginMetadata.name, "buttonColor") || "",
-      activeButtonColor:
-        settings.getBySpace(pluginMetadata.name, "activeButtonColor") || "",
       navJustInMain: settings.getBySpace(pluginMetadata.name, "navJustInMain"),
     };
   }
@@ -378,8 +370,6 @@ const log = getLogger("lets-nav-helper");
     class="navigation-container {deviceType}"
     class:scrolling-down={isScrollingDown}
     style="
-      --nav-height: {getConfig().height};
-      --nav-bg: {getConfig().backgroundColor || 'var(--b3-theme-surface, rgba(248, 249, 250, 0.95))'};
       --nav-zindex: {getConfig().navJustInMain ? 0 : 9999};
     "
   >
