@@ -40,7 +40,8 @@ const log = getLogger("lets-nav-helper");
     if (deviceType !== "mobile") return;
     
     const target = event.target as HTMLElement;
-    // SiYuan 的滚动往往发生在特定的容器内部，通过捕获阶段获取 scrollTop
+    // 仅响应编辑器主滚动容器，过滤掉侧边栏、弹出面板等其他元素的滚动
+    if (!target || typeof target.className !== "string" || !target.classList.contains("protyle-scroll")) return;
     if (target.scrollTop === undefined) return;
     
     const currentScrollTop = target.scrollTop;
@@ -373,6 +374,7 @@ const log = getLogger("lets-nav-helper");
     width: auto;
     justify-content: space-around;
     border-radius: 999px;
+    overflow: hidden;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
