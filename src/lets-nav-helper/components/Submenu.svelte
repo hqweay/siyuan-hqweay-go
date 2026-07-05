@@ -36,36 +36,38 @@
   $: position = getPosition();
 
   function getPosition() {
-    // if (deviceType === "mobile") {
-    //   return {
-    //     position: "fixed",
-    //     bottom: "70px",
-    //     left: type === "customLinks" ? "60%" : "50%",
-    //     transform: "translateX(-50%)",
-    //   };
-    // } else {
-    // 桌面端：根据触发按钮位置动态计算位置，显示在按钮上方
+    // 动态获取子菜单预估宽度
+    const submenuWidth = deviceType === 'mobile' ? 200 : 180;
+
     if (triggerButton) {
       const buttonRect = triggerButton.getBoundingClientRect();
-      const submenuWidth = 180; // 子菜单预估宽度
+      
+      // 基础位置：尝试与触发按钮居中对齐
+      let left = buttonRect.left + (buttonRect.width - submenuWidth) / 2;
+      
+      // 屏幕边界约束 (防止在边缘被截断)
+      const padding = 10;
+      if (left < padding) {
+        left = padding; // 左边缘
+      } else if (left + submenuWidth > window.innerWidth - padding) {
+        left = window.innerWidth - submenuWidth - padding; // 右边缘
+      }
 
       return {
         position: "fixed",
-        // top: `${buttonRect.top - 300}px`, // 在按钮上方70px，避免与导航栏重合
         bottom: `${window.innerHeight - buttonRect.top + 10}px`,
-        left: `${buttonRect.left + (buttonRect.width - submenuWidth) / 2}px`, // 居中对齐
+        left: `${left}px`,
         transform: "translateX(0)",
       };
     } else {
-      // 回退到固定居中位置，显示在上方
+      // 回退到固定居中位置
       return {
         position: "fixed",
-        bottom: "80px",
+        bottom: deviceType === 'mobile' ? "70px" : "80px",
         left: "50%",
         transform: "translateX(-50%)",
       };
     }
-    // }
   }
 </script>
 
