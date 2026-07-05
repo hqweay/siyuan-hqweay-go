@@ -555,7 +555,7 @@ order by attributes.value desc`,
       if (fastImgSQL.includes("1=0")) {
         diaryHasImageEntriesCount = 0;
       } else {
-        const countImg = await sql(`select count(distinct assets.id) as count from (${fastImgSQL}) as imgSQL`);
+        const countImg = await sql(`select count(*) as count from (${fastImgSQL}) as imgSQL`);
         diaryHasImageEntriesCount = countImg[0]?.count || 0;
       }
       
