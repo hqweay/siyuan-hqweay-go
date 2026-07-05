@@ -31,8 +31,8 @@ export class DocumentService {
   public init() {
     // 加载时不需要处理了吧？有点bug，先注释掉
     EnvConfig.ins.plugin.eventBus.on("loaded-protyle-static", (e: any) => {
-        // log.info("loaded-protyle-static e : ", e)
-        handleSwitchProtyleOrLoadedProtyleStatic(e);
+      // log.info("loaded-protyle-static e : ", e)
+      handleSwitchProtyleOrLoadedProtyleStatic(e);
     });
 
     EnvConfig.ins.plugin.eventBus.on("switch-protyle", (e: any) => {
@@ -92,12 +92,12 @@ function handleDestroyProtyle(e) {
 
 async function getDocumentBottomBacklinkPanelDisplay(
   docuemntContentElement: HTMLElement,
-  rootId: string
+  rootId: string,
 ) {
   // 如果是闪卡界面，不显示底部反链面板
   let isCardBlock = hasClosestByClassName(
     docuemntContentElement,
-    "card__block"
+    "card__block",
   );
   if (isCardBlock) {
     let flashCardBottomDisplay =
@@ -109,11 +109,11 @@ async function getDocumentBottomBacklinkPanelDisplay(
   // 必须是页签文档或悬浮窗才可以通过。防止 Dock 栏的插件渲染 protyle 加载反链。
   let isLayoutCenter = hasClosestByClassName(
     docuemntContentElement,
-    "layout__center"
+    "layout__center",
   );
   let isPopoverBlock = hasClosestByClassName(
     docuemntContentElement,
-    "block__popover"
+    "block__popover",
   );
   // 搜索弹窗的预览也显示底部反链面板，fn__flex-1 search__preview protyle
   let isSearchDialog = hasClosestById(docuemntContentElement, "searchPreview");
@@ -139,13 +139,13 @@ async function getDocumentBottomBacklinkPanelDisplay(
     docProtyleElement = docuemntContentElement;
   } else {
     docProtyleElement = docuemntContentElement.querySelector(
-      `div.protyle-wysiwyg--attr[${DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY}]`
+      `div.protyle-wysiwyg--attr[${DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY}]`,
     );
   }
-  
+
   if (docProtyleElement) {
     let attributeValue = docProtyleElement.getAttribute(
-      DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY
+      DOCUMENT_BOTTOM_SHOW_BACKLINK_FILTER_PANEL_ATTRIBUTE_KEY,
     );
     if (attributeValue == "1") {
       documentBottomDisplay = true;
@@ -160,14 +160,14 @@ async function getDocumentBottomBacklinkPanelDisplay(
 async function refreshBacklinkPanelToBottom(
   docuemntContentElement: HTMLElement,
   rootId: string,
-  focusBlockId: string
+  focusBlockId: string,
 ) {
   if (!docuemntContentElement || !rootId) {
     return;
   }
   let bottomDisplay = await getDocumentBottomBacklinkPanelDisplay(
     docuemntContentElement,
-    rootId
+    rootId,
   );
   // 如果该文档不需要显示，则尝试删除该元素内部可能存在的底部反链。
   if (!bottomDisplay) {
@@ -181,7 +181,7 @@ async function refreshBacklinkPanelToBottom(
 async function addBacklinkPanelToBottom(
   docuemntContentElement: HTMLElement,
   rootId: string,
-  focusBlockId: string
+  focusBlockId: string,
 ) {
   if (!docuemntContentElement || !rootId) {
     return;
@@ -194,10 +194,10 @@ async function addBacklinkPanelToBottom(
   // }
 
   let protyleWysiwygElement = docuemntContentElement.querySelector(
-    ".protyle-wysiwyg.protyle-wysiwyg--attr"
+    ".protyle-wysiwyg.protyle-wysiwyg--attr",
   );
   let backlinkPanelBottomElement = docuemntContentElement.querySelector(
-    ".backlink-panel-document-bottom__area"
+    ".backlink-panel-document-bottom__area",
   );
   if (backlinkPanelBottomElement) {
     let panelRootId = backlinkPanelBottomElement.getAttribute("data-root-id");
@@ -210,7 +210,7 @@ async function addBacklinkPanelToBottom(
 
   backlinkPanelBottomElement = document.createElement("div");
   backlinkPanelBottomElement.classList.add(
-    "backlink-panel-document-bottom__area"
+    "backlink-panel-document-bottom__area",
   );
 
   let isMobile = EnvConfig.ins.isMobile;
@@ -260,7 +260,7 @@ async function addBacklinkPanelToBottom(
       // }
 
       event.stopPropagation();
-    }
+    },
   );
 
   backlinkPanelPageSvelteMap.set(panelId, pageSvelte);
@@ -277,13 +277,13 @@ function destroyPanel(docuemntContentElement: HTMLElement) {
     return;
   }
   let backlinkPanelBottomElement = docuemntContentElement.querySelector(
-    ".backlink-panel-document-bottom__area"
+    ".backlink-panel-document-bottom__area",
   );
   if (!backlinkPanelBottomElement) {
     return;
   }
   let panelId = backlinkPanelBottomElement.getAttribute(
-    "misuzu-backlink-panel-id"
+    "misuzu-backlink-panel-id",
   );
   if (!panelId) {
     return;
@@ -301,7 +301,7 @@ function destroyPanel(docuemntContentElement: HTMLElement) {
 
 function destroyAllPanel() {
   let allDocumentContentElementArray = document.querySelectorAll(
-    "div.layout__center div.layout-tab-container div.protyle-content.protyle-content--transition"
+    "div.layout__center div.layout-tab-container div.protyle-content.protyle-content--transition",
   );
 
   if (!allDocumentContentElementArray) {
@@ -332,7 +332,7 @@ function getDocumentBlockIconMenus(e) {
     click: async () => {
       await BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
         rootId,
-        null
+        null,
       );
       let documentBottomDisplay =
         SettingService.ins.SettingConfig.documentBottomDisplay;
@@ -342,7 +342,7 @@ function getDocumentBlockIconMenus(e) {
         await refreshBacklinkPanelToBottom(
           docuemntContentElement,
           rootId,
-          null
+          null,
         );
       } else {
         handleDestroyProtyle(e);
@@ -354,7 +354,7 @@ function getDocumentBlockIconMenus(e) {
     click: async () => {
       await BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
         rootId,
-        1
+        1,
       );
 
       let docuemntContentElement = e.detail.protyle
@@ -367,7 +367,7 @@ function getDocumentBlockIconMenus(e) {
     click: async () => {
       BacklinkFilterPanelAttributeService.ins.updateDocumentBottomShowPanel(
         rootId,
-        -1
+        -1,
       );
       let docuemntContentElement = e.detail.protyle
         .contentElement as HTMLElement;
@@ -388,34 +388,53 @@ let observerMap: Map<string, MutationObserver> = new Map();
  * When SiYuan updates paddingLeft/Right (e.g. on window resize),
  * we mirror the values to the panel div.
  */
-function observePaddingSync(panelId: string, protyleWysiwygElement: HTMLElement) {
+function observePaddingSync(
+  panelId: string,
+  protyleWysiwygElement: HTMLElement,
+) {
   if (!protyleWysiwygElement || observerMap.has(panelId)) {
     return;
   }
 
+  let isSyncing = false;
+
   const syncPadding = () => {
-    let paddingWidthSize =
-      SettingService.ins.SettingConfig.documentBottomBacklinkPaddingWidth;
+    if (isSyncing) return;
+    isSyncing = true;
 
-    // (a) Cap paddingBottom — prevent SiYuan from pushing content too far
-    if (parseFloat(protyleWysiwygElement.style.paddingBottom) > 88) {
-      protyleWysiwygElement.style.paddingBottom = "48px";
-    }
+    try {
+      let paddingWidthSize =
+        SettingService.ins.SettingConfig.documentBottomBacklinkPaddingWidth;
 
-    // (b) Sync paddingLeft/Right from wysiwyg to the panel div
-    let panelElement = protyleWysiwygElement.parentElement?.querySelector(
-      ".backlink-panel-document-bottom__area"
-    ) as HTMLElement;
-    if (
-      panelElement &&
-      protyleWysiwygElement.style.paddingLeft != panelElement.style.paddingLeft
-    ) {
-      let paddingWidthPx = paddingWidthSize + "px";
-      if (paddingWidthSize == undefined || paddingWidthSize == null) {
-        paddingWidthPx = protyleWysiwygElement.style.paddingLeft;
+      // (a) Cap paddingBottom — prevent SiYuan from pushing content too far
+      if (parseFloat(protyleWysiwygElement.style.paddingBottom) > 88) {
+        protyleWysiwygElement.style.paddingBottom = "48px";
       }
-      panelElement.style.paddingLeft = paddingWidthPx;
-      panelElement.style.paddingRight = paddingWidthPx;
+
+      // (b) Sync paddingLeft/Right from wysiwyg to the panel div
+      let panelElement = protyleWysiwygElement.parentElement?.querySelector(
+        ".backlink-panel-document-bottom__area",
+      ) as HTMLElement;
+
+      if (
+        panelElement &&
+        protyleWysiwygElement.style.paddingLeft !=
+          panelElement.style.paddingLeft
+      ) {
+        let paddingWidthPx = "";
+        if (paddingWidthSize === undefined || paddingWidthSize === null) {
+          paddingWidthPx = protyleWysiwygElement.style.paddingLeft;
+        } else {
+          paddingWidthPx = paddingWidthSize + "px";
+        }
+        panelElement.style.paddingLeft = paddingWidthPx;
+        panelElement.style.paddingRight = paddingWidthPx;
+      }
+    } finally {
+      // Use requestAnimationFrame to reset the flag to ensure layout updates are done
+      requestAnimationFrame(() => {
+        isSyncing = false;
+      });
     }
   };
 
@@ -424,7 +443,10 @@ function observePaddingSync(panelId: string, protyleWysiwygElement: HTMLElement)
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      if (mutation.type === "attributes" && mutation.attributeName === "style") {
+      if (
+        mutation.type === "attributes" &&
+        mutation.attributeName === "style"
+      ) {
         syncPadding();
         break;
       }
@@ -453,4 +475,3 @@ function disconnectAllPaddingObservers() {
   }
   observerMap.clear();
 }
-
