@@ -91,6 +91,14 @@ Zero matches before finalising any sub-plugin (excluding the parts file itself).
 4. Restart dev server (vite auto-generates aggregated TS + JSON)
 5. Verify: `grep -rn '[^\x00-\x7F]' src/lets-xxx/` returns zero
 
+# Performance & API Gotchas
+
+1. **`openTab` and `action` parameters**: When calling `openTab` to open a block programmatically, explicitly passing `action: ["cb-get-focus", "cb-get-scroll"]` is crucial to achieve native-like responsiveness (it forces immediate UI focus/scroll). Without it, `openTab` falls back to lazy-loading with no immediate viewport adjustment.
+2. **Document vs. Block load overhead**: 
+   - Opening a document root block (`type='d'`) is fast (O(1) read from start of file).
+   - Opening a specific child block (e.g. `type='p'`) without `zoomIn: true` is very slow for large documents, as the backend must parse the entire DOM to calculate the dynamic loading context (blocks before/after). Use `zoomIn: true` for random roaming/flashcard scenarios to skip context overhead.
+3. **`ORDER BY RANDOM()` in SQL**: Do not use `ORDER BY RANDOM()` on large block queries. SQLite must generate random numbers for all rows and sort them, causing massive slowdowns. For large sets, compute `count(*)`, pick a random offset in JS, and use `LIMIT 1 OFFSET $R`.
+
 # Reference Codebases
 
 本项目基于思源笔记插件体系，以下本地路径是开发的主要参考来源。
