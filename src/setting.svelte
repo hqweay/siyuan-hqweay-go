@@ -28,6 +28,13 @@
           value: settings.get("debugLogging") || false,
         },
         {
+          type: "textinput",
+          title: "settings.lastVersion",
+          description: "settings.lastVersionDesc",
+          key: "lastVersion",
+          value: settings.get("lastVersion") || "",
+        },
+        {
           type: "button",
           title: "settings.mergeData",
           description: "settings.mergeDataDesc",
@@ -165,6 +172,8 @@
       if (detail.key === "debugLogging") {
         settings.set("debugLogging", detail.value);
         enableLogging(detail.value);
+      } else if (detail.key === "lastVersion") {
+        settings.set("lastVersion", detail.value);
       }
     } else if (detail.group === "lets-fetch-code-snippets.displayName" || detail.group === "fetch-code-snippets") {
       settings.setBySpace("codeSnippets", detail.key, detail.value);

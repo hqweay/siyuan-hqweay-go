@@ -14,6 +14,8 @@ export const en = {
   "settings.selectCategory": "Select Setting Category",
   "settings.debugLogging": "Debug Logging",
   "settings.debugLoggingDesc": "Enable verbose console output for debugging. Keep disabled in normal use.",
+  "settings.lastVersion": "Last Prompted Version",
+  "settings.lastVersionDesc": "The version for which the changelog was last shown. Set to a high value (e.g. 999.999.999) to suppress future update dialogs.",
 };
 
 export const zhCN: typeof en = {
@@ -31,4 +33,6 @@ export const zhCN: typeof en = {
   "settings.selectCategory": "选择设置分类",
   "settings.debugLogging": "调试日志",
   "settings.debugLoggingDesc": "开启后在控制台输出详细日志，日常使用请保持关闭。",
+  "settings.lastVersion": "上次提示版本",
+  "settings.lastVersionDesc": "记录已展示过更新日志的最新版本号，手动修改可重新触发更新提示。设置为极大值（如 999.999.999）可永久关闭更新提醒。",
 };

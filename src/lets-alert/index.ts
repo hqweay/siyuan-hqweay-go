@@ -11,7 +11,7 @@ export default class LetsAlert implements SubPlugin {
     const versionMatch = changelogText.match(/##\s*v?(\d+\.\d+\.\d+)/);
     const currentVersion = versionMatch ? versionMatch[1] : "0.0.0";
 
-    const lastVersion = settings.getBySpace("lets-alert", "lastVersion");
+    const lastVersion = settings.get("lastVersion");
 
     // 如果已阅读版本已经是最新版本，则跳过弹窗
     if (lastVersion && lastVersion === currentVersion) {
@@ -94,7 +94,7 @@ export default class LetsAlert implements SubPlugin {
       width: isMobile ? "92vw" : "500px",
       height: "460px",
       destroyCallback: () => {
-        settings.setBySpace("lets-alert", "lastVersion", currentVersion);
+        settings.set("lastVersion", currentVersion);
         settings.save();
       },
     });
