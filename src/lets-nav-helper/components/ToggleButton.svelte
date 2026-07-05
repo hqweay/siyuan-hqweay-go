@@ -35,8 +35,8 @@
 
 <style>
   .toggle-button {
-    background: rgba(248, 249, 250, 0.95);
-    border: 1px solid rgba(233, 236, 239, 0.8);
+    background: var(--b3-theme-surface, rgba(248, 249, 250, 0.95));
+    border: 1px solid var(--b3-border-color, rgba(233, 236, 239, 0.8));
     border-radius: 6px;
     cursor: pointer;
     display: flex;
@@ -45,7 +45,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-family: inherit;
     backdrop-filter: blur(10px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--b3-dialog-shadow, 0 2px 8px rgba(0, 0, 0, 0.1));
   }
 
   .toggle-button.desktop {
@@ -58,8 +58,8 @@
   }
 
   .toggle-button:hover {
-    background: rgba(233, 236, 239, 0.95);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: var(--b3-theme-background-light, rgba(233, 236, 239, 0.95));
+    box-shadow: var(--b3-dialog-shadow, 0 4px 12px rgba(0, 0, 0, 0.15));
     transform: translateY(-50%) scale(1.05);
   }
 
@@ -87,7 +87,7 @@
   }
 
   .icon {
-    color: #495057;
+    color: var(--b3-theme-on-surface, #495057);
     display: flex;
     align-items: center;
     justify-content: center;

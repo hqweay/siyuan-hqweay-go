@@ -16,6 +16,7 @@ const log = getLogger("lets-nav-helper");
 class MobileNavigation {
   private historyInitialized = false;
   private forwardStack: string[] = [];
+  private keydownListener: ((e: KeyboardEvent) => void) | null = null;
   /**
    * 初始化导航历史
    */
@@ -30,11 +31,25 @@ class MobileNavigation {
   }
 
   /**
+   * 销毁导航监听，防止内存泄漏
+   */
+  destroy(): void {
+    if (!this.historyInitialized) return;
+    
+    if (this.keydownListener) {
+      window.removeEventListener("keydown", this.keydownListener);
+      this.keydownListener = null;
+    }
+    this.historyInitialized = false;
+    log.info("移动端导航销毁");
+  }
+
+  /**
    * 设置导航事件监听
    */
   private setupNavigationListeners(): void {
     // 监听键盘事件
-    window.addEventListener("keydown", (e) => {
+    this.keydownListener = (e: KeyboardEvent) => {
       if (!isMobile) return;
 
       switch (e.key) {
@@ -57,7 +72,8 @@ class MobileNavigation {
           }
           break;
       }
-    });
+    };
+    window.addEventListener("keydown", this.keydownListener);
   }
 
   /**

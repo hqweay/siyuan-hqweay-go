@@ -89,13 +89,11 @@ const log = getLogger("lets-nav-helper");
       height:
         settings.getBySpace(pluginMetadata.name, "navBarHeight") || "60px",
       backgroundColor:
-        settings.getBySpace(pluginMetadata.name, "backgroundColor") ||
-        "#ffffff",
+        settings.getBySpace(pluginMetadata.name, "backgroundColor") || "",
       buttonColor:
-        settings.getBySpace(pluginMetadata.name, "buttonColor") || "#333333",
+        settings.getBySpace(pluginMetadata.name, "buttonColor") || "",
       activeButtonColor:
-        settings.getBySpace(pluginMetadata.name, "activeButtonColor") ||
-        "#007aff",
+        settings.getBySpace(pluginMetadata.name, "activeButtonColor") || "",
       navJustInMain: settings.getBySpace(pluginMetadata.name, "navJustInMain"),
     };
   }
@@ -154,7 +152,7 @@ const log = getLogger("lets-nav-helper");
         icon: "🎲",
         label: plugin.i18n["lets-nav-helper.random"],
         action: async () => {
-          await goToRandomBlock("SELECT * FROM blocks WHERE type = 'd'");
+          await goToRandomBlock("SELECT id FROM blocks WHERE type = 'd'");
           if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) {
             hideSubmenu();
           }
@@ -280,45 +278,9 @@ const log = getLogger("lets-nav-helper");
     class="navigation-container {deviceType}"
     class:collapsed={isCollapsed}
     style="
-      position: {deviceType === 'mobile' ? 'fixed' : 'fixed'};
-      {deviceType === 'mobile'
-      ? `
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: ${getConfig().height};
-        width: 100%;
-      `
-      : isCollapsed
-        ? `
-        bottom: 30px;
-        right: 20px;
-     /*   width: 60px;*/
-        height: 50px;
-      `
-        : `
-        bottom: 30px;
-        right: calc(50% - 200px);
-        width: 280px;
-        height: 50px;
-      `}
-      background-color: {getConfig().backgroundColor};
-      z-index: {getConfig().navJustInMain ? 0 : 9999};
-      display: flex;
-      align-items: center;
-      justify-content: {isCollapsed ? 'center' : 'space-around'};
-      {deviceType === 'mobile' ? '/*padding: 0 10px;*/' : '/*padding: 4px 3px;*/'}
-      {deviceType === 'mobile'
-      ? '/*box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);*/'
-      : `
-        background: rgba(248, 249, 250, 0.95);
-        border-radius: 6px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-       /* border: 1px solid rgba(233, 236, 239, 0.8);*/
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      `}
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif;
+      --nav-height: {getConfig().height};
+      --nav-bg: {getConfig().backgroundColor || 'var(--b3-theme-surface, rgba(248, 249, 250, 0.95))'};
+      --nav-zindex: {getConfig().navJustInMain ? 0 : 9999};
     "
   >
     {#if deviceType === "desktop" && !isCollapsed}
@@ -368,6 +330,42 @@ const log = getLogger("lets-nav-helper");
 
   .navigation-container {
     touch-action: manipulation;
+    position: fixed;
+    z-index: var(--nav-zindex);
+    display: flex;
+    align-items: center;
+    background-color: var(--nav-bg);
+    font-family: var(--b3-font-family, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Microsoft YaHei', sans-serif);
+  }
+
+  .navigation-container.mobile {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .navigation-container.desktop {
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 280px;
+    height: 50px;
+    justify-content: space-around;
+    border-radius: 6px;
+    box-shadow: var(--b3-dialog-shadow, 0 4px 16px rgba(0, 0, 0, 0.1));
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--b3-border-color, rgba(233, 236, 239, 0.2));
+  }
+
+  .navigation-container.desktop.collapsed {
+    left: auto;
+    right: 20px;
+    transform: none;
+    width: 50px;
+    justify-content: center;
   }
 
   .navigation-container.desktop:hover:not(.collapsed) {
@@ -390,14 +388,10 @@ const log = getLogger("lets-nav-helper");
   /* Smooth transition for collapse/expand */
   .navigation-container.desktop {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Enhanced animations for better UX */
-  .navigation-container.desktop {
-    will-change: transform, width, right, box-shadow;
+    will-change: transform, width, left, right, box-shadow;
   }
 
   .navigation-container.desktop.collapsed {
-    will-change: transform, width, right, box-shadow;
+    will-change: transform, width, left, right, box-shadow;
   }
 </style>

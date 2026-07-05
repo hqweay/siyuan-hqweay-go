@@ -37,48 +37,15 @@
   class="nav-button {deviceType}"
   class:pressed={isPressed}
   style="
-    background: {deviceType === 'desktop' ? 'transparent' : 'none'};
-    border: {deviceType === 'desktop' ? '1px solid rgba(89, 130, 246, 0.2)' : 'none'};
-    color: {config.buttonColor};
-    font-size: {deviceType === 'mobile' ? '18px' : '12px'};
-    padding: {deviceType === 'mobile' ? '8px' : '6px 8px'};
-    border-radius: {deviceType === 'mobile' ? '8px' : '8px'};
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: {deviceType === 'mobile' ? '0' : '2px'};
-    transition: all 0.3s ease;
-    font-family: inherit;
-    min-width: {deviceType === 'mobile' ? '50px' : '45px'};
-    min-height: {deviceType === 'mobile' ? '50px' : '38px'};
-    position: relative;
-    {deviceType === 'mobile' ? 'background: none;' : ''}
+    --btn-color: {config.buttonColor || 'var(--b3-theme-on-surface, inherit)'};
+    --btn-active-color: {config.activeButtonColor || 'var(--b3-theme-primary, #007aff)'};
   "
   on:click={handleClick}
   on:touchstart={handleTouchStart}
   on:touchend={handleTouchEnd}
 >
-  <span 
-    class="icon"
-    style="
-      font-size: {deviceType === 'mobile' ? '20px' : '14px'};
-      margin-bottom: {deviceType === 'mobile' ? '2px' : '0'};
-    "
-  >
-    {button.icon}
-  </span>
-  <span 
-    class="label"
-    style="
-      font-size: {deviceType === 'mobile' ? '10px' : '10px'};
-      font-weight: 500;
-      color: {deviceType === 'desktop' ? '#6c757d' : 'inherit'};
-    "
-  >
-    {button.label}
-  </span>
+  <span class="icon">{button.icon}</span>
+  <span class="label">{button.label}</span>
 </button>
 
 <style>
@@ -88,33 +55,75 @@
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
-  }
-
-  .nav-button:active {
-    transform: scale(0.95);
+    color: var(--btn-color);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    position: relative;
+    border-radius: 8px;
   }
 
   .nav-button.mobile {
     background: none;
+    border: none;
+    font-size: 18px;
+    padding: 8px;
+    gap: 0;
+    min-width: 50px;
+    min-height: 50px;
   }
 
-  .nav-button.mobile:active {
-    color: var(--active-button-color, #007aff);
-    background-color: rgba(0, 122, 255, 0.1);
+  .nav-button.desktop {
+    background: transparent;
+    border: 1px solid var(--b3-border-color, rgba(89, 130, 246, 0.2));
+    font-size: 12px;
+    padding: 6px 8px;
+    gap: 2px;
+    min-width: 45px;
+    min-height: 38px;
   }
 
-  .nav-button.desktop:hover {
-    background: rgba(59, 130, 246, 0.12);
-    border-color: rgba(59, 130, 246, 0.3);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
-  }
-
-  .nav-button.pressed {
+  .nav-button:active, .nav-button.pressed {
     transform: scale(0.95);
   }
 
-  .icon, .label {
+  .nav-button.mobile:active {
+    color: var(--btn-active-color);
+    background-color: var(--b3-theme-background-light, rgba(0, 122, 255, 0.1));
+  }
+
+  .nav-button.desktop:hover {
+    background: var(--b3-theme-background-light, rgba(59, 130, 246, 0.12));
+    border-color: var(--btn-active-color);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .icon {
     pointer-events: none;
+  }
+  
+  .nav-button.mobile .icon {
+    font-size: 20px;
+    margin-bottom: 2px;
+  }
+  
+  .nav-button.desktop .icon {
+    font-size: 14px;
+    margin-bottom: 0;
+  }
+
+  .label {
+    pointer-events: none;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .nav-button.desktop .label {
+    color: var(--b3-theme-on-surface-light, #6c757d);
   }
 </style>

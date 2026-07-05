@@ -77,12 +77,13 @@
     {Object.entries(position)
     .map(([key, value]) => `${key}: ${value};`)
     .join('')}
-    background: white;
+    background: var(--b3-theme-surface, white);
     border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--b3-dialog-shadow, 0 4px 20px rgba(0, 0, 0, 0.15));
     z-index: 1001;
     min-width: {deviceType === 'mobile' ? '200px' : '180px'};
     max-width: {deviceType === 'mobile' ? '250px' : '200px'};
+    border: 1px solid var(--b3-border-color, rgba(233, 236, 239, 0.2));
   "
   on:introstart={() => {
     // 强制重绘，确保定位准确
@@ -99,7 +100,7 @@
           padding: 12px 15px;
           border-bottom: {index === items.length - 1
           ? 'none'
-          : '1px solid #f0f0f0'};
+          : '1px solid var(--b3-border-color, #f0f0f0)'};
           border: none;
           background: none;
           cursor: pointer;
@@ -110,18 +111,18 @@
           text-align: left;
         "
         on:click={() => handleItemClick(item)}
-        on:mouseenter={(e) => (e.target.style.backgroundColor = "#f8f9fa")}
+        on:mouseenter={(e) => (e.target.style.backgroundColor = "var(--b3-theme-background-light, #f8f9fa)")}
         on:mouseleave={(e) => (e.target.style.backgroundColor = "transparent")}
         role="menuitem"
       >
         <span style="margin-right: 10px; font-size: 14px;">
           {item.icon ? item.icon : ""}
         </span>
-        <span style="flex: 1; color: #333; font-size: 13px;">
+        <span style="flex: 1; color: var(--b3-theme-on-surface, #333); font-size: 13px;">
           {item.title || item.label}
         </span>
         {#if type === "customLinks"}
-          <span style="font-size: 12px; color: #666;">→</span>
+          <span style="font-size: 12px; color: var(--b3-theme-on-surface-light, #666);">→</span>
         {/if}
       </button>
     {/each}

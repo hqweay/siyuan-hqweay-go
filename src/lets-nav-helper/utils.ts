@@ -22,6 +22,12 @@ export const isDesktop = !isMobile;
 class MobileUtils {
   private initialized = false;
 
+  // 保存事件监听器引用以便注销
+  private visibilityListener: () => void = () => {};
+  private onlineListener: () => void = () => {};
+  private offlineListener: () => void = () => {};
+  private orientationListener: () => void = () => {};
+
   /**
    * 初始化移动端工具
    */
@@ -45,6 +51,15 @@ class MobileUtils {
     if (!this.initialized) return;
 
     log.info("移动端工具销毁");
+
+    // 移除事件监听器，避免内存泄漏
+    document.removeEventListener("visibilitychange", this.visibilityListener);
+    if ("navigator" in window && "onLine" in navigator) {
+      window.removeEventListener("online", this.onlineListener);
+      window.removeEventListener("offline", this.offlineListener);
+    }
+    window.removeEventListener("orientationchange", this.orientationListener);
+
     this.initialized = false;
   }
 
@@ -61,31 +76,31 @@ class MobileUtils {
    */
   private setupMobileEventListeners(): void {
     // 监听页面可见性变化
-    document.addEventListener("visibilitychange", () => {
+    this.visibilityListener = () => {
       if (document.hidden) {
         log.info("页面隐藏");
       } else {
         log.info("页面显示");
       }
-    });
+    };
+    document.addEventListener("visibilitychange", this.visibilityListener);
 
     // 监听网络状态变化
     if ("navigator" in window && "onLine" in navigator) {
-      window.addEventListener("online", () => {
-        log.info("网络连接恢复");
-      });
+      this.onlineListener = () => log.info("网络连接恢复");
+      window.addEventListener("online", this.onlineListener);
 
-      window.addEventListener("offline", () => {
-        log.info("网络连接断开");
-      });
+      this.offlineListener = () => log.info("网络连接断开");
+      window.addEventListener("offline", this.offlineListener);
     }
 
     // 监听设备方向变化
-    window.addEventListener("orientationchange", () => {
+    this.orientationListener = () => {
       setTimeout(() => {
         this.handleOrientationChange();
       }, 100);
-    });
+    };
+    window.addEventListener("orientationchange", this.orientationListener);
   }
 
   /**

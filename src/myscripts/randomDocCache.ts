@@ -171,10 +171,22 @@ export class RandomDocCache {
    */
   private async reloadCache(cacheKey: string, sql: string): Promise<void> {
     try {
-      const wrappedSql = `SELECT id FROM (${sql}) AS subquery ORDER BY RANDOM() LIMIT ${this.config.cacheSize}`;
+      // 避免全表随机排序，改为拉取后 JS 内存洗牌
+      // 如果调用方不慎使用了 SELECT *，尝试替换为 SELECT id 提高网络性能
+      const optimizedSql = sql.replace(/select\s+\*/i, "SELECT id");
+      const result = await executeSql(optimizedSql);
+      let ids = result?.map((item: any) => item.id).filter(Boolean) || [];
 
-      const result = await executeSql(wrappedSql);
-      const ids = result?.map((item: any) => item.id).filter(Boolean) || [];
+      // Fisher-Yates 洗牌算法
+      for (let i = ids.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [ids[i], ids[j]] = [ids[j], ids[i]];
+      }
+
+      // 只截取所需缓存大小
+      if (ids.length > this.config.cacheSize) {
+        ids = ids.slice(0, this.config.cacheSize);
+      }
 
       const cacheEntry: CacheEntry = {
         ids,

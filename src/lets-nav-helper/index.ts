@@ -13,10 +13,18 @@ export default class NavHelper extends SubPluginBase {
   private mobileNavigationInstance: any = null;
   private desktopNavigationInstance: any = null;
 
+  // 事件监听器引用
+  private visibilityListener: () => void = () => {};
+  private resizeListener: () => void = () => {};
+  private wsMainListener: (event: any) => void = () => {};
+  private resizeTimeout: NodeJS.Timeout | null = null;
+
+
   override onload(): void {
     log.info("导航助手 - 初始化移动端工具");
     // 初始化移动端工具
     mobileUtils.init();
+    navigation.init();
   }
 
   async onLayoutReady(): Promise<void> {
@@ -52,8 +60,9 @@ export default class NavHelper extends SubPluginBase {
     // 清理事件监听器
     this.unregisterEventListeners();
 
-    // 清理移动端工具
+    // 清理移动端工具和导航历史
     mobileUtils.destroy();
+    navigation.destroy();
   }
 
   // 移动端键盘显示事件
@@ -98,12 +107,28 @@ export default class NavHelper extends SubPluginBase {
     );
   }
 
-  // 创建自适应导航（根据设备类型选择移动端或桌面端）
+  // 创建或更新自适应导航
   private createAdaptiveNavigation(): void {
-    if (isMobile && this.showInMobile()) {
-      this.createMobileNavigation();
-    } else if (this.showInPC()) {
-      this.createDesktopNavigation();
+    const shouldShowMobile = isMobile && this.showInMobile();
+    const shouldShowDesktop = !isMobile && this.showInPC();
+
+    if (shouldShowMobile) {
+      if (this.mobileNavigationInstance) {
+        // 如果实例已存在，只更新 props 而非销毁重建
+        this.mobileNavigationInstance.$set({ deviceType: "mobile", isVisible: true });
+        this.adjustPagePadding();
+      } else {
+        this.createMobileNavigation();
+      }
+    } else if (shouldShowDesktop) {
+      if (this.desktopNavigationInstance) {
+        // 如果实例已存在，只更新 props
+        this.desktopNavigationInstance.$set({ deviceType: "desktop", isVisible: true });
+      } else {
+        this.createDesktopNavigation();
+      }
+    } else {
+      this.hideNavigation();
     }
   }
 
@@ -203,7 +228,7 @@ export default class NavHelper extends SubPluginBase {
   // 注册事件监听器
   private registerEventListeners(): void {
     // 监听页面可见性变化
-    document.addEventListener("visibilitychange", () => {
+    this.visibilityListener = () => {
       if (document.hidden) {
         this.hideNavigation();
       } else {
@@ -211,23 +236,27 @@ export default class NavHelper extends SubPluginBase {
           this.showNavigation();
         }
       }
-    });
+    };
+    document.addEventListener("visibilitychange", this.visibilityListener);
 
     // 监听窗口大小变化（响应式处理）
-    let resizeTimeout: NodeJS.Timeout;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(() => {
+    this.resizeListener = () => {
+      if (this.resizeTimeout) {
+        clearTimeout(this.resizeTimeout);
+      }
+      this.resizeTimeout = setTimeout(() => {
         this.handleDeviceChange();
       }, 300);
-    });
+    };
+    window.addEventListener("resize", this.resizeListener);
 
     // 监听设置变化
-    plugin.eventBus.on("ws-main", (event) => {
+    this.wsMainListener = (event: any) => {
       if (event.detail.data?.data?.appData?.plugins) {
         this.handleSettingsChange();
       }
-    });
+    };
+    plugin.eventBus.on("ws-main", this.wsMainListener);
   }
 
   // 处理设备类型变化
@@ -250,7 +279,11 @@ export default class NavHelper extends SubPluginBase {
 
   // 注销事件监听器
   private unregisterEventListeners(): void {
-    document.removeEventListener("visibilitychange", () => {});
-    window.removeEventListener("resize", () => {});
+    document.removeEventListener("visibilitychange", this.visibilityListener);
+    window.removeEventListener("resize", this.resizeListener);
+    plugin.eventBus.off("ws-main", this.wsMainListener);
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
   }
 }
