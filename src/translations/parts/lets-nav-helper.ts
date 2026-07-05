@@ -39,6 +39,8 @@ export const en = {
   "lets-nav-helper.customLinks": "Custom Links",
   "lets-nav-helper.customLinksDesc": "One per line. Format: title====link",
 
+  "lets-nav-helper.cmdRandom": "Random Document",
+  "lets-nav-helper.cmdDaily": "Today's Daily Note",
   "lets-nav-helper.back": "Back",
   "lets-nav-helper.dailyNote": "Today",
   "lets-nav-helper.navigation": "Navigation",
@@ -117,6 +119,8 @@ export const zhCN: typeof en = {
   "lets-nav-helper.customLinks": "自定义链接",
   "lets-nav-helper.customLinksDesc": "自定义链接配置，每行一个，格式：标题====链接",
 
+  "lets-nav-helper.cmdRandom": "随机漫游",
+  "lets-nav-helper.cmdDaily": "打开今日日记",
   "lets-nav-helper.back": "返回",
   "lets-nav-helper.dailyNote": "今日",
   "lets-nav-helper.navigation": "导航",

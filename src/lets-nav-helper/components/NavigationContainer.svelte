@@ -5,7 +5,6 @@ const log = getLogger("lets-nav-helper");
   import { isMobile } from "../utils";
   import NavButton from "./NavButton.svelte";
   import Submenu from "./Submenu.svelte";
-  import ToggleButton from "./ToggleButton.svelte";
   import { navigation } from "../navigation";
   import { settings } from "@/settings";
   import { plugin } from "@/utils";
@@ -29,8 +28,7 @@ const log = getLogger("lets-nav-helper");
   let submenuItems: any[] = [];
   let submenuTriggerButton: HTMLElement | null = null;
 
-  // Collapse/expand state management - only enable on desktop
-  let isCollapsed = deviceType === "mobile" ? false : false;
+
 
   // 滚动隐藏逻辑
   let isScrollingDown = false;
@@ -253,19 +251,96 @@ const log = getLogger("lets-nav-helper");
     submenuVisible = true;
   }
 
+  // 显示 PC 专属悬浮球菜单
+  function showDesktopMenu(event: MouseEvent) {
+    submenuType = "navigation"; // 复用基本样式
+    submenuTriggerButton = event.currentTarget as HTMLElement;
+    submenuItems = [];
+
+    // 随机漫游
+    if (settings.getBySpace(pluginMetadata.name, "showRandomButton")) {
+      submenuItems.push({
+        icon: "🎲",
+        label: plugin.i18n["lets-nav-helper.random"],
+        action: async () => {
+          let sql = settings.getBySpace(pluginMetadata.name, "randomSql") || "SELECT id FROM blocks WHERE type = 'd'";
+          await goToRandomBlock(sql);
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) hideSubmenu();
+        }
+      });
+    }
+
+    // 今日笔记
+    if (settings.getBySpace(pluginMetadata.name, "showDailyNoteButton")) {
+      submenuItems.push({
+        icon: "📅",
+        label: plugin.i18n["lets-nav-helper.dailyNote"],
+        action: async () => {
+          await createDailyNote();
+          if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) hideSubmenu();
+        }
+      });
+    }
+
+    // 上下级导航
+    if (settings.getBySpace(pluginMetadata.name, "showContextButton")) {
+      submenuItems.push(
+        {
+          icon: "⬆️",
+          label: plugin.i18n["lets-nav-helper.jumpToParent"],
+          action: async () => {
+            await navigation.goToParent();
+            if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) hideSubmenu();
+          }
+        },
+        {
+          icon: "⬇️",
+          label: plugin.i18n["lets-nav-helper.jumpToChild"],
+          action: async () => {
+            await navigation.goToChild();
+            if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) hideSubmenu();
+          }
+        }
+      );
+    }
+
+    // 自定义链接
+    if (settings.getBySpace(pluginMetadata.name, "showCustomLinksButton")) {
+      const linksConfig = settings.getBySpace(pluginMetadata.name, "customLinks") || "";
+      const links = linksConfig.split("\n").filter((line: string) => line.trim());
+      links.forEach((line: string) => {
+        const [title, url, icon] = line.split("====");
+        if (title && url) {
+          submenuItems.push({
+            icon: icon ? icon : "🔗",
+            label: title.trim(),
+            action: async () => {
+              if (icon == "💾" || title.includes("添加到")) {
+                try {
+                  const avHelper = await createSiyuanAVHelper(url);
+                  await avHelper.addBlocks([getCurrentDocId()]);
+                } catch (error) {
+                  log.error("初始化或操作失败:", error);
+                }
+              } else {
+                openByUrl(url);
+              }
+              if (settings.getBySpace(pluginMetadata.name, "hideSubmenu")) hideSubmenu();
+            }
+          });
+        }
+      });
+    }
+
+    submenuVisible = true;
+  }
+
   // 隐藏子菜单
   function hideSubmenu() {
     submenuVisible = false;
     submenuType = null;
     submenuItems = [];
     submenuTriggerButton = null;
-  }
-
-  // Toggle collapse/expand state
-  function toggleCollapse() {
-    if (deviceType === "desktop") {
-      isCollapsed = !isCollapsed;
-    }
   }
 
   // 过滤显示的按钮
@@ -303,7 +378,6 @@ const log = getLogger("lets-nav-helper");
 {#if isVisible}
   <div
     class="navigation-container {deviceType}"
-    class:collapsed={isCollapsed}
     class:scrolling-down={isScrollingDown}
     style="
       --nav-height: {getConfig().height};
@@ -311,21 +385,16 @@ const log = getLogger("lets-nav-helper");
       --nav-zindex: {getConfig().navJustInMain ? 0 : 9999};
     "
   >
-    {#if deviceType === "desktop" && !isCollapsed}
-      {#each visibleButtons as button (button.key)}
-        <NavButton {button} {deviceType} config={getConfig()} />
-      {/each}
+    {#if deviceType === "desktop"}
+      <button class="fab-button" on:click={showDesktopMenu}>
+        🧭
+      </button>
     {/if}
 
     {#if deviceType === "mobile"}
       {#each visibleButtons as button (button.key)}
         <NavButton {button} {deviceType} config={getConfig()} />
       {/each}
-    {/if}
-
-    <!-- Toggle button for desktop -->
-    {#if deviceType === "desktop"}
-      <ToggleButton {isCollapsed} {deviceType} on:toggle={toggleCollapse} />
     {/if}
   </div>
 
@@ -389,33 +458,39 @@ const log = getLogger("lets-nav-helper");
 
   .navigation-container.desktop {
     bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 280px;
-    height: 50px;
-    justify-content: space-around;
-    border-radius: 6px;
-    box-shadow: var(--b3-dialog-shadow, 0 4px 16px rgba(0, 0, 0, 0.1));
-    backdrop-filter: blur(10px);
+    right: 30px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(20px);
     border: 1px solid var(--b3-border-color, rgba(233, 236, 239, 0.2));
-  }
-
-  .navigation-container.desktop.collapsed {
-    left: auto;
-    right: 20px;
-    transform: none;
-    width: 50px;
     justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
   }
 
-  .navigation-container.desktop:hover:not(.collapsed) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  .navigation-container.desktop:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+  
+  .navigation-container.desktop:active {
+    transform: translateY(0) scale(0.95);
   }
 
-  .navigation-container.desktop.collapsed:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  .fab-button {
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    outline: none;
+    cursor: pointer;
   }
 
   /* 键盘弹出时的样式调整 */
@@ -423,15 +498,5 @@ const log = getLogger("lets-nav-helper");
     .navigation-container.mobile {
       transform: translateY(100%);
     }
-  }
-
-  /* Smooth transition for collapse/expand */
-  .navigation-container.desktop {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, width, left, right, box-shadow;
-  }
-
-  .navigation-container.desktop.collapsed {
-    will-change: transform, width, left, right, box-shadow;
   }
 </style>

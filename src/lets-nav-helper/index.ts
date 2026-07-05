@@ -4,6 +4,9 @@ import { navigation } from "./navigation";
 import pluginMetadata from "./plugin";
 import { settings } from "@/settings";
 import { plugin } from "@/utils";
+import { goToRandomBlock } from "@/myscripts/randomDocCache";
+import { openBlockByID } from "@/myscripts/syUtils";
+import { createDailynote } from "@frostime/siyuan-plugin-kits";
 
 import NavigationContainer from "./components/NavigationContainer.svelte";
 import { getLogger } from "@/libs/logger";
@@ -24,6 +27,30 @@ export default class NavHelper extends SubPluginBase {
     // 初始化移动端工具
     mobileUtils.init();
     navigation.init();
+    
+    // 注册全局快捷键
+    plugin.addCommand({
+      langKey: "lets-nav-helper.cmdRandom",
+      hotkey: "⌥⌘R",
+      callback: () => {
+        let sql = settings.getBySpace(pluginMetadata.name, "randomSql") || "SELECT id FROM blocks WHERE type = 'd'";
+        goToRandomBlock(sql);
+      }
+    });
+    
+    plugin.addCommand({
+      langKey: "lets-nav-helper.cmdDaily",
+      hotkey: "⌥⌘D",
+      callback: () => {
+        const noteBookID = settings.getBySpace(pluginMetadata.name, "noteBookID");
+        const today = new Date();
+        createDailynote(noteBookID || "20210926105749-l6jquz7", today).then((id) => {
+          if (id) {
+            openBlockByID(id);
+          }
+        });
+      }
+    });
   }
 
   async onLayoutReady(): Promise<void> {
