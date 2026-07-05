@@ -141,10 +141,12 @@ export function openBlockByID(id: string) {
     openMobileFileById(plugin.app, id);
   } else {
     // 使用 openTab，保证浏览器环境也能正常打开
+    // 添加 action 参数，模拟从侧边栏文件树点击文档的行为
     openTab({
       app: plugin.app, //plugin 是你插件的 this 对象
       doc: {
         id: id,
+        action: ["cb-get-focus", "cb-get-scroll"],
       },
     });
     // window.open(`siyuan://blocks/${id}`, "_blank");
