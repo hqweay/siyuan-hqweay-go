@@ -296,20 +296,27 @@ export function clearSqlCache() {
     sqlCacheMap.clear();
 }
 
-export async function sql(sql: string, useCache: boolean = false, ttlSeconds: number = 300): Promise<any[]> {
+export async function sql(stmt: string, useCache: boolean = false, ttlSeconds: number = 300): Promise<any[]> {
     if (useCache) {
-        let cached = sqlCacheMap.get(sql);
+        let cached = sqlCacheMap.get(stmt);
         if (cached && cached.expire > Date.now()) {
             return cached.data;
         }
     }
     let sqldata = {
-        stmt: sql,
+        stmt: stmt,
     };
     let url = '/api/query/sql';
     let res = await request(url, sqldata);
     if (useCache) {
-        sqlCacheMap.set(sql, {data: res, expire: Date.now() + ttlSeconds * 1000});
+        if (sqlCacheMap.size >= 100) {
+            // Delete the oldest entry (Map iterates in insertion order)
+            const oldestKey = sqlCacheMap.keys().next().value;
+            if (oldestKey !== undefined) {
+                sqlCacheMap.delete(oldestKey);
+            }
+        }
+        sqlCacheMap.set(stmt, {data: res, expire: Date.now() + ttlSeconds * 1000});
     }
     return res;
 }

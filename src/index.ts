@@ -8,6 +8,7 @@ import { isMobile, setPlugin } from "./utils";
 import { registerPlugin } from "@frostime/siyuan-plugin-kits";
 import { PluginRegistry } from "./plugin-registry";
 import { enableLogging, getLogger } from "./libs/logger";
+import { clearSqlCache } from "@/api";
 const log = getLogger("index");
 
 export default class PluginLetsGo extends Plugin {
@@ -233,7 +234,7 @@ export default class PluginLetsGo extends Plugin {
     this.eventBus.on("ws-main", (event) => {
       // 当发生文档交易（比如用户修改了块内容）时，清理全局 SQL 缓存，保证查询面板数据实时
       if (event.detail?.cmd === "transactions") {
-        import("@/api").then(api => api.clearSqlCache());
+        clearSqlCache();
       }
     });
 
