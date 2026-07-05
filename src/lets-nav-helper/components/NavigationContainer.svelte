@@ -56,6 +56,7 @@ const log = getLogger("lets-nav-helper");
 
     if (currentScrollTop > lastScrollTop) {
       isScrollingDown = true;
+      if (submenuVisible) hideSubmenu();
     } else {
       isScrollingDown = false;
     }
