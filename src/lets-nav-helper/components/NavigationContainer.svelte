@@ -222,11 +222,11 @@ const log = getLogger("lets-nav-helper");
         const { title, url, icon } = item;
         if (title && url) {
           return {
-            icon: icon ? icon : "🔗",
+            icon: icon ? icon : "#iconLink",
             title: title.trim(),
             url: url.trim(),
             action: async () => {
-              if (icon == "💾" || title.includes("添加到")) {
+              if (icon == "#iconDatabase" || title.includes("添加到")) {
                 try {
                   const avHelper = await createSiyuanAVHelper(url);
                   await avHelper.addBlocks([getCurrentDocId()]);
@@ -258,7 +258,7 @@ const log = getLogger("lets-nav-helper");
     // 随机漫游
     if (settings.getBySpace(pluginMetadata.name, "showRandomButton")) {
       submenuItems.push({
-        icon: "🎲",
+        icon: "#iconRefresh",
         label: plugin.i18n["lets-nav-helper.random"],
         action: async () => {
           let sql = settings.getBySpace(pluginMetadata.name, "randomSql") || "SELECT id FROM blocks WHERE type = 'd'";
@@ -271,7 +271,7 @@ const log = getLogger("lets-nav-helper");
     // 今日笔记
     if (settings.getBySpace(pluginMetadata.name, "showDailyNoteButton")) {
       submenuItems.push({
-        icon: "📅",
+        icon: "#iconCalendar",
         label: plugin.i18n["lets-nav-helper.dailyNote"],
         action: async () => {
           await createDailyNote();
@@ -284,7 +284,7 @@ const log = getLogger("lets-nav-helper");
     if (settings.getBySpace(pluginMetadata.name, "showContextButton")) {
       submenuItems.push(
         {
-          icon: "⬆️",
+          icon: "#iconUp",
           label: plugin.i18n["lets-nav-helper.jumpToParent"],
           action: async () => {
             await navigation.goToParent();
@@ -292,7 +292,7 @@ const log = getLogger("lets-nav-helper");
           }
         },
         {
-          icon: "⬇️",
+          icon: "#iconDown",
           label: plugin.i18n["lets-nav-helper.jumpToChild"],
           action: async () => {
             await navigation.goToChild();
