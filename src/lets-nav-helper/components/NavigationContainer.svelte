@@ -490,6 +490,12 @@ const log = getLogger("lets-nav-helper");
     cursor: pointer;
   }
 
+  .fab-button svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--b3-theme-on-surface, #333);
+  }
+
   /* 键盘弹出时的样式调整 */
   @media (max-height: 500px) {
     .navigation-container.mobile {
