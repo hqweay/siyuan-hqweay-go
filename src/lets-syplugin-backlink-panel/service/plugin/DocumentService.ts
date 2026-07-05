@@ -56,12 +56,12 @@ export class DocumentService {
     //     },
     // });
 
-    intervalSetNodePaddingBottom();
+    // Padding sync is now handled per-panel via MutationObserver
   }
 
   public destory() {
     destroyAllPanel();
-    destoryIntervalSetNodePaddingBottom();
+    disconnectAllPaddingObservers();
   }
 }
 
@@ -265,6 +265,10 @@ async function addBacklinkPanelToBottom(
 
   backlinkPanelPageSvelteMap.set(panelId, pageSvelte);
   documentProtyleElementMap.set(panelId, protyleWysiwygElement as HTMLElement);
+  // Attach MutationObserver to sync padding reactively (replaces 50ms setInterval)
+  if (protyleWysiwygElement) {
+    observePaddingSync(panelId, protyleWysiwygElement as HTMLElement);
+  }
   // handleProtyleHeightChange(protyleElement)
 }
 
@@ -285,6 +289,7 @@ function destroyPanel(docuemntContentElement: HTMLElement) {
     return;
   }
   documentProtyleElementMap.delete(panelId);
+  disconnectPaddingObserver(panelId);
   let pageSvelte = backlinkPanelPageSvelteMap.get(panelId);
   if (!pageSvelte) {
     return;
@@ -373,44 +378,79 @@ function getDocumentBlockIconMenus(e) {
   return submenus;
 }
 
-let intervalId;
-function intervalSetNodePaddingBottom() {
-  // 后续看能不能优化成响应式的。。
-  intervalId = setInterval(() => {
-    if (documentProtyleElementMap.size <= 0) {
-      return;
-    }
+let observerMap: Map<string, MutationObserver> = new Map();
+
+/**
+ * Attach a MutationObserver to the wysiwyg element that syncs padding
+ * to the injected backlink panel. Replaces the old 50ms setInterval.
+ *
+ * Observes `style` attribute changes on the wysiwyg element.
+ * When SiYuan updates paddingLeft/Right (e.g. on window resize),
+ * we mirror the values to the panel div.
+ */
+function observePaddingSync(panelId: string, protyleWysiwygElement: HTMLElement) {
+  if (!protyleWysiwygElement || observerMap.has(panelId)) {
+    return;
+  }
+
+  const syncPadding = () => {
     let paddingWidthSize =
       SettingService.ins.SettingConfig.documentBottomBacklinkPaddingWidth;
 
-    let paddingBottomSize = "48px";
-    for (const key of documentProtyleElementMap.keys()) {
-      let protyleElement = documentProtyleElementMap.get(key);
+    // (a) Cap paddingBottom — prevent SiYuan from pushing content too far
+    if (parseFloat(protyleWysiwygElement.style.paddingBottom) > 88) {
+      protyleWysiwygElement.style.paddingBottom = "48px";
+    }
 
-      if (parseFloat(protyleElement.style.paddingBottom) > 88) {
-        protyleElement.style.paddingBottom = paddingBottomSize;
+    // (b) Sync paddingLeft/Right from wysiwyg to the panel div
+    let panelElement = protyleWysiwygElement.parentElement?.querySelector(
+      ".backlink-panel-document-bottom__area"
+    ) as HTMLElement;
+    if (
+      panelElement &&
+      protyleWysiwygElement.style.paddingLeft != panelElement.style.paddingLeft
+    ) {
+      let paddingWidthPx = paddingWidthSize + "px";
+      if (paddingWidthSize == undefined || paddingWidthSize == null) {
+        paddingWidthPx = protyleWysiwygElement.style.paddingLeft;
       }
-      let panelElement = protyleElement.parentElement.querySelector(
-        ".backlink-panel-document-bottom__area"
-      ) as HTMLElement;
-      if (
-        panelElement &&
-        protyleElement.style.paddingLeft != panelElement.style.paddingLeft
-      ) {
-        let paddingWidthPx = paddingWidthSize + "px";
-        if (paddingWidthSize == undefined || paddingWidthSize == null) {
-          // log.info("intervalSetNodePaddingBottom")
-          paddingWidthPx = protyleElement.style.paddingLeft;
-        }
-        panelElement.style.paddingLeft = paddingWidthPx;
-        panelElement.style.paddingRight = paddingWidthPx;
+      panelElement.style.paddingLeft = paddingWidthPx;
+      panelElement.style.paddingRight = paddingWidthPx;
+    }
+  };
+
+  // Initial sync
+  syncPadding();
+
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes" && mutation.attributeName === "style") {
+        syncPadding();
+        break;
       }
     }
-  }, 50);
+  });
+
+  observer.observe(protyleWysiwygElement, {
+    attributes: true,
+    attributeFilter: ["style"],
+  });
+
+  observerMap.set(panelId, observer);
 }
 
-function destoryIntervalSetNodePaddingBottom() {
-  if (intervalId) {
-    clearInterval(intervalId);
+function disconnectPaddingObserver(panelId: string) {
+  const observer = observerMap.get(panelId);
+  if (observer) {
+    observer.disconnect();
+    observerMap.delete(panelId);
   }
 }
+
+function disconnectAllPaddingObservers() {
+  for (const [panelId, observer] of observerMap) {
+    observer.disconnect();
+  }
+  observerMap.clear();
+}
+
