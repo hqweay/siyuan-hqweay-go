@@ -67,21 +67,21 @@ const log = getLogger("lets-nav-helper");
   const buttonConfigs = [
     {
       key: "showBackButton",
-      icon: "←",
+      icon: "#iconLeft",
       label: plugin.i18n["lets-nav-helper.back"],
       show: settings.getBySpace(pluginMetadata.name, "showBackButton"),
       action: () => navigation.goBack(),
     },
     {
       key: "showDailyNoteButton",
-      icon: "📅",
+      icon: "#iconCalendar",
       label: plugin.i18n["lets-nav-helper.dailyNote"],
       show: settings.getBySpace(pluginMetadata.name, "showDailyNoteButton"),
       action: () => createDailyNote(),
     },
     {
       key: "showNavigationMenuButton",
-      icon: "🧭",
+      icon: "#iconMenu",
       label: plugin.i18n["lets-nav-helper.navigation"],
       show: settings.getBySpace(
         pluginMetadata.name,
@@ -92,21 +92,21 @@ const log = getLogger("lets-nav-helper");
     },
     {
       key: "showForwardButton",
-      icon: "→",
+      icon: "#iconRight",
       label: plugin.i18n["lets-nav-helper.forward"],
       show: settings.getBySpace(pluginMetadata.name, "showForwardButton"),
       action: () => navigation.goForward(),
     },
     {
       key: "showDashBoard",
-      icon: "🏠",
+      icon: "#iconWorkspace",
       label: plugin.i18n["lets-nav-helper.home"],
       show: settings.getBySpace(pluginMetadata.name, "showDashBoard"),
       action: () => navigation.goToHome(),
     },
     {
       key: "showCustomLinksButton",
-      icon: "🔗",
+      icon: "#iconLink",
       label: plugin.i18n["lets-nav-helper.links"],
       show: settings.getBySpace(pluginMetadata.name, "showCustomLinksButton"),
       action: (event) => showCustomLinksSubmenu(event),
@@ -152,7 +152,7 @@ const log = getLogger("lets-nav-helper");
     submenuTriggerButton = event.currentTarget as HTMLElement;
     submenuItems = [
       {
-        icon: "⬆️",
+        icon: "#iconUp",
         label: plugin.i18n["lets-nav-helper.jumpToParent"],
         action: async () => {
           await navigation.goToParent();
@@ -162,7 +162,7 @@ const log = getLogger("lets-nav-helper");
         },
       },
       {
-        icon: "⤴️",
+        icon: "#iconLeft",
         label: plugin.i18n["lets-nav-helper.jumpToPrevSibling"],
         action: async () => {
           await navigation.goToSibling(-1);
@@ -172,7 +172,7 @@ const log = getLogger("lets-nav-helper");
         },
       },
       {
-        icon: "🎲",
+        icon: "#iconRefresh",
         label: plugin.i18n["lets-nav-helper.random"],
         action: async () => {
           await goToRandomBlock("SELECT id FROM blocks WHERE type = 'd'");
@@ -182,7 +182,7 @@ const log = getLogger("lets-nav-helper");
         },
       },
       {
-        icon: "⤵️",
+        icon: "#iconRight",
         label: plugin.i18n["lets-nav-helper.jumpToNextSibling"],
         action: async () => {
           await navigation.goToSibling(1);
@@ -192,7 +192,7 @@ const log = getLogger("lets-nav-helper");
         },
       },
       {
-        icon: "⬇️",
+        icon: "#iconDown",
         label: plugin.i18n["lets-nav-helper.jumpToChild"],
         action: async () => {
           await navigation.goToChild();
@@ -383,7 +383,7 @@ const log = getLogger("lets-nav-helper");
   >
     {#if deviceType === "desktop"}
       <button class="fab-button" on:click={showDesktopMenu}>
-        🧭
+        <svg><use xlink:href="#iconLink"></use></svg>
       </button>
     {/if}
 

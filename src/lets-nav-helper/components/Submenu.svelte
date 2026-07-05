@@ -117,8 +117,12 @@
         on:mouseleave={(e) => (e.target.style.backgroundColor = "transparent")}
         role="menuitem"
       >
-        <span style="margin-right: 10px; font-size: 14px;">
-          {item.icon ? item.icon : ""}
+        <span style="margin-right: 10px; font-size: 14px; width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center;">
+          {#if item.icon && item.icon.startsWith("#icon")}
+            <svg style="width: 14px; height: 14px; fill: currentColor;"><use xlink:href={item.icon}></use></svg>
+          {:else}
+            {item.icon ? item.icon : ""}
+          {/if}
         </span>
         <span style="flex: 1; color: var(--b3-theme-on-surface, #333); font-size: 13px;">
           {item.title || item.label}

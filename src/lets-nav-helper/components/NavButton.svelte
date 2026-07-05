@@ -41,7 +41,13 @@
   on:touchstart={handleTouchStart}
   on:touchend={handleTouchEnd}
 >
-  <span class="icon">{button.icon}</span>
+  <span class="icon" class:svg-icon={button.icon && button.icon.startsWith("#icon")}>
+    {#if button.icon && button.icon.startsWith("#icon")}
+      <svg><use xlink:href={button.icon}></use></svg>
+    {:else}
+      {button.icon}
+    {/if}
+  </span>
   <span class="label">{button.label}</span>
 </button>
 
@@ -123,5 +129,12 @@
 
   .nav-button.desktop .label {
     color: var(--b3-theme-on-surface-light, #6c757d);
+  }
+
+  .icon.svg-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+    display: block;
   }
 </style>

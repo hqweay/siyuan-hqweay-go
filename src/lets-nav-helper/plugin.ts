@@ -161,10 +161,10 @@ const pluginMetadata: PluginMetadata = {
       description: "lets-nav-helper.customLinksDesc",
       key: "customLinks",
       value: [
-        { title: "养恐龙", url: "https://leay.net/", icon: "🐊" },
-        { title: "日记随机", url: "select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'", icon: "🔗" },
-        { title: "草稿随机", url: "select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'", icon: "🔗" },
-        { title: "添加到写作数据库", url: "20250914152140-n10qdtt", icon: "💾" }
+        { title: "养恐龙", url: "https://leay.net/", icon: "#iconLink" },
+        { title: "日记随机", url: "select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'", icon: "#iconRefresh" },
+        { title: "草稿随机", url: "select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'", icon: "#iconRefresh" },
+        { title: "添加到写作数据库", url: "20250914152140-n10qdtt", icon: "#iconDatabase" }
       ],
       columns: [
         { key: "icon", title: "图标", type: "text", width: "60px" },
