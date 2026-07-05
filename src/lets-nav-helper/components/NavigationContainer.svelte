@@ -37,12 +37,20 @@ const log = getLogger("lets-nav-helper");
   function handleScroll(event: Event) {
     if (deviceType !== "mobile") return;
     
-    const target = event.target as HTMLElement;
-    // 仅响应编辑器主滚动容器，过滤掉侧边栏、弹出面板等其他元素的滚动
-    if (!target || typeof target.className !== "string" || !target.classList.contains("protyle-scroll")) return;
-    if (target.scrollTop === undefined) return;
+    const target = event.target as HTMLElement | Document;
+    let currentScrollTop = 0;
+
+    if (target === document || target === window) {
+      currentScrollTop = window.scrollY || document.documentElement.scrollTop;
+    } else {
+      const el = target as HTMLElement;
+      if (!el.classList || (!el.classList.contains("protyle-scroll") && !el.classList.contains("protyle-content"))) {
+        return;
+      }
+      currentScrollTop = el.scrollTop;
+    }
     
-    const currentScrollTop = target.scrollTop;
+    if (currentScrollTop === undefined) return;
     // 设置一个防抖阈值，避免太敏感
     if (Math.abs(currentScrollTop - lastScrollTop) < 10) return;
 
