@@ -3,7 +3,7 @@ import { en } from "../translations/en";
 export type TranslationKey = keyof typeof en;
 
 export interface PluginSettingItem {
-  type: "checkbox" | "textinput" | "textarea" | "select" | "number" | "button";
+  type: "checkbox" | "textinput" | "textarea" | "select" | "number" | "button" | "list";
   title: string;
   description?: string;
   key: string;
@@ -11,6 +11,13 @@ export interface PluginSettingItem {
   placeholder?: string;
   height?: string;
   options?: Record<string, string>;
+  columns?: Array<{
+    key: string;
+    title: string;
+    type: "text" | "number" | "select";
+    width?: string;
+    options?: Record<string, string>;
+  }>;
   hasSetting?: boolean;
 }
 

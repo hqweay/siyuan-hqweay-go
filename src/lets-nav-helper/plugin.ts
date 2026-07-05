@@ -195,15 +195,21 @@ const pluginMetadata: PluginMetadata = {
     //   placeholder: "SELECT id FROM blocks WHERE type = 'd'",
     // },
     {
-      type: "textarea",
+      type: "list",
       title: "lets-nav-helper.customLinks",
       description: "lets-nav-helper.customLinksDesc",
       key: "customLinks",
-      value: `养恐龙====https://leay.net/====🐊
-日记随机====select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'
-草稿随机====select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'
-添加到写作数据库====20250914152140-n10qdtt====💾`,
-      placeholder: "标题1====链接1\n标题2====链接2",
+      value: [
+        { title: "养恐龙", url: "https://leay.net/", icon: "🐊" },
+        { title: "日记随机", url: "select * from blocks where path like '%/20250126213235-a3tnoqb/%' and type='d'", icon: "🔗" },
+        { title: "草稿随机", url: "select * from blocks where path like '%/20240406015842-137jie3/%' and type='d'", icon: "🔗" },
+        { title: "添加到写作数据库", url: "20250914152140-n10qdtt", icon: "💾" }
+      ],
+      columns: [
+        { key: "icon", title: "图标", type: "text", width: "60px" },
+        { key: "title", title: "标题", type: "text", width: "120px" },
+        { key: "url", title: "链接/ID", type: "text" }
+      ]
     },
   ],
 };

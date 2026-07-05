@@ -6,7 +6,8 @@ type TSettingItemType =
   | "number"
   | "slider"
   | "button"
-  | "hint";
+  | "hint"
+  | "list";
 interface ISettingItem {
   key: string;
   value: any;
@@ -21,6 +22,13 @@ interface ISettingItem {
     step: number;
   };
   options?: { [key: string | number]: string };
+  columns?: Array<{
+    key: string;
+    title: string;
+    type: "text" | "number" | "select";
+    width?: string;
+    options?: Record<string, string>;
+  }>;
   button?: {
     label: string;
     callback: () => void;

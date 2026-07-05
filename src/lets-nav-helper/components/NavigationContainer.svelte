@@ -208,20 +208,17 @@ const log = getLogger("lets-nav-helper");
   // 显示自定义链接子菜单
   function showCustomLinksSubmenu(event: MouseEvent) {
     submenuTriggerButton = event.currentTarget as HTMLElement;
-    const linksConfig =
-      settings.getBySpace(pluginMetadata.name, "customLinks") || "";
-    const links = linksConfig.split("\n").filter((line: string) => line.trim());
+    const links = settings.getBySpace(pluginMetadata.name, "customLinks") || [];
 
-    if (links.length === 0) {
+    if (!Array.isArray(links) || links.length === 0) {
       showMessage(plugin.i18n["lets-nav-helper.noCustomLinks"]);
       return;
     }
 
     submenuType = "customLinks";
     submenuItems = links
-      .filter((line: string) => line.trim())
-      .map((line: string) => {
-        const [title, url, icon] = line.split("====");
+      .map((item: any) => {
+        const { title, url, icon } = item;
         if (title && url) {
           return {
             icon: icon ? icon : "🔗",
@@ -306,11 +303,11 @@ const log = getLogger("lets-nav-helper");
 
     // 自定义链接
     if (settings.getBySpace(pluginMetadata.name, "showCustomLinksButton")) {
-      const linksConfig = settings.getBySpace(pluginMetadata.name, "customLinks") || "";
-      const links = linksConfig.split("\n").filter((line: string) => line.trim());
-      links.forEach((line: string) => {
-        const [title, url, icon] = line.split("====");
-        if (title && url) {
+      const links = settings.getBySpace(pluginMetadata.name, "customLinks") || [];
+      if (Array.isArray(links)) {
+        links.forEach((item: any) => {
+          const { title, url, icon } = item;
+          if (title && url) {
           submenuItems.push({
             icon: icon ? icon : "🔗",
             label: title.trim(),
@@ -330,6 +327,7 @@ const log = getLogger("lets-nav-helper");
           });
         }
       });
+      }
     }
 
     submenuVisible = true;

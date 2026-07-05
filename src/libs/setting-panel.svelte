@@ -39,6 +39,7 @@
                 settingValue={item.value}
                 placeholder={item?.placeholder}
                 options={item?.options}
+                columns={item?.columns}
                 slider={item?.slider}
                 height={item?.height}
                 on:click={onClick}

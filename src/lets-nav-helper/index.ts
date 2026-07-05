@@ -24,6 +24,19 @@ export default class NavHelper extends SubPluginBase {
 
   override onload(): void {
     log.info("导航助手 - 初始化移动端工具");
+    
+    // 数据平滑迁移：将旧的纯文本 customLinks 转换为 JSON Array
+    const oldData = settings.getBySpace(pluginMetadata.name, "customLinks");
+    if (typeof oldData === "string") {
+      log.info("检测到旧版 customLinks，开始数据迁移...");
+      const lines = oldData.split("\n").filter(l => l.trim());
+      const newData = lines.map(line => {
+        const [title, url, icon] = line.split("====");
+        return { title: title?.trim() || "", url: url?.trim() || "", icon: icon?.trim() || "🔗" };
+      });
+      settings.setBySpace(pluginMetadata.name, "customLinks", newData);
+      settings.save();
+    }
     // 初始化移动端工具
     mobileUtils.init();
     navigation.init();

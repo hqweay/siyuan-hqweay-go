@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher } from "svelte";
   import { plugin } from "../utils";
+  import SettingListItem from "./SettingListItem.svelte";
 
   export let type: string; // Setting Type
   export let title: string; // Displayint Setting Title
@@ -17,6 +18,14 @@
     max: number;
     step: number;
   } = { min: 0, max: 100, step: 1 }; // Use it if type is slider
+  
+  export let columns: Array<{
+    key: string;
+    title: string;
+    type: "text" | "number" | "select";
+    width?: string;
+    options?: Record<string, string>;
+  }> = []; // Use it if type is list
 
   const dispatch = createEventDispatcher();
 
@@ -34,25 +43,30 @@
   $: tButtonLabel = type === "button" ? (plugin.i18n[settingValue] || settingValue) : settingValue;
 </script>
 
-{#if type === "textarea"}
+{#if type === "textarea" || type === "list"}
   <label class="fn__flex-column b3-label" style="min-height: unset;">
     <div>
-      {tTitle}
+      {@html tTitle}
       <div class="b3-label__text">
         {@html tDescription}
       </div>
     </div>
-    <textarea
-      style="height: {height ? height : '300px'};"
-      class="b3-text-field"
-      id={settingKey}
-      placeholder={tPlaceholder}
-      bind:value={settingValue}
-      on:change={changed}
-    />
+    {#if type === "textarea"}
+      <textarea
+        style="height: {height ? height : '300px'};"
+        class="b3-text-field"
+        id={settingKey}
+        placeholder={tPlaceholder}
+        bind:value={settingValue}
+        on:change={changed}
+      />
+    {:else if type === "list"}
+      <!-- List Input -->
+      <SettingListItem value={settingValue} {columns} on:value={(e) => { settingValue = e.detail; changed(); }} />
+    {/if}
   </label>
 {/if}
-{#if type !== "textarea"}
+{#if type !== "textarea" && type !== "list"}
   <label class="fn__flex b3-label">
     <div class="fn__flex-1">
       {@html tTitle}
@@ -98,7 +112,7 @@
         {tButtonLabel}
       </button>
     {:else if type === "select"}
-      <!-- Dropdown select -->
+      <!-- Select Input -->
       <select
         class="b3-select fn__flex-center fn__size200"
         id="iconPosition"
