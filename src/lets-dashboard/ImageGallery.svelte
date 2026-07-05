@@ -88,7 +88,7 @@
       finalSQL = `select * from (${imgSQL}) order by created desc`;
     }
 
-    const rows = await sql(finalSQL);
+    const rows = await sql(finalSQL, true);
     images = rows.map((r) => ({
       url: r.asset_path,
       id: r.id,

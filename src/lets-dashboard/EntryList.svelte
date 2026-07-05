@@ -51,7 +51,7 @@ const log = getLogger("lets-dashboard");
     // Wrap idSQL to safely apply LIMIT/OFFSET
     const final = `select * from (${idSQL}) as sub limit ${pageSize} offset ${offset}`;
     try {
-      const rows = await sql(final);
+      const rows = await sql(final, true);
 
       if (!rows || rows.length === 0) {
         hasMore = false;

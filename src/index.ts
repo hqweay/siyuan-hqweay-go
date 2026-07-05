@@ -230,6 +230,12 @@ export default class PluginLetsGo extends Plugin {
     this.eventBus.on("open-siyuan-url-plugin", (event) =>
       this.openSiyuanUrlPluginEvent(event),
     );
+    this.eventBus.on("ws-main", (event) => {
+      // 当发生文档交易（比如用户修改了块内容）时，清理全局 SQL 缓存，保证查询面板数据实时
+      if (event.detail?.cmd === "transactions") {
+        import("@/api").then(api => api.clearSqlCache());
+      }
+    });
 
     // OCR 图片右键菜单事件 - delegate to plugins
     this.eventBus.on("open-menu-image", (event) => this.imageMenuEvent(event));

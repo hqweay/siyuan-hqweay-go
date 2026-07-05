@@ -290,12 +290,28 @@ export async function getBlockAttrs(id: BlockId): Promise<{ [key: string]: strin
 
 // **************************************** SQL ****************************************
 
-export async function sql(sql: string): Promise<any[]> {
+const sqlCacheMap = new Map<string, {data: any[], expire: number}>();
+
+export function clearSqlCache() {
+    sqlCacheMap.clear();
+}
+
+export async function sql(sql: string, useCache: boolean = false, ttlSeconds: number = 300): Promise<any[]> {
+    if (useCache) {
+        let cached = sqlCacheMap.get(sql);
+        if (cached && cached.expire > Date.now()) {
+            return cached.data;
+        }
+    }
     let sqldata = {
         stmt: sql,
     };
     let url = '/api/query/sql';
-    return request(url, sqldata);
+    let res = await request(url, sqldata);
+    if (useCache) {
+        sqlCacheMap.set(sql, {data: res, expire: Date.now() + ttlSeconds * 1000});
+    }
+    return res;
 }
 
 export async function getBlockByID(blockId: string): Promise<Block> {
