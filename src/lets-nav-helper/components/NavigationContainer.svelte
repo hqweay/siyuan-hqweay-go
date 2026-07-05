@@ -106,7 +106,7 @@ const log = getLogger("lets-nav-helper");
     },
     {
       key: "showCustomLinksButton",
-      icon: "#iconLink",
+      icon: "#iconStar",
       label: plugin.i18n["lets-nav-helper.links"],
       show: settings.getBySpace(pluginMetadata.name, "showCustomLinksButton"),
       action: (event) => showCustomLinksSubmenu(event),
@@ -383,7 +383,7 @@ const log = getLogger("lets-nav-helper");
   >
     {#if deviceType === "desktop"}
       <button class="fab-button" on:click={showDesktopMenu}>
-        <svg><use xlink:href="#iconLink"></use></svg>
+        <svg><use xlink:href="#iconStar"></use></svg>
       </button>
     {/if}
 
