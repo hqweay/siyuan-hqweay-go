@@ -57,6 +57,23 @@ run_release() {
   echo "🎉 版本 v$new_version 发布成功！"
 }
 
+# 重新触发 GitHub Action 打包
+re_release() {
+  current_version=$(node -p "require('./package.json').version")
+  echo "当前最新版本号: $current_version"
+  read -p "是否重新推送标签 $current_version 触发重打包？[Y/n]: " opt_re
+  if [ "$opt_re" != "n" ] && [ "$opt_re" != "N" ]; then
+    echo "正在重推 Git 标签: $current_version"
+    git tag -d "$current_version" 2>/dev/null
+    git push origin :refs/tags/"$current_version" 2>/dev/null
+
+    git tag "$current_version"
+    git push origin "$current_version"
+
+    echo "🎉 标签 $current_version 重推成功，请前往 GitHub 查看 Action 状态！"
+  fi
+}
+
 # 渲染控制台菜单
 show_menu() {
   echo ""
@@ -68,7 +85,8 @@ show_menu() {
   echo " 3) 📈 本地递增版本 (changeset version)"
   echo " 4) 🚀 正式发布版本 (release)"
   echo " 5) 💬 快捷 Git 提交 (commit a)"
-  echo " 6) 🚪 退出菜单 (exit)"
+  echo " 6) 🔄 重新触发打包 (re-release tag)"
+  echo " 7) 🚪 退出菜单 (exit)"
   echo "=========================================="
 }
 
@@ -116,11 +134,15 @@ run_menu() {
         fi
         ;;
       6)
+        echo "--> 执行重新打包..."
+        re_release
+        ;;
+      7)
         echo "再见！👋"
         exit 0
         ;;
       *)
-        echo "输入无效，请输入 1-6 之间的数字。"
+        echo "输入无效，请输入 1-7 之间的数字。"
         ;;
     esac
   done
