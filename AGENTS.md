@@ -60,7 +60,7 @@ When implementing a command that needs to process ALL blocks in a document (not 
 
 When creating a `.changeset/*.md` file:
 
-- Write **user-facing**, not technical. Describe what the user gains, not how it's implemented.
+- Write **user-facing**, not technical. **CRITICAL: NEVER use technical vocabulary (like SVG, CSS, DOM, refactor, list components, components, etc.) in changesets.** Describe what the user gains (e.g. better visuals, customizable layout, bug fixes), not how it's implemented.
   - ✅ "行内元素转换：支持 10 种行内元素一键转为纯文本，可在命令面板或快捷键设置中全文批量处理。"
   - ❌ "重构为 converters + commands + index 三层架构；通过 SQL + getBlockDOM 实现全文处理。"
 - Keep each bullet point concise (1-2 lines max).
