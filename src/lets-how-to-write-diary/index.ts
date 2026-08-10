@@ -1,6 +1,6 @@
 import { getBlockAttrs, setBlockAttrs } from "@/api";
 import { datePickerDialog } from "@/myscripts/dialog";
-import { addProtyleSlash } from "@/myscripts/syUtils";
+import { addProtyleSlash, removeProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
@@ -32,6 +32,7 @@ export default class DiaryTools extends SubPluginBase {
   // }
   override onload(): void {
     settings.getBySpace("diaryTools", "quickInput") && quickNoteOnload();
+    removeProtyleSlash("create-daily-note-ref");
     if (settings.getBySpace("diaryTools", "slashDiaryNote")) {
       addProtyleSlash({
         filter: ["cdn"],

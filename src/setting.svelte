@@ -62,8 +62,8 @@
         description: pluginMeta.description || "",
         key: pluginMeta.name,
         value:
-          settings.getBySpace(pluginMeta.name, "enabled") ||
-          pluginMeta.enabled ||
+          settings.getBySpace(pluginMeta.name, "enabled") ??
+          pluginMeta.enabled ??
           false,
         hasSetting: pluginMeta.settings ? true : false,
       });
@@ -74,7 +74,7 @@
       // 创建新的设置数组，但不修改原对象
       const newSettings = pluginMeta.settings?.map((item) => ({
         ...item,
-        value: settings.getBySpace(pluginMeta.name, item.key) || item.value,
+        value: settings.getBySpace(pluginMeta.name, item.key) ?? item.value,
       }));
 
       // 添加到 dynamicSettings
@@ -113,16 +113,16 @@
     if (plugin.i18n[mainKey]) {
       return plugin.i18n[mainKey];
     }
-    
+
     const pluginRegistry = PluginRegistry.getInstance();
     const pluginConfigs = pluginRegistry.getPluginConfigs();
     const found = pluginConfigs.find(
-      (p) => p.displayName === groupName || p.name === groupName
+      (p) => p.displayName === groupName || p.name === groupName,
     );
     if (found) {
       return plugin.i18n[found.displayName] || found.displayName || found.name;
     }
-    
+
     return groupName;
   };
 
@@ -142,7 +142,9 @@
       } else if ("mergeData" === detail.key) {
         await settings.mergeData();
         SettingItems = initData();
-        showMessage(plugin.i18n["settings.mergeSuccess"] || "合并配置为最新配置");
+        showMessage(
+          plugin.i18n["settings.mergeSuccess"] || "合并配置为最新配置",
+        );
       }
     } else if ("VoiceNotes 同步" === detail.group) {
       if ("fullSyncVoiceNotes" === detail.key) {
@@ -175,7 +177,10 @@
       } else if (detail.key === "lastVersion") {
         settings.set("lastVersion", detail.value);
       }
-    } else if (detail.group === "lets-fetch-code-snippets.displayName" || detail.group === "fetch-code-snippets") {
+    } else if (
+      detail.group === "lets-fetch-code-snippets.displayName" ||
+      detail.group === "fetch-code-snippets"
+    ) {
       settings.setBySpace("codeSnippets", detail.key, detail.value);
 
       if (detail.value) {
@@ -256,7 +261,10 @@
     <div class="global-banner">
       <div class="banner-left">
         <span>💡</span>
-        <span>{plugin.i18n["settings.restartWarning"] || "部分功能设置后需重启插件生效."}</span>
+        <span
+          >{plugin.i18n["settings.restartWarning"] ||
+            "部分功能设置后需重启插件生效."}</span
+        >
       </div>
       <button
         class="b3-button b3-button--outline my-reload-button"
@@ -284,7 +292,9 @@
   <div class="bottom-sheet-backdrop" on:click={() => (showBottomSheet = false)}>
     <div class="bottom-sheet-container" on:click|stopPropagation>
       <div class="bottom-sheet-header">
-        <h3>{plugin.i18n["settings.selectCategory"] || "settings.selectCategory"}</h3>
+        <h3>
+          {plugin.i18n["settings.selectCategory"] || "settings.selectCategory"}
+        </h3>
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <button class="close-btn" on:click={() => (showBottomSheet = false)}
           >&times;</button

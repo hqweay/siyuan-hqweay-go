@@ -85,6 +85,13 @@ export async function addProtyleSlash(slash: any) {
   plugin.protyleSlash.push(slash);
 }
 
+export function removeProtyleSlash(id: string) {
+  const index = plugin.protyleSlash.findIndex((s) => s.id === id);
+  if (index !== -1) {
+    plugin.protyleSlash.splice(index, 1);
+  }
+}
+
 const BlockIDPattern = /^\d{14,}-\w{7}$/;
 export function isBlockID(id: string): boolean {
   return BlockIDPattern.test(id);

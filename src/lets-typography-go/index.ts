@@ -7,7 +7,7 @@ import { settings } from "@/settings";
 
 import AddIconThenClick from "@/myscripts/addIconThenClick";
 import { SubPlugin } from "@/types/plugin";
-import { addProtyleSlash } from "@/myscripts/syUtils";
+import { addProtyleSlash, removeProtyleSlash } from "@/myscripts/syUtils";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { getLogger } from "@/libs/logger";
 const log = getLogger("lets-typography-go");
@@ -126,6 +126,7 @@ export default class TypographyGo extends SubPluginBase {
   customEvent;
 
   override onload(): void {
+    removeProtyleSlash("format-current-block");
     if (settings.getBySpace("typography", "slashFormat")) {
       addProtyleSlash({
         filter: ["fcb"],

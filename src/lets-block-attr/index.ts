@@ -1,5 +1,5 @@
 import { setBlockAttrs } from "@/api";
-import { addProtyleSlash } from "@/myscripts/syUtils";
+import { addProtyleSlash, removeProtyleSlash } from "@/myscripts/syUtils";
 import { settings } from "@/settings";
 import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { plugin } from "@/utils";
@@ -80,6 +80,9 @@ export default class BlockAttr extends SubPluginBase {
 
   public loadSlashOfAttrs = () => {
     log.info("加载块属性快捷设置 Slash");
+    plugin.protyleSlash
+      .filter((s) => s.id.startsWith("@"))
+      .forEach((s) => removeProtyleSlash(s.id));
     menus = parseArrayString(settings.getBySpace(pluginMetadata.name, "attrs"));
     menus
       .filter((menu) => menu.enabled && menu.name.startsWith("@"))
