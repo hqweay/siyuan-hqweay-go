@@ -104,6 +104,10 @@ export default class DiaryTools extends SubPluginBase {
     };
   }
 
+  topBarActive() {
+    return settings.getBySpace("diaryTools", "topBar");
+  }
+
   addMenuItem(menu) {
     // 添加获取天气并插入当前文档属性选项
     if (settings.getBySpace("diaryTools", "topBar")) {

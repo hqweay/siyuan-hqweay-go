@@ -45,6 +45,7 @@ export interface SubPlugin {
 
   // Event handlers
   addMenuItem?(menu: Menu): void;
+  topBarActive?(): boolean;
   editortitleiconEvent?(detail: any): void;
   mobilekeyboardshowEvent?(detail: any): void;
   mobilekeyboardhideEvent?(detail: any): void;

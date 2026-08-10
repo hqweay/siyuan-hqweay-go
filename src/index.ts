@@ -76,7 +76,10 @@ export default class PluginLetsGo extends Plugin {
     // 默认添加 topBar，方便实时加载
     let needAddTopBar = false;
     for (const plugin of plugins) {
-      if (plugin.enabled && plugin.addMenuItem) {
+      if (
+        plugin.enabled &&
+        (plugin.topBarActive ? plugin.topBarActive() : !!plugin.addMenuItem)
+      ) {
         needAddTopBar = true;
         break;
       }
