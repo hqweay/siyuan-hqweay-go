@@ -161,15 +161,6 @@ async function initQuickInputUI() {
   const editorContainer = document.createElement("div");
   editorContainer.id = "protyle-editor-container";
   document.body.appendChild(editorContainer);
-  const noteBookID = await getDiaryNoteBookId();
-
-  if (!noteBookID) {
-    log.info("未检测到日记笔记本，无法创建日记");
-    return null;
-  }
-
-  const blockId = await createDailynote(noteBookID);
-
   // 修复打开文档时，面包屑栏隐藏的问题
   updateStyleDom(
     "fix-breadcrumb-style",
@@ -185,18 +176,50 @@ async function initQuickInputUI() {
       `
   );
 
-  if (!blockId) {
-    log.info("创建日记失败");
-    return null;
-  }
+  let diaryCreated = false;
 
-  // 初始化Protyle编辑器
-  new ProtyleComponent({
-    target: editorContainer,
-    props: {
-      blockId: blockId,
-    },
+  const ensureDiaryCreated = async () => {
+    if (diaryCreated) {
+      return;
+    }
+    diaryCreated = true;
+
+    const noteBookID = await getDiaryNoteBookId();
+
+    if (!noteBookID) {
+      log.info("未检测到日记笔记本，无法创建日记");
+      return;
+    }
+
+    const blockId = await createDailynote(noteBookID);
+
+    if (!blockId) {
+      log.info("创建日记失败");
+      return;
+    }
+
+    // 初始化Protyle编辑器
+    new ProtyleComponent({
+      target: editorContainer,
+      props: {
+        blockId: blockId,
+      },
+    });
+
+    // 创建完成后聚焦编辑器
+    (window as any).focusEditor?.();
+  };
+
+  // 仅在窗口真正显示时才创建今日日记，避免开启开关即创建
+  addEventListener("storage", (e) => {
+    if (e.key === "quick-input-visible" && e.newValue === "true") {
+      ensureDiaryCreated();
+    }
   });
+
+  if (localStorage.getItem("quick-input-visible") === "true") {
+    ensureDiaryCreated();
+  }
 
   // 暴露方法给全局
   (window as any).focusEditor = () => {
