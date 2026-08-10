@@ -1,7 +1,6 @@
 // thanks for https://github.com/suka233/siyuan-knote
 import {
   createDailynote,
-  isMobile,
   updateStyleDom,
 } from "@frostime/siyuan-plugin-kits";
 import ProtyleComponent from "./quickNote.svelte";
@@ -11,6 +10,9 @@ import { showMessage } from "siyuan";
 
 let quickInputWin: any = null;
 let __winCount = 0;
+
+// 区分「主动显示」与「被 macOS/外部意外 show」：非主动显示时立即重新隐藏，避免窗口凭空弹出
+let intentionalShow = false;
 
 // 主窗口为创建日记的唯一权威：每次窗口显示只创建一次，结果写入 quick-input-target-block 供子窗口渲染
 let resolveSeq = 0;
@@ -39,16 +41,10 @@ function diag(...args: any[]) {
 
 export async function quickNoteOnload() {
   diag("quickNoteOnload", window.location.href, window.location.search);
-  // 如果不是移动端且不是子窗口，创建快速输入窗口
-  if (
-    !isMobile() &&
-    !window.location.href.includes("window.html") &&
-    !window.location.search.includes("quick-input=true")
-  ) {
-    initQuickInputWindow();
-  }
+  // 如果不是移动端且不是子窗口：不预创建窗口（懒创建），
+  // 避免 macOS 激活应用时把启动时就存在的隐藏 always-on-top 窗口带到前台
   // 如果是快速输入子窗口，创建输入界面
-  else if (window.location.search.includes("quick-input=true")) {
+  if (window.location.search.includes("quick-input=true")) {
     initQuickInputUI();
   }
 
@@ -109,7 +105,13 @@ function initQuickInputWindow() {
   });
 
   quickInputWin.on("show", () => {
-    diag("window show event -> set visible true");
+    diag("window show event, intentional=", intentionalShow);
+    if (!intentionalShow) {
+      // 被外部（如 macOS 应用激活）意外显示：立即隐藏，不创建日记
+      hideQuickInputWindow();
+      return;
+    }
+    intentionalShow = false;
     localStorage.setItem("quick-input-visible", "true");
     // 主窗口作为唯一创建权威：每次显示只创建一次日记并通知子窗口渲染
     resolveDiaryInMain();
@@ -309,12 +311,14 @@ function showQuickInputWindow() {
     // 给窗口一点时间初始化
     setTimeout(() => {
       if (quickInputWin) {
+        intentionalShow = true;
         quickInputWin.show();
         quickInputWin.focus();
       }
     }, 100);
     // return;
   } else {
+    intentionalShow = true;
     quickInputWin.show();
     quickInputWin.focus();
   }
