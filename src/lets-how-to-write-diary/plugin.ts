@@ -8,14 +8,6 @@ export const pluginMetadata: PluginMetadata = {
   author: "hqweay",
   settings: [
     {
-      type: "textinput",
-      title: "lets-how-to-write-diary.noteBookID",
-      description: "",
-      key: "noteBookID",
-      value: "20240330144726-gs2xey6",
-      placeholder: "20240330144726-gs2xey6",
-    },
-    {
       type: "checkbox",
       title: "lets-how-to-write-diary.quickInput",
       description: "",

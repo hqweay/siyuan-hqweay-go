@@ -1,11 +1,11 @@
 // thanks for https://github.com/suka233/siyuan-knote
-import { settings } from "@/settings";
 import {
   createDailynote,
   isMobile,
   updateStyleDom,
 } from "@frostime/siyuan-plugin-kits";
 import ProtyleComponent from "./quickNote.svelte";
+import { getDiaryNoteBookId } from "../util";
 import { plugin } from "@/utils";
 import { getLogger } from "@/libs/logger";
 const log = getLogger("lets-how-to-write-diary");
@@ -161,7 +161,12 @@ async function initQuickInputUI() {
   const editorContainer = document.createElement("div");
   editorContainer.id = "protyle-editor-container";
   document.body.appendChild(editorContainer);
-  const noteBookID = settings.getBySpace("diaryTools", "noteBookID");
+  const noteBookID = await getDiaryNoteBookId();
+
+  if (!noteBookID) {
+    log.info("未检测到日记笔记本，无法创建日记");
+    return null;
+  }
 
   const blockId = await createDailynote(noteBookID);
 

@@ -6,6 +6,7 @@ import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
 import { showMessage } from "siyuan";
 import { quickNoteOnload } from "./quick-note/quickNote";
+import { getDiaryNoteBookId } from "./util";
 import { getLogger } from "@/libs/logger";
 const log = getLogger("lets-how-to-write-diary");
 
@@ -42,10 +43,15 @@ export default class DiaryTools extends SubPluginBase {
           datePickerDialog({
             title: this.t("lets-how-to-write-diary.datePickerTitle"),
             confirm: async (choosedDate) => {
-              const noteBookID = settings.getBySpace(
-                "diaryTools",
-                "noteBookID"
-              );
+              const noteBookID = await getDiaryNoteBookId();
+
+              if (!noteBookID) {
+                showMessage(
+                  this.t("lets-how-to-write-diary.noDiaryNoteBook")
+                );
+                return;
+              }
+
               const dailyNoteId = await createDailynote(
                 noteBookID,
                 new Date(choosedDate)
