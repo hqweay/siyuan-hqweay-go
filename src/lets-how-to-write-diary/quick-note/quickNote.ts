@@ -7,12 +7,38 @@ import {
 import ProtyleComponent from "./quickNote.svelte";
 import { getDiaryNoteBookId } from "../util";
 import { plugin } from "@/utils";
-import { getLogger } from "@/libs/logger";
-const log = getLogger("lets-how-to-write-diary");
+import { showMessage } from "siyuan";
 
 let quickInputWin: any = null;
+let __winCount = 0;
+
+// 主窗口为创建日记的唯一权威：每次窗口显示只创建一次，结果写入 quick-input-target-block 供子窗口渲染
+let resolveSeq = 0;
+async function resolveDiaryInMain() {
+  const seq = ++resolveSeq;
+  const noteBookID = await getDiaryNoteBookId();
+  if (!noteBookID) {
+    showMessage(
+      plugin.i18n["lets-how-to-write-diary.noDiaryNoteBook"] ||
+        "未检测到日记笔记本，请在思源笔记中打开并选择日记笔记本"
+    );
+    return;
+  }
+  const blockId = await createDailynote(noteBookID);
+  if (blockId && seq === resolveSeq) {
+    localStorage.setItem("quick-input-target-block", blockId);
+    diag("main resolveDiary -> target block", blockId);
+  }
+}
+
+let __diag = 0;
+const __win = window.location.search.includes("quick-input=true") ? "CHILD" : "MAIN";
+function diag(...args: any[]) {
+  console.log(`[quickNote-diag#${++__diag} ${__win}]`, ...args);
+}
 
 export async function quickNoteOnload() {
+  diag("quickNoteOnload", window.location.href, window.location.search);
   // 如果不是移动端且不是子窗口，创建快速输入窗口
   if (
     !isMobile() &&
@@ -26,18 +52,27 @@ export async function quickNoteOnload() {
     initQuickInputUI();
   }
 
-  // 添加全局快捷键命令
-  plugin.addCommand({
-    langKey: "openQuickInput",
-    hotkey: "F10", // 默认使用F10快捷键
-    globalCallback: () => {
-      toggleQuickInputWindow();
-    },
-  });
+  // 添加全局快捷键命令（子窗口不注册，避免 F10 在子窗口触发窗口管理逻辑）
+  if (!window.location.search.includes("quick-input=true")) {
+    plugin.addCommand({
+      langKey: "openQuickInput",
+      hotkey: "F10", // 默认使用F10快捷键
+      globalCallback: () => {
+        toggleQuickInputWindow();
+      },
+    });
+  }
 }
 
 // 初始化快速输入窗口
 function initQuickInputWindow() {
+  // onload 可能因 onDataChanged 重入，避免创建重复窗口导致双监听
+  if (quickInputWin && !quickInputWin.isDestroyed()) {
+    diag("initQuickInputWindow SKIP (window alive)");
+    return;
+  }
+  diag("initQuickInputWindow create, winCount=", ++__winCount);
+
   // 主窗口创建逻辑
   const { BrowserWindow } = require("@electron/remote");
 
@@ -74,7 +109,10 @@ function initQuickInputWindow() {
   });
 
   quickInputWin.on("show", () => {
+    diag("window show event -> set visible true");
     localStorage.setItem("quick-input-visible", "true");
+    // 主窗口作为唯一创建权威：每次显示只创建一次日记并通知子窗口渲染
+    resolveDiaryInMain();
     // 窗口显示时聚焦到编辑器
     setTimeout(() => {
       quickInputWin.webContents.executeJavaScript(`
@@ -86,6 +124,7 @@ function initQuickInputWindow() {
   });
 
   quickInputWin.on("hide", () => {
+    diag("window hide event -> set visible false");
     localStorage.setItem("quick-input-visible", "false");
   });
 
@@ -97,11 +136,12 @@ function initQuickInputWindow() {
 
   // 加载窗口内容
   quickInputWin.loadURL(
-    `${window.location.protocol}//${window.location.host}/stage/build/app/window.html?quick-input=true`
+    `${window.location.protocol}//${window.location.host}/stage/build/app/window.html?quick-input=true`,
   );
 
   // 监听存储事件以控制窗口
   addEventListener("storage", (e) => {
+    diag("storage event(main listener)", e.key, e.oldValue, "->", e.newValue);
     if (e.key === "quick-input-visible") {
       if (e.newValue === "true") {
         showQuickInputWindow();
@@ -137,6 +177,13 @@ function initQuickInputWindow() {
 
 // 初始化快速输入UI
 async function initQuickInputUI() {
+  // onload 可能因 onDataChanged 重入，幂等防止重复监听与重复兜底
+  if (document.getElementById("protyle-editor-container")) {
+    diag("initQuickInputUI SKIP (container exists)");
+    return;
+  }
+  diag("initQuickInputUI init");
+
   // 添加样式确保编辑器正常显示
   const style = document.createElement("style");
   style.textContent = `
@@ -173,52 +220,41 @@ async function initQuickInputUI() {
               #protyle-editor-container .fn__loading.wysiwygLoading{
           display: none !important;
         }
-      `
+      `,
   );
 
-  let diaryCreated = false;
+  let currentBlockId = "";
+  let editorComponent: any = null;
 
-  const ensureDiaryCreated = async () => {
-    if (diaryCreated) {
+  const renderBlock = (blockId: string) => {
+    if (blockId === currentBlockId) {
       return;
     }
-    diaryCreated = true;
-
-    const noteBookID = await getDiaryNoteBookId();
-
-    if (!noteBookID) {
-      log.info("未检测到日记笔记本，无法创建日记");
-      return;
-    }
-
-    const blockId = await createDailynote(noteBookID);
-
-    if (!blockId) {
-      log.info("创建日记失败");
-      return;
-    }
-
-    // 初始化Protyle编辑器
-    new ProtyleComponent({
+    diag("render block", blockId, "current=", currentBlockId);
+    // 销毁旧编辑器并重建绑定新块
+    editorComponent?.$destroy();
+    editorComponent = new ProtyleComponent({
       target: editorContainer,
       props: {
         blockId: blockId,
       },
     });
-
-    // 创建完成后聚焦编辑器
-    (window as any).focusEditor?.();
+    currentBlockId = blockId;
   };
 
-  // 仅在窗口真正显示时才创建今日日记，避免开启开关即创建
+  // 子窗口不再创建日记，仅渲染主窗口写入的目标块
   addEventListener("storage", (e) => {
-    if (e.key === "quick-input-visible" && e.newValue === "true") {
-      ensureDiaryCreated();
+    diag("storage event", e.key, e.oldValue, "->", e.newValue);
+    if (e.key === "quick-input-target-block" && e.newValue) {
+      renderBlock(e.newValue);
     }
   });
 
-  if (localStorage.getItem("quick-input-visible") === "true") {
-    ensureDiaryCreated();
+  // 启动兜底：若子窗口初始化较慢错过了写入事件，渲染当前目标
+  const target = localStorage.getItem("quick-input-target-block");
+  if (target) {
+    diag("boot fallback render target", target);
+    renderBlock(target);
   }
 
   // 暴露方法给全局
@@ -266,6 +302,7 @@ function isWindowValid() {
 
 // 显示快速输入窗口
 function showQuickInputWindow() {
+  diag("showQuickInputWindow called, valid=", isWindowValid());
   if (!isWindowValid()) {
     // 如果窗口不存在或已销毁，重新创建
     initQuickInputWindow();
@@ -285,6 +322,7 @@ function showQuickInputWindow() {
 
 // 隐藏快速输入窗口
 function hideQuickInputWindow() {
+  diag("hideQuickInputWindow called, valid=", isWindowValid());
   if (isWindowValid()) {
     quickInputWin.hide();
   }
@@ -293,6 +331,7 @@ function hideQuickInputWindow() {
 // 切换快速输入窗口状态
 function toggleQuickInputWindow() {
   const isVisible = localStorage.getItem("quick-input-visible") === "true";
+  diag("toggleQuickInputWindow called, isVisible=", isVisible);
 
   if (isVisible) {
     hideQuickInputWindow();
