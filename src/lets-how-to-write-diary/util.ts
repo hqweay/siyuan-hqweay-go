@@ -103,7 +103,7 @@ export function chooseDiaryNoteBookDialog(): Promise<
 
     const optionRows = notebooks
       .map((n) => {
-        const isCurrent = n.id === currentId ? " b3-list-item--focus" : "";
+        const isCurrent = n.id === currentId ? " hnw-item--focus" : "";
         return `<div class="b3-list-item b3-list-item--r b3-tooltips b3-tooltips__n${isCurrent}" data-notebook-id="${n.id}" aria-label="${escapeHtml(
           n.name
         )}">
@@ -115,9 +115,66 @@ export function chooseDiaryNoteBookDialog(): Promise<
 
     const dialog = new Dialog({
       title: t("lets-how-to-write-diary.diaryNoteBookPickerTitle"),
-      content: `<div class="b3-list" style="max-height: 400px; overflow-y: auto;">
+      content: `
+      <style>
+        .hnw-notebook-picker {
+          padding: 8px;
+          max-height: 400px;
+          overflow-y: auto;
+        }
+        .hnw-notebook-picker .b3-list-item {
+          align-items: center;
+          gap: 10px;
+          height: auto;
+          min-height: 38px;
+          padding: 6px 12px;
+          margin-bottom: 2px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background-color 0.15s ease;
+        }
+        .hnw-notebook-picker .b3-list-item:last-child {
+          margin-bottom: 0;
+        }
+        .hnw-notebook-picker .b3-list-item:hover {
+          background-color: var(--b3-theme-background-hover);
+        }
+        .hnw-notebook-picker .b3-list-item svg {
+          width: 16px;
+          height: 16px;
+          flex-shrink: 0;
+          fill: var(--b3-theme-on-surface);
+          opacity: 0.75;
+        }
+        .hnw-notebook-picker .b3-list-item__text {
+          flex: 1;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--b3-theme-on-surface);
+        }
+        .hnw-notebook-picker .b3-list-item.hnw-item--focus {
+          background-color: var(--b3-theme-primary-light);
+          color: var(--b3-theme-primary);
+        }
+        .hnw-notebook-picker .b3-list-item.hnw-item--focus svg {
+          fill: var(--b3-theme-primary);
+          opacity: 1;
+        }
+        .hnw-notebook-picker .b3-list-item.hnw-item--focus .b3-list-item__text {
+          color: var(--b3-theme-primary);
+          font-weight: 600;
+        }
+        .hnw-notebook-picker .hnw-empty {
+          padding: 20px;
+          text-align: center;
+          color: var(--b3-theme-on-surface-light);
+          font-size: 13px;
+        }
+      </style>
+      <div class="b3-list hnw-notebook-picker">
         <div class="b3-list-item b3-list-item--r${
-          !currentId ? " b3-list-item--focus" : ""
+          !currentId ? " hnw-item--focus" : ""
         }" data-notebook-id="">
           <svg><use xlink:href="#iconUndo"></use></svg>
           <span class="b3-list-item__text">${t(
@@ -127,9 +184,9 @@ export function chooseDiaryNoteBookDialog(): Promise<
         ${
           notebooks.length
             ? optionRows
-            : `<div class="b3-list-item b3-list-item--r"><span class="b3-list-item__text">${t(
+            : `<div class="hnw-empty">${t(
                 "lets-how-to-write-diary.diaryNoteBookNone"
-              )}</span></div>`
+              )}</div>`
         }
       </div>`,
       width: "420px",
