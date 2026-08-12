@@ -6,7 +6,7 @@ import { SubPluginBase } from "@/libs/sub-plugin-base";
 import { createDailynote } from "@frostime/siyuan-plugin-kits";
 import { showMessage } from "siyuan";
 import { quickNoteOnload } from "./quick-note/quickNote";
-import { getDiaryNoteBookId } from "./util";
+import { chooseDiaryNoteBookDialog, getDiaryNoteBookId } from "./util";
 import { getLogger } from "@/libs/logger";
 const log = getLogger("lets-how-to-write-diary");
 
@@ -64,6 +64,21 @@ export default class DiaryTools extends SubPluginBase {
     }
   }
   override onunload(): void {}
+
+  override async onSettingButtonClick(key: string): Promise<void> {
+    if (key !== "chooseDiaryNoteBook") {
+      return;
+    }
+    const picked = await chooseDiaryNoteBookDialog();
+    if (!picked) {
+      return;
+    }
+    this.setSetting("diaryNoteBookId", picked.id);
+    this.setSetting(
+      "chooseDiaryNoteBook",
+      picked.name || this.t("lets-how-to-write-diary.diaryNoteBookSelect")
+    );
+  }
 
   //获取天气并插入当前文档属性
   getTodayWeatherInfo(data) {

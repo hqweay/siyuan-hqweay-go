@@ -36,6 +36,13 @@ export const pluginMetadata: PluginMetadata = {
       value: "101270101",
       placeholder: "配置城市代码，如：101270101",
     },
+    {
+      type: "button",
+      title: "lets-how-to-write-diary.diaryNoteBook",
+      description: "lets-how-to-write-diary.diaryNoteBookDesc",
+      key: "chooseDiaryNoteBook",
+      value: "lets-how-to-write-diary.diaryNoteBookSelect",
+    },
   ],
 };
 export default pluginMetadata;

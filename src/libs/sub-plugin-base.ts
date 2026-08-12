@@ -20,4 +20,7 @@ export class SubPluginBase implements SubPlugin {
 
   onload(): void {}
   onunload(): void {}
+
+  // Settings page button click handler (e.g. notebook picker). Override in sub-plugin.
+  onSettingButtonClick(_key: string): void | Promise<void> {}
 }

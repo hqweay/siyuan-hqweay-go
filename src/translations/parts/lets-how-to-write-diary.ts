@@ -7,6 +7,13 @@ export const en = {
   "lets-how-to-write-diary.topBar": "顶栏按钮快捷操作",
   "lets-how-to-write-diary.getWeather": "顶栏-获取天气并插入当前文档属性",
 
+  "lets-how-to-write-diary.diaryNoteBook": "选择日记笔记本",
+  "lets-how-to-write-diary.diaryNoteBookDesc": "日记将创建到所选笔记本下；未选择时使用思源笔记自带日记本。点击按钮重新选择。",
+  "lets-how-to-write-diary.diaryNoteBookSelect": "点击选择…",
+  "lets-how-to-write-diary.diaryNoteBookPickerTitle": "选择日记笔记本",
+  "lets-how-to-write-diary.diaryNoteBookUseBuiltIn": "使用思源笔记自带日记本",
+  "lets-how-to-write-diary.diaryNoteBookNone": "未找到可用笔记本",
+
   "lets-how-to-write-diary.noDiaryNoteBook": "未检测到日记笔记本，请在思源笔记中打开并选择日记笔记本",
   "lets-how-to-write-diary.slashCreateRef": "创建日记引用",
   "lets-how-to-write-diary.datePickerTitle": "选择日记",
@@ -31,6 +38,13 @@ export const zhCN: typeof en = {
   "lets-how-to-write-diary.slashDiaryNote": "slash 新增「cdn/创建日记引用」提供日历选择器快捷创建指定日期的日记并插入块引",
   "lets-how-to-write-diary.topBar": "顶栏按钮快捷操作",
   "lets-how-to-write-diary.getWeather": "顶栏-获取天气并插入当前文档属性",
+
+  "lets-how-to-write-diary.diaryNoteBook": "选择日记笔记本",
+  "lets-how-to-write-diary.diaryNoteBookDesc": "日记将创建到所选笔记本下；未选择时使用思源笔记自带日记本。点击按钮重新选择。",
+  "lets-how-to-write-diary.diaryNoteBookSelect": "点击选择…",
+  "lets-how-to-write-diary.diaryNoteBookPickerTitle": "选择日记笔记本",
+  "lets-how-to-write-diary.diaryNoteBookUseBuiltIn": "使用思源笔记自带日记本",
+  "lets-how-to-write-diary.diaryNoteBookNone": "未找到可用笔记本",
 
   "lets-how-to-write-diary.noDiaryNoteBook": "未检测到日记笔记本，请在思源笔记中打开并选择日记笔记本",
   "lets-how-to-write-diary.slashCreateRef": "创建日记引用",

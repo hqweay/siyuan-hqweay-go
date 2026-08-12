@@ -154,6 +154,21 @@
       if ("selectIcon" === detail.key) {
         selectIconDialog();
       }
+    } else {
+      // 通用：将设置页 button 点击派发给对应插件实例
+      const opItem = SettingItems["开关"].find(
+        (ele) => ele.title === detail.group
+      );
+      const pluginInstance =
+        opItem && PluginRegistry.getInstance().getPlugin(opItem.key);
+      if (pluginInstance) {
+        try {
+          await pluginInstance.onSettingButtonClick?.(detail.key);
+          SettingItems = initData();
+        } catch (error) {
+          log.error("设置按钮回调执行失败:", error);
+        }
+      }
     }
   };
 
