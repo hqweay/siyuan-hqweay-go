@@ -207,6 +207,11 @@ async function initQuickInputUI() {
   `;
   document.head.appendChild(style);
 
+  const layoutTabBarShim = document.createElement("ul");
+  layoutTabBarShim.className = "layout-tab-bar";
+  layoutTabBarShim.style.cssText = "display:none";
+  document.body.appendChild(layoutTabBarShim);
+
   const editorContainer = document.createElement("div");
   editorContainer.id = "protyle-editor-container";
   document.body.appendChild(editorContainer);
