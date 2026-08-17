@@ -1,5 +1,11 @@
 # siyuan-hqweay-go
 
+## 0.26.3
+
+### Patch Changes
+
+- fix: https://github.com/hqweay/siyuan-hqweay-go/issues/22
+
 ## 0.26.2
 
 ### Patch Changes
